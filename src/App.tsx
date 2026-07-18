@@ -1,38 +1,20 @@
-import { Moon, Sun } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { Route, Routes } from 'react-router-dom'
+import { AppShell } from './app/AppShell'
+import { DashboardPage } from './pages/DashboardPage'
+import { PlaceholderPage } from './pages/PlaceholderPage'
 
 export default function App() {
-  const [dark, setDark] = useState(true)
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = dark ? 'dark' : 'light'
-  }, [dark])
-
   return (
-    <main className="app-shell" dir="rtl">
-      <header className="topbar">
-        <div>
-          <span className="eyebrow">LEGACY CORE ERP</span>
-          <h1>نظام إدارة أعمالك الجديد</h1>
-        </div>
-        <button className="theme-button" onClick={() => setDark((value) => !value)} aria-label="تغيير المظهر">
-          {dark ? <Sun size={18} /> : <Moon size={18} />}
-        </button>
-      </header>
-
-      <section className="hero-card">
-        <div className="logo-mark">LC</div>
-        <p className="status">النسخة الأولى تعمل الآن</p>
-        <h2>نبدأ بالداشبورد الخارجي، ثم نبني كل وحدة خطوة بخطوة.</h2>
-        <p className="description">
-          المشروع متصل بـ GitHub Pages، وأي تطوير جديد سيتم نشره تلقائيًا على نفس الرابط.
-        </p>
-        <div className="progress-row">
-          <div><strong>01</strong><span>App Shell</span></div>
-          <div><strong>02</strong><span>Dashboard</span></div>
-          <div><strong>03</strong><span>Projects</span></div>
-        </div>
-      </section>
-    </main>
+    <AppShell>
+      <Routes>
+        <Route path="/" element={<DashboardPage />} />
+        <Route path="/projects" element={<PlaceholderPage title="المشاريع" description="ستُبنى شاشة المشاريع بعد اعتماد الداشبورد." />} />
+        <Route path="/banks" element={<PlaceholderPage title="الخزنة والبنوك" description="إدارة الحسابات والتحويلات والحركات البنكية." />} />
+        <Route path="/advances" element={<PlaceholderPage title="العهد" description="متابعة العهد المفتوحة والمصروف والمتبقي." />} />
+        <Route path="/reports" element={<PlaceholderPage title="التقارير" description="التقارير المالية وتقارير المشاريع والمقاولين." />} />
+        <Route path="/users" element={<PlaceholderPage title="المستخدمون" description="إدارة المستخدمين والصلاحيات." />} />
+        <Route path="/settings" element={<PlaceholderPage title="الإعدادات" description="إعدادات النظام والهوية والتكاملات." />} />
+      </Routes>
+    </AppShell>
   )
 }
