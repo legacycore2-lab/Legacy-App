@@ -11,13 +11,12 @@ export function DashboardPage() {
       <DashboardHeader />
       <KpiGrid />
 
-      <div className="dashboard-details-grid">
+      <div className="dashboard-primary-grid">
         <RecentProjects />
-        <div className="dashboard-side-stack">
-          <RecentEntries />
-          <QuickActions />
-        </div>
+        <RecentEntries />
       </div>
+
+      <QuickActions />
     </section>
   )
 }
