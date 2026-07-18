@@ -1,0 +1,60 @@
+.lc-sidebar {
+  box-shadow: -18px 0 48px rgba(0, 0, 0, 0.18);
+}
+
+.lc-sidebar__brand {
+  min-height: 84px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(209, 170, 96, 0.13);
+}
+
+.lc-sidebar__mark {
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
+  background:
+    linear-gradient(145deg, rgba(224, 185, 110, 0.2), rgba(224, 185, 110, 0.035)),
+    #09251f;
+  box-shadow:
+    inset 0 0 24px rgba(224, 185, 110, 0.08),
+    0 10px 24px rgba(0, 0, 0, 0.2);
+  font-size: 17px;
+}
+
+.lc-sidebar__brand-copy strong {
+  color: #f5e4bd;
+  font-size: 15px;
+  letter-spacing: 0.1em;
+}
+
+.lc-sidebar__brand-copy span {
+  color: #d8b46e;
+}
+
+.lc-sidebar__search {
+  margin-top: 12px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.lc-sidebar__section-label {
+  color: #82978f;
+  font-size: 9px;
+}
+
+.lc-sidebar__item {
+  min-height: 46px;
+  border-radius: 12px;
+}
+
+.lc-sidebar__item.is-active {
+  border-color: rgba(209, 170, 96, 0.2);
+  background:
+    linear-gradient(90deg, rgba(19, 117, 78, 0.76), rgba(10, 74, 55, 0.92));
+  box-shadow:
+    inset -3px 0 0 #d1aa60,
+    0 12px 25px rgba(0, 0, 0, 0.18);
+}
+
+.lc-sidebar__profile {
+  border: 1px solid rgba(209, 170, 96, 0.12);
+}
