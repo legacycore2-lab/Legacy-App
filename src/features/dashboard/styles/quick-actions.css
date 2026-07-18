@@ -1,0 +1,50 @@
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.quick-action {
+  min-height: 92px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4px;
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  text-align: right;
+  background: var(--surface-soft);
+  cursor: pointer;
+  transition: transform 160ms ease, border-color 160ms ease;
+}
+
+.quick-action:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--gold) 52%, var(--border));
+}
+
+.quick-action > span {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 3px;
+  border-radius: 9px;
+  color: var(--gold);
+  background: var(--gold-soft);
+}
+
+.quick-action small {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+@media (max-width: 900px) {
+  .quick-actions-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 520px) {
+  .quick-action { min-height: 88px; }
+}
