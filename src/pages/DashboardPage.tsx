@@ -1,4 +1,8 @@
 import { ArrowDownLeft, ArrowUpRight, BriefcaseBusiness, WalletCards } from 'lucide-react'
+import { QuickActions } from '../features/dashboard/components/QuickActions'
+import { RecentEntries } from '../features/dashboard/components/RecentEntries'
+import { RecentProjects } from '../features/dashboard/components/RecentProjects'
+import '../features/dashboard/dashboard.css'
 
 const kpis = [
   { label: 'إجمالي الرصيد', value: '2,458,750', trend: '+12.5%', icon: WalletCards, tone: 'green' },
@@ -9,38 +13,29 @@ const kpis = [
 
 export function DashboardPage() {
   return (
-    <section className="dashboard-preview">
+    <section className="dashboard-details">
       <div className="welcome-panel">
-        <span className="welcome-kicker">مرحبًا بعودتك</span>
+        <span className="welcome-kicker">ملخص اليوم</span>
         <h1>Mahmoud</h1>
-        <p>الهيكل الخارجي أصبح جاهزًا، ونبدأ بعد موافقتك في تفاصيل الداشبورد.</p>
+        <p>تابع حركة المشاريع والحسابات وآخر القيود من مكان واحد.</p>
       </div>
 
       <div className="kpi-grid">
         {kpis.map(({ label, value, trend, icon: Icon, tone }) => (
           <article className="kpi-card" key={label}>
             <div className={`kpi-icon ${tone}`}><Icon size={22} /></div>
-            <div>
-              <span>{label}</span>
-              <strong>{value}</strong>
-              <small>ج.م</small>
-            </div>
+            <div><span>{label}</span><strong>{value}</strong><small>ج.م</small></div>
             <em className={trend.startsWith('-') ? 'negative' : 'positive'}>{trend}</em>
           </article>
         ))}
       </div>
 
-      <div className="shell-status-grid">
-        <article className="status-card">
-          <span>المرحلة الحالية</span>
-          <h2>App Shell</h2>
-          <p>Sidebar + Topbar + Responsive + Theme System</p>
-        </article>
-        <article className="status-card accent-card">
-          <span>الخطوة التالية</span>
-          <h2>Dashboard Details</h2>
-          <p>المشاريع، آخر القيود، التنبيهات، وحالات الحسابات.</p>
-        </article>
+      <div className="dashboard-details-grid">
+        <RecentProjects />
+        <div className="dashboard-side-stack">
+          <RecentEntries />
+          <QuickActions />
+        </div>
       </div>
     </section>
   )
