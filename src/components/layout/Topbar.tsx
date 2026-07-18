@@ -55,13 +55,13 @@ export function Topbar({ theme, onToggleTheme, onOpenMenu }: TopbarProps) {
       </label>
 
       <div className="topbar-quick-actions">
-        <button className="quick-action primary" type="button" onClick={() => navigate('/projects')}>
+        <button className="topbar-quick-action primary" type="button" onClick={() => navigate('/projects')}>
           <FolderPlus size={18} />
           <span>إضافة مشروع</span>
         </button>
 
         <button
-          className="quick-action secondary"
+          className="topbar-quick-action secondary"
           type="button"
           disabled
           title="سيتم تفعيله بعد إنشاء شاشة القيود"
