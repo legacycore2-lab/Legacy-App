@@ -3,23 +3,48 @@
 }
 
 .lc-sidebar__brand {
-  min-height: 84px;
+  min-height: 88px;
   padding-bottom: 18px;
   border-bottom: 1px solid rgba(209, 170, 96, 0.13);
 }
 
 .lc-sidebar__mark {
-  width: 50px;
-  height: 50px;
-  border-radius: 15px;
+  width: 54px;
+  height: 54px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
   background:
-    linear-gradient(145deg, rgba(224, 185, 110, 0.2), rgba(224, 185, 110, 0.035)),
-    #09251f;
+    radial-gradient(circle at 72% 20%, rgba(224, 185, 110, 0.2), transparent 34%),
+    linear-gradient(145deg, rgba(224, 185, 110, 0.16), rgba(224, 185, 110, 0.025)),
+    #08231e;
   box-shadow:
     inset 0 0 24px rgba(224, 185, 110, 0.08),
-    0 10px 24px rgba(0, 0, 0, 0.2);
-  font-size: 17px;
+    0 12px 26px rgba(0, 0, 0, 0.22);
 }
+
+.lc-sidebar__mark strong {
+  position: absolute;
+  right: 7px;
+  bottom: 8px;
+  color: #f0ca7b;
+  font: 700 13px/1 Manrope, sans-serif;
+  letter-spacing: -0.08em;
+  z-index: 2;
+}
+
+.lc-sidebar__tower {
+  position: absolute;
+  bottom: 8px;
+  width: 5px;
+  border-radius: 2px 2px 0 0;
+  background: linear-gradient(180deg, #f1cc80, #a9782e);
+  box-shadow: 0 0 10px rgba(224, 185, 110, 0.12);
+}
+
+.lc-sidebar__tower.tower-one { left: 9px; height: 19px; }
+.lc-sidebar__tower.tower-two { left: 17px; height: 28px; }
+.lc-sidebar__tower.tower-three { left: 25px; height: 38px; }
 
 .lc-sidebar__brand-copy strong {
   color: #f5e4bd;
@@ -47,9 +72,9 @@
 }
 
 .lc-sidebar__item.is-active {
-  border-color: rgba(209, 170, 96, 0.2);
+  border-color: rgba(209, 170, 96, 0.22);
   background:
-    linear-gradient(90deg, rgba(19, 117, 78, 0.76), rgba(10, 74, 55, 0.92));
+    linear-gradient(90deg, rgba(19, 117, 78, 0.8), rgba(10, 74, 55, 0.94));
   box-shadow:
     inset -3px 0 0 #d1aa60,
     0 12px 25px rgba(0, 0, 0, 0.18);
@@ -57,4 +82,12 @@
 
 .lc-sidebar__profile {
   border: 1px solid rgba(209, 170, 96, 0.12);
+}
+
+@media (max-width: 1100px) and (min-width: 761px) {
+  .lc-sidebar__mark { width: 48px; height: 48px; }
+  .lc-sidebar__mark strong { right: 6px; bottom: 7px; font-size: 11px; }
+  .lc-sidebar__tower.tower-one { left: 8px; height: 16px; }
+  .lc-sidebar__tower.tower-two { left: 15px; height: 24px; }
+  .lc-sidebar__tower.tower-three { left: 22px; height: 33px; }
 }
