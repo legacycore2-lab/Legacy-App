@@ -1,4 +1,4 @@
-import { ChevronDown, LogOut, Menu, X } from 'lucide-react'
+import { ChevronDown, LogOut, X } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { navigationItems } from '../../app/navigation'
 
@@ -59,10 +59,6 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           </button>
         </div>
       </aside>
-
-      <button className="mobile-menu-trigger" onClick={() => (open ? onClose() : undefined)} aria-hidden="true">
-        <Menu size={20} />
-      </button>
     </>
   )
 }
