@@ -7,6 +7,7 @@ import {
   type NavigationItem,
 } from '../../app/navigation'
 import './sidebar.css'
+import './sidebar-polish.css'
 
 type SidebarProps = {
   open: boolean
