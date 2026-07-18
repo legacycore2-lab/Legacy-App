@@ -45,8 +45,10 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       <aside className={`sidebar lc-sidebar ${open ? 'is-open' : ''}`}>
         <div className="lc-sidebar__brand">
           <div className="lc-sidebar__mark" aria-hidden="true">
-            <span>L</span>
-            <span>C</span>
+            <span className="lc-sidebar__tower tower-one" />
+            <span className="lc-sidebar__tower tower-two" />
+            <span className="lc-sidebar__tower tower-three" />
+            <strong>LC</strong>
           </div>
 
           <div className="lc-sidebar__brand-copy">
