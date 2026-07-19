@@ -1,5 +1,5 @@
 import { ArrowDownLeft, ArrowUpRight } from 'lucide-react'
-import { dashboardEntries } from '../dashboard.data'
+import { dashboardEntries } from '../data/dashboard.mock'
 
 export function RecentEntries() {
   return (
