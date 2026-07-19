@@ -6,6 +6,7 @@ import { ProjectsToolbar } from '../features/projects/components/ProjectsToolbar
 import { projectsMock } from '../features/projects/data/projects.mock'
 import type { ProjectStatusFilter } from '../features/projects/types/project.types'
 import '../features/projects/projects.css'
+import '../features/projects/projects-table.css'
 
 export function ProjectsPage() {
   const [query, setQuery] = useState('')
