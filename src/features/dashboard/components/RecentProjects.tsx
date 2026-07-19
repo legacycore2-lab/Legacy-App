@@ -1,5 +1,5 @@
 import { ArrowUpLeft } from 'lucide-react'
-import { dashboardProjects } from '../dashboard.data'
+import { dashboardProjects } from '../data/dashboard.mock'
 
 export function RecentProjects() {
   return (
