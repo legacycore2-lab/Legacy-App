@@ -1,4 +1,4 @@
-import { Filter, Grid2X2, Search, SlidersHorizontal } from 'lucide-react'
+import { Filter, Search, SlidersHorizontal } from 'lucide-react'
 import type { ProjectStatusFilter } from '../types/project.types'
 
 type ProjectsToolbarProps = {
@@ -31,8 +31,10 @@ export function ProjectsToolbar({ query, status, onQueryChange, onStatusChange }
         </select>
       </label>
 
-      <button className="projects-toolbar__button" type="button"><SlidersHorizontal size={17} /> تصفية متقدمة</button>
-      <button className="projects-view-button is-active" type="button" aria-label="عرض الكروت"><Grid2X2 size={18} /></button>
+      <button className="projects-toolbar__button" type="button">
+        <SlidersHorizontal size={17} />
+        تصفية متقدمة
+      </button>
     </div>
   )
 }
