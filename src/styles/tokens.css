@@ -1,0 +1,54 @@
+:root {
+  --font-body: 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --font-display: Manrope, 'IBM Plex Sans Arabic', sans-serif;
+
+  --bg: #edf1ed;
+  --surface: rgba(255, 255, 255, 0.84);
+  --surface-strong: #ffffff;
+  --surface-soft: rgba(245, 248, 245, 0.82);
+  --text: #13231d;
+  --muted: #68766f;
+  --gold: #c8a55f;
+  --gold-soft: rgba(200, 165, 95, 0.16);
+  --green: #4d9b68;
+  --green-soft: rgba(77, 155, 104, 0.14);
+  --danger: #d9554d;
+  --border: rgba(27, 60, 45, 0.12);
+
+  --radius-sm: 7px;
+  --radius-md: 11px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --shadow-card: 0 22px 60px rgba(28, 52, 42, 0.12);
+  --shadow-topbar: 0 14px 34px rgba(0, 0, 0, 0.11);
+
+  --sidebar-text: #f6f3e9;
+  --sidebar-muted: #82958e;
+  --sidebar-soft: #aebdb7;
+  --sidebar-accent: #d1aa60;
+  --sidebar-gold-light: #e0b96e;
+  --sidebar-bg-start: #06211d;
+  --sidebar-bg-mid: #041915;
+  --sidebar-bg-end: #031310;
+  --sidebar-surface: #08231e;
+  --sidebar-active-start: rgba(19, 117, 78, 0.8);
+  --sidebar-active-end: rgba(10, 74, 55, 0.94);
+}
+
+:root[data-theme='dark'] {
+  --bg: #06100e;
+  --surface: rgba(11, 25, 22, 0.86);
+  --surface-strong: #0c1a17;
+  --surface-soft: rgba(17, 35, 30, 0.82);
+  --text: #f2f4ef;
+  --muted: #98a8a0;
+  --gold: #d1aa60;
+  --gold-soft: rgba(209, 170, 96, 0.14);
+  --green: #75bf83;
+  --green-soft: rgba(67, 145, 83, 0.17);
+  --danger: #f05c51;
+  --border: rgba(209, 170, 96, 0.15);
+  --shadow-card: 0 24px 70px rgba(0, 0, 0, 0.34);
+  --shadow-topbar: 0 14px 34px rgba(0, 0, 0, 0.24);
+}
