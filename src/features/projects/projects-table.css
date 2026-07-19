@@ -1,1 +1,116 @@
-.projects-table-shell{border:1px solid var(--border);border-radius:var(--radius-xl);background:var(--surface);box-shadow:var(--shadow-card);overflow:hidden}.projects-table-scroll{overflow:auto}.projects-table{width:100%;min-width:980px;border-collapse:collapse}.projects-table th,.projects-table td{padding:15px 14px;border-bottom:1px solid var(--border);text-align:right;color:var(--text);white-space:nowrap}.projects-table th{font-size:12px;color:var(--muted);background:var(--surface-soft)}.projects-table tbody tr{transition:background .2s ease}.projects-table tbody tr:hover{background:color-mix(in srgb,var(--green-soft) 45%,transparent)}.projects-table td strong,.projects-table td small{display:block}.projects-table td small{margin-top:4px;color:var(--muted)}.money-positive{color:var(--green)!important;font-weight:800}.money-negative{color:var(--danger)!important;font-weight:800}.table-progress{position:relative;width:110px;height:28px;padding-top:20px}.table-progress:before{content:'';position:absolute;top:8px;right:0;left:0;height:6px;border-radius:999px;background:var(--border)}.table-progress span{position:absolute;top:8px;right:0;height:6px;border-radius:999px;background:linear-gradient(90deg,var(--green),var(--gold))}.table-progress b{font-size:11px;color:var(--muted)}.table-actions{display:flex;gap:6px}.table-actions button,.excel-dialog header button{display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--border);border-radius:10px;background:var(--surface-soft);color:var(--muted);cursor:pointer}.excel-dialog-backdrop{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:24px;background:rgba(2,12,9,.78);backdrop-filter:blur(10px)}.excel-dialog{width:min(1050px,100%);max-height:92vh;overflow:auto;padding:24px;border:1px solid var(--border);border-radius:24px;background:var(--surface);box-shadow:0 30px 90px rgba(0,0,0,.35)}.excel-dialog header{display:flex;justify-content:space-between;gap:20px}.excel-dialog header span{color:var(--gold);font-weight:800;font-size:12px}.excel-dialog header h2{margin:5px 0;color:var(--text)}.excel-dialog header p{margin:0;color:var(--muted)}.excel-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:22px 0}.excel-steps b{padding:12px;border:1px solid var(--border);border-radius:12px;text-align:center;color:var(--muted);font-size:12px}.excel-steps b.is-active{color:var(--gold);border-color:color-mix(in srgb,var(--gold) 50%,var(--border));background:var(--gold-soft)}.excel-dropzone{display:grid;place-items:center;gap:9px;min-height:190px;border:1.5px dashed color-mix(in srgb,var(--gold) 55%,var(--border));border-radius:18px;background:var(--surface-soft);color:var(--text);cursor:pointer}.excel-dropzone input{display:none}.excel-dropzone small{color:var(--muted)}.excel-preview{margin-top:18px;border:1px solid var(--border);border-radius:16px;overflow:hidden}.excel-preview__meta{display:flex;justify-content:space-between;padding:13px;background:var(--surface-soft);color:var(--text)}.excel-preview__meta span{display:flex;align-items:center;gap:7px}.excel-preview__table{overflow:auto}.excel-preview table{width:100%;min-width:720px;border-collapse:collapse}.excel-preview th,.excel-preview td{padding:10px;border-bottom:1px solid var(--border);text-align:right;color:var(--text);font-size:12px}.excel-dialog footer{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}.excel-dialog button:disabled{opacity:.45;cursor:not-allowed}@media(max-width:760px){.excel-dialog{padding:16px}.excel-steps{grid-template-columns:1fr 1fr}.projects-table th,.projects-table td{padding:12px 10px}}
+.projects-table-shell {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+
+.projects-table-scroll {
+  overflow: auto;
+}
+
+.projects-table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: collapse;
+}
+
+.projects-table th,
+.projects-table td {
+  padding: 15px 14px;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.projects-table th {
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.projects-table tbody tr {
+  transition: background .2s ease;
+}
+
+.projects-table tbody tr:hover {
+  background: color-mix(in srgb, var(--green-soft) 45%, transparent);
+}
+
+.projects-table td strong,
+.projects-table td small {
+  display: block;
+}
+
+.projects-table td small {
+  margin-top: 4px;
+  color: var(--muted);
+}
+
+.money-positive {
+  color: var(--green) !important;
+  font-weight: 800;
+}
+
+.money-negative {
+  color: var(--danger) !important;
+  font-weight: 800;
+}
+
+.table-progress {
+  position: relative;
+  width: 110px;
+  height: 28px;
+  padding-top: 20px;
+}
+
+.table-progress::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  right: 0;
+  left: 0;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--border);
+}
+
+.table-progress span {
+  position: absolute;
+  top: 8px;
+  right: 0;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--green), var(--gold));
+}
+
+.table-progress b {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.table-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.table-actions button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+@media (max-width: 760px) {
+  .projects-table th,
+  .projects-table td {
+    padding: 12px 10px;
+  }
+}
