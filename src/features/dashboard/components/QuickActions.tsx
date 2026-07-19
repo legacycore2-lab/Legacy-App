@@ -1,4 +1,4 @@
-import { dashboardActions } from '../dashboard.data'
+import { dashboardActions } from '../data/dashboard.mock'
 
 export function QuickActions() {
   return (
