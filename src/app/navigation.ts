@@ -1,5 +1,6 @@
 import {
   Banknote,
+  BookOpenCheck,
   BriefcaseBusiness,
   FileBarChart,
   Gauge,
@@ -33,6 +34,13 @@ export const navigationItems: NavigationItem[] = [
     icon: BriefcaseBusiness,
     section: 'main',
     keywords: ['مشروع', 'projects'],
+  },
+  {
+    label: 'القيود اليومية',
+    path: '/journal',
+    icon: BookOpenCheck,
+    section: 'finance',
+    keywords: ['قيد', 'قيود', 'يومية', 'مصروفات', 'إيرادات', 'journal'],
   },
   {
     label: 'الخزنة والبنوك',
