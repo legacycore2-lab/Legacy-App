@@ -7,14 +7,8 @@ import type {
 } from '../types/journal.types'
 import { mapJournalEntry } from './journal.mapper'
 
-export function summarizeJournalPage(
-  entries: JournalEntry[],
-  totalCount: number,
-): JournalSummary {
-  const pageIncome = entries.reduce(
-    (total, entry) => total + (entry.type === 'income' ? entry.amount : 0),
-    0,
-  )
+export function summarizeJournalPage(entries: JournalEntry[], totalCount: number): JournalSummary {
+  const pageIncome = entries.reduce((total, entry) => total + (entry.type === 'income' ? entry.amount : 0), 0)
   const pageExpense = entries.reduce(
     (total, entry) => total + (entry.type === 'expense' ? entry.amount : 0),
     0,
@@ -28,9 +22,7 @@ export function summarizeJournalPage(
   }
 }
 
-export async function getJournalPage(
-  request: JournalPageRequest,
-): Promise<JournalPageResult> {
+export async function getJournalPage(request: JournalPageRequest): Promise<JournalPageResult> {
   const pageSize = Math.min(Math.max(Math.trunc(request.pageSize), 1), 100)
   const page = Math.max(Math.trunc(request.page), 1)
   const result = await findJournalEntries({
