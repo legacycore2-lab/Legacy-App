@@ -1,10 +1,15 @@
-import { findProjects } from '../repositories/projects.repository'
-import { mapProjectRecord } from './project.mapper'
+import { findProjects, insertProject } from '../repositories/projects.repository'
 import type { Project, ProjectRow, ProjectsSummary } from '../types/project.types'
+import type { ProjectFormValues } from './project-form.service'
+import { mapProjectRecord } from './project.mapper'
 
 export async function getProjects(): Promise<Project[]> {
   const records = await findProjects()
   return records.map(mapProjectRecord)
+}
+
+export async function createProject(values: ProjectFormValues): Promise<void> {
+  await insertProject(values)
 }
 
 export function summarizeProjects(projects: Project[]): ProjectsSummary {
