@@ -9,7 +9,9 @@ type DashboardSourceData = Omit<DashboardData, 'alerts'>
 
 export async function findDashboardData(): Promise<DashboardSourceData> {
   const projectRecords = await findDashboardProjects()
-  const projectEntries = await findDashboardProjectEntries(projectRecords.map((project) => project.id))
+  const projectEntries = await findDashboardProjectEntries(
+    projectRecords.map((project) => project.id),
+  )
   const balances = buildDashboardProjectBalances(projectEntries)
 
   return {
