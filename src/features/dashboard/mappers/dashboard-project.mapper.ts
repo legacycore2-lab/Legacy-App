@@ -16,7 +16,7 @@ export function mapDashboardProject(record: DashboardProjectRecord, balance: num
     name: record.name,
     client: record.client_name?.trim() || 'عميل غير مسجل',
     balance: formatDashboardCurrency(balance),
-    progress: normalizeProgress(record.progress, isCompleted),
+    progress: normalizeProgress(record.progress ?? null, isCompleted),
     status: isCompleted ? 'مكتمل' : 'جاري',
   }
 }
