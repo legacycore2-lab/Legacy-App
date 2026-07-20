@@ -27,9 +27,7 @@ export function RecentActivityPanel({ entries }: { entries: DashboardEntry[] }) 
                   {entry.project} · {entry.date}
                 </span>
               </div>
-              <b className={`activity-feed__amount activity-feed__amount--${entry.type}`}>
-                {entry.amount}
-              </b>
+              <b className={`activity-feed__amount activity-feed__amount--${entry.type}`}>{entry.amount}</b>
             </article>
           )
         })}
