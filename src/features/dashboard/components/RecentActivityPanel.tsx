@@ -2,17 +2,23 @@ import { ArrowDownLeft, ArrowUpRight, Clock3, ReceiptText } from 'lucide-react'
 import type { DashboardEntry } from '../types/dashboard.types'
 import { PanelEmptyState } from './PanelEmptyState'
 
+function toDisplayReference(id: string): string {
+  return id.startsWith('#') ? id : 'قيد مالي'
+}
+
 export function RecentActivityPanel({ entries }: { entries: DashboardEntry[] }) {
   const recentEntries = entries.slice(0, 4)
 
   return (
-    <section className="command-panel">
+    <section className="command-panel command-panel--activity">
       <header className="command-panel__header">
         <div>
           <span>الحركة المالية</span>
           <h2>آخر النشاط</h2>
         </div>
-        <Clock3 size={20} aria-hidden="true" />
+        <span className="command-panel__header-icon" aria-hidden="true">
+          <Clock3 size={19} />
+        </span>
       </header>
 
       {recentEntries.length ? (
@@ -31,12 +37,14 @@ export function RecentActivityPanel({ entries }: { entries: DashboardEntry[] }) 
                   <div className="activity-timeline__topline">
                     <strong>{entry.description}</strong>
                     <b className={`activity-timeline__amount activity-timeline__amount--${entry.type}`}>
-                      {entry.amount}
+                      {isIncome ? '+' : '-'} {entry.amount}
                     </b>
                   </div>
 
                   <span className="activity-timeline__meta">
-                    {entry.project} · {entry.date} · {entry.id}
+                    <b>{entry.project}</b>
+                    <span>{entry.date}</span>
+                    <span>{toDisplayReference(entry.id)}</span>
                   </span>
                 </article>
               </li>
