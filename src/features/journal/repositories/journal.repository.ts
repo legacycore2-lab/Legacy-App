@@ -18,6 +18,7 @@ export type JournalEntriesQuery = {
   limit: number
   query: string
   type: 'all' | 'income' | 'expense'
+  projectId?: string
 }
 
 export type JournalEntriesResult = {
@@ -54,6 +55,7 @@ export async function findJournalEntries(query: JournalEntriesQuery): Promise<Jo
     .order('entry_number', { ascending: false })
     .range(query.offset, query.offset + query.limit - 1)
 
+  if (query.projectId) request = request.eq('project_id', query.projectId)
   if (query.type !== 'all') request = request.eq('entry_type', query.type)
 
   const search = normalizeSearch(query.query)
