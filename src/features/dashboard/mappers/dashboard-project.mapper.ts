@@ -3,15 +3,19 @@ import type { DashboardProject } from '../types/dashboard.types'
 
 const currency = new Intl.NumberFormat('ar-EG')
 
-export function mapDashboardProject(record: DashboardProjectRecord, balance: number): DashboardProject {
+export function mapDashboardProject(
+  record: DashboardProjectRecord,
+  balance: number,
+  progress: number,
+): DashboardProject {
   const isCompleted = Boolean(record.close_date)
 
   return {
     id: record.id,
     name: record.name,
-    client: 'غير مسجل',
+    client: 'غير متاح في بيانات المشروع',
     balance: `${currency.format(balance)} ج.م`,
-    progress: isCompleted ? 100 : 0,
+    progress,
     status: isCompleted ? 'مكتمل' : 'جاري',
   }
 }
