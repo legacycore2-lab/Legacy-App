@@ -30,7 +30,10 @@ export type ProjectEntriesQuery = {
 }
 
 function normalizeSearch(value: string): string {
-  return value.replace(/[(),%_]/g, ' ').replace(/\s+/g, ' ').trim()
+  return value
+    .replace(/[(),%_]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 export async function findProjectDetails(projectId: string): Promise<ProjectDetailsRecord | null> {
