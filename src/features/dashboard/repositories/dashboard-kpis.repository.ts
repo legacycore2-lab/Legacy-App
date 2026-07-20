@@ -14,10 +14,7 @@ export async function findDashboardKpiSource(): Promise<DashboardKpiSource> {
   const supabase = getSupabaseClient()
   const [entriesResult, projectsResult] = await Promise.all([
     supabase.from('entries').select('type, amount'),
-    supabase
-      .from('projects')
-      .select('id', { count: 'exact', head: true })
-      .eq('is_archived', false),
+    supabase.from('projects').select('id', { count: 'exact', head: true }).eq('is_archived', false),
   ])
 
   if (entriesResult.error) throw entriesResult.error
