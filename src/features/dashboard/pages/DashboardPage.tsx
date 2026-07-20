@@ -19,7 +19,7 @@ export function DashboardPage() {
 
   return (
     <section className="dashboard-details dashboard-command-center">
-      <DashboardHeader />
+      <DashboardHeader projects={data.projects} alerts={data.alerts} kpis={data.kpis} />
       <KpiGrid kpis={data.kpis} />
       <CommandCenterPanels projects={data.projects} entries={data.entries} alerts={data.alerts} />
       <QuickActions actions={data.actions} />
