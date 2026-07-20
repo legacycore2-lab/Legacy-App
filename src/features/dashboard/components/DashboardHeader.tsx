@@ -13,12 +13,7 @@ function findKpiValue(kpis: DashboardKpi[], label: string): string {
 
 export function DashboardHeader({ projects, alerts, kpis }: DashboardHeaderProps) {
   const summaryItems = [
-    {
-      label: 'مشاريع نشطة',
-      value: String(projects.length),
-      icon: FolderKanban,
-      tone: 'green',
-    },
+    { label: 'مشاريع نشطة', value: String(projects.length), icon: FolderKanban, tone: 'green' },
     {
       label: 'تنبيهات تحتاج مراجعة',
       value: String(alerts.length),
