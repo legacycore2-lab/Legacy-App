@@ -11,4 +11,12 @@ export type AuthUser = {
 export type LoginCredentials = {
   email: string
   password: string
+  remember: boolean
+}
+
+export type AuthIdentity = {
+  id: string
+  email: string
+  fullName: string | null
+  role: unknown
 }

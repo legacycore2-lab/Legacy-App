@@ -9,7 +9,7 @@ type SidebarProps = {
   onClose: () => void
   userName: string
   roleLabel: string
-  canManageSystem: boolean
+  canAccess: (path: string) => boolean
   onLogout: () => void
 }
 
@@ -23,17 +23,12 @@ function matchesSearch(item: NavigationItem, query: string) {
   return searchableText.includes(normalizedQuery)
 }
 
-export function Sidebar({ open, onClose, userName, roleLabel, canManageSystem, onLogout }: SidebarProps) {
+export function Sidebar({ open, onClose, userName, roleLabel, canAccess, onLogout }: SidebarProps) {
   const [searchQuery, setSearchQuery] = useState('')
 
   const filteredItems = useMemo(
-    () =>
-      navigationItems.filter(
-        (item) =>
-          (canManageSystem || (item.path !== '/users' && item.path !== '/settings')) &&
-          matchesSearch(item, searchQuery),
-      ),
-    [canManageSystem, searchQuery],
+    () => navigationItems.filter((item) => canAccess(item.path) && matchesSearch(item, searchQuery)),
+    [canAccess, searchQuery],
   )
 
   const avatarLetter = userName.trim().charAt(0) || 'م'

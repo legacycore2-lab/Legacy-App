@@ -20,14 +20,49 @@ for (const file of files) {
   const source = readFileSync(file, 'utf8')
   const imports = [...source.matchAll(/from\s+['"]([^'"]+)['"]/g)].map((match) => match[1])
 
-  if (/\/(components|pages|hooks)\//.test(`/${path}`)) {
-    for (const value of imports) {
-      const targetPath = value.startsWith('.')
-        ? relative(root, resolve(dirname(file), value)).replaceAll('\\', '/')
-        : value
-      if (targetPath.includes('/repositories/') || targetPath.startsWith('lib/supabase')) {
-        violations.push(`${path}: UI/Hook must not import Repository or Supabase (${value})`)
+  for (const value of imports) {
+    const targetPath = value.startsWith('.')
+      ? relative(root, resolve(dirname(file), value)).replaceAll('\\', '/')
+      : value
+
+    if (/\/(components|pages|providers)\//.test(`/${path}`)) {
+      if (
+        targetPath.includes('/services/') ||
+        targetPath.includes('/repositories/') ||
+        targetPath.startsWith('lib/supabase')
+      ) {
+        violations.push(`${path}: UI must use Hooks, not Service/Repository/Supabase (${value})`)
       }
+    }
+
+    if (/\/hooks\//.test(`/${path}`)) {
+      if (targetPath.includes('/repositories/') || targetPath.startsWith('lib/supabase')) {
+        violations.push(`${path}: Hook must use Service, not Repository/Supabase (${value})`)
+      }
+    }
+
+    if (/\/services\//.test(`/${path}`)) {
+      if (
+        value.startsWith('@supabase/') ||
+        targetPath.startsWith('lib/supabase') ||
+        /\/(components|pages|hooks|providers)\//.test(`/${targetPath}`)
+      ) {
+        violations.push(`${path}: Service must stay independent from UI and Supabase SDK (${value})`)
+      }
+    }
+
+    if (/\/repositories\//.test(`/${path}`)) {
+      if (/\/(components|pages|hooks|providers|services)\//.test(`/${targetPath}`)) {
+        violations.push(`${path}: Repository must not depend on upper layers (${value})`)
+      }
+    }
+
+    if (
+      value.startsWith('@supabase/') &&
+      !path.includes('/repositories/') &&
+      !path.startsWith('lib/supabase/')
+    ) {
+      violations.push(`${path}: Supabase SDK is restricted to Repository/Infrastructure (${value})`)
     }
   }
 

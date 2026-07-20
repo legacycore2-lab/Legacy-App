@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import type { ReactNode } from 'react'
-import type { AppRole } from '../types/auth.types'
 import { useAuth } from '../hooks/useAuth'
+import { usePermissions } from '../hooks/usePermissions'
 import { AuthLoadingScreen } from './AuthLoadingScreen'
 
 export function ProtectedRoute() {
@@ -23,12 +23,12 @@ export function PublicOnlyRoute() {
   return <Outlet />
 }
 
-type RequireRoleProps = {
-  allowed: AppRole[]
+type RequireRouteAccessProps = {
+  path: string
   children: ReactNode
 }
 
-export function RequireRole({ allowed, children }: RequireRoleProps) {
-  const { user } = useAuth()
-  return user && allowed.includes(user.role) ? children : <Navigate to="/" replace />
+export function RequireRouteAccess({ path, children }: RequireRouteAccessProps) {
+  const canAccess = usePermissions()
+  return canAccess(path) ? children : <Navigate to="/" replace />
 }
