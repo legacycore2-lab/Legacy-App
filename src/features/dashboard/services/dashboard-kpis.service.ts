@@ -1,22 +1,16 @@
 import { ArrowDownLeft, ArrowUpRight, FolderKanban, WalletCards } from 'lucide-react'
 import type { DashboardKpiSource } from '../repositories/dashboard-kpis.repository'
 import type { DashboardKpi } from '../types/dashboard.types'
-
-const currency = new Intl.NumberFormat('ar-EG')
-
-function toAmount(value: number | string | null): number {
-  const amount = Number(value)
-  return Number.isFinite(amount) ? amount : 0
-}
-
-function formatCurrency(value: number): string {
-  return `${currency.format(value)} ج.م`
-}
+import {
+  formatDashboardCurrency,
+  formatDashboardNumber,
+  toDashboardAmount,
+} from '../utils/dashboard-formatters'
 
 export function buildDashboardKpis(source: DashboardKpiSource): DashboardKpi[] {
   const totals = source.entries.reduce(
     (result, entry) => {
-      const amount = toAmount(entry.amount)
+      const amount = toDashboardAmount(entry.amount)
 
       if (entry.type === 'i') result.income += amount
       if (entry.type === 'e') result.expense += amount
@@ -31,28 +25,28 @@ export function buildDashboardKpis(source: DashboardKpiSource): DashboardKpi[] {
   return [
     {
       label: 'إجمالي الرصيد',
-      value: formatCurrency(balance),
+      value: formatDashboardCurrency(balance),
       trend: 'بيانات مباشرة',
       icon: WalletCards,
       tone: balance >= 0 ? 'green' : 'gold',
     },
     {
       label: 'إجمالي الإيرادات',
-      value: formatCurrency(totals.income),
+      value: formatDashboardCurrency(totals.income),
       trend: 'بيانات مباشرة',
       icon: ArrowDownLeft,
       tone: 'green',
     },
     {
       label: 'إجمالي المصروفات',
-      value: formatCurrency(totals.expense),
+      value: formatDashboardCurrency(totals.expense),
       trend: 'بيانات مباشرة',
       icon: ArrowUpRight,
       tone: 'gold',
     },
     {
       label: 'المشاريع النشطة',
-      value: currency.format(source.activeProjectsCount),
+      value: formatDashboardNumber(source.activeProjectsCount),
       trend: 'غير مؤرشفة',
       icon: FolderKanban,
       tone: 'green',
