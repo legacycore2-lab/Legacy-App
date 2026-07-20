@@ -1,8 +1,9 @@
-import { findJournalEntries } from '../repositories/journal.repository'
+import { findJournalEntries, findJournalProject } from '../repositories/journal.repository'
 import type {
   JournalEntry,
   JournalPageRequest,
   JournalPageResult,
+  JournalProjectHeader,
   JournalSummary,
 } from '../types/journal.types'
 import { mapJournalEntry } from './journal.mapper'
@@ -19,6 +20,19 @@ export function summarizeJournalPage(entries: JournalEntry[], totalCount: number
     pageIncome,
     pageExpense,
     pageNet: pageIncome - pageExpense,
+  }
+}
+
+export async function getJournalProject(projectId: string): Promise<JournalProjectHeader | null> {
+  const record = await findJournalProject(projectId)
+  if (!record) return null
+
+  return {
+    id: record.id,
+    name: record.name,
+    startDate: record.start_date ?? '—',
+    endDate: record.close_date ?? '—',
+    status: record.is_archived ? 'archived' : record.close_date ? 'completed' : 'active',
   }
 }
 
