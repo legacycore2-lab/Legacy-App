@@ -1,4 +1,5 @@
 import { Eye, MoreHorizontal, Pencil } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import type { ProjectRow } from '../types/project.types'
 
 type Props = { projects: ProjectRow[] }
@@ -7,6 +8,8 @@ const money = new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 0 })
 const statusLabel = { active: 'مفتوح', completed: 'مكتمل', paused: 'متوقف', archived: 'مؤرشف' }
 
 export function ProjectsTable({ projects }: Props) {
+  const navigate = useNavigate()
+
   return (
     <div className="projects-table-shell">
       <div className="projects-table-scroll">
@@ -51,13 +54,13 @@ export function ProjectsTable({ projects }: Props) {
                   </td>
                   <td>
                     <div className="table-actions">
-                      <button title="عرض">
+                      <button type="button" title="عرض" onClick={() => navigate(`/projects/${project.id}`)}>
                         <Eye size={16} />
                       </button>
-                      <button title="تعديل">
+                      <button type="button" title="تعديل" disabled>
                         <Pencil size={16} />
                       </button>
-                      <button title="المزيد">
+                      <button type="button" title="المزيد" disabled>
                         <MoreHorizontal size={16} />
                       </button>
                     </div>
