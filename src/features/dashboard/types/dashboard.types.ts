@@ -28,6 +28,7 @@ export type DashboardEntry = {
 export type DashboardAction = {
   label: string
   description: string
+  path: string
   icon: LucideIcon
 }
 
