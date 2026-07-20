@@ -13,6 +13,14 @@ export type JournalEntryRecord = {
   project: { name: string } | { name: string }[] | null
 }
 
+export type JournalProjectRecord = {
+  id: string
+  name: string
+  start_date: string | null
+  close_date: string | null
+  is_archived: boolean | null
+}
+
 export type JournalEntriesQuery = {
   offset: number
   limit: number
@@ -31,6 +39,17 @@ function normalizeSearch(value: string): string {
     .replace(/[(),%_]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
+}
+
+export async function findJournalProject(projectId: string): Promise<JournalProjectRecord | null> {
+  const { data, error } = await getSupabaseClient()
+    .from('projects')
+    .select('id, name, start_date, close_date, is_archived')
+    .eq('id', projectId)
+    .maybeSingle()
+
+  if (error) throw error
+  return data as JournalProjectRecord | null
 }
 
 export async function findJournalEntries(query: JournalEntriesQuery): Promise<JournalEntriesResult> {
