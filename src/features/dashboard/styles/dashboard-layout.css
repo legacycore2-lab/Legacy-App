@@ -125,3 +125,29 @@
     grid-template-columns: 1fr;
   }
 }
+
+@container page (max-width: 1080px) {
+  .dashboard-header {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-primary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@container page (max-width: 760px) {
+  .dashboard-header__summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container page (max-width: 480px) {
+  .dashboard-header {
+    padding: 14px;
+  }
+
+  .dashboard-header__summary {
+    grid-template-columns: 1fr;
+  }
+}

@@ -162,3 +162,25 @@
     font-size: 25px;
   }
 }
+
+@container page (max-width: 720px) {
+  .journal-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .journal-header,
+  .journal-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .journal-toolbar select {
+    width: 100%;
+  }
+}
+
+@container page (max-width: 440px) {
+  .journal-stats {
+    grid-template-columns: 1fr;
+  }
+}

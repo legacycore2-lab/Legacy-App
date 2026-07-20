@@ -293,3 +293,48 @@
     grid-template-columns: 1fr;
   }
 }
+
+@container page (max-width: 1040px) {
+  .projects-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@container page (max-width: 680px) {
+  .projects-hero {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .projects-hero__actions,
+  .projects-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .projects-hero__actions {
+    display: grid;
+  }
+
+  .projects-toolbar {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  .projects-search {
+    min-width: 100%;
+  }
+
+  .projects-filter,
+  .projects-toolbar__button {
+    min-width: 0;
+    flex: 1;
+  }
+}
+
+@container page (max-width: 440px) {
+  .projects-hero__actions,
+  .projects-stats {
+    grid-template-columns: 1fr;
+  }
+}
