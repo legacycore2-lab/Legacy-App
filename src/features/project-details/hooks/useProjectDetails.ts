@@ -1,10 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useDeferredValue, useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
-import {
-  getProjectDetails,
-  getProjectEntriesPage,
-} from '../services/project-details.service'
+import { getProjectDetails, getProjectEntriesPage } from '../services/project-details.service'
 import type { ProjectEntryFilters } from '../types/project-details.types'
 
 const PAGE_SIZE = 25
