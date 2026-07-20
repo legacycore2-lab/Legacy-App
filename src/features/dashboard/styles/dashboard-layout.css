@@ -128,7 +128,10 @@
 
 .dashboard-summary-card strong {
   margin-top: 5px;
-  font: 800 16px Manrope, 'IBM Plex Sans Arabic', sans-serif;
+  font:
+    800 16px Manrope,
+    'IBM Plex Sans Arabic',
+    sans-serif;
 }
 
 @media (max-width: 1240px) {
