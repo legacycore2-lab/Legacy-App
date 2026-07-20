@@ -67,7 +67,6 @@
 }
 
 .critical-projects,
-.activity-feed,
 .task-list {
   display: grid;
   gap: 0.7rem;
@@ -156,34 +155,34 @@
   background: linear-gradient(90deg, #168253, #d3ad55);
 }
 
-.activity-feed article,
-.task-list article {
+.activity-timeline {
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 0.7rem;
-  padding: 0.72rem 0;
-  border-bottom: 1px solid var(--border, #edf0ee);
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.activity-feed article:last-child,
-.task-list article:last-child {
-  border-bottom: 0;
-}
-
-.activity-feed article div,
-.task-list article div {
+.activity-timeline__item {
+  position: relative;
   display: grid;
-  gap: 0.18rem;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  min-width: 0;
 }
 
-.activity-feed article span,
-.task-list article span {
-  font-size: 0.75rem;
-  color: var(--text-muted, #748078);
+.activity-timeline__item:not(:last-child)::after {
+  position: absolute;
+  top: 40px;
+  right: 17px;
+  bottom: 0;
+  width: 1px;
+  background: var(--border, #e4e9e6);
+  content: '';
 }
 
-.activity-feed__icon {
+.activity-timeline__marker {
+  z-index: 1;
   display: grid;
   place-items: center;
   width: 36px;
@@ -191,26 +190,76 @@
   border-radius: 12px;
 }
 
-.activity-feed__icon--income {
+.activity-timeline__marker--income {
   background: #e7f5ed;
   color: #168253;
 }
 
-.activity-feed__icon--expense {
+.activity-timeline__marker--expense {
   background: #feeceb;
   color: #d92d20;
 }
 
-.activity-feed__amount--income {
+.activity-timeline__content {
+  min-width: 0;
+  padding: 0.15rem 0 0.9rem;
+}
+
+.activity-timeline__topline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.activity-timeline__topline strong {
+  min-width: 0;
+  font-size: 0.88rem;
+  overflow-wrap: anywhere;
+}
+
+.activity-timeline__amount {
+  flex: 0 0 auto;
+  font-size: 0.82rem;
+}
+
+.activity-timeline__amount--income {
   color: #168253;
 }
 
-.activity-feed__amount--expense {
+.activity-timeline__amount--expense {
   color: #d92d20;
 }
 
+.activity-timeline__meta {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--text-muted, #748078);
+  font-size: 0.74rem;
+  line-height: 1.6;
+}
+
 .task-list article {
+  display: grid;
   grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.72rem 0;
+  border-bottom: 1px solid var(--border, #edf0ee);
+}
+
+.task-list article:last-child {
+  border-bottom: 0;
+}
+
+.task-list article div {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.task-list article span {
+  font-size: 0.75rem;
+  color: var(--text-muted, #748078);
 }
 
 .task-dot {
@@ -255,11 +304,8 @@
     padding: 0.9rem;
   }
 
-  .activity-feed article {
-    grid-template-columns: auto 1fr;
-  }
-
-  .activity-feed__amount {
-    grid-column: 2;
+  .activity-timeline__topline {
+    display: grid;
+    gap: 0.2rem;
   }
 }
