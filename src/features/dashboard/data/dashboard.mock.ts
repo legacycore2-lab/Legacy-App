@@ -3,7 +3,7 @@ import {
   ArrowUpRight,
   Banknote,
   BriefcaseBusiness,
-  FolderPlus,
+  FolderKanban,
   ReceiptText,
   WalletCards,
 } from 'lucide-react'
@@ -85,8 +85,8 @@ export const dashboardEntries: DashboardEntry[] = [
 ]
 
 export const dashboardActions: DashboardAction[] = [
-  { label: 'إضافة مشروع', description: 'إنشاء مشروع جديد', icon: FolderPlus },
-  { label: 'إضافة قيد', description: 'دخل أو مصروف', icon: ReceiptText },
-  { label: 'تسجيل عهدة', description: 'إنشاء عهدة جديدة', icon: BriefcaseBusiness },
-  { label: 'تحويل مالي', description: 'بين الخزنة والبنوك', icon: Banknote },
+  { label: 'المشاريع', description: 'عرض وإدارة المشاريع', path: '/projects', icon: FolderKanban },
+  { label: 'القيود اليومية', description: 'تسجيل ومراجعة القيود', path: '/journal', icon: ReceiptText },
+  { label: 'العهد', description: 'متابعة العهد المالية', path: '/advances', icon: BriefcaseBusiness },
+  { label: 'الخزنة والبنوك', description: 'الحسابات والتحويلات', path: '/banks', icon: Banknote },
 ]
