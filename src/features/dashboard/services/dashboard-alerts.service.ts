@@ -1,8 +1,4 @@
-import type {
-  DashboardAlert,
-  DashboardEntry,
-  DashboardProject,
-} from '../types/dashboard.types'
+import type { DashboardAlert, DashboardEntry, DashboardProject } from '../types/dashboard.types'
 
 const HIGH_EXPENSE_THRESHOLD = 40_000
 const CLOSEOUT_PROGRESS_THRESHOLD = 90
@@ -48,9 +44,7 @@ export function buildDashboardAlerts(
   })
 
   entries
-    .filter(
-      (entry) => entry.type === 'expense' && parseAmount(entry.amount) >= HIGH_EXPENSE_THRESHOLD,
-    )
+    .filter((entry) => entry.type === 'expense' && parseAmount(entry.amount) >= HIGH_EXPENSE_THRESHOLD)
     .forEach((entry) => {
       alerts.push({
         id: `high-expense-${entry.id}`,
