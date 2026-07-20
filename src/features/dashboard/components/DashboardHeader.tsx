@@ -13,9 +13,24 @@ function findKpiValue(kpis: DashboardKpi[], label: string): string {
 
 export function DashboardHeader({ projects, alerts, kpis }: DashboardHeaderProps) {
   const summaryItems = [
-    { label: 'مشاريع نشطة', value: String(projects.length), icon: FolderKanban, tone: 'green' },
-    { label: 'تنبيهات تحتاج مراجعة', value: String(alerts.length), icon: AlertTriangle, tone: 'gold' },
-    { label: 'إجمالي الرصيد', value: findKpiValue(kpis, 'إجمالي الرصيد'), icon: WalletCards, tone: 'green' },
+    {
+      label: 'مشاريع نشطة',
+      value: String(projects.length),
+      icon: FolderKanban,
+      tone: 'green',
+    },
+    {
+      label: 'تنبيهات تحتاج مراجعة',
+      value: String(alerts.length),
+      icon: AlertTriangle,
+      tone: 'gold',
+    },
+    {
+      label: 'إجمالي الرصيد',
+      value: findKpiValue(kpis, 'إجمالي الرصيد'),
+      icon: WalletCards,
+      tone: 'green',
+    },
     { label: 'آخر تحديث', value: 'الآن', icon: Clock3, tone: 'neutral' },
   ]
 
@@ -23,7 +38,9 @@ export function DashboardHeader({ projects, alerts, kpis }: DashboardHeaderProps
     <section className="dashboard-header" aria-labelledby="dashboard-heading">
       <div className="dashboard-header__intro">
         <span>مركز قيادة Legacy Core</span>
-        <h1 id="dashboard-heading">صباح الخير، محمود <span aria-hidden="true">👋</span></h1>
+        <h1 id="dashboard-heading">
+          صباح الخير، محمود <span aria-hidden="true">👋</span>
+        </h1>
         <p>نظرة تشغيلية مباشرة على السيولة والمشاريع والحركة المالية والتنبيهات المهمة.</p>
       </div>
 
