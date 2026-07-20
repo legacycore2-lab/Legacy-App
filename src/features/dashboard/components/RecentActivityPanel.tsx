@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2, Clock3, ReceiptText } from 'lucide-react'
+import { ArrowDownLeft, ArrowUpRight, Clock3, ReceiptText } from 'lucide-react'
 import type { DashboardEntry } from '../types/dashboard.types'
 import { PanelEmptyState } from './PanelEmptyState'
 
@@ -12,30 +12,37 @@ export function RecentActivityPanel({ entries }: { entries: DashboardEntry[] }) 
           <span>الحركة المالية</span>
           <h2>آخر النشاط</h2>
         </div>
-        <Clock3 size={20} />
+        <Clock3 size={20} aria-hidden="true" />
       </header>
 
       {recentEntries.length ? (
-        <div className="activity-feed">
+        <ol className="activity-timeline" aria-label="أحدث الحركات المالية">
           {recentEntries.map((entry) => {
             const isIncome = entry.type === 'income'
+            const ActivityIcon = isIncome ? ArrowDownLeft : ArrowUpRight
 
             return (
-              <article key={entry.id}>
-                <span className={`activity-feed__icon activity-feed__icon--${entry.type}`}>
-                  {isIncome ? <CheckCircle2 size={17} /> : <AlertTriangle size={17} />}
+              <li key={entry.id} className="activity-timeline__item">
+                <span className={`activity-timeline__marker activity-timeline__marker--${entry.type}`}>
+                  <ActivityIcon size={17} aria-hidden="true" />
                 </span>
-                <div>
-                  <strong>{entry.description}</strong>
-                  <span>
-                    {entry.project} · {entry.date}
+
+                <article className="activity-timeline__content">
+                  <div className="activity-timeline__topline">
+                    <strong>{entry.description}</strong>
+                    <b className={`activity-timeline__amount activity-timeline__amount--${entry.type}`}>
+                      {entry.amount}
+                    </b>
+                  </div>
+
+                  <span className="activity-timeline__meta">
+                    {entry.project} · {entry.date} · {entry.id}
                   </span>
-                </div>
-                <b className={`activity-feed__amount activity-feed__amount--${entry.type}`}>{entry.amount}</b>
-              </article>
+                </article>
+              </li>
             )
           })}
-        </div>
+        </ol>
       ) : (
         <PanelEmptyState
           icon={ReceiptText}
