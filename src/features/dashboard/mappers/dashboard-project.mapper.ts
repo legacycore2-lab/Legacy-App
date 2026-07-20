@@ -2,19 +2,24 @@ import type { DashboardProjectRecord } from '../repositories/dashboard-projects.
 import type { DashboardProject } from '../types/dashboard.types'
 import { formatDashboardCurrency } from '../utils/dashboard-formatters'
 
+function normalizeProgress(value: number | null, isCompleted: boolean): number {
+  if (isCompleted) return 100
+  if (!Number.isFinite(value)) return 0
+  return Math.min(99, Math.max(0, Math.round(value ?? 0)))
+}
+
 export function mapDashboardProject(
   record: DashboardProjectRecord,
   balance: number,
-  progress: number,
 ): DashboardProject {
   const isCompleted = Boolean(record.close_date)
 
   return {
     id: record.id,
     name: record.name,
-    client: 'غير متاح في بيانات المشروع',
+    client: record.client_name?.trim() || 'عميل غير مسجل',
     balance: formatDashboardCurrency(balance),
-    progress,
+    progress: normalizeProgress(record.progress, isCompleted),
     status: isCompleted ? 'مكتمل' : 'جاري',
   }
 }
