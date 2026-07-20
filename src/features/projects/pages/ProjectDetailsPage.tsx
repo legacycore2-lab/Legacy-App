@@ -39,11 +39,7 @@ export function ProjectDetailsPage() {
             </p>
           </div>
           <div className="projects-hero__actions">
-            <button
-              className="projects-secondary-action"
-              type="button"
-              onClick={() => navigate('/projects')}
-            >
+            <button className="projects-secondary-action" type="button" onClick={() => navigate('/projects')}>
               <ArrowRight size={18} /> العودة للمشاريع
             </button>
           </div>
