@@ -27,11 +27,18 @@ export type DashboardEntry = {
 
 export type DashboardAction = { label: string; description: string; icon: LucideIcon }
 
+export type DashboardHeaderSummary = {
+  activeProjects: number
+  balance: string
+  lastUpdated: string
+}
+
 export type DashboardData = {
   kpis: DashboardKpi[]
   projects: DashboardProject[]
   entries: DashboardEntry[]
   actions: DashboardAction[]
+  header: DashboardHeaderSummary
 }
 
 // ── DB layer ──────────────────────────────────────────────────────
