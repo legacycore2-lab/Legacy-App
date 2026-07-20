@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '../../../lib/supabase/client'
-import type { ProjectFormValues } from '../services/project-form.service'
+import type { ProjectFormValues } from '../types/project-form.types'
 
 export type ProjectRecord = {
   id: string
