@@ -1,7 +1,7 @@
 import { ArrowUpLeft } from 'lucide-react'
-import { dashboardProjects } from '../data/dashboard.mock'
+import type { DashboardProject } from '../types/dashboard.types'
 
-export function RecentProjects() {
+export function RecentProjects({ projects }: { projects: DashboardProject[] }) {
   return (
     <article className="dashboard-widget recent-projects">
       <header className="widget-header">
@@ -10,7 +10,7 @@ export function RecentProjects() {
       </header>
 
       <div className="project-list">
-        {dashboardProjects.map((project) => (
+        {projects.map((project) => (
           <div className="project-row" key={project.name}>
             <div className="project-main">
               <strong>{project.name}</strong>

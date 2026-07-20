@@ -6,41 +6,8 @@ import {
   FolderPlus,
   ReceiptText,
   WalletCards,
-  type LucideIcon,
 } from 'lucide-react'
-
-export type KpiTone = 'green' | 'gold'
-
-export type DashboardKpi = {
-  label: string
-  value: string
-  trend: string
-  icon: LucideIcon
-  tone: KpiTone
-}
-
-export type DashboardProject = {
-  name: string
-  client: string
-  balance: string
-  progress: number
-  status: string
-}
-
-export type DashboardEntry = {
-  id: string
-  project: string
-  description: string
-  date: string
-  amount: string
-  type: 'income' | 'expense'
-}
-
-export type DashboardAction = {
-  label: string
-  description: string
-  icon: LucideIcon
-}
+import type { DashboardAction, DashboardEntry, DashboardKpi, DashboardProject } from '../types/dashboard.types'
 
 export const dashboardKpis: DashboardKpi[] = [
   {

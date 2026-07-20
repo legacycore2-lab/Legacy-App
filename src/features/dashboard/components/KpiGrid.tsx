@@ -1,10 +1,10 @@
-import { dashboardKpis } from '../data/dashboard.mock'
+import type { DashboardKpi } from '../types/dashboard.types'
 import { KpiCard } from './KpiCard'
 
-export function KpiGrid() {
+export function KpiGrid({ kpis }: { kpis: DashboardKpi[] }) {
   return (
     <div className="kpi-grid">
-      {dashboardKpis.map((kpi) => (
+      {kpis.map((kpi) => (
         <KpiCard key={kpi.label} {...kpi} />
       ))}
     </div>

@@ -1,7 +1,7 @@
 import { ArrowDownLeft, ArrowUpRight } from 'lucide-react'
-import { dashboardEntries } from '../data/dashboard.mock'
+import type { DashboardEntry } from '../types/dashboard.types'
 
-export function RecentEntries() {
+export function RecentEntries({ entries }: { entries: DashboardEntry[] }) {
   return (
     <article className="dashboard-widget recent-entries">
       <header className="widget-header">
@@ -10,7 +10,7 @@ export function RecentEntries() {
       </header>
 
       <div className="entries-list">
-        {dashboardEntries.map((entry) => {
+        {entries.map((entry) => {
           const income = entry.type === 'income'
           const Icon = income ? ArrowDownLeft : ArrowUpRight
           return (

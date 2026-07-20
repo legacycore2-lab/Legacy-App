@@ -1,6 +1,6 @@
-import { dashboardActions } from '../data/dashboard.mock'
+import type { DashboardAction } from '../types/dashboard.types'
 
-export function QuickActions() {
+export function QuickActions({ actions }: { actions: DashboardAction[] }) {
   return (
     <article className="dashboard-widget quick-actions-widget">
       <header className="widget-header">
@@ -8,7 +8,7 @@ export function QuickActions() {
       </header>
 
       <div className="quick-actions-grid">
-        {dashboardActions.map(({ label, description, icon: Icon }) => (
+        {actions.map(({ label, description, icon: Icon }) => (
           <button type="button" className="quick-action" key={label}>
             <span><Icon size={20} /></span>
             <strong>{label}</strong>
