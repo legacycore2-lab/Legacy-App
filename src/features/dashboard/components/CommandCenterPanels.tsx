@@ -1,8 +1,4 @@
-import type {
-  DashboardAlert,
-  DashboardEntry,
-  DashboardProject,
-} from '../types/dashboard.types'
+import type { DashboardAlert, DashboardEntry, DashboardProject } from '../types/dashboard.types'
 import { CriticalProjectsPanel } from './CriticalProjectsPanel'
 import { DailyPrioritiesPanel } from './DailyPrioritiesPanel'
 import { RecentActivityPanel } from './RecentActivityPanel'
