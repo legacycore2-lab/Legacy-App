@@ -15,7 +15,10 @@ export function useDashboard() {
 
     getDashboardData()
       .then((value) => active && setData(value))
-      .catch((loadError) => active && setError(toErrorMessage(loadError, 'تعذر تحميل لوحة التحكم.')))
+      .catch(
+        (loadError) =>
+          active && setError(toErrorMessage(loadError, 'تعذر تحميل لوحة التحكم.')),
+      )
       .finally(() => active && setIsLoading(false))
 
     return () => {
