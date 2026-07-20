@@ -1,22 +1,12 @@
-const priorities = [
-  {
-    title: 'مراجعة مشروع تجاوز الميزانية',
-    description: 'قبل الساعة 10:00 ص',
-    tone: 'danger',
-  },
-  {
-    title: 'متابعة دفعة مستحقة من العميل',
-    description: 'اليوم · مشروع قيد التنفيذ',
-    tone: 'warning',
-  },
-  {
-    title: 'اعتماد تقرير المصروفات',
-    description: 'مراجعة إدارية',
-    tone: 'success',
-  },
-] as const
+import { BellRing } from 'lucide-react'
+import type { DashboardAlert } from '../types/dashboard.types'
+import { PanelEmptyState } from './PanelEmptyState'
 
-export function DailyPrioritiesPanel() {
+type Props = {
+  alerts: DashboardAlert[]
+}
+
+export function DailyPrioritiesPanel({ alerts }: Props) {
   return (
     <section className="command-panel command-panel--tasks">
       <header className="command-panel__header">
@@ -24,20 +14,28 @@ export function DailyPrioritiesPanel() {
           <span>أولوية اليوم</span>
           <h2>المهام والتنبيهات</h2>
         </div>
-        <span className="command-panel__badge">{priorities.length}</span>
+        <span className="command-panel__badge">{alerts.length}</span>
       </header>
 
-      <div className="task-list">
-        {priorities.map((priority) => (
-          <article key={priority.title}>
-            <span className={`task-dot task-dot--${priority.tone}`} />
-            <div>
-              <strong>{priority.title}</strong>
-              <span>{priority.description}</span>
-            </div>
-          </article>
-        ))}
-      </div>
+      {alerts.length ? (
+        <div className="task-list">
+          {alerts.map((alert) => (
+            <article key={alert.id}>
+              <span className={`task-dot task-dot--${alert.tone}`} aria-hidden="true" />
+              <div>
+                <strong>{alert.title}</strong>
+                <span>{alert.description}</span>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <PanelEmptyState
+          icon={BellRing}
+          title="لا توجد تنبيهات حالية"
+          description="كل المشاريع والحركات الحالية ضمن الحدود المتوقعة."
+        />
+      )}
     </section>
   )
 }
