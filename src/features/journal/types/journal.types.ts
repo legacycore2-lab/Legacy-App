@@ -39,3 +39,11 @@ export type JournalPageResult = {
   totalPages: number
   summary: JournalSummary
 }
+
+export type JournalProjectHeader = {
+  id: string
+  name: string
+  startDate: string
+  endDate: string
+  status: 'active' | 'completed' | 'archived'
+}
