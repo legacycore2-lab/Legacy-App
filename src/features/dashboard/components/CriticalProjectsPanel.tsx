@@ -1,4 +1,5 @@
 import { FolderKanban } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import type { DashboardProject } from '../types/dashboard.types'
 import { PanelEmptyState } from './PanelEmptyState'
 
@@ -25,7 +26,12 @@ export function CriticalProjectsPanel({ projects }: { projects: DashboardProject
             const progress = toSafeProgress(project.progress)
 
             return (
-              <article className="critical-project" key={project.name}>
+              <Link
+                className="critical-project"
+                key={project.id}
+                to={`/projects/${project.id}`}
+                aria-label={`فتح مشروع ${project.name}`}
+              >
                 <div className="critical-project__topline">
                   <div>
                     <strong>{project.name}</strong>
@@ -47,7 +53,7 @@ export function CriticalProjectsPanel({ projects }: { projects: DashboardProject
                   <span>{progress}% تنفيذ</span>
                   <strong>{project.balance}</strong>
                 </footer>
-              </article>
+              </Link>
             )
           })}
         </div>
