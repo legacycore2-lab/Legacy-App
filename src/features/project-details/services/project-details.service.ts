@@ -1,7 +1,4 @@
-import {
-  findProjectDetails,
-  findProjectEntries,
-} from '../repositories/project-details.repository'
+import { findProjectDetails, findProjectEntries } from '../repositories/project-details.repository'
 import type {
   ProjectEntriesPage,
   ProjectEntry,
