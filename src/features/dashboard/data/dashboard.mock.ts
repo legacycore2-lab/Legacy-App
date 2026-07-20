@@ -1,44 +1,5 @@
-import {
-  ArrowDownLeft,
-  ArrowUpRight,
-  Banknote,
-  BriefcaseBusiness,
-  FolderKanban,
-  ReceiptText,
-  WalletCards,
-} from 'lucide-react'
-import type { DashboardAction, DashboardEntry, DashboardKpi } from '../types/dashboard.types'
-
-export const dashboardKpis: DashboardKpi[] = [
-  {
-    label: 'إجمالي الرصيد',
-    value: '2,458,750',
-    trend: '+12.5%',
-    icon: WalletCards,
-    tone: 'green',
-  },
-  {
-    label: 'إجمالي الإيرادات',
-    value: '3,215,000',
-    trend: '+18.7%',
-    icon: ArrowDownLeft,
-    tone: 'green',
-  },
-  {
-    label: 'إجمالي المصروفات',
-    value: '756,250',
-    trend: '-4.3%',
-    icon: ArrowUpRight,
-    tone: 'gold',
-  },
-  {
-    label: 'إجمالي العهد',
-    value: '485,000',
-    trend: '+6.2%',
-    icon: BriefcaseBusiness,
-    tone: 'green',
-  },
-]
+import { Banknote, BriefcaseBusiness, FolderKanban, ReceiptText } from 'lucide-react'
+import type { DashboardAction, DashboardEntry } from '../types/dashboard.types'
 
 export const dashboardEntries: DashboardEntry[] = [
   {
