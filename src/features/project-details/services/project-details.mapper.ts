@@ -1,13 +1,6 @@
 import { DataValidationError } from '../../../shared/errors/app-error'
-import type {
-  ProjectDetailsRecord,
-  ProjectEntryRecord,
-} from '../repositories/project-details.repository'
-import type {
-  ProjectDetails,
-  ProjectEntry,
-  ProjectEntryType,
-} from '../types/project-details.types'
+import type { ProjectDetailsRecord, ProjectEntryRecord } from '../repositories/project-details.repository'
+import type { ProjectDetails, ProjectEntry, ProjectEntryType } from '../types/project-details.types'
 
 function mapEntryType(type: string): ProjectEntryType {
   if (type === 'income' || type === 'i') return 'income'
