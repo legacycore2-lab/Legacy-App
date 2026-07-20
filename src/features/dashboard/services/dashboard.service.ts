@@ -9,7 +9,6 @@ import type { DashboardData } from '../types/dashboard.types'
 import { buildDashboardAlerts } from './dashboard-alerts.service'
 import { buildDashboardKpis } from './dashboard-kpis.service'
 import { buildDashboardProjectBalances } from './dashboard-project-balances.service'
-import { calculateDashboardProjectProgress } from './dashboard-project-progress.service'
 
 export async function getDashboardData(): Promise<DashboardData> {
   const [data, projectRecords, kpiSource, recentEntryRecords] = await Promise.all([
@@ -21,7 +20,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   const projectEntries = await findDashboardProjectEntries(projectRecords.map((project) => project.id))
   const balances = buildDashboardProjectBalances(projectEntries)
   const projects = projectRecords.map((project) =>
-    mapDashboardProject(project, balances.get(project.id) ?? 0, calculateDashboardProjectProgress(project)),
+    mapDashboardProject(project, balances.get(project.id) ?? 0),
   )
   const entries = recentEntryRecords.map(mapDashboardEntry)
 
