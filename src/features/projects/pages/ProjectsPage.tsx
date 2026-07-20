@@ -1,13 +1,13 @@
-import { useState } from 'react'
 import { BriefcaseBusiness, Plus } from 'lucide-react'
-import { ExcelImportDialog } from '../features/projects/components/ExcelImportDialog'
-import { ProjectsStats } from '../features/projects/components/ProjectsStats'
-import { ProjectsTable } from '../features/projects/components/ProjectsTable'
-import { ProjectsToolbar } from '../features/projects/components/ProjectsToolbar'
-import { useProjects } from '../features/projects/hooks/useProjects'
-import '../features/projects/projects.css'
-import '../features/projects/projects-table.css'
-import '../features/projects/excel-import.css'
+import { useState } from 'react'
+import { ExcelImportDialog } from '../components/ExcelImportDialog'
+import { ProjectsStats } from '../components/ProjectsStats'
+import { ProjectsTable } from '../components/ProjectsTable'
+import { ProjectsToolbar } from '../components/ProjectsToolbar'
+import { useProjects } from '../hooks/useProjects'
+import '../excel-import.css'
+import '../projects-table.css'
+import '../projects.css'
 
 export function ProjectsPage() {
   const { projects, filteredProjects, query, setQuery, status, setStatus, isLoading, error } = useProjects()
@@ -26,24 +26,14 @@ export function ProjectsPage() {
             استيراد من Excel
           </button>
           <button className="projects-primary-action" type="button">
-            <Plus size={18} />
-            مشروع جديد
+            <Plus size={18} /> مشروع جديد
           </button>
         </div>
       </header>
-
       <ProjectsStats projects={projects} />
-
       {isLoading && <div className="projects-empty">جاري تحميل المشاريع...</div>}
       {error && <div className="projects-empty">{error}</div>}
-
-      <ProjectsToolbar
-        query={query}
-        status={status}
-        onQueryChange={setQuery}
-        onStatusChange={setStatus}
-      />
-
+      <ProjectsToolbar query={query} status={status} onQueryChange={setQuery} onStatusChange={setStatus} />
       <div className="projects-section-heading">
         <div>
           <span>المحفظة الحالية</span>
@@ -51,7 +41,6 @@ export function ProjectsPage() {
         </div>
         <small>{filteredProjects.length} مشروع</small>
       </div>
-
       {!isLoading && !error && filteredProjects.length > 0 ? (
         <ProjectsTable projects={filteredProjects} />
       ) : !isLoading && !error ? (
@@ -61,7 +50,6 @@ export function ProjectsPage() {
           <p>جرّب تغيير كلمة البحث أو حالة المشروع.</p>
         </div>
       ) : null}
-
       <ExcelImportDialog open={importOpen} onClose={() => setImportOpen(false)} />
     </section>
   )

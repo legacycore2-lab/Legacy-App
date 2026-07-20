@@ -1,9 +1,9 @@
 import { Route, Routes } from 'react-router-dom'
 import { AppShell } from './app/AppShell'
+import { DashboardPage } from './features/dashboard/pages/DashboardPage'
 import { JournalPage } from './features/journal/pages/JournalPage'
-import { DashboardPage } from './pages/DashboardPage'
+import { ProjectsPage } from './features/projects/pages/ProjectsPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
-import { ProjectsPage } from './pages/ProjectsPage'
 
 export default function App() {
   return (
@@ -12,11 +12,33 @@ export default function App() {
         <Route path="/" element={<DashboardPage />} />
         <Route path="/projects" element={<ProjectsPage />} />
         <Route path="/journal" element={<JournalPage />} />
-        <Route path="/banks" element={<PlaceholderPage title="الخزنة والبنوك" description="إدارة الحسابات والتحويلات والحركات البنكية." />} />
-        <Route path="/advances" element={<PlaceholderPage title="العهد" description="متابعة العهد المفتوحة والمصروف والمتبقي." />} />
-        <Route path="/reports" element={<PlaceholderPage title="التقارير" description="التقارير المالية وتقارير المشاريع والمقاولين." />} />
-        <Route path="/users" element={<PlaceholderPage title="المستخدمون" description="إدارة المستخدمين والصلاحيات." />} />
-        <Route path="/settings" element={<PlaceholderPage title="الإعدادات" description="إعدادات النظام والهوية والتكاملات." />} />
+        <Route
+          path="/banks"
+          element={
+            <PlaceholderPage
+              title="الخزنة والبنوك"
+              description="إدارة الحسابات والتحويلات والحركات البنكية."
+            />
+          }
+        />
+        <Route
+          path="/advances"
+          element={<PlaceholderPage title="العهد" description="متابعة العهد المفتوحة والمصروف والمتبقي." />}
+        />
+        <Route
+          path="/reports"
+          element={
+            <PlaceholderPage title="التقارير" description="التقارير المالية وتقارير المشاريع والمقاولين." />
+          }
+        />
+        <Route
+          path="/users"
+          element={<PlaceholderPage title="المستخدمون" description="إدارة المستخدمين والصلاحيات." />}
+        />
+        <Route
+          path="/settings"
+          element={<PlaceholderPage title="الإعدادات" description="إعدادات النظام والهوية والتكاملات." />}
+        />
       </Routes>
     </AppShell>
   )

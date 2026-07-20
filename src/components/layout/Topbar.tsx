@@ -17,21 +17,64 @@ export function Topbar({ theme, onToggleTheme, onOpenMenu }: Props) {
   const [openMenu, setOpenMenu] = useState<'notifications' | 'profile' | null>(null)
 
   useEffect(() => {
-    function close(event: MouseEvent) { if (!menusRef.current?.contains(event.target as Node)) setOpenMenu(null) }
-    function escape(event: KeyboardEvent) { if (event.key === 'Escape') setOpenMenu(null) }
-    document.addEventListener('mousedown', close); document.addEventListener('keydown', escape)
-    return () => { document.removeEventListener('mousedown', close); document.removeEventListener('keydown', escape) }
+    function close(event: MouseEvent) {
+      if (!menusRef.current?.contains(event.target as Node)) setOpenMenu(null)
+    }
+    function escape(event: KeyboardEvent) {
+      if (event.key === 'Escape') setOpenMenu(null)
+    }
+    document.addEventListener('mousedown', close)
+    document.addEventListener('keydown', escape)
+    return () => {
+      document.removeEventListener('mousedown', close)
+      document.removeEventListener('keydown', escape)
+    }
   }, [])
 
-  return <header className="main-topbar">
-    <div className="topbar-leading"><button className="icon-button menu-button" onClick={onOpenMenu} aria-label="فتح القائمة"><Menu size={21}/></button><div className="topbar-title"><strong>{meta.label}</strong><span>{meta.eyebrow}</span></div></div>
-    <label className="global-search"><Search size={18}/><input aria-label="البحث" placeholder="ابحث في المشاريع، المقاولين، القيود..."/><kbd>Ctrl + K</kbd></label>
-    <div className="topbar-quick-actions"><button className="topbar-quick-action primary" type="button" onClick={() => navigate('/projects')}><FolderPlus size={18}/><span>إضافة مشروع</span></button><button className="topbar-quick-action secondary" type="button" onClick={() => navigate('/journal')}><FilePlus2 size={18}/><span>إضافة قيد</span></button></div>
-    <div className="topbar-actions" ref={menusRef}>
-      <CurrentDate/>
-      <NotificationsMenu open={openMenu === 'notifications'} onToggle={() => setOpenMenu(openMenu === 'notifications' ? null : 'notifications')}/>
-      <button className="theme-toggle" type="button" onClick={onToggleTheme} aria-label="تغيير المظهر"><Sun size={17}/><span className={`toggle-track ${theme === 'light' ? 'is-light' : ''}`}><span/></span><Moon size={17}/></button>
-      <ProfileMenu open={openMenu === 'profile'} onToggle={() => setOpenMenu(openMenu === 'profile' ? null : 'profile')}/>
-    </div>
-  </header>
+  return (
+    <header className="main-topbar">
+      <div className="topbar-leading">
+        <button className="icon-button menu-button" onClick={onOpenMenu} aria-label="فتح القائمة">
+          <Menu size={21} />
+        </button>
+        <div className="topbar-title">
+          <strong>{meta.label}</strong>
+          <span>{meta.eyebrow}</span>
+        </div>
+      </div>
+      <label className="global-search">
+        <Search size={18} />
+        <input aria-label="البحث" placeholder="ابحث في المشاريع، المقاولين، القيود..." />
+        <kbd>Ctrl + K</kbd>
+      </label>
+      <div className="topbar-quick-actions">
+        <button className="topbar-quick-action primary" type="button" onClick={() => navigate('/projects')}>
+          <FolderPlus size={18} />
+          <span>إضافة مشروع</span>
+        </button>
+        <button className="topbar-quick-action secondary" type="button" onClick={() => navigate('/journal')}>
+          <FilePlus2 size={18} />
+          <span>إضافة قيد</span>
+        </button>
+      </div>
+      <div className="topbar-actions" ref={menusRef}>
+        <CurrentDate />
+        <NotificationsMenu
+          open={openMenu === 'notifications'}
+          onToggle={() => setOpenMenu(openMenu === 'notifications' ? null : 'notifications')}
+        />
+        <button className="theme-toggle" type="button" onClick={onToggleTheme} aria-label="تغيير المظهر">
+          <Sun size={17} />
+          <span className={`toggle-track ${theme === 'light' ? 'is-light' : ''}`}>
+            <span />
+          </span>
+          <Moon size={17} />
+        </button>
+        <ProfileMenu
+          open={openMenu === 'profile'}
+          onToggle={() => setOpenMenu(openMenu === 'profile' ? null : 'profile')}
+        />
+      </div>
+    </header>
+  )
 }

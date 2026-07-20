@@ -10,7 +10,7 @@ export function ExcelImportDialog({ open, onClose }: Props) {
   const [error, setError] = useState('')
   const [isReading, setIsReading] = useState(false)
 
-  const columns = useMemo(() => rows.length > 0 ? Object.keys(rows[0]) : [], [rows])
+  const columns = useMemo(() => (rows.length > 0 ? Object.keys(rows[0]) : []), [rows])
 
   if (!open) return null
 
@@ -44,14 +44,22 @@ export function ExcelImportDialog({ open, onClose }: Props) {
 
   return (
     <div className="excel-dialog-backdrop" role="presentation" onMouseDown={resetAndClose}>
-      <section className="excel-dialog" role="dialog" aria-modal="true" aria-labelledby="excel-import-title" onMouseDown={(event) => event.stopPropagation()}>
+      <section
+        className="excel-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="excel-import-title"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
         <header>
           <div>
             <span>استيراد ذكي</span>
             <h2 id="excel-import-title">استيراد بيانات من Excel</h2>
             <p>اقرأ الملف وراجع البيانات قبل الانتقال إلى مطابقة الأعمدة.</p>
           </div>
-          <button type="button" onClick={resetAndClose} aria-label="إغلاق"><X /></button>
+          <button type="button" onClick={resetAndClose} aria-label="إغلاق">
+            <X />
+          </button>
         </header>
 
         <div className="excel-steps" aria-label="مراحل الاستيراد">
@@ -63,7 +71,9 @@ export function ExcelImportDialog({ open, onClose }: Props) {
 
         <label className="excel-dropzone">
           <Upload size={30} />
-          <strong>{isReading ? 'جاري قراءة الملف...' : fileName || 'اسحب ملف Excel هنا أو اضغط للاختيار'}</strong>
+          <strong>
+            {isReading ? 'جاري قراءة الملف...' : fileName || 'اسحب ملف Excel هنا أو اضغط للاختيار'}
+          </strong>
           <small>.xlsx أو .xls</small>
           <input
             type="file"
@@ -77,21 +87,35 @@ export function ExcelImportDialog({ open, onClose }: Props) {
           />
         </label>
 
-        {error && <p className="excel-error" role="alert">{error}</p>}
+        {error && (
+          <p className="excel-error" role="alert">
+            {error}
+          </p>
+        )}
 
         {rows.length > 0 && (
           <div className="excel-preview">
             <div className="excel-preview__meta">
-              <span><FileSpreadsheet size={18} /> الشيت: {sheetName}</span>
+              <span>
+                <FileSpreadsheet size={18} /> الشيت: {sheetName}
+              </span>
               <strong>{rows.length} سجل</strong>
             </div>
             <div className="excel-preview__table">
               <table>
-                <thead><tr>{columns.slice(0, 7).map((column) => <th key={column}>{column}</th>)}</tr></thead>
+                <thead>
+                  <tr>
+                    {columns.slice(0, 7).map((column) => (
+                      <th key={column}>{column}</th>
+                    ))}
+                  </tr>
+                </thead>
                 <tbody>
                   {rows.slice(0, 6).map((row, index) => (
                     <tr key={index}>
-                      {columns.slice(0, 7).map((column) => <td key={column}>{String(row[column] ?? '')}</td>)}
+                      {columns.slice(0, 7).map((column) => (
+                        <td key={column}>{String(row[column] ?? '')}</td>
+                      ))}
                     </tr>
                   ))}
                 </tbody>
@@ -101,7 +125,9 @@ export function ExcelImportDialog({ open, onClose }: Props) {
         )}
 
         <footer>
-          <button className="projects-secondary-action" type="button" onClick={resetAndClose}>إلغاء</button>
+          <button className="projects-secondary-action" type="button" onClick={resetAndClose}>
+            إلغاء
+          </button>
           <button className="projects-primary-action" type="button" disabled>
             مطابقة الأعمدة — المرحلة التالية
           </button>

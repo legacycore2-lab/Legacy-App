@@ -22,7 +22,10 @@ export function ProjectsToolbar({ query, status, onQueryChange, onStatusChange }
 
       <label className="projects-filter">
         <Filter size={17} />
-        <select value={status} onChange={(event) => onStatusChange(event.target.value as ProjectStatusFilter)}>
+        <select
+          value={status}
+          onChange={(event) => onStatusChange(event.target.value as ProjectStatusFilter)}
+        >
           <option value="all">كل الحالات</option>
           <option value="active">المشاريع الجارية</option>
           <option value="completed">المشاريع المكتملة</option>

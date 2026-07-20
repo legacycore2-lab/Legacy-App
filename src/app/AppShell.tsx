@@ -16,11 +16,7 @@ export function AppShell({ children }: AppShellProps) {
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="app-main">
-        <Topbar
-          theme={theme}
-          onToggleTheme={toggleTheme}
-          onOpenMenu={() => setSidebarOpen(true)}
-        />
+        <Topbar theme={theme} onToggleTheme={toggleTheme} onOpenMenu={() => setSidebarOpen(true)} />
         <main className="page-content">{children}</main>
       </div>
     </div>
