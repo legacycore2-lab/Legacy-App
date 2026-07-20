@@ -18,7 +18,9 @@ export function CommandCenterPanels({ projects, entries }: Props) {
             <span>متابعة التنفيذ</span>
             <h2>المشاريع الحرجة</h2>
           </div>
-          <button type="button">عرض الكل <ArrowLeft size={16} /></button>
+          <button type="button">
+            عرض الكل <ArrowLeft size={16} />
+          </button>
         </header>
 
         <div className="critical-projects">
@@ -56,13 +58,21 @@ export function CommandCenterPanels({ projects, entries }: Props) {
           {activity.map((entry) => (
             <article key={entry.id}>
               <span className={`activity-feed__icon activity-feed__icon--${entry.type}`}>
-                {entry.type === 'income' ? <CheckCircle2 size={17} /> : <AlertTriangle size={17} />}
+                {entry.type === 'income' ? (
+                  <CheckCircle2 size={17} />
+                ) : (
+                  <AlertTriangle size={17} />
+                )}
               </span>
               <div>
                 <strong>{entry.description}</strong>
-                <span>{entry.project} · {entry.date}</span>
+                <span>
+                  {entry.project} · {entry.date}
+                </span>
               </div>
-              <b className={`activity-feed__amount activity-feed__amount--${entry.type}`}>{entry.amount}</b>
+              <b className={`activity-feed__amount activity-feed__amount--${entry.type}`}>
+                {entry.amount}
+              </b>
             </article>
           ))}
         </div>
@@ -78,9 +88,27 @@ export function CommandCenterPanels({ projects, entries }: Props) {
         </header>
 
         <div className="task-list">
-          <article><span className="task-dot task-dot--danger" /><div><strong>مراجعة مشروع تجاوز الميزانية</strong><span>قبل الساعة 10:00 ص</span></div></article>
-          <article><span className="task-dot task-dot--warning" /><div><strong>متابعة دفعة مستحقة من العميل</strong><span>اليوم · مشروع قيد التنفيذ</span></div></article>
-          <article><span className="task-dot task-dot--success" /><div><strong>اعتماد تقرير المصروفات</strong><span>مراجعة إدارية</span></div></article>
+          <article>
+            <span className="task-dot task-dot--danger" />
+            <div>
+              <strong>مراجعة مشروع تجاوز الميزانية</strong>
+              <span>قبل الساعة 10:00 ص</span>
+            </div>
+          </article>
+          <article>
+            <span className="task-dot task-dot--warning" />
+            <div>
+              <strong>متابعة دفعة مستحقة من العميل</strong>
+              <span>اليوم · مشروع قيد التنفيذ</span>
+            </div>
+          </article>
+          <article>
+            <span className="task-dot task-dot--success" />
+            <div>
+              <strong>اعتماد تقرير المصروفات</strong>
+              <span>مراجعة إدارية</span>
+            </div>
+          </article>
         </div>
       </section>
     </div>
