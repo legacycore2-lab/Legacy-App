@@ -8,7 +8,18 @@ The application reads roles from the signed `app_metadata.role` claim. Supported
 
 ## Apply database protection
 
-Run the migrations in `supabase/migrations` through the Supabase SQL Editor or Supabase CLI before adding real data. The RBAC migration removes anonymous access to `projects` and `entries`, enables RLS, and installs the policies used by the frontend permission map.
+Run the migrations in `supabase/migrations` in filename order through the Supabase SQL Editor or Supabase CLI before adding real data:
+
+1. `20260720_0001_auth_rbac.sql` removes anonymous access to `projects` and `entries`, enables RLS, and installs the policies used by the frontend permission map.
+2. `20260720_0002_entry_attachments.sql` adds private journal attachments, a private Storage bucket, a 10 MB per-file limit, and support for JPEG, PNG, WebP, and PDF files.
+
+Attachment objects must use this path format so the Storage policy can validate the journal entry:
+
+```text
+entries/<entry-id>/<unique-file-name>
+```
+
+Run each migration once. Both files are safe to retry if the SQL Editor disconnects after completion.
 
 ## Promote the first administrator
 
