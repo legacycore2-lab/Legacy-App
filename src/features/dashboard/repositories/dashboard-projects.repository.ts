@@ -3,6 +3,7 @@ import { getSupabaseClient } from '../../../lib/supabase/client'
 export type DashboardProjectRecord = {
   id: string
   name: string
+  start_date: string | null
   close_date: string | null
   is_archived: boolean | null
 }
@@ -10,7 +11,7 @@ export type DashboardProjectRecord = {
 export async function findDashboardProjects(): Promise<DashboardProjectRecord[]> {
   const { data, error } = await getSupabaseClient()
     .from('projects')
-    .select('id, name, close_date, is_archived')
+    .select('id, name, start_date, close_date, is_archived')
     .or('is_archived.is.null,is_archived.eq.false')
     .order('name', { ascending: true })
     .limit(12)
