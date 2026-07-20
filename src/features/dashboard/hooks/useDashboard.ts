@@ -3,13 +3,7 @@ import { toErrorMessage } from '../../../shared/errors/app-error'
 import { getDashboardData } from '../services/dashboard.service'
 import type { DashboardData } from '../types/dashboard.types'
 
-const empty: DashboardData = {
-  kpis: [],
-  projects: [],
-  entries: [],
-  actions: [],
-  alerts: [],
-}
+const empty: DashboardData = { kpis: [], projects: [], entries: [], actions: [], alerts: [] }
 
 export function useDashboard() {
   const [data, setData] = useState<DashboardData>(empty)
