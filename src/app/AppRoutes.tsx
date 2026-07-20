@@ -7,7 +7,7 @@ import {
 import { LoginPage } from '../features/auth/pages/LoginPage'
 import { DashboardPage } from '../features/dashboard/pages/DashboardPage'
 import { JournalPage } from '../features/journal/pages/JournalPage'
-import { ProjectDetailsPage } from '../features/projects/pages/ProjectDetailsPage'
+import { ProjectJournalPage } from '../features/journal/pages/ProjectJournalPage'
 import { ProjectsPage } from '../features/projects/pages/ProjectsPage'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
 import { AppLayoutRoute } from './AppLayoutRoute'
@@ -27,7 +27,7 @@ export function AppRoutes() {
         <Route element={<AppLayoutRoute />}>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/projects" element={secured('/projects', <ProjectsPage />)} />
-          <Route path="/projects/:projectId" element={secured('/projects', <ProjectDetailsPage />)} />
+          <Route path="/projects/:projectId" element={secured('/projects', <ProjectJournalPage />)} />
           <Route path="/journal" element={secured('/journal', <JournalPage />)} />
           <Route
             path="/banks"
