@@ -30,6 +30,7 @@ export async function getJournalPage(request: JournalPageRequest): Promise<Journ
     limit: pageSize,
     query: request.filters.query,
     type: request.filters.type,
+    projectId: request.projectId,
   })
   const entries = result.records.map(mapJournalEntry)
 
