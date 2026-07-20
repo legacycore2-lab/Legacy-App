@@ -11,11 +11,11 @@ export function mapProjectRecord(record: ProjectRecord): Project {
   return {
     id: record.id,
     name: record.name,
-    client: '—',
+    client: record.client_name?.trim() || '—',
     location: '—',
     manager: '—',
     status: toProjectStatus(record),
-    progress: record.close_date ? 100 : 0,
+    progress: record.close_date ? 100 : Math.min(99, Math.max(0, Math.round(record.progress ?? 0))),
     contractValue: 0,
     received: 0,
     spent: 0,
