@@ -1,12 +1,4 @@
-export type ProjectFormValues = {
-  name: string
-  clientName: string
-  startDate: string
-  closeDate: string
-  progress: number
-}
-
-export type ProjectFormErrors = Partial<Record<keyof ProjectFormValues, string>>
+import type { ProjectFormErrors, ProjectFormValues } from '../types/project-form.types'
 
 export function validateProjectForm(values: ProjectFormValues): ProjectFormErrors {
   const errors: ProjectFormErrors = {}
