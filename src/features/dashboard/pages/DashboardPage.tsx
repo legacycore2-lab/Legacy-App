@@ -1,25 +1,27 @@
+import { CommandCenterPanels } from '../components/CommandCenterPanels'
 import { DashboardHeader } from '../components/DashboardHeader'
+import { DashboardSkeleton } from '../components/DashboardSkeleton'
 import { KpiGrid } from '../components/KpiGrid'
 import { QuickActions } from '../components/QuickActions'
-import { RecentEntries } from '../components/RecentEntries'
-import { RecentProjects } from '../components/RecentProjects'
 import { useDashboard } from '../hooks/useDashboard'
 import '../dashboard.css'
 
 export function DashboardPage() {
   const { data, isLoading, error } = useDashboard()
 
-  if (isLoading) return <section className="dashboard-details">جاري تحميل لوحة التحكم...</section>
-  if (error) return <section className="dashboard-details">{error}</section>
+  if (isLoading) {
+    return <DashboardSkeleton />
+  }
+
+  if (error) {
+    return <section className="dashboard-details dashboard-state dashboard-state--error">{error}</section>
+  }
 
   return (
-    <section className="dashboard-details">
+    <section className="dashboard-details dashboard-command-center">
       <DashboardHeader />
       <KpiGrid kpis={data.kpis} />
-      <div className="dashboard-primary-grid">
-        <RecentProjects projects={data.projects} />
-        <RecentEntries entries={data.entries} />
-      </div>
+      <CommandCenterPanels projects={data.projects} entries={data.entries} alerts={data.alerts} />
       <QuickActions actions={data.actions} />
     </section>
   )

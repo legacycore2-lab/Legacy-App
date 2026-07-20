@@ -5,29 +5,38 @@
 }
 
 .quick-action {
+  position: relative;
   min-height: 92px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
   gap: 4px;
-  padding: 13px;
+  padding: 13px 42px 13px 13px;
   border: 1px solid var(--border);
   border-radius: 13px;
   text-align: right;
+  text-decoration: none;
+  color: inherit;
   background: var(--surface-soft);
-  cursor: pointer;
   transition:
     transform 160ms ease,
-    border-color 160ms ease;
+    border-color 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .quick-action:hover {
   transform: translateY(-2px);
   border-color: color-mix(in srgb, var(--gold) 52%, var(--border));
+  box-shadow: 0 10px 24px rgb(15 55 42 / 7%);
 }
 
-.quick-action > span {
+.quick-action:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--gold) 45%, transparent);
+  outline-offset: 3px;
+}
+
+.quick-action__icon {
   width: 32px;
   height: 32px;
   display: grid;
@@ -41,6 +50,22 @@
 .quick-action small {
   color: var(--muted);
   font-size: 9px;
+}
+
+.quick-action__arrow {
+  position: absolute;
+  inset-inline-end: 14px;
+  top: 50%;
+  color: var(--muted);
+  transform: translateY(-50%);
+  transition:
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.quick-action:hover .quick-action__arrow {
+  color: var(--gold);
+  transform: translate(-2px, -50%);
 }
 
 @media (max-width: 900px) {
@@ -64,5 +89,17 @@
 @container page (max-width: 420px) {
   .quick-actions-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quick-action,
+  .quick-action__arrow {
+    transition: none;
+  }
+
+  .quick-action:hover,
+  .quick-action:hover .quick-action__arrow {
+    transform: none;
   }
 }

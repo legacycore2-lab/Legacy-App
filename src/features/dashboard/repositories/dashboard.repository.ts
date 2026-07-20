@@ -1,11 +1,12 @@
-import { dashboardActions, dashboardEntries, dashboardKpis, dashboardProjects } from '../data/dashboard.mock'
-import type { DashboardData } from '../types/dashboard.types'
+import { dashboardActions } from '../data/dashboard.mock'
+import type { DashboardAction } from '../types/dashboard.types'
 
-export async function findDashboardData(): Promise<DashboardData> {
+export type DashboardStaticData = {
+  actions: DashboardAction[]
+}
+
+export async function findDashboardData(): Promise<DashboardStaticData> {
   return {
-    kpis: dashboardKpis,
-    projects: dashboardProjects,
-    entries: dashboardEntries,
     actions: dashboardActions,
   }
 }
