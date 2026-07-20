@@ -1,7 +1,6 @@
-import type { Session, User } from '@supabase/supabase-js'
 import { AppError } from '../../../shared/errors/app-error'
 import { authRepository } from '../repositories/auth.repository'
-import type { AppRole, AuthUser, LoginCredentials } from '../types/auth.types'
+import type { AppRole, AuthIdentity, AuthUser, LoginCredentials } from '../types/auth.types'
 
 const roles: Record<AppRole, string> = {
   admin: 'مدير النظام',
@@ -13,24 +12,21 @@ export function resolveRole(value: unknown): AppRole {
   return value === 'admin' || value === 'accountant' || value === 'viewer' ? value : 'viewer'
 }
 
-function mapUser(user: User): AuthUser {
-  const role = resolveRole(user.app_metadata.role)
-  const email = user.email ?? ''
-  const metadataName = user.user_metadata.full_name
-  const displayName =
-    typeof metadataName === 'string' && metadataName.trim() ? metadataName.trim() : email.split('@')[0]
+function mapUser(identity: AuthIdentity): AuthUser {
+  const role = resolveRole(identity.role)
+  const displayName = identity.fullName ?? identity.email.split('@')[0]
 
   return {
-    id: user.id,
-    email,
+    id: identity.id,
+    email: identity.email,
     displayName: displayName || 'مستخدم النظام',
     role,
     roleLabel: roles[role],
   }
 }
 
-function sessionUser(session: Session | null): AuthUser | null {
-  return session ? mapUser(session.user) : null
+function identityUser(identity: AuthIdentity | null): AuthUser | null {
+  return identity ? mapUser(identity) : null
 }
 
 function authError(error: unknown): AppError {
@@ -52,19 +48,19 @@ function authError(error: unknown): AppError {
 export const authService = {
   async getCurrentUser(): Promise<AuthUser | null> {
     try {
-      return sessionUser(await authRepository.getSession())
+      return identityUser(await authRepository.getIdentity())
     } catch (error) {
       throw authError(error)
     }
   },
 
   subscribe(callback: (user: AuthUser | null) => void): () => void {
-    return authRepository.subscribe((_event, session) => callback(sessionUser(session)))
+    return authRepository.subscribe((identity) => callback(identityUser(identity)))
   },
 
   async signIn(credentials: LoginCredentials): Promise<AuthUser> {
     try {
-      return sessionUser(await authRepository.signIn(credentials))!
+      return mapUser(await authRepository.signIn(credentials))
     } catch (error) {
       throw authError(error)
     }

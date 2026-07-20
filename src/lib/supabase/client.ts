@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { supabaseAuthStorage } from './auth-storage'
 
 let client: SupabaseClient | null = null
 
@@ -12,6 +13,11 @@ export function getSupabaseClient(): SupabaseClient {
     throw new Error('Supabase environment variables are not configured.')
   }
 
-  client = createClient(url, anonKey)
+  client = createClient(url, anonKey, {
+    auth: {
+      persistSession: true,
+      storage: supabaseAuthStorage.storage,
+    },
+  })
   return client
 }

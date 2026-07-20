@@ -27,7 +27,7 @@ export function useLogin() {
 
     setIsSubmitting(true)
     try {
-      await signIn({ email: email.trim(), password })
+      await signIn({ email: email.trim(), password, remember })
       const state = location.state as LoginLocationState | null
       navigate(state?.from?.pathname || '/', { replace: true })
     } catch (caughtError) {
