@@ -20,7 +20,7 @@ export function DashboardPage() {
     <section className="dashboard-details dashboard-command-center">
       <DashboardHeader />
       <KpiGrid kpis={data.kpis} />
-      <CommandCenterPanels projects={data.projects} entries={data.entries} />
+      <CommandCenterPanels projects={data.projects} entries={data.entries} alerts={data.alerts} />
       <QuickActions actions={data.actions} />
     </section>
   )
