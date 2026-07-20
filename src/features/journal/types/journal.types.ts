@@ -22,6 +22,7 @@ export type JournalPageRequest = {
   page: number
   pageSize: number
   filters: JournalFilters
+  projectId?: string
 }
 
 export type JournalSummary = {
