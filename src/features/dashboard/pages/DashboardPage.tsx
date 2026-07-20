@@ -9,17 +9,11 @@ export function DashboardPage() {
   const { data, isLoading, error } = useDashboard()
 
   if (isLoading) {
-    return (
-      <section className="dashboard-details dashboard-state">جاري تجهيز مركز القيادة...</section>
-    )
+    return <section className="dashboard-details dashboard-state">جاري تجهيز مركز القيادة...</section>
   }
 
   if (error) {
-    return (
-      <section className="dashboard-details dashboard-state dashboard-state--error">
-        {error}
-      </section>
-    )
+    return <section className="dashboard-details dashboard-state dashboard-state--error">{error}</section>
   }
 
   return (
