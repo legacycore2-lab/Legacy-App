@@ -3,7 +3,13 @@ import { toErrorMessage } from '../../../shared/errors/app-error'
 import { getDashboardData } from '../services/dashboard.service'
 import type { DashboardData } from '../types/dashboard.types'
 
-const empty: DashboardData = { kpis: [], projects: [], entries: [], actions: [] }
+const empty: DashboardData = {
+  kpis:     [],
+  projects: [],
+  entries:  [],
+  actions:  [],
+  header:   { activeProjects: 0, balance: '0', lastUpdated: '—' },
+}
 
 export function useDashboard() {
   const result = useQuery({
