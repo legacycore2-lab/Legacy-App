@@ -1,7 +1,6 @@
 import type { DashboardProjectRecord } from '../repositories/dashboard-projects.repository'
 import type { DashboardProject } from '../types/dashboard.types'
-
-const currency = new Intl.NumberFormat('ar-EG')
+import { formatDashboardCurrency } from '../utils/dashboard-formatters'
 
 export function mapDashboardProject(
   record: DashboardProjectRecord,
@@ -14,7 +13,7 @@ export function mapDashboardProject(
     id: record.id,
     name: record.name,
     client: 'غير متاح في بيانات المشروع',
-    balance: `${currency.format(balance)} ج.م`,
+    balance: formatDashboardCurrency(balance),
     progress,
     status: isCompleted ? 'مكتمل' : 'جاري',
   }
