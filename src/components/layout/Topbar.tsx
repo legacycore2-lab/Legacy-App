@@ -8,9 +8,25 @@ import { NotificationsMenu } from './NotificationsMenu'
 import { ProfileMenu } from './ProfileMenu'
 import './topbar.css'
 
-type Props = { theme: ThemeMode; onToggleTheme: () => void; onOpenMenu: () => void }
+type Props = {
+  theme: ThemeMode
+  onToggleTheme: () => void
+  onOpenMenu: () => void
+  userName: string
+  roleLabel: string
+  canManageSystem: boolean
+  onLogout: () => void
+}
 
-export function Topbar({ theme, onToggleTheme, onOpenMenu }: Props) {
+export function Topbar({
+  theme,
+  onToggleTheme,
+  onOpenMenu,
+  userName,
+  roleLabel,
+  canManageSystem,
+  onLogout,
+}: Props) {
   const navigate = useNavigate()
   const meta = getNavigationItem(useLocation().pathname)
   const menusRef = useRef<HTMLDivElement>(null)
@@ -73,6 +89,10 @@ export function Topbar({ theme, onToggleTheme, onOpenMenu }: Props) {
         <ProfileMenu
           open={openMenu === 'profile'}
           onToggle={() => setOpenMenu(openMenu === 'profile' ? null : 'profile')}
+          userName={userName}
+          roleLabel={roleLabel}
+          canManageSystem={canManageSystem}
+          onLogout={onLogout}
         />
       </div>
     </header>
