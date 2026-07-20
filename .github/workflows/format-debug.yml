@@ -1,9 +1,9 @@
 name: Format Debug
 
 on:
-  push:
+  pull_request:
     branches:
-      - feature/dashboard-2-command-center
+      - main
 
 jobs:
   list-format-differences:
