@@ -55,13 +55,9 @@ export function useProjectDetails(projectId: string) {
     onPreviousPage: () => setPage((current) => Math.max(1, current - 1)),
     onNextPage: () => setPage((current) => Math.min(result?.totalPages ?? current, current + 1)),
     isProjectLoading: projectQuery.isLoading,
-    projectError: projectQuery.error
-      ? toErrorMessage(projectQuery.error, 'تعذر تحميل بيانات المشروع.')
-      : '',
+    projectError: projectQuery.error ? toErrorMessage(projectQuery.error, 'تعذر تحميل بيانات المشروع.') : '',
     isLoading: entriesQuery.isLoading,
     isRefreshing: entriesQuery.isFetching && !entriesQuery.isLoading,
-    error: entriesQuery.error
-      ? toErrorMessage(entriesQuery.error, 'تعذر تحميل قيود المشروع حاليًا.')
-      : '',
+    error: entriesQuery.error ? toErrorMessage(entriesQuery.error, 'تعذر تحميل قيود المشروع حاليًا.') : '',
   }
 }
