@@ -1,5 +1,6 @@
 import { CommandCenterPanels } from '../components/CommandCenterPanels'
 import { DashboardHeader } from '../components/DashboardHeader'
+import { DashboardSkeleton } from '../components/DashboardSkeleton'
 import { KpiGrid } from '../components/KpiGrid'
 import { QuickActions } from '../components/QuickActions'
 import { useDashboard } from '../hooks/useDashboard'
@@ -9,7 +10,7 @@ export function DashboardPage() {
   const { data, isLoading, error } = useDashboard()
 
   if (isLoading) {
-    return <section className="dashboard-details dashboard-state">جاري تجهيز مركز القيادة...</section>
+    return <DashboardSkeleton />
   }
 
   if (error) {
