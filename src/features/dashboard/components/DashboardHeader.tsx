@@ -1,25 +1,36 @@
 import { AlertTriangle, Clock3, FolderKanban, WalletCards } from 'lucide-react'
+import type { DashboardAlert, DashboardKpi, DashboardProject } from '../types/dashboard.types'
 
-const summaryItems = [
-  { label: 'مشاريع نشطة', value: '5', icon: FolderKanban, tone: 'green' },
-  { label: 'تنبيهات تحتاج مراجعة', value: '3', icon: AlertTriangle, tone: 'gold' },
-  { label: 'رصيد اليوم', value: '2,458,750', icon: WalletCards, tone: 'green' },
-  { label: 'آخر تحديث', value: 'الآن', icon: Clock3, tone: 'neutral' },
-]
+type DashboardHeaderProps = {
+  projects: DashboardProject[]
+  alerts: DashboardAlert[]
+  kpis: DashboardKpi[]
+}
 
-export function DashboardHeader() {
+function findKpiValue(kpis: DashboardKpi[], label: string): string {
+  return kpis.find((kpi) => kpi.label === label)?.value ?? '—'
+}
+
+export function DashboardHeader({ projects, alerts, kpis }: DashboardHeaderProps) {
+  const summaryItems = [
+    { label: 'مشاريع نشطة', value: String(projects.length), icon: FolderKanban, tone: 'green' },
+    { label: 'تنبيهات تحتاج مراجعة', value: String(alerts.length), icon: AlertTriangle, tone: 'gold' },
+    { label: 'إجمالي الرصيد', value: findKpiValue(kpis, 'إجمالي الرصيد'), icon: WalletCards, tone: 'green' },
+    { label: 'آخر تحديث', value: 'الآن', icon: Clock3, tone: 'neutral' },
+  ]
+
   return (
     <section className="dashboard-header" aria-labelledby="dashboard-heading">
       <div className="dashboard-header__intro">
-        <span>ملخص التشغيل</span>
-        <h1 id="dashboard-heading">صباح الخير، محمود 👋</h1>
-        <p>تابع أهم الأرقام والتنبيهات وحركة المشاريع من مكان واحد.</p>
+        <span>مركز قيادة Legacy Core</span>
+        <h1 id="dashboard-heading">صباح الخير، محمود <span aria-hidden="true">👋</span></h1>
+        <p>نظرة تشغيلية مباشرة على السيولة والمشاريع والحركة المالية والتنبيهات المهمة.</p>
       </div>
 
       <div className="dashboard-header__summary">
         {summaryItems.map(({ label, value, icon: Icon, tone }) => (
           <article className="dashboard-summary-card" key={label}>
-            <span className={`dashboard-summary-card__icon ${tone}`}>
+            <span className={`dashboard-summary-card__icon ${tone}`} aria-hidden="true">
               <Icon size={18} />
             </span>
             <div>
