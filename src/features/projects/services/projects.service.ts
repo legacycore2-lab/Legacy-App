@@ -1,6 +1,6 @@
 import { findProjects, insertProject } from '../repositories/projects.repository'
+import type { ProjectFormValues } from '../types/project-form.types'
 import type { Project, ProjectRow, ProjectsSummary } from '../types/project.types'
-import type { ProjectFormValues } from './project-form.service'
 import { mapProjectRecord } from './project.mapper'
 
 export async function getProjects(): Promise<Project[]> {
