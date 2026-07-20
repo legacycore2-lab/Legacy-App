@@ -27,7 +27,10 @@ export function AppRoutes() {
         <Route element={<AppLayoutRoute />}>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/projects" element={secured('/projects', <ProjectsPage />)} />
-          <Route path="/projects/:projectId" element={secured('/projects', <ProjectDetailsPage />)} />
+          <Route
+            path="/projects/:projectId"
+            element={secured('/projects', <ProjectDetailsPage />)}
+          />
           <Route path="/journal" element={secured('/journal', <JournalPage />)} />
           <Route
             path="/banks"
