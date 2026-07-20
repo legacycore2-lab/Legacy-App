@@ -12,6 +12,7 @@ import type {
   DashboardAction,
   DashboardData,
   DashboardEntryRecord,
+  DashboardHeaderSummary,
   DashboardProjectRecord,
   DashboardSummaryRecord,
 } from '../types/dashboard.types'
@@ -19,10 +20,10 @@ import type {
 const currency = new Intl.NumberFormat('ar-EG')
 
 const ACTIONS: DashboardAction[] = [
-  { label: 'إضافة مشروع',  description: 'إنشاء مشروع جديد',       icon: FolderPlus },
-  { label: 'إضافة قيد',    description: 'دخل أو مصروف',            icon: ReceiptText },
-  { label: 'تسجيل عهدة',   description: 'إنشاء عهدة جديدة',        icon: BriefcaseBusiness },
-  { label: 'تحويل مالي',   description: 'بين الخزنة والبنوك',      icon: Banknote },
+  { label: 'إضافة مشروع',  description: 'إنشاء مشروع جديد',  icon: FolderPlus },
+  { label: 'إضافة قيد',    description: 'دخل أو مصروف',       icon: ReceiptText },
+  { label: 'تسجيل عهدة',   description: 'إنشاء عهدة جديدة',   icon: BriefcaseBusiness },
+  { label: 'تحويل مالي',   description: 'بين الخزنة والبنوك', icon: Banknote },
 ]
 
 function formatAmount(value: number | string): string {
@@ -31,11 +32,8 @@ function formatAmount(value: number | string): string {
 
 function statusLabel(status: string): string {
   const map: Record<string, string> = {
-    active:    'جاري',
-    paused:    'متوقف',
-    completed: 'منتهي',
-    archived:  'مؤرشف',
-    open:      'جاري',
+    active: 'جاري', paused: 'متوقف',
+    completed: 'منتهي', archived: 'مؤرشف', open: 'جاري',
   }
   return map[status] ?? status
 }
@@ -61,35 +59,21 @@ function buildKpis(summary: DashboardSummaryRecord) {
   const balance = income - expense
 
   return [
-    {
-      label: 'إجمالي الرصيد',
-      value: formatAmount(balance),
-      trend: balance >= 0 ? '+' : '−',
-      icon:  WalletCards,
-      tone:  'green' as const,
-    },
-    {
-      label: 'إجمالي الإيرادات',
-      value: formatAmount(income),
-      trend: '+',
-      icon:  ArrowDownLeft,
-      tone:  'green' as const,
-    },
-    {
-      label: 'إجمالي المصروفات',
-      value: formatAmount(expense),
-      trend: '−',
-      icon:  ArrowUpRight,
-      tone:  'gold' as const,
-    },
-    {
-      label: 'مشاريع نشطة',
-      value: String(summary.active_project_count),
-      trend: '',
-      icon:  BriefcaseBusiness,
-      tone:  'green' as const,
-    },
+    { label: 'إجمالي الرصيد',     value: formatAmount(balance),  trend: balance >= 0 ? '+' : '−', icon: WalletCards,     tone: 'green' as const },
+    { label: 'إجمالي الإيرادات',  value: formatAmount(income),   trend: '+',                      icon: ArrowDownLeft,   tone: 'green' as const },
+    { label: 'إجمالي المصروفات',  value: formatAmount(expense),  trend: '−',                      icon: ArrowUpRight,    tone: 'gold'  as const },
+    { label: 'مشاريع نشطة',       value: String(summary.active_project_count), trend: '',          icon: BriefcaseBusiness, tone: 'green' as const },
   ]
+}
+
+function buildHeader(summary: DashboardSummaryRecord): DashboardHeaderSummary {
+  const income  = Number(summary.total_income)
+  const expense = Number(summary.total_expense)
+  return {
+    activeProjects: summary.active_project_count,
+    balance:        formatAmount(income - expense),
+    lastUpdated:    new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
+  }
 }
 
 function buildProjects(records: DashboardProjectRecord[]) {
@@ -117,6 +101,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   const raw = await findDashboardData()
   return {
     kpis:     buildKpis(raw.summary),
+    header:   buildHeader(raw.summary),
     projects: buildProjects(raw.projects),
     entries:  buildEntries(raw.entries),
     actions:  ACTIONS,
