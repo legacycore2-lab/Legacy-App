@@ -1,11 +1,7 @@
 import { ArrowDownLeft, ArrowUpRight, FolderKanban, WalletCards } from 'lucide-react'
 import type { DashboardKpiSource } from '../repositories/dashboard-kpis.repository'
 import type { DashboardKpi } from '../types/dashboard.types'
-import {
-  formatDashboardCurrency,
-  formatDashboardNumber,
-  toDashboardAmount,
-} from '../utils/dashboard-formatters'
+import { formatDashboardCurrency, formatDashboardNumber, toDashboardAmount } from '../utils/dashboard-formatters'
 
 export function buildDashboardKpis(source: DashboardKpiSource): DashboardKpi[] {
   const totals = source.entries.reduce(
