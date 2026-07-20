@@ -1,7 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useDeferredValue, useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
-import { getJournalPage } from '../services/journal.service'
+import { getJournalPage, getJournalProject } from '../services/journal.service'
 import type { JournalFilters } from '../types/journal.types'
 
 const PAGE_SIZE = 25
@@ -10,7 +10,13 @@ export function useProjectJournal(projectId: string) {
   const [filters, setFilters] = useState<JournalFilters>({ query: '', type: 'all' })
   const [page, setPage] = useState(1)
   const deferredSearch = useDeferredValue(filters.query)
-  const query = useQuery({
+  const projectQuery = useQuery({
+    queryKey: ['journal', 'project-header', projectId],
+    queryFn: () => getJournalProject(projectId),
+    enabled: Boolean(projectId),
+    staleTime: 60_000,
+  })
+  const entriesQuery = useQuery({
     queryKey: ['journal', 'project', projectId, page, deferredSearch, filters.type],
     queryFn: () =>
       getJournalPage({
@@ -29,9 +35,10 @@ export function useProjectJournal(projectId: string) {
     setFilters(nextFilters)
   }
 
-  const result = query.data
+  const result = entriesQuery.data
 
   return {
+    project: projectQuery.data ?? null,
     entries: result?.entries ?? [],
     summary: result?.summary ?? {
       totalCount: 0,
@@ -45,8 +52,10 @@ export function useProjectJournal(projectId: string) {
     totalPages: result?.totalPages ?? 1,
     onPreviousPage: () => setPage((current) => Math.max(1, current - 1)),
     onNextPage: () => setPage((current) => Math.min(result?.totalPages ?? current, current + 1)),
-    isLoading: query.isLoading,
-    isRefreshing: query.isFetching && !query.isLoading,
-    error: query.error ? toErrorMessage(query.error, 'تعذر تحميل قيود المشروع حاليًا.') : '',
+    isProjectLoading: projectQuery.isLoading,
+    projectError: projectQuery.error ? toErrorMessage(projectQuery.error, 'تعذر تحميل بيانات المشروع.') : '',
+    isLoading: entriesQuery.isLoading,
+    isRefreshing: entriesQuery.isFetching && !entriesQuery.isLoading,
+    error: entriesQuery.error ? toErrorMessage(entriesQuery.error, 'تعذر تحميل قيود المشروع حاليًا.') : '',
   }
 }
