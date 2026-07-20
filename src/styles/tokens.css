@@ -14,6 +14,7 @@
   --green-soft: rgba(77, 155, 104, 0.14);
   --danger: #d9554d;
   --border: rgba(27, 60, 45, 0.12);
+  --primary: #0d5c3d;
 
   --radius-sm: 7px;
   --radius-md: 11px;
@@ -49,6 +50,8 @@
   --green-soft: rgba(67, 145, 83, 0.17);
   --danger: #f05c51;
   --border: rgba(209, 170, 96, 0.15);
+  --primary: #1a7a52;
   --shadow-card: 0 24px 70px rgba(0, 0, 0, 0.34);
   --shadow-topbar: 0 14px 34px rgba(0, 0, 0, 0.24);
 }
+
