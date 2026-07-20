@@ -19,19 +19,19 @@ export async function findJournalEntries(): Promise<JournalEntryRecord[]> {
     .select(
       `
       id,
-      seq,
+      seq:entry_number,
       entry_date,
-      type,
+      type:entry_type,
       category,
       description,
-      contractor,
+      contractor:contractor_name,
       payment_method,
       amount,
       project:projects(name)
     `,
     )
     .order('entry_date', { ascending: false })
-    .order('seq', { ascending: false })
+    .order('entry_number', { ascending: false })
 
   if (error) throw error
   return (data ?? []) as JournalEntryRecord[]
