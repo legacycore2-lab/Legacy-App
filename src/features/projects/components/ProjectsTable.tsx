@@ -54,7 +54,11 @@ export function ProjectsTable({ projects }: Props) {
                   </td>
                   <td>
                     <div className="table-actions">
-                      <button type="button" title="عرض" onClick={() => navigate(`/projects/${project.id}`)}>
+                      <button
+                        type="button"
+                        title="عرض"
+                        onClick={() => navigate(`/projects/${project.id}`)}
+                      >
                         <Eye size={16} />
                       </button>
                       <button type="button" title="تعديل" disabled>
