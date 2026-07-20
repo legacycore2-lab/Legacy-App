@@ -1,4 +1,8 @@
-import type { DashboardAlert, DashboardEntry, DashboardProject } from '../types/dashboard.types'
+import type {
+  DashboardAlert,
+  DashboardEntry,
+  DashboardProject,
+} from '../types/dashboard.types'
 
 const HIGH_EXPENSE_THRESHOLD = 40_000
 const CLOSEOUT_PROGRESS_THRESHOLD = 90
