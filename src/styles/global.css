@@ -85,6 +85,57 @@ a {
   cursor: pointer;
 }
 
+.page-error-boundary {
+  min-height: min(560px, calc(100dvh - 130px));
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 9px;
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  text-align: center;
+}
+
+.page-error-boundary > span {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.page-error-boundary h1,
+.page-error-boundary p {
+  margin: 0;
+}
+
+.page-error-boundary p {
+  color: var(--muted);
+}
+
+.page-error-boundary > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 9px;
+}
+
+.page-error-boundary button,
+.page-error-boundary a {
+  padding: 10px 15px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-soft);
+  cursor: pointer;
+}
+
+.page-error-boundary button {
+  border-color: var(--gold);
+  color: #fff;
+  background: var(--primary);
+}
+
 .app-layout {
   min-height: 100vh;
   min-height: 100dvh;
