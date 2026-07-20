@@ -44,7 +44,9 @@ export function buildDashboardAlerts(
   })
 
   entries
-    .filter((entry) => entry.type === 'expense' && parseAmount(entry.amount) >= HIGH_EXPENSE_THRESHOLD)
+    .filter(
+      (entry) => entry.type === 'expense' && parseAmount(entry.amount) >= HIGH_EXPENSE_THRESHOLD,
+    )
     .forEach((entry) => {
       alerts.push({
         id: `high-expense-${entry.id}`,
