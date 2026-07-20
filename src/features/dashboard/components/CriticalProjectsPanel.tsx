@@ -1,4 +1,4 @@
-import { ArrowLeft, FolderKanban } from 'lucide-react'
+import { FolderKanban } from 'lucide-react'
 import type { DashboardProject } from '../types/dashboard.types'
 import { PanelEmptyState } from './PanelEmptyState'
 
@@ -17,9 +17,6 @@ export function CriticalProjectsPanel({ projects }: { projects: DashboardProject
           <span>متابعة التنفيذ</span>
           <h2>المشاريع الحرجة</h2>
         </div>
-        <button type="button">
-          عرض الكل <ArrowLeft size={16} />
-        </button>
       </header>
 
       {visibleProjects.length ? (
@@ -36,8 +33,15 @@ export function CriticalProjectsPanel({ projects }: { projects: DashboardProject
                   </div>
                   <span className="critical-project__status">{project.status}</span>
                 </div>
-                <div className="critical-project__progress" aria-label={`نسبة الإنجاز ${progress}%`}>
-                  <span style={{ width: `${progress}%` }} />
+                <div
+                  className="critical-project__progress"
+                  role="progressbar"
+                  aria-label={`نسبة إنجاز مشروع ${project.name}`}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={progress}
+                >
+                  <span style={{ width: `${progress}%` }} aria-hidden="true" />
                 </div>
                 <footer>
                   <span>{progress}% تنفيذ</span>
