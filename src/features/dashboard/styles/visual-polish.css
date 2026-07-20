@@ -30,7 +30,11 @@
 .critical-project {
   padding: 1rem;
   border-radius: 17px;
-  background: linear-gradient(145deg, var(--surface), color-mix(in srgb, var(--surface-soft) 86%, transparent));
+  background: linear-gradient(
+    145deg,
+    var(--surface),
+    color-mix(in srgb, var(--surface-soft) 86%, transparent)
+  );
 }
 
 .critical-project__topline strong {
@@ -86,7 +90,11 @@
 }
 
 .panel-empty-state {
-  background: linear-gradient(145deg, color-mix(in srgb, var(--surface) 94%, transparent), var(--surface-soft));
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--surface) 94%, transparent),
+    var(--surface-soft)
+  );
 }
 
 .quick-actions {
