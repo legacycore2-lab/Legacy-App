@@ -10,7 +10,9 @@ export async function getDashboardData(): Promise<DashboardData> {
   const [data, projectRecords] = await Promise.all([findDashboardData(), findDashboardProjects()])
   const projectEntries = await findDashboardProjectEntries(projectRecords.map((project) => project.id))
   const balances = buildDashboardProjectBalances(projectEntries)
-  const projects = projectRecords.map((project) => mapDashboardProject(project, balances.get(project.id) ?? 0))
+  const projects = projectRecords.map((project) =>
+    mapDashboardProject(project, balances.get(project.id) ?? 0),
+  )
 
   return {
     ...data,
