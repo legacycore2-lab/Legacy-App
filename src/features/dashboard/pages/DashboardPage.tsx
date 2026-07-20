@@ -10,15 +10,15 @@ export function DashboardPage() {
   const { data, isLoading, error } = useDashboard()
 
   if (isLoading) return <section className="dashboard-details">جاري تحميل لوحة التحكم...</section>
-  if (error) return <section className="dashboard-details">{error}</section>
+  if (error)     return <section className="dashboard-details">{error}</section>
 
   return (
     <section className="dashboard-details">
-      <DashboardHeader />
+      <DashboardHeader summary={data.header} />
       <KpiGrid kpis={data.kpis} />
       <div className="dashboard-primary-grid">
         <RecentProjects projects={data.projects} />
-        <RecentEntries entries={data.entries} />
+        <RecentEntries  entries={data.entries} />
       </div>
       <QuickActions actions={data.actions} />
     </section>
