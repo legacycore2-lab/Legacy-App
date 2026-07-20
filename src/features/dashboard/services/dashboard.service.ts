@@ -1,28 +1,53 @@
 import { mapDashboardEntry } from '../mappers/dashboard-entry.mapper'
 import { mapDashboardProject } from '../mappers/dashboard-project.mapper'
-import { findDashboardKpiSource } from '../repositories/dashboard-kpis.repository'
+import { findDashboardKpiSource, type DashboardKpiSource } from '../repositories/dashboard-kpis.repository'
 import { findDashboardProjectEntries } from '../repositories/dashboard-project-balances.repository'
-import { findDashboardProjects } from '../repositories/dashboard-projects.repository'
-import { findDashboardRecentEntries } from '../repositories/dashboard-recent-entries.repository'
+import {
+  findDashboardProjects,
+  type DashboardProjectRecord,
+} from '../repositories/dashboard-projects.repository'
+import {
+  findDashboardRecentEntries,
+  type DashboardRecentEntryRecord,
+} from '../repositories/dashboard-recent-entries.repository'
 import { findDashboardData } from '../repositories/dashboard.repository'
 import type { DashboardData } from '../types/dashboard.types'
 import { buildDashboardAlerts } from './dashboard-alerts.service'
 import { buildDashboardKpis } from './dashboard-kpis.service'
 import { buildDashboardProjectBalances } from './dashboard-project-balances.service'
 
+const emptyKpiSource: DashboardKpiSource = {
+  entries: [],
+  activeProjectsCount: 0,
+}
+
+function valueOrFallback<Value>(result: PromiseSettledResult<Value>, fallback: Value): Value {
+  return result.status === 'fulfilled' ? result.value : fallback
+}
+
 export async function getDashboardData(): Promise<DashboardData> {
-  const [data, projectRecords, kpiSource, recentEntryRecords] = await Promise.all([
-    findDashboardData(),
+  const data = await findDashboardData()
+  const [projectsResult, kpisResult, recentEntriesResult] = await Promise.allSettled([
     findDashboardProjects(),
     findDashboardKpiSource(),
     findDashboardRecentEntries(),
   ])
-  const projectEntries = await findDashboardProjectEntries(projectRecords.map((project) => project.id))
+
+  const projectRecords = valueOrFallback<DashboardProjectRecord[]>(projectsResult, [])
+  const kpiSource = valueOrFallback<DashboardKpiSource>(kpisResult, emptyKpiSource)
+  const recentEntryRecords = valueOrFallback<DashboardRecentEntryRecord[]>(recentEntriesResult, [])
+
+  const projectEntries = projectRecords.length
+    ? await findDashboardProjectEntries(projectRecords.map((project) => project.id)).catch(() => [])
+    : []
   const balances = buildDashboardProjectBalances(projectEntries)
+  const projectNames = new Map(projectRecords.map((project) => [project.id, project.name]))
   const projects = projectRecords.map((project) =>
     mapDashboardProject(project, balances.get(project.id) ?? 0),
   )
-  const entries = recentEntryRecords.map(mapDashboardEntry)
+  const entries = recentEntryRecords.map((entry) =>
+    mapDashboardEntry(entry, entry.project_id ? projectNames.get(entry.project_id) : undefined),
+  )
 
   return {
     ...data,

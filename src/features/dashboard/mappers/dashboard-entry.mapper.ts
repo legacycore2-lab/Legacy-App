@@ -2,18 +2,16 @@ import type { DashboardRecentEntryRecord } from '../repositories/dashboard-recen
 import type { DashboardEntry } from '../types/dashboard.types'
 import { formatDashboardDate, formatDashboardNumber, toDashboardAmount } from '../utils/dashboard-formatters'
 
-function getProjectName(projects: DashboardRecentEntryRecord['projects']): string {
-  if (Array.isArray(projects)) return projects[0]?.name ?? 'مشروع غير معروف'
-  return projects?.name ?? 'مشروع غير معروف'
-}
-
-export function mapDashboardEntry(record: DashboardRecentEntryRecord): DashboardEntry {
+export function mapDashboardEntry(
+  record: DashboardRecentEntryRecord,
+  projectName = 'مشروع غير معروف',
+): DashboardEntry {
   return {
     id: record.seq ? `#${record.seq}` : record.id,
-    project: getProjectName(record.projects),
+    project: projectName,
     description: record.description?.trim() || 'بدون بيان',
-    date: formatDashboardDate(record.entry_date),
-    amount: formatDashboardNumber(toDashboardAmount(record.amount)),
+    date: formatDashboardDate(record.entry_date ?? null),
+    amount: formatDashboardNumber(toDashboardAmount(record.amount ?? null)),
     type: record.type === 'i' ? 'income' : 'expense',
   }
 }

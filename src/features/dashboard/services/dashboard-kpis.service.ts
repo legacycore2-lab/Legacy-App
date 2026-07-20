@@ -10,7 +10,7 @@ import {
 export function buildDashboardKpis(source: DashboardKpiSource): DashboardKpi[] {
   const totals = source.entries.reduce(
     (result, entry) => {
-      const amount = toDashboardAmount(entry.amount)
+      const amount = toDashboardAmount(entry.amount ?? null)
 
       if (entry.type === 'i') result.income += amount
       if (entry.type === 'e') result.expense += amount
