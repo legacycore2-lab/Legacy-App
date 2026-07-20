@@ -7,6 +7,7 @@ export type DashboardKpi = {
   icon: LucideIcon
   tone: 'green' | 'gold'
 }
+
 export type DashboardProject = {
   name: string
   client: string
@@ -14,6 +15,7 @@ export type DashboardProject = {
   progress: number
   status: string
 }
+
 export type DashboardEntry = {
   id: string
   project: string
@@ -22,10 +24,24 @@ export type DashboardEntry = {
   amount: string
   type: 'income' | 'expense'
 }
-export type DashboardAction = { label: string; description: string; icon: LucideIcon }
+
+export type DashboardAction = {
+  label: string
+  description: string
+  icon: LucideIcon
+}
+
+export type DashboardAlert = {
+  id: string
+  title: string
+  description: string
+  tone: 'danger' | 'warning' | 'success'
+}
+
 export type DashboardData = {
   kpis: DashboardKpi[]
   projects: DashboardProject[]
   entries: DashboardEntry[]
   actions: DashboardAction[]
+  alerts: DashboardAlert[]
 }
