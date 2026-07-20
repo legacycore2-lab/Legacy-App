@@ -33,9 +33,7 @@ function normalizeSearch(value: string): string {
     .trim()
 }
 
-export async function findJournalEntries(
-  query: JournalEntriesQuery,
-): Promise<JournalEntriesResult> {
+export async function findJournalEntries(query: JournalEntriesQuery): Promise<JournalEntriesResult> {
   let request = getSupabaseClient()
     .from('entries')
     .select(
