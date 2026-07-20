@@ -9,6 +9,8 @@ function normalizeType(type: string): JournalEntryType {
 }
 
 function getProjectName(project: JournalEntryRecord['project']): string {
+  // Supabase can infer embedded relations as arrays without generated database types.
+  // Normalize that transport detail here so it never leaks into the UI model.
   if (Array.isArray(project)) return project[0]?.name ?? 'بدون مشروع'
   return project?.name ?? 'بدون مشروع'
 }

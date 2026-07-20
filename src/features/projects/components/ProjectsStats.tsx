@@ -1,46 +1,43 @@
 import { Archive, BriefcaseBusiness, CircleCheckBig, CirclePause, TrendingUp } from 'lucide-react'
-import type { Project } from '../types/project.types'
+import type { ProjectsSummary } from '../types/project.types'
 
 type ProjectsStatsProps = {
-  projects: Project[]
+  summary: ProjectsSummary
 }
 
 const number = new Intl.NumberFormat('ar-EG')
 
-export function ProjectsStats({ projects }: ProjectsStatsProps) {
-  const totalContracts = projects.reduce((total, project) => total + project.contractValue, 0)
-  const totalLiquidity = projects.reduce((total, project) => total + (project.received - project.spent), 0)
-
+export function ProjectsStats({ summary }: ProjectsStatsProps) {
   const stats = [
-    { label: 'إجمالي المشاريع', value: projects.length, icon: BriefcaseBusiness, tone: 'green' },
+    { label: 'إجمالي المشاريع', value: summary.total, icon: BriefcaseBusiness, tone: 'green' },
     {
       label: 'المشاريع الجارية',
-      value: projects.filter((project) => project.status === 'active').length,
+      value: summary.active,
       icon: TrendingUp,
       tone: 'blue',
     },
     {
       label: 'المشاريع المكتملة',
-      value: projects.filter((project) => project.status === 'completed').length,
+      value: summary.completed,
       icon: CircleCheckBig,
       tone: 'gold',
     },
     {
       label: 'المشاريع المتوقفة',
-      value: projects.filter((project) => project.status === 'paused').length,
+      value: summary.paused,
       icon: CirclePause,
       tone: 'red',
     },
     {
       label: 'قيمة العقود',
-      value: number.format(totalContracts),
+      value: number.format(summary.totalContracts),
       icon: Archive,
       tone: 'purple',
       suffix: 'ج.م',
     },
     {
       label: 'صافي السيولة',
-      value: number.format(totalLiquidity),
+      value: number.format(summary.totalLiquidity),
       icon: TrendingUp,
       tone: 'teal',
       suffix: 'ج.م',

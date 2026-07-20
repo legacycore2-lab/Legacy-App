@@ -33,6 +33,10 @@ for (const file of files) {
       ) {
         violations.push(`${path}: UI must use Hooks, not Service/Repository/Supabase (${value})`)
       }
+
+      if (source.includes('.reduce(')) {
+        violations.push(`${path}: UI must receive calculated aggregates from Hook/Service`)
+      }
     }
 
     if (/\/hooks\//.test(`/${path}`)) {

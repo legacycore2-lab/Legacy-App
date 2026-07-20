@@ -16,3 +16,16 @@ export type Project = {
 }
 
 export type ProjectStatusFilter = 'all' | ProjectStatus
+
+export type ProjectRow = Project & {
+  balance: number
+}
+
+export type ProjectsSummary = {
+  total: number
+  active: number
+  completed: number
+  paused: number
+  totalContracts: number
+  totalLiquidity: number
+}

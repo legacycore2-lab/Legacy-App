@@ -1,25 +1,35 @@
 import { ArrowDownCircle, ArrowUpCircle, FileText, Plus, Search } from 'lucide-react'
-import type { JournalEntry, JournalFilters } from '../types/journal.types'
+import type { JournalEntry, JournalFilters, JournalSummary } from '../types/journal.types'
 
 const currency = new Intl.NumberFormat('ar-EG')
 
 type Props = {
   entries: JournalEntry[]
-  allEntries: JournalEntry[]
+  summary: JournalSummary
   filters: JournalFilters
   onFiltersChange: (filters: JournalFilters) => void
+  page: number
+  totalPages: number
+  onPreviousPage: () => void
+  onNextPage: () => void
   isLoading: boolean
+  isRefreshing: boolean
   error: string
 }
 
-export function JournalView({ entries, allEntries, filters, onFiltersChange, isLoading, error }: Props) {
-  const income = allEntries
-    .filter((entry) => entry.type === 'income')
-    .reduce((sum, entry) => sum + entry.amount, 0)
-  const expense = allEntries
-    .filter((entry) => entry.type === 'expense')
-    .reduce((sum, entry) => sum + entry.amount, 0)
-
+export function JournalView({
+  entries,
+  summary,
+  filters,
+  onFiltersChange,
+  page,
+  totalPages,
+  onPreviousPage,
+  onNextPage,
+  isLoading,
+  isRefreshing,
+  error,
+}: Props) {
   return (
     <section className="journal-page">
       <header className="journal-header">
@@ -42,22 +52,22 @@ export function JournalView({ entries, allEntries, filters, onFiltersChange, isL
         <article>
           <FileText />
           <span>إجمالي القيود</span>
-          <strong>{currency.format(allEntries.length)}</strong>
+          <strong>{currency.format(summary.totalCount)}</strong>
         </article>
         <article>
           <ArrowUpCircle />
-          <span>إجمالي الإيرادات</span>
-          <strong>{currency.format(income)} ج.م</strong>
+          <span>إيرادات الصفحة</span>
+          <strong>{currency.format(summary.pageIncome)} ج.م</strong>
         </article>
         <article>
           <ArrowDownCircle />
-          <span>إجمالي المصروفات</span>
-          <strong>{currency.format(expense)} ج.م</strong>
+          <span>مصروفات الصفحة</span>
+          <strong>{currency.format(summary.pageExpense)} ج.م</strong>
         </article>
         <article>
           <FileText />
-          <span>صافي الحركة</span>
-          <strong>{currency.format(income - expense)} ج.م</strong>
+          <span>صافي الصفحة</span>
+          <strong>{currency.format(summary.pageNet)} ج.م</strong>
         </article>
       </div>
 
@@ -67,7 +77,7 @@ export function JournalView({ entries, allEntries, filters, onFiltersChange, isL
           <input
             value={filters.query}
             onChange={(event) => onFiltersChange({ ...filters, query: event.target.value })}
-            placeholder="ابحث بالمشروع أو البند أو المقاول..."
+            placeholder="ابحث بالكود أو البند أو البيان أو المقاول..."
           />
         </label>
         <select
@@ -129,6 +139,21 @@ export function JournalView({ entries, allEntries, filters, onFiltersChange, isL
           </table>
         )}
       </div>
+
+      {!isLoading && !error && summary.totalCount > 0 && (
+        <nav className="journal-pagination" aria-label="صفحات القيود">
+          <button type="button" onClick={onPreviousPage} disabled={page <= 1 || isRefreshing}>
+            السابق
+          </button>
+          <span>
+            صفحة {currency.format(page)} من {currency.format(totalPages)}
+            {isRefreshing ? ' · جاري التحديث' : ''}
+          </span>
+          <button type="button" onClick={onNextPage} disabled={page >= totalPages || isRefreshing}>
+            التالي
+          </button>
+        </nav>
+      )}
     </section>
   )
 }
