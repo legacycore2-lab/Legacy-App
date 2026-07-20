@@ -11,7 +11,7 @@ export async function findDashboardProjects(): Promise<DashboardProjectRecord[]>
   const { data, error } = await getSupabaseClient()
     .from('projects')
     .select('id, name, close_date, is_archived')
-    .eq('is_archived', false)
+    .or('is_archived.is.null,is_archived.eq.false')
     .order('name', { ascending: true })
     .limit(12)
 
