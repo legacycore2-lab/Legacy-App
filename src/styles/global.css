@@ -14,7 +14,7 @@
 html {
   min-width: 320px;
   min-height: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
   background: var(--bg);
 }
 body {
@@ -22,7 +22,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   min-height: 100dvh;
-  overflow-x: hidden;
+  overflow-x: clip;
   background: var(--bg);
   color: var(--text);
 }
@@ -61,6 +61,7 @@ a {
 .sidebar {
   position: sticky;
   top: 0;
+  align-self: start;
   grid-column: 2;
   grid-row: 1;
   height: 100vh;
