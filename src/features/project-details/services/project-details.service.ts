@@ -13,10 +13,7 @@ export async function getProjectDetails(projectId: string) {
 }
 
 function summarize(entries: ProjectEntry[], totalCount: number): ProjectEntrySummary {
-  const pageIncome = entries.reduce(
-    (total, entry) => total + (entry.type === 'income' ? entry.amount : 0),
-    0,
-  )
+  const pageIncome = entries.reduce((total, entry) => total + (entry.type === 'income' ? entry.amount : 0), 0)
   const pageExpense = entries.reduce(
     (total, entry) => total + (entry.type === 'expense' ? entry.amount : 0),
     0,
