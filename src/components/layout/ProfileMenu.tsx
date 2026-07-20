@@ -1,10 +1,18 @@
 import { ChevronDown, LogOut, Settings, UserRound } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
-type Props = { open: boolean; onToggle: () => void }
+type Props = {
+  open: boolean
+  onToggle: () => void
+  userName: string
+  roleLabel: string
+  canManageSystem: boolean
+  onLogout: () => void
+}
 
-export function ProfileMenu({ open, onToggle }: Props) {
+export function ProfileMenu({ open, onToggle, userName, roleLabel, canManageSystem, onLogout }: Props) {
   const navigate = useNavigate()
+  const avatarLetter = userName.trim().charAt(0) || 'م'
   return (
     <div className="topbar-popover-wrap profile-wrap">
       <button
@@ -15,11 +23,11 @@ export function ProfileMenu({ open, onToggle }: Props) {
         aria-expanded={open}
         onClick={onToggle}
       >
-        <span className="avatar">م</span>
+        <span className="avatar">{avatarLetter}</span>
         <span className="topbar-profile-copy">
-          <strong>مستخدم النظام</strong>
+          <strong>{userName}</strong>
           <small>
-            <i /> الحساب الحالي
+            <i /> {roleLabel}
           </small>
         </span>
         <ChevronDown size={15} />
@@ -30,12 +38,14 @@ export function ProfileMenu({ open, onToggle }: Props) {
             <UserRound size={17} />
             <span>الملف الشخصي</span>
           </button>
-          <button type="button" role="menuitem" onClick={() => navigate('/settings')}>
-            <Settings size={17} />
-            <span>الإعدادات</span>
-          </button>
+          {canManageSystem && (
+            <button type="button" role="menuitem" onClick={() => navigate('/settings')}>
+              <Settings size={17} />
+              <span>الإعدادات</span>
+            </button>
+          )}
           <div className="popover-divider" />
-          <button className="danger-action" type="button" role="menuitem">
+          <button className="danger-action" type="button" role="menuitem" onClick={onLogout}>
             <LogOut size={17} />
             <span>تسجيل الخروج</span>
           </button>

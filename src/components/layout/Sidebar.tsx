@@ -7,6 +7,10 @@ import './sidebar.css'
 type SidebarProps = {
   open: boolean
   onClose: () => void
+  userName: string
+  roleLabel: string
+  canManageSystem: boolean
+  onLogout: () => void
 }
 
 function matchesSearch(item: NavigationItem, query: string) {
@@ -19,13 +23,20 @@ function matchesSearch(item: NavigationItem, query: string) {
   return searchableText.includes(normalizedQuery)
 }
 
-export function Sidebar({ open, onClose }: SidebarProps) {
+export function Sidebar({ open, onClose, userName, roleLabel, canManageSystem, onLogout }: SidebarProps) {
   const [searchQuery, setSearchQuery] = useState('')
 
   const filteredItems = useMemo(
-    () => navigationItems.filter((item) => matchesSearch(item, searchQuery)),
-    [searchQuery],
+    () =>
+      navigationItems.filter(
+        (item) =>
+          (canManageSystem || (item.path !== '/users' && item.path !== '/settings')) &&
+          matchesSearch(item, searchQuery),
+      ),
+    [canManageSystem, searchQuery],
   )
+
+  const avatarLetter = userName.trim().charAt(0) || 'م'
 
   return (
     <>
@@ -111,15 +122,15 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
         <div className="lc-sidebar__footer">
           <button className="lc-sidebar__profile" type="button">
-            <span className="avatar">م</span>
+            <span className="avatar">{avatarLetter}</span>
             <span className="lc-sidebar__profile-copy">
-              <strong>مستخدم النظام</strong>
-              <small>الحساب الحالي</small>
+              <strong>{userName}</strong>
+              <small>{roleLabel}</small>
             </span>
             <ChevronLeft size={16} aria-hidden="true" />
           </button>
 
-          <button className="lc-sidebar__logout" type="button">
+          <button className="lc-sidebar__logout" type="button" onClick={onLogout}>
             <LogOut size={17} aria-hidden="true" />
             <span>تسجيل الخروج</span>
           </button>
