@@ -15,8 +15,15 @@
   margin-bottom: 12px;
 }
 
-.widget-header span { color: var(--gold); font-size: 9px; font-weight: 700; }
-.widget-header h2 { margin: 3px 0 0; font-size: 17px; }
+.widget-header span {
+  color: var(--gold);
+  font-size: 9px;
+  font-weight: 700;
+}
+.widget-header h2 {
+  margin: 3px 0 0;
+  font-size: 17px;
+}
 .widget-header button {
   display: inline-flex;
   align-items: center;
@@ -30,11 +37,13 @@
 }
 
 .project-list,
-.entries-list { display: grid; }
+.entries-list {
+  display: grid;
+}
 
 .project-row {
   display: grid;
-  grid-template-columns: minmax(150px, 1.3fr) minmax(120px, 1fr) minmax(100px, .7fr) auto;
+  grid-template-columns: minmax(150px, 1.3fr) minmax(120px, 1fr) minmax(100px, 0.7fr) auto;
   align-items: center;
   gap: 14px;
   padding: 13px 8px;
@@ -44,9 +53,13 @@
 }
 
 .project-row:hover,
-.entry-row:hover { background: var(--surface-soft); }
+.entry-row:hover {
+  background: var(--surface-soft);
+}
 .project-row:first-child,
-.entry-row:first-child { border-top: 0; }
+.entry-row:first-child {
+  border-top: 0;
+}
 
 .project-main strong,
 .project-main small,
@@ -55,7 +68,9 @@
 .entry-copy strong,
 .entry-copy small,
 .entry-amount strong,
-.entry-amount small { display: block; }
+.entry-amount small {
+  display: block;
+}
 
 .project-main small,
 .project-balance small,
@@ -66,7 +81,11 @@
   font-size: 9px;
 }
 
-.project-progress { display: flex; align-items: center; gap: 8px; }
+.project-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .project-progress > div {
   height: 6px;
   flex: 1;
@@ -80,8 +99,15 @@
   border-radius: inherit;
   background: linear-gradient(90deg, var(--green), var(--gold));
 }
-.project-progress small { width: 34px; color: var(--muted); font-size: 9px; direction: ltr; }
-.project-balance { text-align: left; }
+.project-progress small {
+  width: 34px;
+  color: var(--muted);
+  font-size: 9px;
+  direction: ltr;
+}
+.project-balance {
+  text-align: left;
+}
 
 .status-badge {
   padding: 5px 8px;
@@ -110,26 +136,69 @@
   place-items: center;
   border-radius: 11px;
 }
-.entry-icon.income { color: var(--green); background: var(--green-soft); }
-.entry-icon.expense { color: var(--gold); background: var(--gold-soft); }
-.entry-copy { min-width: 0; }
+.entry-icon.income {
+  color: var(--green);
+  background: var(--green-soft);
+}
+.entry-icon.expense {
+  color: var(--gold);
+  background: var(--gold-soft);
+}
+.entry-copy {
+  min-width: 0;
+}
 .entry-copy strong,
-.entry-copy small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.entry-amount { text-align: left; direction: ltr; }
-.entry-amount.income strong { color: var(--green); }
-.entry-amount.expense strong { color: var(--danger); }
+.entry-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.entry-amount {
+  text-align: left;
+  direction: ltr;
+}
+.entry-amount.income strong {
+  color: var(--green);
+}
+.entry-amount.expense strong {
+  color: var(--danger);
+}
 
 @media (max-width: 760px) {
-  .project-row { grid-template-columns: 1fr auto; gap: 9px; }
-  .project-progress { grid-column: 1 / -1; order: 3; }
-  .project-balance { text-align: left; }
-  .status-badge { grid-column: 2; grid-row: 1; }
+  .project-row {
+    grid-template-columns: 1fr auto;
+    gap: 9px;
+  }
+  .project-progress {
+    grid-column: 1 / -1;
+    order: 3;
+  }
+  .project-balance {
+    text-align: left;
+  }
+  .status-badge {
+    grid-column: 2;
+    grid-row: 1;
+  }
 }
 
 @media (max-width: 520px) {
-  .dashboard-widget { padding: 15px; border-radius: 15px; }
-  .widget-header { align-items: flex-start; }
-  .widget-header button { padding: 6px 8px; font-size: 10px; }
-  .entry-row { grid-template-columns: auto minmax(0, 1fr); }
-  .entry-amount { grid-column: 2; text-align: right; }
+  .dashboard-widget {
+    padding: 15px;
+    border-radius: 15px;
+  }
+  .widget-header {
+    align-items: flex-start;
+  }
+  .widget-header button {
+    padding: 6px 8px;
+    font-size: 10px;
+  }
+  .entry-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .entry-amount {
+    grid-column: 2;
+    text-align: right;
+  }
 }

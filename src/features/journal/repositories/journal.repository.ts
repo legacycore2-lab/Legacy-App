@@ -16,7 +16,8 @@ export type JournalEntryRecord = {
 export async function findJournalEntries(): Promise<JournalEntryRecord[]> {
   const { data, error } = await getSupabaseClient()
     .from('entries')
-    .select(`
+    .select(
+      `
       id,
       seq,
       entry_date,
@@ -27,11 +28,11 @@ export async function findJournalEntries(): Promise<JournalEntryRecord[]> {
       payment_method,
       amount,
       project:projects(name)
-    `)
+    `,
+    )
     .order('entry_date', { ascending: false })
     .order('seq', { ascending: false })
 
   if (error) throw error
   return (data ?? []) as JournalEntryRecord[]
 }
-

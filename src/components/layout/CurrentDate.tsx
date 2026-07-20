@@ -2,7 +2,10 @@ import { CalendarDays } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 
 const formatter = new Intl.DateTimeFormat('ar-EG', {
-  weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
 })
 
 export function CurrentDate() {
@@ -12,5 +15,10 @@ export function CurrentDate() {
     return () => window.clearInterval(timer)
   }, [])
   const label = useMemo(() => formatter.format(now), [now])
-  return <div className="topbar-date" aria-label={label}><CalendarDays size={18}/><span>{label}</span></div>
+  return (
+    <div className="topbar-date" aria-label={label}>
+      <CalendarDays size={18} />
+      <span>{label}</span>
+    </div>
+  )
 }

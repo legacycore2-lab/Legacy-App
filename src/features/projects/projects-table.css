@@ -32,7 +32,7 @@
 }
 
 .projects-table tbody tr {
-  transition: background .2s ease;
+  transition: background 0.2s ease;
 }
 
 .projects-table tbody tr:hover {

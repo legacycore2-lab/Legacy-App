@@ -1,11 +1,7 @@
 import { ChevronLeft, LogOut, Search, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import {
-  navigationItems,
-  navigationSections,
-  type NavigationItem,
-} from '../../app/navigation'
+import { navigationItems, navigationSections, type NavigationItem } from '../../app/navigation'
 import './sidebar.css'
 
 type SidebarProps = {
@@ -18,9 +14,7 @@ function matchesSearch(item: NavigationItem, query: string) {
 
   if (!normalizedQuery) return true
 
-  const searchableText = [item.label, item.path, ...(item.keywords ?? [])]
-    .join(' ')
-    .toLocaleLowerCase('ar')
+  const searchableText = [item.label, item.path, ...(item.keywords ?? [])].join(' ').toLocaleLowerCase('ar')
 
   return searchableText.includes(normalizedQuery)
 }
@@ -88,9 +82,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                       key={path}
                       to={path}
                       end={path === '/'}
-                      className={({ isActive }) =>
-                        `lc-sidebar__item ${isActive ? 'is-active' : ''}`
-                      }
+                      className={({ isActive }) => `lc-sidebar__item ${isActive ? 'is-active' : ''}`}
                       onClick={onClose}
                       title={label}
                     >
