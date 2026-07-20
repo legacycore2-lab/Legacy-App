@@ -22,7 +22,9 @@ export function ProjectDetailsPage() {
 
   if (isProjectLoading) return <div className="projects-empty">جاري تحميل بيانات المشروع...</div>
   if (projectError) return <div className="projects-empty">{projectError}</div>
-  if (!project) return <div className="projects-empty">المشروع غير موجود أو لا تملك صلاحية عرضه.</div>
+  if (!project) {
+    return <div className="projects-empty">المشروع غير موجود أو لا تملك صلاحية عرضه.</div>
+  }
 
   return (
     <div>
@@ -32,11 +34,16 @@ export function ProjectDetailsPage() {
             <span className="projects-hero__eyebrow">تفاصيل المشروع</span>
             <h1>{project.name}</h1>
             <p>
-              الحالة: {statusLabel[project.status]} · البداية: {project.startDate} · الإغلاق: {project.endDate}
+              الحالة: {statusLabel[project.status]} · البداية: {project.startDate} · الإغلاق:{' '}
+              {project.endDate}
             </p>
           </div>
           <div className="projects-hero__actions">
-            <button className="projects-secondary-action" type="button" onClick={() => navigate('/projects')}>
+            <button
+              className="projects-secondary-action"
+              type="button"
+              onClick={() => navigate('/projects')}
+            >
               <ArrowRight size={18} /> العودة للمشاريع
             </button>
           </div>
