@@ -1,10 +1,6 @@
 import type { DashboardRecentEntryRecord } from '../repositories/dashboard-recent-entries.repository'
 import type { DashboardEntry } from '../types/dashboard.types'
-import {
-  formatDashboardDate,
-  formatDashboardNumber,
-  toDashboardAmount,
-} from '../utils/dashboard-formatters'
+import { formatDashboardDate, formatDashboardNumber, toDashboardAmount } from '../utils/dashboard-formatters'
 
 function getProjectName(projects: DashboardRecentEntryRecord['projects']): string {
   if (Array.isArray(projects)) return projects[0]?.name ?? 'مشروع غير معروف'
