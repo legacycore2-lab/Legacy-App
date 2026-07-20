@@ -39,10 +39,26 @@ export function ProjectDetailsPage() {
       </header>
 
       <section className="project-details-stats">
-        <article><FileText /><span>إجمالي القيود</span><strong>{currency.format(model.summary.totalCount)}</strong></article>
-        <article><ArrowUpCircle /><span>إيرادات الصفحة</span><strong>{currency.format(model.summary.pageIncome)} ج.م</strong></article>
-        <article><ArrowDownCircle /><span>مصروفات الصفحة</span><strong>{currency.format(model.summary.pageExpense)} ج.م</strong></article>
-        <article><FileText /><span>صافي الصفحة</span><strong>{currency.format(model.summary.pageNet)} ج.م</strong></article>
+        <article>
+          <FileText />
+          <span>إجمالي القيود</span>
+          <strong>{currency.format(model.summary.totalCount)}</strong>
+        </article>
+        <article>
+          <ArrowUpCircle />
+          <span>إيرادات الصفحة</span>
+          <strong>{currency.format(model.summary.pageIncome)} ج.م</strong>
+        </article>
+        <article>
+          <ArrowDownCircle />
+          <span>مصروفات الصفحة</span>
+          <strong>{currency.format(model.summary.pageExpense)} ج.م</strong>
+        </article>
+        <article>
+          <FileText />
+          <span>صافي الصفحة</span>
+          <strong>{currency.format(model.summary.pageNet)} ج.م</strong>
+        </article>
       </section>
 
       <section className="project-details-panel">
@@ -51,7 +67,12 @@ export function ProjectDetailsPage() {
             <Search size={17} />
             <input
               value={model.filters.query}
-              onChange={(event) => model.onFiltersChange({ ...model.filters, query: event.target.value })}
+              onChange={(event) =>
+                model.onFiltersChange({
+                  ...model.filters,
+                  query: event.target.value,
+                })
+              }
               placeholder="ابحث بالكود أو البند أو البيان أو المقاول..."
             />
           </label>
@@ -78,14 +99,28 @@ export function ProjectDetailsPage() {
           )}
           {!model.isLoading && !model.error && model.entries.length > 0 && (
             <table>
-              <thead><tr><th>رقم القيد</th><th>التاريخ</th><th>النوع</th><th>البند</th><th>البيان</th><th>المقاول</th><th>طريقة الدفع</th><th>المبلغ</th></tr></thead>
+              <thead>
+                <tr>
+                  <th>رقم القيد</th>
+                  <th>التاريخ</th>
+                  <th>النوع</th>
+                  <th>البند</th>
+                  <th>البيان</th>
+                  <th>المقاول</th>
+                  <th>طريقة الدفع</th>
+                  <th>المبلغ</th>
+                </tr>
+              </thead>
               <tbody>
                 {model.entries.map((entry) => (
                   <tr key={entry.id}>
-                    <td>#{entry.sequence}</td><td>{entry.entryDate}</td>
+                    <td>#{entry.sequence}</td>
+                    <td>{entry.entryDate}</td>
                     <td>{entry.type === 'income' ? 'إيراد' : 'مصروف'}</td>
-                    <td>{entry.category}</td><td>{entry.description}</td>
-                    <td>{entry.contractor || '—'}</td><td>{entry.paymentMethod || '—'}</td>
+                    <td>{entry.category}</td>
+                    <td>{entry.description}</td>
+                    <td>{entry.contractor || '—'}</td>
+                    <td>{entry.paymentMethod || '—'}</td>
                     <td>{currency.format(entry.amount)} ج.م</td>
                   </tr>
                 ))}
@@ -96,9 +131,24 @@ export function ProjectDetailsPage() {
 
         {!model.isLoading && !model.error && model.summary.totalCount > 0 && (
           <nav className="project-details-pagination" aria-label="صفحات قيود المشروع">
-            <button type="button" onClick={model.onPreviousPage} disabled={model.page <= 1 || model.isRefreshing}>السابق</button>
-            <span>صفحة {currency.format(model.page)} من {currency.format(model.totalPages)}{model.isRefreshing ? ' · جاري التحديث' : ''}</span>
-            <button type="button" onClick={model.onNextPage} disabled={model.page >= model.totalPages || model.isRefreshing}>التالي</button>
+            <button
+              type="button"
+              onClick={model.onPreviousPage}
+              disabled={model.page <= 1 || model.isRefreshing}
+            >
+              السابق
+            </button>
+            <span>
+              صفحة {currency.format(model.page)} من {currency.format(model.totalPages)}
+              {model.isRefreshing ? ' · جاري التحديث' : ''}
+            </span>
+            <button
+              type="button"
+              onClick={model.onNextPage}
+              disabled={model.page >= model.totalPages || model.isRefreshing}
+            >
+              التالي
+            </button>
           </nav>
         )}
       </section>
