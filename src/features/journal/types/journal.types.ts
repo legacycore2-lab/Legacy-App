@@ -22,7 +22,6 @@ export type JournalPageRequest = {
   page: number
   pageSize: number
   filters: JournalFilters
-  projectId?: string
 }
 
 export type JournalSummary = {
@@ -38,12 +37,4 @@ export type JournalPageResult = {
   pageSize: number
   totalPages: number
   summary: JournalSummary
-}
-
-export type JournalProjectHeader = {
-  id: string
-  name: string
-  startDate: string
-  endDate: string
-  status: 'active' | 'completed' | 'archived'
 }
