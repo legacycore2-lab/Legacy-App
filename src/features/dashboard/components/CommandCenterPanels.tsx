@@ -58,11 +58,7 @@ export function CommandCenterPanels({ projects, entries }: Props) {
           {activity.map((entry) => (
             <article key={entry.id}>
               <span className={`activity-feed__icon activity-feed__icon--${entry.type}`}>
-                {entry.type === 'income' ? (
-                  <CheckCircle2 size={17} />
-                ) : (
-                  <AlertTriangle size={17} />
-                )}
+                {entry.type === 'income' ? <CheckCircle2 size={17} /> : <AlertTriangle size={17} />}
               </span>
               <div>
                 <strong>{entry.description}</strong>
@@ -70,9 +66,7 @@ export function CommandCenterPanels({ projects, entries }: Props) {
                   {entry.project} · {entry.date}
                 </span>
               </div>
-              <b className={`activity-feed__amount activity-feed__amount--${entry.type}`}>
-                {entry.amount}
-              </b>
+              <b className={`activity-feed__amount activity-feed__amount--${entry.type}`}>{entry.amount}</b>
             </article>
           ))}
         </div>
