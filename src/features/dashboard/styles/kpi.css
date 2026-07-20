@@ -100,7 +100,10 @@
 .kpi-card__content strong {
   display: block;
   margin-top: 9px;
-  font: 800 clamp(24px, 2.35vw, 34px) Manrope, 'IBM Plex Sans Arabic', sans-serif;
+  font:
+    800 clamp(24px, 2.35vw, 34px) Manrope,
+    'IBM Plex Sans Arabic',
+    sans-serif;
   letter-spacing: -0.035em;
   line-height: 1.15;
 }
