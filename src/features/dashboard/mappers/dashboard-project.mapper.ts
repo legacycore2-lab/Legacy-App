@@ -8,10 +8,7 @@ function normalizeProgress(value: number | null, isCompleted: boolean): number {
   return Math.min(99, Math.max(0, Math.round(value ?? 0)))
 }
 
-export function mapDashboardProject(
-  record: DashboardProjectRecord,
-  balance: number,
-): DashboardProject {
+export function mapDashboardProject(record: DashboardProjectRecord, balance: number): DashboardProject {
   const isCompleted = Boolean(record.close_date)
 
   return {
