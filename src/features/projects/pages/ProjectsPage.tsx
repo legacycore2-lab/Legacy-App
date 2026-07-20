@@ -1,17 +1,20 @@
 import { BriefcaseBusiness, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { ExcelImportDialog } from '../components/ExcelImportDialog'
+import { ProjectFormDialog } from '../components/ProjectFormDialog'
 import { ProjectsStats } from '../components/ProjectsStats'
 import { ProjectsTable } from '../components/ProjectsTable'
 import { ProjectsToolbar } from '../components/ProjectsToolbar'
 import { useProjects } from '../hooks/useProjects'
 import '../excel-import.css'
+import '../project-form.css'
 import '../projects-table.css'
 import '../projects.css'
 
 export function ProjectsPage() {
   const { projectRows, summary, query, setQuery, status, setStatus, isLoading, error } = useProjects()
   const [importOpen, setImportOpen] = useState(false)
+  const [projectFormOpen, setProjectFormOpen] = useState(false)
 
   return (
     <section className="projects-page">
@@ -25,7 +28,7 @@ export function ProjectsPage() {
           <button className="projects-secondary-action" type="button" onClick={() => setImportOpen(true)}>
             استيراد من Excel
           </button>
-          <button className="projects-primary-action" type="button">
+          <button className="projects-primary-action" type="button" onClick={() => setProjectFormOpen(true)}>
             <Plus size={18} /> مشروع جديد
           </button>
         </div>
@@ -51,6 +54,7 @@ export function ProjectsPage() {
         </div>
       ) : null}
       <ExcelImportDialog open={importOpen} onClose={() => setImportOpen(false)} />
+      <ProjectFormDialog open={projectFormOpen} onClose={() => setProjectFormOpen(false)} />
     </section>
   )
 }
