@@ -108,10 +108,28 @@
 }
 
 .critical-project {
+  display: block;
   padding: 0.85rem;
   border: 1px solid var(--border, #edf0ee);
   border-radius: 16px;
+  color: inherit;
+  text-decoration: none;
   background: color-mix(in srgb, var(--surface, #fff) 88%, var(--primary, #12613f) 2%);
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.critical-project:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--primary, #12613f) 42%, var(--border));
+  box-shadow: 0 10px 24px rgb(15 55 42 / 8%);
+}
+
+.critical-project:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary, #12613f) 30%, transparent);
+  outline-offset: 3px;
 }
 
 .critical-project__topline,
@@ -278,6 +296,16 @@
 
 .task-dot--success {
   background: #168253;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .critical-project {
+    transition: none;
+  }
+
+  .critical-project:hover {
+    transform: none;
+  }
 }
 
 @media (max-width: 1180px) {
