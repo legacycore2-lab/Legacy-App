@@ -1,4 +1,4 @@
-import type { DashboardKpi } from '../data/dashboard.mock'
+import type { DashboardKpi } from '../types/dashboard.types'
 
 type KpiCardProps = DashboardKpi
 

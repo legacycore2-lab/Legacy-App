@@ -121,8 +121,8 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           <button className="lc-sidebar__profile" type="button">
             <span className="avatar">م</span>
             <span className="lc-sidebar__profile-copy">
-              <strong>Mahmoud Mosbah</strong>
-              <small>Administrator</small>
+              <strong>مستخدم النظام</strong>
+              <small>الحساب الحالي</small>
             </span>
             <ChevronLeft size={16} aria-hidden="true" />
           </button>

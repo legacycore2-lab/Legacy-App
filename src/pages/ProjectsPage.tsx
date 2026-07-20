@@ -1,31 +1,17 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { BriefcaseBusiness, Plus } from 'lucide-react'
 import { ExcelImportDialog } from '../features/projects/components/ExcelImportDialog'
 import { ProjectsStats } from '../features/projects/components/ProjectsStats'
 import { ProjectsTable } from '../features/projects/components/ProjectsTable'
 import { ProjectsToolbar } from '../features/projects/components/ProjectsToolbar'
-import { projectsMock } from '../features/projects/data/projects.mock'
-import type { ProjectStatusFilter } from '../features/projects/types/project.types'
+import { useProjects } from '../features/projects/hooks/useProjects'
 import '../features/projects/projects.css'
 import '../features/projects/projects-table.css'
 import '../features/projects/excel-import.css'
 
 export function ProjectsPage() {
-  const [query, setQuery] = useState('')
-  const [status, setStatus] = useState<ProjectStatusFilter>('all')
+  const { projects, filteredProjects, query, setQuery, status, setStatus, isLoading, error } = useProjects()
   const [importOpen, setImportOpen] = useState(false)
-
-  const filteredProjects = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase()
-
-    return projectsMock.filter((project) => {
-      const matchesStatus = status === 'all' || project.status === status
-      const matchesQuery = !normalizedQuery || [project.name, project.client, project.location, project.manager]
-        .some((value) => value.toLowerCase().includes(normalizedQuery))
-
-      return matchesStatus && matchesQuery
-    })
-  }, [query, status])
 
   return (
     <section className="projects-page">
@@ -46,7 +32,10 @@ export function ProjectsPage() {
         </div>
       </header>
 
-      <ProjectsStats projects={projectsMock} />
+      <ProjectsStats projects={projects} />
+
+      {isLoading && <div className="projects-empty">جاري تحميل المشاريع...</div>}
+      {error && <div className="projects-empty">{error}</div>}
 
       <ProjectsToolbar
         query={query}
@@ -63,15 +52,15 @@ export function ProjectsPage() {
         <small>{filteredProjects.length} مشروع</small>
       </div>
 
-      {filteredProjects.length > 0 ? (
+      {!isLoading && !error && filteredProjects.length > 0 ? (
         <ProjectsTable projects={filteredProjects} />
-      ) : (
+      ) : !isLoading && !error ? (
         <div className="projects-empty">
           <BriefcaseBusiness size={28} />
           <h3>لا توجد مشاريع مطابقة</h3>
           <p>جرّب تغيير كلمة البحث أو حالة المشروع.</p>
         </div>
-      )}
+      ) : null}
 
       <ExcelImportDialog open={importOpen} onClose={() => setImportOpen(false)} />
     </section>

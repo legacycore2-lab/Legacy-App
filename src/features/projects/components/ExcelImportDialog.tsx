@@ -1,14 +1,12 @@
 import { useMemo, useState } from 'react'
 import { FileSpreadsheet, Upload, X } from 'lucide-react'
-import * as XLSX from 'xlsx'
-
-type Row = Record<string, string | number | boolean | Date | null>
+import { parseExcelFile, type ExcelRow } from '../services/excel-parser.service'
 type Props = { open: boolean; onClose: () => void }
 
 export function ExcelImportDialog({ open, onClose }: Props) {
   const [fileName, setFileName] = useState('')
   const [sheetName, setSheetName] = useState('')
-  const [rows, setRows] = useState<Row[]>([])
+  const [rows, setRows] = useState<ExcelRow[]>([])
   const [error, setError] = useState('')
   const [isReading, setIsReading] = useState(false)
 
@@ -30,22 +28,10 @@ export function ExcelImportDialog({ open, onClose }: Props) {
     setIsReading(true)
 
     try {
-      const workbook = XLSX.read(await file.arrayBuffer(), { type: 'array', cellDates: true })
-      const firstSheet = workbook.SheetNames[0]
-
-      if (!firstSheet || !workbook.Sheets[firstSheet]) {
-        throw new Error('لم يتم العثور على شيت صالح داخل الملف.')
-      }
-
-      const data = XLSX.utils.sheet_to_json<Row>(workbook.Sheets[firstSheet], { defval: '' })
-
-      if (data.length === 0) {
-        throw new Error('الشيت المختار لا يحتوي على بيانات قابلة للاستيراد.')
-      }
-
-      setFileName(file.name)
-      setSheetName(firstSheet)
-      setRows(data)
+      const preview = await parseExcelFile(file)
+      setFileName(preview.fileName)
+      setSheetName(preview.sheetName)
+      setRows(preview.rows)
     } catch (readError) {
       setFileName('')
       setSheetName('')
