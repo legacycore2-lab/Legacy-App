@@ -1,13 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
+import { hasProjectFormErrors, validateProjectForm } from '../services/project-form.service'
 import { createProject } from '../services/projects.service'
-import {
-  hasProjectFormErrors,
-  validateProjectForm,
-  type ProjectFormErrors,
-  type ProjectFormValues,
-} from '../services/project-form.service'
+import type { ProjectFormErrors, ProjectFormValues } from '../types/project-form.types'
 
 const initialValues: ProjectFormValues = {
   name: '',
