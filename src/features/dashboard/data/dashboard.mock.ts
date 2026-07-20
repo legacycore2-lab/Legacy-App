@@ -7,12 +7,7 @@ import {
   ReceiptText,
   WalletCards,
 } from 'lucide-react'
-import type {
-  DashboardAction,
-  DashboardEntry,
-  DashboardKpi,
-  DashboardProject,
-} from '../types/dashboard.types'
+import type { DashboardAction, DashboardEntry, DashboardKpi } from '../types/dashboard.types'
 
 export const dashboardKpis: DashboardKpi[] = [
   {
@@ -42,33 +37,6 @@ export const dashboardKpis: DashboardKpi[] = [
     trend: '+6.2%',
     icon: BriefcaseBusiness,
     tone: 'green',
-  },
-]
-
-export const dashboardProjects: DashboardProject[] = [
-  {
-    id: '11111111-1111-4111-8111-111111111111',
-    name: 'هايد بارك',
-    client: 'شركة ليجاسي',
-    balance: '385,000',
-    progress: 74,
-    status: 'جاري',
-  },
-  {
-    id: '22222222-2222-4222-8222-222222222222',
-    name: 'حمام سباحة التجمع',
-    client: 'أحمد فؤاد',
-    balance: '218,500',
-    progress: 58,
-    status: 'جاري',
-  },
-  {
-    id: '33333333-3333-4333-8333-333333333333',
-    name: 'المكتب 50',
-    client: 'Legacy Fine Touch',
-    balance: '96,200',
-    progress: 91,
-    status: 'قارب على الانتهاء',
   },
 ]
 
