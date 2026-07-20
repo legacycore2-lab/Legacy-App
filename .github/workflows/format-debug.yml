@@ -1,0 +1,17 @@
+name: Format Debug
+
+on:
+  push:
+    branches:
+      - feature/dashboard-2-command-center
+
+jobs:
+  list-format-differences:
+    runs-on: ubuntu-latest
+    steps:
+      - name: List files that need formatting
+        run: |
+          git clone --quiet --depth 1 --branch feature/dashboard-2-command-center https://github.com/legacycore2-lab/Legacy-App.git app
+          cd app
+          npm ci --silent
+          npx prettier --list-different .
