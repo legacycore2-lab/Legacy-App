@@ -1,7 +1,7 @@
 import { Eye, MoreHorizontal, Pencil } from 'lucide-react'
-import type { Project } from '../types/project.types'
+import type { ProjectRow } from '../types/project.types'
 
-type Props = { projects: Project[] }
+type Props = { projects: ProjectRow[] }
 
 const money = new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 0 })
 const statusLabel = { active: 'مفتوح', completed: 'مكتمل', paused: 'متوقف', archived: 'مؤرشف' }
@@ -25,7 +25,6 @@ export function ProjectsTable({ projects }: Props) {
           </thead>
           <tbody>
             {projects.map((project) => {
-              const balance = project.received - project.spent
               return (
                 <tr key={project.id}>
                   <td>
@@ -35,9 +34,9 @@ export function ProjectsTable({ projects }: Props) {
                   <td>{project.client}</td>
                   <td className="money-positive">{money.format(project.received)} ج.م</td>
                   <td>{money.format(project.spent)} ج.م</td>
-                  <td className={balance < 0 ? 'money-negative' : 'money-positive'}>
-                    {balance > 0 ? '+' : ''}
-                    {money.format(balance)} ج.م
+                  <td className={project.balance < 0 ? 'money-negative' : 'money-positive'}>
+                    {project.balance > 0 ? '+' : ''}
+                    {money.format(project.balance)} ج.م
                   </td>
                   <td>
                     <div className="table-progress">

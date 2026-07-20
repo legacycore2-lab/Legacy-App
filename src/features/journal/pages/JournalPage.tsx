@@ -4,5 +4,5 @@ import '../styles/journal.css'
 
 export function JournalPage() {
   const journal = useJournal()
-  return <JournalView {...journal} onFiltersChange={journal.setFilters} />
+  return <JournalView {...journal} />
 }

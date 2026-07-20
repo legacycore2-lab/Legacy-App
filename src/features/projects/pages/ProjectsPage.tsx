@@ -10,7 +10,7 @@ import '../projects-table.css'
 import '../projects.css'
 
 export function ProjectsPage() {
-  const { projects, filteredProjects, query, setQuery, status, setStatus, isLoading, error } = useProjects()
+  const { projectRows, summary, query, setQuery, status, setStatus, isLoading, error } = useProjects()
   const [importOpen, setImportOpen] = useState(false)
 
   return (
@@ -30,7 +30,7 @@ export function ProjectsPage() {
           </button>
         </div>
       </header>
-      <ProjectsStats projects={projects} />
+      <ProjectsStats summary={summary} />
       {isLoading && <div className="projects-empty">جاري تحميل المشاريع...</div>}
       {error && <div className="projects-empty">{error}</div>}
       <ProjectsToolbar query={query} status={status} onQueryChange={setQuery} onStatusChange={setStatus} />
@@ -39,10 +39,10 @@ export function ProjectsPage() {
           <span>المحفظة الحالية</span>
           <h2>كل المشاريع</h2>
         </div>
-        <small>{filteredProjects.length} مشروع</small>
+        <small>{projectRows.length} مشروع</small>
       </div>
-      {!isLoading && !error && filteredProjects.length > 0 ? (
-        <ProjectsTable projects={filteredProjects} />
+      {!isLoading && !error && projectRows.length > 0 ? (
+        <ProjectsTable projects={projectRows} />
       ) : !isLoading && !error ? (
         <div className="projects-empty">
           <BriefcaseBusiness size={28} />

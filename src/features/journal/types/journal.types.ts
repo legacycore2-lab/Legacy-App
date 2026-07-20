@@ -17,3 +17,24 @@ export type JournalFilters = {
   query: string
   type: 'all' | JournalEntryType
 }
+
+export type JournalPageRequest = {
+  page: number
+  pageSize: number
+  filters: JournalFilters
+}
+
+export type JournalSummary = {
+  totalCount: number
+  pageIncome: number
+  pageExpense: number
+  pageNet: number
+}
+
+export type JournalPageResult = {
+  entries: JournalEntry[]
+  page: number
+  pageSize: number
+  totalPages: number
+  summary: JournalSummary
+}

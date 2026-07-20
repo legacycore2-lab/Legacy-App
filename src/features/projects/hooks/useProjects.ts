@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { getProjects } from '../services/projects.service'
+import { buildProjectRows, getProjects, summarizeProjects } from '../services/projects.service'
 import type { Project, ProjectStatusFilter } from '../types/project.types'
 import { toErrorMessage } from '../../../shared/errors/app-error'
 import { filterProjects } from '../services/project-filter.service'
@@ -21,5 +21,7 @@ export function useProjects() {
     }
   }, [])
   const filteredProjects = useMemo(() => filterProjects(projects, query, status), [projects, query, status])
-  return { projects, filteredProjects, query, setQuery, status, setStatus, isLoading, error }
+  const summary = useMemo(() => summarizeProjects(projects), [projects])
+  const projectRows = useMemo(() => buildProjectRows(filteredProjects), [filteredProjects])
+  return { projects, projectRows, summary, query, setQuery, status, setStatus, isLoading, error }
 }
