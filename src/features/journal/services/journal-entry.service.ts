@@ -22,7 +22,12 @@ export function buildJournalPreview(
 ): JournalPostingPreview | null {
   const amount = Number(input.amount)
 
-  if (!input.category.trim() || !input.paymentAccount.trim() || !Number.isFinite(amount) || amount <= 0) {
+  if (
+    !input.category.trim() ||
+    !input.paymentAccount.trim() ||
+    !Number.isFinite(amount) ||
+    amount <= 0
+  ) {
     return null
   }
 
