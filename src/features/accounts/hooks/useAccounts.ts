@@ -31,7 +31,7 @@ export function useAccounts() {
   })
 
   const toggleMutation = useMutation({
-    mutationFn: ({ id, active }: { id: string; active: boolean }) => toggleAccount(id, active),
+    mutationFn: ({ id, active }: { id: string; active: boolean }) => toggleAccount(id, active, accounts),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['accounts'] }),
   })
 
@@ -53,6 +53,8 @@ export function useAccounts() {
       ? toErrorMessage(query.error, 'تعذر تحميل دليل الحسابات.')
       : saveMutation.error
         ? toErrorMessage(saveMutation.error, 'تعذر حفظ الحساب.')
-        : '',
+        : toggleMutation.error
+          ? toErrorMessage(toggleMutation.error, 'تعذر تغيير حالة الحساب.')
+          : '',
   }
 }
