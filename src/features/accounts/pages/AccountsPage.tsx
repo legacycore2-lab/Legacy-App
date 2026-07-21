@@ -24,6 +24,7 @@ export function AccountsPage() {
 
       <div className="accounts-grid">
         <AccountForm
+          key={vm.editing?.id ?? 'new-account'}
           accounts={vm.allAccounts}
           editing={vm.editing}
           isSaving={vm.isSaving}

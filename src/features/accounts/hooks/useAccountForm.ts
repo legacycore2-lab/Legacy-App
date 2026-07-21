@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import type { Account, AccountInput, AccountType } from '../types/accounts.types'
 
 const emptyForm: AccountInput = {
@@ -18,18 +18,22 @@ type Options = {
   onCancel: () => void
 }
 
+function toAccountInput(account: Account): AccountInput {
+  return {
+    id: account.id,
+    code: account.code,
+    nameAr: account.nameAr,
+    nameEn: account.nameEn,
+    accountType: account.accountType,
+    normalBalance: account.normalBalance,
+    parentId: account.parentId,
+    isPostable: account.isPostable,
+    isActive: account.isActive,
+  }
+}
+
 export function useAccountForm({ editing, onSave, onCancel }: Options) {
-  const [value, setValue] = useState<AccountInput>(emptyForm)
-
-  useEffect(() => {
-    if (!editing) {
-      setValue(emptyForm)
-      return
-    }
-
-    const { level: _level, ...account } = editing
-    setValue(account)
-  }, [editing])
+  const [value, setValue] = useState<AccountInput>(() => (editing ? toAccountInput(editing) : emptyForm))
 
   const update = <Key extends keyof AccountInput>(key: Key, next: AccountInput[Key]) => {
     setValue((current) => ({ ...current, [key]: next }))
