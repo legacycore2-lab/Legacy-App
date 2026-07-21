@@ -12,14 +12,20 @@ export function resolveRole(value: unknown): AppRole {
   return value === 'admin' || value === 'accountant' || value === 'viewer' ? value : 'viewer'
 }
 
+function resolveDisplayName(identity: AuthIdentity): string {
+  const fullName = identity.fullName?.trim()
+  const emailName = identity.email.split('@')[0]?.trim()
+
+  return fullName || emailName || 'مستخدم النظام'
+}
+
 function mapUser(identity: AuthIdentity): AuthUser {
   const role = resolveRole(identity.role)
-  const displayName = identity.fullName ?? identity.email.split('@')[0]
 
   return {
     id: identity.id,
     email: identity.email,
-    displayName: displayName || 'مستخدم النظام',
+    displayName: resolveDisplayName(identity),
     role,
     roleLabel: roles[role],
   }
@@ -45,32 +51,28 @@ function authError(error: unknown): AppError {
   return new AppError('تعذر الاتصال بالنظام. حاول مرة أخرى.', 'AUTH_FAILED', { cause: error })
 }
 
+async function withAuthError<T>(operation: () => Promise<T>): Promise<T> {
+  try {
+    return await operation()
+  } catch (error) {
+    throw authError(error)
+  }
+}
+
 export const authService = {
-  async getCurrentUser(): Promise<AuthUser | null> {
-    try {
-      return identityUser(await authRepository.getIdentity())
-    } catch (error) {
-      throw authError(error)
-    }
+  getCurrentUser(): Promise<AuthUser | null> {
+    return withAuthError(async () => identityUser(await authRepository.getIdentity()))
   },
 
   subscribe(callback: (user: AuthUser | null) => void): () => void {
     return authRepository.subscribe((identity) => callback(identityUser(identity)))
   },
 
-  async signIn(credentials: LoginCredentials): Promise<AuthUser> {
-    try {
-      return mapUser(await authRepository.signIn(credentials))
-    } catch (error) {
-      throw authError(error)
-    }
+  signIn(credentials: LoginCredentials): Promise<AuthUser> {
+    return withAuthError(async () => mapUser(await authRepository.signIn(credentials)))
   },
 
-  async signOut(): Promise<void> {
-    try {
-      await authRepository.signOut()
-    } catch (error) {
-      throw authError(error)
-    }
+  signOut(): Promise<void> {
+    return withAuthError(() => authRepository.signOut())
   },
 }
