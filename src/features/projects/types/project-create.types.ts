@@ -25,3 +25,15 @@ export type ProjectCreatePreview = {
   endDate: string
   notes: string
 }
+
+export type ProjectCreateFormState = {
+  isOpen: boolean
+  open: () => void
+  close: () => void
+  value: ProjectCreateInput
+  update: <K extends keyof ProjectCreateInput>(key: K, next: ProjectCreateInput[K]) => void
+  submitted: boolean
+  errors: string[]
+  preview: ProjectCreatePreview | null
+  review: () => void
+}
