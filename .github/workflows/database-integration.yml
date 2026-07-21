@@ -1,0 +1,69 @@
+name: Database Integration
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/**'
+      - '.github/workflows/database-integration.yml'
+  push:
+    branches: ['main']
+    paths:
+      - 'supabase/**'
+      - '.github/workflows/database-integration.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: database-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  database:
+    name: Migrations and finance RLS
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v2
+        with:
+          version: 2.84.2
+          github-token: ${{ github.token }}
+
+      - name: Start clean Supabase stack
+        shell: bash
+        run: |
+          set -euo pipefail
+          mv supabase/migrations supabase/migrations.pending
+          mkdir supabase/migrations
+          supabase init --force
+          supabase start
+          rmdir supabase/migrations
+          mv supabase/migrations.pending supabase/migrations
+
+      - name: Load legacy schema fixture
+        env:
+          PGURL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+        run: psql "$PGURL" --set ON_ERROR_STOP=1 --file supabase/tests/bootstrap/legacy_schema.sql
+
+      - name: Replay every migration
+        shell: bash
+        env:
+          PGURL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+        run: |
+          set -euo pipefail
+          for migration in supabase/migrations/*.sql; do
+            echo "Applying ${migration}"
+            psql "$PGURL" --set ON_ERROR_STOP=1 --file "$migration"
+          done
+
+      - name: Run database tests
+        run: supabase test db
+
+      - name: Stop Supabase stack
+        if: always()
+        run: supabase stop --no-backup
