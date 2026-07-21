@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { buildProjectCreatePreview, validateProjectCreateInput } from './project-create.service'
 import type { ProjectCreateInput } from '../types/project-create.types'
+import {
+  buildProjectCreatePreview,
+  validateProjectCreateInput,
+} from './project-create.service'
 
 const validInput: ProjectCreateInput = {
   name: 'مشروع تجريبي',
