@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router-dom'
+import { AccountsPage } from '../features/accounts/pages/AccountsPage'
 import {
   ProtectedRoute,
   PublicOnlyRoute,
@@ -27,6 +28,7 @@ export function AppRoutes() {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/projects" element={secured('/projects', <ProjectsPage />)} />
           <Route path="/journal" element={secured('/journal', <JournalPage />)} />
+          <Route path="/accounts" element={secured('/accounts', <AccountsPage />)} />
           <Route
             path="/banks"
             element={secured(
