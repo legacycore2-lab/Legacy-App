@@ -24,10 +24,8 @@ export function SingleLineJournalForm({ onClose }: Props) {
   const errors = useMemo(() => validateSingleLineEntry(value), [value])
   const preview = useMemo(() => buildJournalPreview(value), [value])
 
-  const update = <K extends keyof SingleLineJournalInput>(
-    key: K,
-    nextValue: SingleLineJournalInput[K],
-  ) => setValue((current) => ({ ...current, [key]: nextValue }))
+  const update = <K extends keyof SingleLineJournalInput>(key: K, nextValue: SingleLineJournalInput[K]) =>
+    setValue((current) => ({ ...current, [key]: nextValue }))
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
@@ -42,12 +40,7 @@ export function SingleLineJournalForm({ onClose }: Props) {
           <h2>إضافة قيد بسطر واحد</h2>
           <p>أدخل العملية مرة واحدة، وسيُنشئ المحرك طرفي القيد تلقائيًا.</p>
         </div>
-        <button
-          type="button"
-          className="journal-icon-button"
-          onClick={onClose}
-          aria-label="إغلاق"
-        >
+        <button type="button" className="journal-icon-button" onClick={onClose} aria-label="إغلاق">
           <X size={18} />
         </button>
       </header>
@@ -66,9 +59,7 @@ export function SingleLineJournalForm({ onClose }: Props) {
             النوع
             <select
               value={value.type}
-              onChange={(event) =>
-                update('type', event.target.value as SingleLineJournalInput['type'])
-              }
+              onChange={(event) => update('type', event.target.value as SingleLineJournalInput['type'])}
             >
               <option value="expense">مصروف</option>
               <option value="income">إيراد</option>
@@ -140,12 +131,10 @@ export function SingleLineJournalForm({ onClose }: Props) {
               <strong>المعاينة المحاسبية التلقائية</strong>
             </div>
             <p>
-              <span>مدين</span> {preview.debitAccount} —{' '}
-              {preview.amount.toLocaleString('ar-EG')} ج.م
+              <span>مدين</span> {preview.debitAccount} — {preview.amount.toLocaleString('ar-EG')} ج.م
             </p>
             <p>
-              <span>دائن</span> {preview.creditAccount} —{' '}
-              {preview.amount.toLocaleString('ar-EG')} ج.م
+              <span>دائن</span> {preview.creditAccount} — {preview.amount.toLocaleString('ar-EG')} ج.م
             </p>
           </div>
         )}
