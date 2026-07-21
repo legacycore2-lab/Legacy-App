@@ -1,4 +1,9 @@
-import { findAccounts, saveAccount, setAccountActive, type AccountRecord } from '../repositories/accounts.repository'
+import {
+  findAccounts,
+  saveAccount,
+  setAccountActive,
+  type AccountRecord,
+} from '../repositories/accounts.repository'
 import type { Account, AccountInput } from '../types/accounts.types'
 
 function mapAccount(record: AccountRecord): Account {
@@ -23,12 +28,21 @@ export async function getAccounts(): Promise<Account[]> {
 export async function upsertAccount(input: AccountInput, accounts: Account[]): Promise<void> {
   const code = input.code.trim()
   const nameAr = input.nameAr.trim()
+
   if (!code || !nameAr) throw new Error('كود الحساب والاسم العربي مطلوبان.')
+
   const duplicate = accounts.some((account) => account.code === code && account.id !== input.id)
   if (duplicate) throw new Error('كود الحساب مستخدم بالفعل.')
-  const parent = input.parentId ? accounts.find((account) => account.id === input.parentId) : undefined
+
+  const parent = input.parentId
+    ? accounts.find((account) => account.id === input.parentId)
+    : undefined
+
   if (input.parentId && !parent) throw new Error('الحساب الرئيسي غير موجود.')
-  if (parent && parent.accountType !== input.accountType) throw new Error('نوع الحساب الفرعي يجب أن يطابق الحساب الرئيسي.')
+  if (parent && parent.accountType !== input.accountType) {
+    throw new Error('نوع الحساب الفرعي يجب أن يطابق الحساب الرئيسي.')
+  }
+
   await saveAccount({ ...input, code, nameAr }, parent ? parent.level + 1 : 1)
 }
 
