@@ -5,47 +5,23 @@ import type {
   DashboardSourceData,
 } from '../types/dashboard.types'
 
-const PROJECT_FIELDS = 'id, name, start_date, close_date, is_archived'
-const LEGACY_PROJECT_FIELDS = 'id, name, start_date, close_date'
-const ENTRY_FIELDS = 'id, project_id, type, amount, description, entry_date, seq'
-const LEGACY_ENTRY_FIELDS = 'id, project_id, type, amount, description, entry_date'
-
 async function findProjects(): Promise<DashboardProjectRecord[]> {
-  const supabase = getSupabaseClient()
-  const currentResult = await supabase
-    .from('projects')
-    .select(PROJECT_FIELDS)
-    .order('name', { ascending: true })
+  const { data, error } = await getSupabaseClient().from('projects').select('*')
 
-  if (!currentResult.error) return (currentResult.data ?? []) as DashboardProjectRecord[]
+  if (error) throw error
 
-  const legacyResult = await supabase
-    .from('projects')
-    .select(LEGACY_PROJECT_FIELDS)
-    .order('name', { ascending: true })
-
-  if (legacyResult.error) throw legacyResult.error
-
-  return (legacyResult.data ?? []) as DashboardProjectRecord[]
+  return (data ?? []) as DashboardProjectRecord[]
 }
 
 async function findEntries(): Promise<DashboardEntryRecord[]> {
-  const supabase = getSupabaseClient()
-  const currentResult = await supabase.from('entries').select(ENTRY_FIELDS).order('seq', { ascending: false })
+  const { data, error } = await getSupabaseClient().from('entries').select('*')
 
-  if (!currentResult.error) return (currentResult.data ?? []) as DashboardEntryRecord[]
-
-  const legacyResult = await supabase
-    .from('entries')
-    .select(LEGACY_ENTRY_FIELDS)
-    .order('entry_date', { ascending: false })
-
-  if (legacyResult.error) {
-    console.error('Dashboard entries could not be loaded.', legacyResult.error)
+  if (error) {
+    console.error('Dashboard entries could not be loaded.', error)
     return []
   }
 
-  return (legacyResult.data ?? []) as DashboardEntryRecord[]
+  return (data ?? []) as DashboardEntryRecord[]
 }
 
 export async function findDashboardData(): Promise<DashboardSourceData> {
