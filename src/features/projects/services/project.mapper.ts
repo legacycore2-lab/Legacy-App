@@ -1,8 +1,16 @@
 import { DataValidationError } from '../../../shared/errors/app-error'
-import type { Project, ProjectInsertRecord, ProjectRecord, ProjectStatus } from '../types/project.types'
+import type {
+  Project,
+  ProjectInsertRecord,
+  ProjectRecord,
+  ProjectStatus,
+} from '../types/project.types'
 import type { ProjectCreatePreview } from '../types/project-create.types'
 
-function toFiniteNumber(value: number | string | null | undefined, fieldName: string): number {
+function toFiniteNumber(
+  value: number | string | null | undefined,
+  fieldName: string,
+): number {
   if (value === null || value === undefined || value === '') return 0
 
   const number = Number(value)
@@ -62,7 +70,9 @@ export function mapProject(record: ProjectRecord): Project {
   }
 }
 
-export function mapProjectCreateToRecord(input: ProjectCreatePreview): ProjectInsertRecord {
+export function mapProjectCreateToRecord(
+  input: ProjectCreatePreview,
+): ProjectInsertRecord {
   return {
     name: input.name,
     code: input.code || null,
