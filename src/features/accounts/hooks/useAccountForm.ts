@@ -1,5 +1,9 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import type { Account, AccountInput, AccountType } from '../types/accounts.types'
+import type {
+  Account,
+  AccountInput,
+  AccountType,
+} from '../types/accounts.types'
 
 const emptyForm: AccountInput = {
   code: '',
@@ -31,7 +35,10 @@ export function useAccountForm({ editing, onSave, onCancel }: Options) {
     setValue(account)
   }, [editing])
 
-  const update = <Key extends keyof AccountInput>(key: Key, next: AccountInput[Key]) => {
+  const update = <Key extends keyof AccountInput>(
+    key: Key,
+    next: AccountInput[Key],
+  ) => {
     setValue((current) => ({ ...current, [key]: next }))
   }
 
@@ -40,7 +47,9 @@ export function useAccountForm({ editing, onSave, onCancel }: Options) {
       ...current,
       accountType,
       normalBalance:
-        accountType === 'asset' || accountType === 'expense' ? 'debit' : 'credit',
+        accountType === 'asset' || accountType === 'expense'
+          ? 'debit'
+          : 'credit',
       parentId: null,
     }))
   }
