@@ -14,8 +14,6 @@ export function useDashboard() {
   return {
     data: dashboardQuery.data,
     isLoading: dashboardQuery.isLoading,
-    error: dashboardQuery.error
-      ? toErrorMessage(dashboardQuery.error, 'تعذر تحميل لوحة التحكم.')
-      : '',
+    error: dashboardQuery.error ? toErrorMessage(dashboardQuery.error, 'تعذر تحميل لوحة التحكم.') : '',
   }
 }
