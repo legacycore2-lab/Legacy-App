@@ -1,0 +1,88 @@
+/* Global responsive guardrails: the page itself must never drift horizontally. */
+html,
+body,
+#root,
+.app-layout,
+.app-main,
+.page-content {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+html,
+body,
+#root {
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+}
+
+.app-layout,
+.app-main,
+.page-content,
+.page-content > * {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+input,
+select,
+textarea,
+button {
+  max-width: 100%;
+}
+
+/* Wide content may scroll inside its own container, never at page level. */
+.table-scroll,
+.table-wrapper,
+.data-table-wrapper,
+.projects-table-wrapper,
+.journal-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+[role='dialog'] {
+  max-width: calc(100vw - 20px);
+  max-height: calc(100dvh - 20px);
+}
+
+@media (max-width: 900px) {
+  .app-layout {
+    overflow-x: hidden;
+  }
+
+  .app-main,
+  .page-content {
+    overflow-x: clip;
+  }
+
+  .sidebar {
+    max-width: min(86vw, 310px);
+    contain: layout paint;
+  }
+
+  .project-create-backdrop {
+    overflow-x: hidden;
+    padding: 10px;
+  }
+
+  .project-create-dialog {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  [role='dialog'] {
+    max-width: calc(100vw - 12px);
+    max-height: calc(100dvh - 12px);
+  }
+
+  .project-create-backdrop {
+    padding: 6px;
+  }
+}
