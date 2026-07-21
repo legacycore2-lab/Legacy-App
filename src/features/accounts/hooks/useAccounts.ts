@@ -11,11 +11,15 @@ export function useAccounts() {
   const [editing, setEditing] = useState<Account | null>(null)
   const query = useQuery({ queryKey: ['accounts'], queryFn: getAccounts, staleTime: 30_000 })
   const accounts = query.data ?? []
+
   const filteredAccounts = useMemo(() => {
     const term = search.trim().toLowerCase()
-    return accounts.filter((account) =>
-      (type === 'all' || account.accountType === type) &&
-      (!term || `${account.code} ${account.nameAr} ${account.nameEn}`.toLowerCase().includes(term)),
+
+    return accounts.filter(
+      (account) =>
+        (type === 'all' || account.accountType === type) &&
+        (!term ||
+          `${account.code} ${account.nameAr} ${account.nameEn}`.toLowerCase().includes(term)),
     )
   }, [accounts, search, type])
 
@@ -26,6 +30,7 @@ export function useAccounts() {
       await queryClient.invalidateQueries({ queryKey: ['accounts'] })
     },
   })
+
   const toggleMutation = useMutation({
     mutationFn: ({ id, active }: { id: string; active: boolean }) => toggleAccount(id, active),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['accounts'] }),
