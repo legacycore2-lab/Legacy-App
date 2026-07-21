@@ -47,6 +47,14 @@ export const navigationItems: NavigationItem[] = [
     keywords: ['قيد', 'قيود', 'يومية', 'مصروفات', 'إيرادات', 'journal'],
   },
   {
+    label: 'دليل الحسابات',
+    eyebrow: 'المحاسبة العامة',
+    path: '/accounts',
+    icon: BookOpenCheck,
+    section: 'finance',
+    keywords: ['حساب', 'حسابات', 'دليل', 'accounts'],
+  },
+  {
     label: 'الخزنة والبنوك',
     eyebrow: 'الحسابات المالية',
     path: '/banks',
