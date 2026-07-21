@@ -1,0 +1,40 @@
+import type {
+  JournalPostingPreview,
+  SingleLineJournalInput,
+} from '../types/journal-entry.types'
+
+export function validateSingleLineEntry(input: SingleLineJournalInput): string[] {
+  const errors: string[] = []
+  const amount = Number(input.amount)
+
+  if (!input.entryDate) errors.push('التاريخ مطلوب.')
+  if (!input.projectName.trim()) errors.push('المشروع مطلوب.')
+  if (!input.category.trim()) errors.push('البند مطلوب.')
+  if (!input.description.trim()) errors.push('البيان مطلوب.')
+  if (!input.paymentAccount.trim()) errors.push('الحساب المقابل مطلوب.')
+  if (!Number.isFinite(amount) || amount <= 0) errors.push('أدخل مبلغًا صحيحًا أكبر من صفر.')
+
+  return errors
+}
+
+export function buildJournalPreview(
+  input: SingleLineJournalInput,
+): JournalPostingPreview | null {
+  const amount = Number(input.amount)
+
+  if (!input.category.trim() || !input.paymentAccount.trim() || !Number.isFinite(amount) || amount <= 0) {
+    return null
+  }
+
+  return input.type === 'expense'
+    ? {
+        debitAccount: input.category.trim(),
+        creditAccount: input.paymentAccount.trim(),
+        amount,
+      }
+    : {
+        debitAccount: input.paymentAccount.trim(),
+        creditAccount: input.category.trim(),
+        amount,
+      }
+}
