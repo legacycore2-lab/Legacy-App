@@ -48,7 +48,7 @@ jobs:
       - name: Load legacy schema fixture
         env:
           PGURL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
-        run: psql "$PGURL" --set ON_ERROR_STOP=1 --file supabase/tests/bootstrap/legacy_schema.sql
+        run: psql "$PGURL" --set ON_ERROR_STOP=1 --file supabase/fixtures/legacy_schema.sql
 
       - name: Replay every migration
         shell: bash
