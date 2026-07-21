@@ -40,9 +40,7 @@ function extractImports(source) {
 }
 
 function resolveImportPath(file, value) {
-  return value.startsWith('.')
-    ? normalizePath(relative(root, resolve(dirname(file), value)))
-    : value
+  return value.startsWith('.') ? normalizePath(relative(root, resolve(dirname(file), value))) : value
 }
 
 function isLayer(path, layer) {
@@ -111,11 +109,7 @@ for (const file of files) {
     report(`${path}: UI must receive calculated aggregates from Hook/Service`)
   }
 
-  if (
-    /\bsupabase\s*\./.test(source) &&
-    !isLayer(path, 'repositories') &&
-    !path.startsWith('lib/supabase/')
-  ) {
+  if (/\bsupabase\s*\./.test(source) && !isLayer(path, 'repositories') && !path.startsWith('lib/supabase/')) {
     report(`${path}: direct Supabase client usage is restricted to Repository/Infrastructure`)
   }
 
