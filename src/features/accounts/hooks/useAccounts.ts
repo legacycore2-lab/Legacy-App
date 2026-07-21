@@ -10,7 +10,7 @@ export function useAccounts() {
   const [type, setType] = useState<AccountType | 'all'>('all')
   const [editing, setEditing] = useState<Account | null>(null)
   const query = useQuery({ queryKey: ['accounts'], queryFn: getAccounts, staleTime: 30_000 })
-  const accounts = query.data ?? []
+  const accounts = useMemo(() => query.data ?? [], [query.data])
 
   const filteredAccounts = useMemo(() => {
     const term = search.trim().toLowerCase()
