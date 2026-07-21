@@ -39,7 +39,8 @@ export function useAccountForm({ editing, onSave, onCancel }: Options) {
     setValue((current) => ({
       ...current,
       accountType,
-      normalBalance: accountType === 'asset' || accountType === 'expense' ? 'debit' : 'credit',
+      normalBalance:
+        accountType === 'asset' || accountType === 'expense' ? 'debit' : 'credit',
       parentId: null,
     }))
   }
