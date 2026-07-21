@@ -23,6 +23,29 @@ alter table public.projects
   add column if not exists updated_at timestamptz not null default now(),
   add column if not exists created_by uuid default auth.uid();
 
+-- Normalize known legacy status values before enforcing the new constraint.
+update public.projects
+set status = case
+  when status = 'open' then 'active'
+  when status = 'closed' then 'completed'
+  when status is null or btrim(status) = '' then 'active'
+  else status
+end;
+
+-- Fail safely if unexpected legacy values still exist instead of silently
+-- coercing or deleting data.
+do $$
+begin
+  if exists (
+    select 1
+    from public.projects
+    where status not in ('active', 'paused', 'completed', 'archived')
+  ) then
+    raise exception 'Unexpected project status values exist. Normalize them before applying projects_status_check.';
+  end if;
+end
+$$;
+
 alter table public.projects
   drop constraint if exists projects_status_check,
   add constraint projects_status_check
