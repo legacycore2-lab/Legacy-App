@@ -32,7 +32,9 @@ export function AccountsList({
         />
         <select
           value={type}
-          onChange={(event) => onTypeChange(event.target.value as AccountType | 'all')}
+          onChange={(event) =>
+            onTypeChange(event.target.value as AccountType | 'all')
+          }
         >
           <option value="all">كل الأنواع</option>
           {accountTypes.map((item) => (
@@ -61,9 +63,16 @@ export function AccountsList({
               </tr>
             ) : (
               accounts.map((account) => (
-                <tr key={account.id} className={!account.isActive ? 'inactive' : ''}>
+                <tr
+                  key={account.id}
+                  className={!account.isActive ? 'inactive' : ''}
+                >
                   <td>{account.code}</td>
-                  <td style={{ paddingInlineStart: `${12 + (account.level - 1) * 18}px` }}>
+                  <td
+                    style={{
+                      paddingInlineStart: `${12 + (account.level - 1) * 18}px`,
+                    }}
+                  >
                     <strong>{account.nameAr}</strong>
                     <small>{account.nameEn}</small>
                   </td>
