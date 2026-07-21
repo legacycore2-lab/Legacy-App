@@ -69,7 +69,6 @@ export function AccountsPage() {
       <div className="accounts-grid">
         <form className="account-form" onSubmit={submit}>
           <h2>{vm.editing ? 'تعديل الحساب' : 'إضافة حساب'}</h2>
-
           <label>
             كود الحساب
             <input
@@ -78,7 +77,6 @@ export function AccountsPage() {
               required
             />
           </label>
-
           <label>
             الاسم العربي
             <input
@@ -87,7 +85,6 @@ export function AccountsPage() {
               required
             />
           </label>
-
           <label>
             الاسم الإنجليزي
             <input
@@ -95,13 +92,9 @@ export function AccountsPage() {
               onChange={(event) => setForm({ ...form, nameEn: event.target.value })}
             />
           </label>
-
           <label>
             نوع الحساب
-            <select
-              value={form.accountType}
-              onChange={(event) => setType(event.target.value as AccountType)}
-            >
+            <select value={form.accountType} onChange={(event) => setType(event.target.value as AccountType)}>
               {accountTypes.map((item) => (
                 <option key={item.value} value={item.value}>
                   {item.label}
@@ -109,21 +102,15 @@ export function AccountsPage() {
               ))}
             </select>
           </label>
-
           <label>
             الحساب الرئيسي
             <select
               value={form.parentId ?? ''}
-              onChange={(event) =>
-                setForm({ ...form, parentId: event.target.value || null })
-              }
+              onChange={(event) => setForm({ ...form, parentId: event.target.value || null })}
             >
               <option value="">بدون حساب رئيسي</option>
               {vm.allAccounts
-                .filter(
-                  (account) =>
-                    account.accountType === form.accountType && account.id !== form.id,
-                )
+                .filter((account) => account.accountType === form.accountType && account.id !== form.id)
                 .map((account) => (
                   <option key={account.id} value={account.id}>
                     {account.code} — {account.nameAr}
@@ -131,15 +118,12 @@ export function AccountsPage() {
                 ))}
             </select>
           </label>
-
           <div className="account-checks">
             <label>
               <input
                 type="checkbox"
                 checked={form.isPostable}
-                onChange={(event) =>
-                  setForm({ ...form, isPostable: event.target.checked })
-                }
+                onChange={(event) => setForm({ ...form, isPostable: event.target.checked })}
               />
               قابل للترحيل
             </label>
@@ -152,11 +136,8 @@ export function AccountsPage() {
               نشط
             </label>
           </div>
-
           <div className="account-actions">
-            <button disabled={vm.isSaving}>
-              {vm.isSaving ? 'جارٍ الحفظ...' : 'حفظ الحساب'}
-            </button>
+            <button disabled={vm.isSaving}>{vm.isSaving ? 'جارٍ الحفظ...' : 'حفظ الحساب'}</button>
             {vm.editing && (
               <button type="button" className="secondary" onClick={vm.onCancelEdit}>
                 إلغاء
@@ -184,7 +165,6 @@ export function AccountsPage() {
               ))}
             </select>
           </div>
-
           <div className="accounts-table-wrap">
             <table>
               <thead>
@@ -206,21 +186,14 @@ export function AccountsPage() {
                   vm.accounts.map((account) => (
                     <tr key={account.id} className={!account.isActive ? 'inactive' : ''}>
                       <td>{account.code}</td>
-                      <td
-                        style={{
-                          paddingInlineStart: `${12 + (account.level - 1) * 18}px`,
-                        }}
-                      >
+                      <td style={{ paddingInlineStart: `${12 + (account.level - 1) * 18}px` }}>
                         <strong>{account.nameAr}</strong>
                         <small>{account.nameEn}</small>
                       </td>
-                      <td>
-                        {accountTypes.find((item) => item.value === account.accountType)?.label}
-                      </td>
+                      <td>{accountTypes.find((item) => item.value === account.accountType)?.label}</td>
                       <td>{account.level}</td>
                       <td>
-                        {account.isActive ? 'نشط' : 'متوقف'} ·{' '}
-                        {account.isPostable ? 'ترحيل' : 'تجميعي'}
+                        {account.isActive ? 'نشط' : 'متوقف'} · {account.isPostable ? 'ترحيل' : 'تجميعي'}
                       </td>
                       <td>
                         <button onClick={() => vm.onEdit(account)}>تعديل</button>
