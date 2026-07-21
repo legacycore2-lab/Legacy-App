@@ -53,24 +53,15 @@ export function ProjectCreateDialog({
             </label>
             <label>
               اسم العميل
-              <input
-                value={value.client}
-                onChange={(event) => update('client', event.target.value)}
-              />
+              <input value={value.client} onChange={(event) => update('client', event.target.value)} />
             </label>
             <label>
               الموقع
-              <input
-                value={value.location}
-                onChange={(event) => update('location', event.target.value)}
-              />
+              <input value={value.location} onChange={(event) => update('location', event.target.value)} />
             </label>
             <label>
               مدير المشروع
-              <input
-                value={value.manager}
-                onChange={(event) => update('manager', event.target.value)}
-              />
+              <input value={value.manager} onChange={(event) => update('manager', event.target.value)} />
             </label>
             <label>
               الحالة
@@ -109,10 +100,7 @@ export function ProjectCreateDialog({
             </label>
             <label className="project-create-wide">
               ملاحظات
-              <textarea
-                value={value.notes}
-                onChange={(event) => update('notes', event.target.value)}
-              />
+              <textarea value={value.notes} onChange={(event) => update('notes', event.target.value)} />
             </label>
           </div>
 
@@ -127,8 +115,7 @@ export function ProjectCreateDialog({
             <div className="project-create-preview">
               <strong>جاهز للمراجعة</strong>
               <span>
-                {preview.name} · {preview.client} ·{' '}
-                {preview.contractValue.toLocaleString('ar-EG')} ج.م
+                {preview.name} · {preview.client} · {preview.contractValue.toLocaleString('ar-EG')} ج.م
               </span>
             </div>
           )}
