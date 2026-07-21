@@ -17,9 +17,7 @@ export type AccountRecord = {
 export async function findAccounts(): Promise<AccountRecord[]> {
   const { data, error } = await getSupabaseClient()
     .from('accounts')
-    .select(
-      'id,code,name_ar,name_en,account_type,normal_balance,parent_id,level,is_postable,is_active',
-    )
+    .select('id,code,name_ar,name_en,account_type,normal_balance,parent_id,level,is_postable,is_active')
     .order('code')
 
   if (error) throw error
@@ -48,10 +46,7 @@ export async function saveAccount(input: AccountInput, level: number): Promise<v
 }
 
 export async function setAccountActive(id: string, isActive: boolean): Promise<void> {
-  const { error } = await getSupabaseClient()
-    .from('accounts')
-    .update({ is_active: isActive })
-    .eq('id', id)
+  const { error } = await getSupabaseClient().from('accounts').update({ is_active: isActive }).eq('id', id)
 
   if (error) throw error
 }
