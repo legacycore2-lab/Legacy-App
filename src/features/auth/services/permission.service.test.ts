@@ -7,6 +7,7 @@ describe('route permissions', () => {
       '/',
       '/projects',
       '/journal',
+      '/accounts',
       '/banks',
       '/advances',
       '/reports',
@@ -21,6 +22,7 @@ describe('route permissions', () => {
     expect(canAccessRoute('viewer', '/projects')).toBe(true)
     expect(canAccessRoute('viewer', '/reports')).toBe(true)
     expect(canAccessRoute('viewer', '/journal')).toBe(false)
+    expect(canAccessRoute('viewer', '/accounts')).toBe(false)
     expect(canAccessRoute('viewer', '/users')).toBe(false)
   })
 

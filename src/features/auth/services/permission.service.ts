@@ -4,6 +4,7 @@ const routeRoles: Record<string, readonly AppRole[]> = {
   '/': ['admin', 'accountant', 'viewer'],
   '/projects': ['admin', 'accountant', 'viewer'],
   '/journal': ['admin', 'accountant'],
+  '/accounts': ['admin', 'accountant'],
   '/banks': ['admin', 'accountant'],
   '/advances': ['admin', 'accountant'],
   '/reports': ['admin', 'accountant', 'viewer'],
