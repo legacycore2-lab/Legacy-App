@@ -34,9 +34,7 @@ export async function upsertAccount(input: AccountInput, accounts: Account[]): P
   const duplicate = accounts.some((account) => account.code === code && account.id !== input.id)
   if (duplicate) throw new Error('كود الحساب مستخدم بالفعل.')
 
-  const parent = input.parentId
-    ? accounts.find((account) => account.id === input.parentId)
-    : undefined
+  const parent = input.parentId ? accounts.find((account) => account.id === input.parentId) : undefined
 
   if (input.parentId && !parent) throw new Error('الحساب الرئيسي غير موجود.')
   if (parent && parent.accountType !== input.accountType) {
