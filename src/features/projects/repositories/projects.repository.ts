@@ -1,6 +1,10 @@
-import { projectsMock } from '../data/projects.mock'
-import type { Project } from '../types/project.types'
+import { getSupabaseClient } from '../../../lib/supabase/client'
+import type { ProjectRecord } from '../types/project.types'
 
-export async function findProjects(): Promise<Project[]> {
-  return projectsMock
+export async function findProjects(): Promise<ProjectRecord[]> {
+  const { data, error } = await getSupabaseClient().from('projects').select('*')
+
+  if (error) throw error
+
+  return (data ?? []) as ProjectRecord[]
 }
