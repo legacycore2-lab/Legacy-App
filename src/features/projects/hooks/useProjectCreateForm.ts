@@ -1,15 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
-import {
-  buildProjectCreatePreview,
-  createProject,
-  validateProjectCreateInput,
-} from '../services/project-create.service'
-import type {
-  ProjectCreateFormState,
-  ProjectCreateInput,
-} from '../types/project-create.types'
+import { buildProjectCreatePreview, createProject, validateProjectCreateInput } from '../services/project-create.service'
+import type { ProjectCreateFormState, ProjectCreateInput } from '../types/project-create.types'
 
 function createInitialValue(): ProjectCreateInput {
   return {
@@ -44,10 +37,7 @@ export function useProjectCreateForm(): ProjectCreateFormState {
     },
   })
 
-  const update = <K extends keyof ProjectCreateInput>(
-    key: K,
-    next: ProjectCreateInput[K],
-  ) => {
+  const update = <K extends keyof ProjectCreateInput>(key: K, next: ProjectCreateInput[K]) => {
     createMutation.reset()
     setValue((current) => ({ ...current, [key]: next }))
   }
@@ -81,9 +71,7 @@ export function useProjectCreateForm(): ProjectCreateFormState {
     errors,
     preview,
     isSaving: createMutation.isPending,
-    saveError: createMutation.error
-      ? toErrorMessage(createMutation.error, 'تعذر إنشاء المشروع.')
-      : '',
+    saveError: createMutation.error ? toErrorMessage(createMutation.error, 'تعذر إنشاء المشروع.') : '',
     submit,
   }
 }
