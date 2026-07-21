@@ -1,11 +1,7 @@
 import { ArrowDownLeft, ArrowUpRight, BriefcaseBusiness, WalletCards } from 'lucide-react'
 import { dashboardActions } from '../data/dashboard.mock'
 import { findDashboardData } from '../repositories/dashboard.repository'
-import type {
-  DashboardData,
-  DashboardEntryRecord,
-  DashboardProjectRecord,
-} from '../types/dashboard.types'
+import type { DashboardData, DashboardEntryRecord, DashboardProjectRecord } from '../types/dashboard.types'
 
 const numberFormatter = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 })
 
