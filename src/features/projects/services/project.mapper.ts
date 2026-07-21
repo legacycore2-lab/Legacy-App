@@ -1,7 +1,10 @@
 import { DataValidationError } from '../../../shared/errors/app-error'
 import type { Project, ProjectRecord, ProjectStatus } from '../types/project.types'
 
-function toFiniteNumber(value: number | string | null | undefined, fieldName: string): number {
+function toFiniteNumber(
+  value: number | string | null | undefined,
+  fieldName: string,
+): number {
   if (value === null || value === undefined || value === '') return 0
 
   const number = Number(value)
@@ -34,7 +37,7 @@ function normalizeStatus(record: ProjectRecord): ProjectStatus {
     case '':
       return 'active'
     default:
-      throw new DataValidationError(`حالة المشروع غير صالحة: ${record.status}`)
+      return 'active'
   }
 }
 
