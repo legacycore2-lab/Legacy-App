@@ -9,12 +9,12 @@ function workbookBuffer(rows: Array<Record<string, string>>): ArrayBuffer {
 }
 
 describe('parseExcelWorkbook', () => {
-  it('returns the first sheet preview', () => {
-    const preview = parseExcelWorkbook(workbookBuffer([{ المشروع: 'هايد بارك' }]), 'projects.xlsx')
+  it('returns the first sheet preview', async () => {
+    const preview = await parseExcelWorkbook(workbookBuffer([{ المشروع: 'هايد بارك' }]), 'projects.xlsx')
     expect(preview).toMatchObject({ fileName: 'projects.xlsx', sheetName: 'المشاريع' })
     expect(preview.rows).toHaveLength(1)
   })
 
-  it('rejects an empty sheet', () =>
-    expect(() => parseExcelWorkbook(workbookBuffer([]), 'empty.xlsx')).toThrow())
+  it('rejects an empty sheet', async () =>
+    await expect(parseExcelWorkbook(workbookBuffer([]), 'empty.xlsx')).rejects.toThrow())
 })

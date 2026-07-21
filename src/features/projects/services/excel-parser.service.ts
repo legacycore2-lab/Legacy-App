@@ -1,9 +1,8 @@
-import * as XLSX from 'xlsx'
-
 export type ExcelRow = Record<string, string | number | boolean | Date | null>
 export type ExcelPreview = { fileName: string; sheetName: string; rows: ExcelRow[] }
 
-export function parseExcelWorkbook(buffer: ArrayBuffer, fileName: string): ExcelPreview {
+export async function parseExcelWorkbook(buffer: ArrayBuffer, fileName: string): Promise<ExcelPreview> {
+  const XLSX = await import('xlsx')
   const workbook = XLSX.read(buffer, { type: 'array', cellDates: true })
   const sheetName = workbook.SheetNames[0]
   if (!sheetName || !workbook.Sheets[sheetName]) throw new Error('لم يتم العثور على شيت صالح داخل الملف.')
