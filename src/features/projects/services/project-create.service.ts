@@ -1,9 +1,6 @@
 import { insertProject } from '../repositories/projects.repository'
-import type {
-  ProjectCreateInput,
-  ProjectCreatePreview,
-} from '../types/project-create.types'
 import type { Project } from '../types/project.types'
+import type { ProjectCreateInput, ProjectCreatePreview } from '../types/project-create.types'
 import { mapProject, mapProjectCreateToRecord } from './project.mapper'
 
 export function validateProjectCreateInput(input: ProjectCreateInput): string[] {
@@ -16,19 +13,14 @@ export function validateProjectCreateInput(input: ProjectCreateInput): string[] 
   if (input.endDate && input.startDate && input.endDate < input.startDate) {
     errors.push('تاريخ النهاية يجب أن يكون بعد تاريخ البداية.')
   }
-  if (
-    input.contractValue &&
-    (!Number.isFinite(contractValue) || contractValue < 0)
-  ) {
+  if (input.contractValue && (!Number.isFinite(contractValue) || contractValue < 0)) {
     errors.push('قيمة التعاقد غير صحيحة.')
   }
 
   return errors
 }
 
-export function buildProjectCreatePreview(
-  input: ProjectCreateInput,
-): ProjectCreatePreview | null {
+export function buildProjectCreatePreview(input: ProjectCreateInput): ProjectCreatePreview | null {
   if (validateProjectCreateInput(input).length > 0) return null
 
   return {
@@ -48,9 +40,7 @@ export function buildProjectCreatePreview(
 export async function createProject(input: ProjectCreateInput): Promise<Project> {
   const preview = buildProjectCreatePreview(input)
   if (!preview) {
-    throw new Error(
-      validateProjectCreateInput(input)[0] ?? 'بيانات المشروع غير صالحة.',
-    )
+    throw new Error(validateProjectCreateInput(input)[0] ?? 'بيانات المشروع غير صالحة.')
   }
 
   const record = await insertProject(mapProjectCreateToRecord(preview))
