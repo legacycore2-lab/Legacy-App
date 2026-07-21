@@ -3,87 +3,135 @@ import { dirname, relative, resolve } from 'node:path'
 
 const root = resolve('src')
 const files = []
+const violations = new Set()
+
+const sourceFilePattern = /\.(ts|tsx)$/
+const testFilePattern = /\.(test|spec)\.(ts|tsx)$/
+const importPatterns = [
+  /(?:import|export)\s+(?:type\s+)?(?:[^'";]+?\s+from\s+)?['"]([^'"]+)['"]/g,
+  /import\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
+  /require\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
+]
+
+function normalizePath(path) {
+  return path.replaceAll('\\', '/')
+}
 
 function walk(directory) {
   for (const name of readdirSync(directory)) {
     const path = resolve(directory, name)
-    if (statSync(path).isDirectory()) walk(path)
-    else if (/\.(ts|tsx)$/.test(name) && !name.endsWith('.test.ts')) files.push(path)
+    if (statSync(path).isDirectory()) {
+      walk(path)
+      continue
+    }
+
+    if (sourceFilePattern.test(name) && !testFilePattern.test(name)) files.push(path)
   }
 }
 
+function extractImports(source) {
+  const imports = new Set()
+
+  for (const pattern of importPatterns) {
+    for (const match of source.matchAll(pattern)) imports.add(match[1])
+  }
+
+  return [...imports]
+}
+
+function resolveImportPath(file, value) {
+  return value.startsWith('.')
+    ? normalizePath(relative(root, resolve(dirname(file), value)))
+    : value
+}
+
+function isLayer(path, layer) {
+  return new RegExp(`/(?:${layer})/`).test(`/${path}`)
+}
+
+function report(message) {
+  violations.add(message)
+}
+
 walk(root)
-const violations = []
 
 for (const file of files) {
-  const path = relative(root, file).replaceAll('\\', '/')
+  const path = normalizePath(relative(root, file))
   const source = readFileSync(file, 'utf8')
-  const imports = [...source.matchAll(/from\s+['"]([^'"]+)['"]/g)].map((match) => match[1])
+  const imports = extractImports(source)
+  const resolvedImports = imports.map((value) => ({ value, targetPath: resolveImportPath(file, value) }))
 
-  for (const value of imports) {
-    const targetPath = value.startsWith('.')
-      ? relative(root, resolve(dirname(file), value)).replaceAll('\\', '/')
-      : value
-
-    if (/\/(components|pages|providers)\//.test(`/${path}`)) {
+  for (const { value, targetPath } of resolvedImports) {
+    if (isLayer(path, 'components|pages|providers')) {
       if (
-        targetPath.includes('/services/') ||
-        targetPath.includes('/repositories/') ||
-        targetPath.startsWith('lib/supabase')
+        isLayer(targetPath, 'services|repositories') ||
+        targetPath.startsWith('lib/supabase') ||
+        value.startsWith('@supabase/')
       ) {
-        violations.push(`${path}: UI must use Hooks, not Service/Repository/Supabase (${value})`)
-      }
-
-      if (source.includes('.reduce(')) {
-        violations.push(`${path}: UI must receive calculated aggregates from Hook/Service`)
+        report(`${path}: UI must use Hooks, not Service/Repository/Supabase (${value})`)
       }
     }
 
-    if (/\/hooks\//.test(`/${path}`)) {
-      if (targetPath.includes('/repositories/') || targetPath.startsWith('lib/supabase')) {
-        violations.push(`${path}: Hook must use Service, not Repository/Supabase (${value})`)
+    if (isLayer(path, 'hooks')) {
+      if (
+        isLayer(targetPath, 'repositories') ||
+        targetPath.startsWith('lib/supabase') ||
+        value.startsWith('@supabase/')
+      ) {
+        report(`${path}: Hook must use Service, not Repository/Supabase (${value})`)
       }
     }
 
-    if (/\/services\//.test(`/${path}`)) {
+    if (isLayer(path, 'services')) {
       if (
         value.startsWith('@supabase/') ||
         targetPath.startsWith('lib/supabase') ||
-        /\/(components|pages|hooks|providers)\//.test(`/${targetPath}`)
+        isLayer(targetPath, 'components|pages|hooks|providers')
       ) {
-        violations.push(`${path}: Service must stay independent from UI and Supabase SDK (${value})`)
+        report(`${path}: Service must stay independent from UI and Supabase SDK (${value})`)
       }
     }
 
-    if (/\/repositories\//.test(`/${path}`)) {
-      if (/\/(components|pages|hooks|providers|services)\//.test(`/${targetPath}`)) {
-        violations.push(`${path}: Repository must not depend on upper layers (${value})`)
+    if (isLayer(path, 'repositories')) {
+      if (isLayer(targetPath, 'components|pages|hooks|providers|services')) {
+        report(`${path}: Repository must not depend on upper layers (${value})`)
       }
     }
 
     if (
       value.startsWith('@supabase/') &&
-      !path.includes('/repositories/') &&
+      !isLayer(path, 'repositories') &&
       !path.startsWith('lib/supabase/')
     ) {
-      violations.push(`${path}: Supabase SDK is restricted to Repository/Infrastructure (${value})`)
+      report(`${path}: Supabase SDK is restricted to Repository/Infrastructure (${value})`)
     }
+  }
+
+  if (isLayer(path, 'components|pages|providers') && source.includes('.reduce(')) {
+    report(`${path}: UI must receive calculated aggregates from Hook/Service`)
+  }
+
+  if (
+    /\bsupabase\s*\./.test(source) &&
+    !isLayer(path, 'repositories') &&
+    !path.startsWith('lib/supabase/')
+  ) {
+    report(`${path}: direct Supabase client usage is restricted to Repository/Infrastructure`)
   }
 
   const feature = path.match(/^features\/([^/]+)\//)?.[1]
   if (feature) {
-    for (const value of imports) {
-      const targetPath = value.startsWith('.')
-        ? relative(root, resolve(dirname(file), value)).replaceAll('\\', '/')
-        : value
+    for (const { value, targetPath } of resolvedImports) {
       const target = targetPath.match(/^features\/([^/]+)/)?.[1]
-      if (target && target !== feature) violations.push(`${path}: cross-feature internal import (${value})`)
+      if (target && target !== feature) {
+        report(`${path}: cross-feature internal import (${value})`)
+      }
     }
   }
 }
 
-if (violations.length) {
-  console.error(violations.join('\n'))
+if (violations.size) {
+  console.error([...violations].sort().join('\n'))
   process.exit(1)
 }
 
