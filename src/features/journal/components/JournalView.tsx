@@ -42,12 +42,18 @@ export function JournalView({
           <h1>القيود اليومية</h1>
           <p>إدارة ومراجعة جميع حركات الإيرادات والمصروفات.</p>
         </div>
-        <button type="button" className="journal-primary" onClick={() => setIsEntryFormOpen(true)}>
+        <button
+          type="button"
+          className="journal-primary"
+          onClick={() => setIsEntryFormOpen(true)}
+        >
           <Plus size={18} /> إضافة قيد
         </button>
       </header>
 
-      {isEntryFormOpen && <SingleLineJournalForm onClose={() => setIsEntryFormOpen(false)} />}
+      {isEntryFormOpen && (
+        <SingleLineJournalForm onClose={() => setIsEntryFormOpen(false)} />
+      )}
 
       <div className="journal-stats">
         <article>
