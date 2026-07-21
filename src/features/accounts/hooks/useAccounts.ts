@@ -18,8 +18,7 @@ export function useAccounts() {
     return accounts.filter(
       (account) =>
         (type === 'all' || account.accountType === type) &&
-        (!term ||
-          `${account.code} ${account.nameAr} ${account.nameEn}`.toLowerCase().includes(term)),
+        (!term || `${account.code} ${account.nameAr} ${account.nameEn}`.toLowerCase().includes(term)),
     )
   }, [accounts, search, type])
 
