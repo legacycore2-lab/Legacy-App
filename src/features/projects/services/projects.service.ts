@@ -4,7 +4,16 @@ import { mapProject } from './project.mapper'
 
 export async function getProjects(): Promise<Project[]> {
   const records = await findProjects()
-  return records.map(mapProject)
+
+  return records.reduce<Project[]>((projects, record) => {
+    try {
+      projects.push(mapProject(record))
+    } catch (error) {
+      console.warn('Skipping invalid project record.', { recordId: record.id, error })
+    }
+
+    return projects
+  }, [])
 }
 
 export function summarizeProjects(projects: Project[]): ProjectsSummary {
@@ -17,7 +26,14 @@ export function summarizeProjects(projects: Project[]): ProjectsSummary {
       totalContracts: summary.totalContracts + project.contractValue,
       totalLiquidity: summary.totalLiquidity + project.received - project.spent,
     }),
-    { total: 0, active: 0, completed: 0, paused: 0, totalContracts: 0, totalLiquidity: 0 },
+    {
+      total: 0,
+      active: 0,
+      completed: 0,
+      paused: 0,
+      totalContracts: 0,
+      totalLiquidity: 0,
+    },
   )
 }
 
