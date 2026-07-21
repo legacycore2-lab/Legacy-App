@@ -7,11 +7,12 @@ type Props = {
 }
 
 export function SingleLineJournalForm({ onClose }: Props) {
-  const { value, submitted, errors, preview, update, submit } = useSingleLineJournalForm()
+  const { value, submitted, errors, preview, update, submit, isSaving, saveError } =
+    useSingleLineJournalForm()
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
-    submit()
+    if (await submit()) onClose()
   }
 
   return (
@@ -106,6 +107,12 @@ export function SingleLineJournalForm({ onClose }: Props) {
           </div>
         )}
 
+        {saveError && (
+          <div className="journal-entry-errors">
+            <p>{saveError}</p>
+          </div>
+        )}
+
         {preview && (
           <div className="journal-entry-preview">
             <div>
@@ -125,12 +132,8 @@ export function SingleLineJournalForm({ onClose }: Props) {
           <button type="button" className="journal-secondary" onClick={onClose}>
             إلغاء
           </button>
-          <button
-            type="submit"
-            className="journal-primary"
-            title="الحفظ الفعلي سيُربط بقاعدة البيانات في المرحلة التالية"
-          >
-            <Save size={17} /> مراجعة القيد
+          <button type="submit" className="journal-primary" disabled={isSaving}>
+            <Save size={17} /> {isSaving ? 'جارٍ الحفظ...' : 'حفظ وترحيل القيد'}
           </button>
         </footer>
       </form>

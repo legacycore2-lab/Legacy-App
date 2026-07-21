@@ -1,3 +1,4 @@
+import { postSingleLineEntry } from '../repositories/journal.repository'
 import type { JournalPostingPreview, SingleLineJournalInput } from '../types/journal-entry.types'
 
 export function validateSingleLineEntry(input: SingleLineJournalInput): string[] {
@@ -32,4 +33,11 @@ export function buildJournalPreview(input: SingleLineJournalInput): JournalPosti
         creditAccount: input.category.trim(),
         amount,
       }
+}
+
+export async function submitSingleLineEntry(input: SingleLineJournalInput): Promise<string> {
+  const errors = validateSingleLineEntry(input)
+  if (errors.length > 0) throw new Error(errors[0])
+
+  return postSingleLineEntry(input)
 }

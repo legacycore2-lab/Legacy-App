@@ -1,4 +1,5 @@
 import { getSupabaseClient } from '../../../lib/supabase/client'
+import type { SingleLineJournalInput } from '../types/journal-entry.types'
 
 export type JournalEntryRecord = {
   id: string
@@ -71,4 +72,24 @@ export async function findJournalEntries(query: JournalEntriesQuery): Promise<Jo
     records: (data ?? []) as JournalEntryRecord[],
     totalCount: count ?? 0,
   }
+}
+
+export async function postSingleLineEntry(input: SingleLineJournalInput): Promise<string> {
+  const { data, error } = await getSupabaseClient().rpc('post_single_line_entry', {
+    entry_date: input.entryDate,
+    project_name: input.projectName.trim(),
+    entry_type: input.type,
+    category_account: input.category.trim(),
+    description: input.description.trim(),
+    contractor_name: input.contractor.trim(),
+    payment_account: input.paymentAccount.trim(),
+    amount: Number(input.amount),
+  })
+
+  if (error) throw error
+  if (typeof data !== 'string') {
+    throw new Error('Supabase did not return the posted entry identifier.')
+  }
+
+  return data
 }
