@@ -42,7 +42,12 @@ export function SingleLineJournalForm({ onClose }: Props) {
           <h2>إضافة قيد بسطر واحد</h2>
           <p>أدخل العملية مرة واحدة، وسيُنشئ المحرك طرفي القيد تلقائيًا.</p>
         </div>
-        <button type="button" className="journal-icon-button" onClick={onClose} aria-label="إغلاق">
+        <button
+          type="button"
+          className="journal-icon-button"
+          onClick={onClose}
+          aria-label="إغلاق"
+        >
           <X size={18} />
         </button>
       </header>
@@ -51,56 +56,109 @@ export function SingleLineJournalForm({ onClose }: Props) {
         <div className="journal-entry-grid">
           <label>
             التاريخ
-            <input type="date" value={value.entryDate} onChange={(event) => update('entryDate', event.target.value)} />
+            <input
+              type="date"
+              value={value.entryDate}
+              onChange={(event) => update('entryDate', event.target.value)}
+            />
           </label>
           <label>
             النوع
-            <select value={value.type} onChange={(event) => update('type', event.target.value as SingleLineJournalInput['type'])}>
+            <select
+              value={value.type}
+              onChange={(event) =>
+                update('type', event.target.value as SingleLineJournalInput['type'])
+              }
+            >
               <option value="expense">مصروف</option>
               <option value="income">إيراد</option>
             </select>
           </label>
           <label>
             المشروع
-            <input value={value.projectName} onChange={(event) => update('projectName', event.target.value)} placeholder="اختر أو اكتب المشروع" />
+            <input
+              value={value.projectName}
+              onChange={(event) => update('projectName', event.target.value)}
+              placeholder="اختر أو اكتب المشروع"
+            />
           </label>
           <label>
             البند
-            <input value={value.category} onChange={(event) => update('category', event.target.value)} placeholder="مثال: خرسانة" />
+            <input
+              value={value.category}
+              onChange={(event) => update('category', event.target.value)}
+              placeholder="مثال: خرسانة"
+            />
           </label>
           <label>
             الحساب المقابل
-            <input value={value.paymentAccount} onChange={(event) => update('paymentAccount', event.target.value)} placeholder="الخزنة، البنك، عهدة..." />
+            <input
+              value={value.paymentAccount}
+              onChange={(event) => update('paymentAccount', event.target.value)}
+              placeholder="الخزنة، البنك، عهدة..."
+            />
           </label>
           <label>
             المبلغ
-            <input inputMode="decimal" value={value.amount} onChange={(event) => update('amount', event.target.value)} placeholder="0.00" />
+            <input
+              inputMode="decimal"
+              value={value.amount}
+              onChange={(event) => update('amount', event.target.value)}
+              placeholder="0.00"
+            />
           </label>
           <label className="journal-entry-wide">
             البيان
-            <input value={value.description} onChange={(event) => update('description', event.target.value)} placeholder="وصف العملية" />
+            <input
+              value={value.description}
+              onChange={(event) => update('description', event.target.value)}
+              placeholder="وصف العملية"
+            />
           </label>
           <label>
             المقاول / الطرف
-            <input value={value.contractor} onChange={(event) => update('contractor', event.target.value)} placeholder="اختياري" />
+            <input
+              value={value.contractor}
+              onChange={(event) => update('contractor', event.target.value)}
+              placeholder="اختياري"
+            />
           </label>
         </div>
 
         {submitted && errors.length > 0 && (
-          <div className="journal-entry-errors">{errors.map((error) => <p key={error}>{error}</p>)}</div>
+          <div className="journal-entry-errors">
+            {errors.map((error) => (
+              <p key={error}>{error}</p>
+            ))}
+          </div>
         )}
 
         {preview && (
           <div className="journal-entry-preview">
-            <div><Eye size={17} /><strong>المعاينة المحاسبية التلقائية</strong></div>
-            <p><span>مدين</span> {preview.debitAccount} — {preview.amount.toLocaleString('ar-EG')} ج.م</p>
-            <p><span>دائن</span> {preview.creditAccount} — {preview.amount.toLocaleString('ar-EG')} ج.م</p>
+            <div>
+              <Eye size={17} />
+              <strong>المعاينة المحاسبية التلقائية</strong>
+            </div>
+            <p>
+              <span>مدين</span> {preview.debitAccount} —{' '}
+              {preview.amount.toLocaleString('ar-EG')} ج.م
+            </p>
+            <p>
+              <span>دائن</span> {preview.creditAccount} —{' '}
+              {preview.amount.toLocaleString('ar-EG')} ج.م
+            </p>
           </div>
         )}
 
         <footer>
-          <button type="button" className="journal-secondary" onClick={onClose}>إلغاء</button>
-          <button type="submit" className="journal-primary" title="الحفظ الفعلي سيُربط بقاعدة البيانات في المرحلة التالية">
+          <button type="button" className="journal-secondary" onClick={onClose}>
+            إلغاء
+          </button>
+          <button
+            type="submit"
+            className="journal-primary"
+            title="الحفظ الفعلي سيُربط بقاعدة البيانات في المرحلة التالية"
+          >
             <Save size={17} /> مراجعة القيد
           </button>
         </footer>
