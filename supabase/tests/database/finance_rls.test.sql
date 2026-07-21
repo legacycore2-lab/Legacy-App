@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(14);
+select plan(15);
 
 select has_table('public', 'projects', 'projects exists after migration replay');
 select has_table('public', 'entries', 'entries exists after migration replay');
