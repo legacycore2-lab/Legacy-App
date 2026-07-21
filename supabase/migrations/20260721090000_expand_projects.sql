@@ -1,5 +1,9 @@
 -- Legacy Core ERP
 -- Expand projects for production-ready project creation.
+--
+-- start_date and close_date remain untouched because the legacy database may
+-- contain text-formatted dates. The application validates new ISO dates while
+-- a dedicated, data-audited migration can normalize legacy dates later.
 
 begin;
 
@@ -13,7 +17,7 @@ alter table public.projects
   add column if not exists received numeric(18, 2) not null default 0,
   add column if not exists spent numeric(18, 2) not null default 0,
   add column if not exists progress numeric(5, 2) not null default 0,
-  add column if not exists end_date date,
+  add column if not exists end_date text,
   add column if not exists notes text,
   add column if not exists created_at timestamptz not null default now(),
   add column if not exists updated_at timestamptz not null default now(),
@@ -30,9 +34,7 @@ alter table public.projects
   drop constraint if exists projects_spent_check,
   add constraint projects_spent_check check (spent >= 0),
   drop constraint if exists projects_progress_check,
-  add constraint projects_progress_check check (progress between 0 and 100),
-  drop constraint if exists projects_dates_check,
-  add constraint projects_dates_check check (end_date is null or start_date is null or end_date >= start_date);
+  add constraint projects_progress_check check (progress between 0 and 100);
 
 create unique index if not exists projects_code_unique_idx
   on public.projects (lower(code))
