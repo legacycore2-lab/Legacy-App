@@ -64,7 +64,9 @@ export function AccountForm({
         الحساب الرئيسي
         <select
           value={form.value.parentId ?? ''}
-          onChange={(event) => form.update('parentId', event.target.value || null)}
+          onChange={(event) =>
+            form.update('parentId', event.target.value || null)
+          }
         >
           <option value="">بدون حساب رئيسي</option>
           {accounts
@@ -85,7 +87,9 @@ export function AccountForm({
           <input
             type="checkbox"
             checked={form.value.isPostable}
-            onChange={(event) => form.update('isPostable', event.target.checked)}
+            onChange={(event) =>
+              form.update('isPostable', event.target.checked)
+            }
           />
           قابل للترحيل
         </label>
