@@ -11,10 +11,11 @@ export function DashboardPage() {
 
   if (isLoading) return <section className="dashboard-details">جاري تحميل لوحة التحكم...</section>
   if (error) return <section className="dashboard-details">{error}</section>
+  if (!data) return <section className="dashboard-details">لا توجد بيانات متاحة.</section>
 
   return (
     <section className="dashboard-details">
-      <DashboardHeader />
+      <DashboardHeader summary={data.header} />
       <KpiGrid kpis={data.kpis} />
       <div className="dashboard-primary-grid">
         <RecentProjects projects={data.projects} />

@@ -1,13 +1,18 @@
 import { AlertTriangle, Clock3, FolderKanban, WalletCards } from 'lucide-react'
+import type { DashboardHeaderSummary } from '../types/dashboard.types'
 
-const summaryItems = [
-  { label: 'مشاريع نشطة', value: '5', icon: FolderKanban, tone: 'green' },
-  { label: 'تنبيهات تحتاج مراجعة', value: '3', icon: AlertTriangle, tone: 'gold' },
-  { label: 'رصيد اليوم', value: '2,458,750', icon: WalletCards, tone: 'green' },
-  { label: 'آخر تحديث', value: 'الآن', icon: Clock3, tone: 'neutral' },
-]
+type DashboardHeaderProps = {
+  summary: DashboardHeaderSummary
+}
 
-export function DashboardHeader() {
+export function DashboardHeader({ summary }: DashboardHeaderProps) {
+  const summaryItems = [
+    { label: 'مشاريع نشطة', value: summary.activeProjects, icon: FolderKanban, tone: 'green' },
+    { label: 'تنبيهات تحتاج مراجعة', value: summary.alerts, icon: AlertTriangle, tone: 'gold' },
+    { label: 'الرصيد الحالي', value: summary.balance, icon: WalletCards, tone: 'green' },
+    { label: 'آخر تحديث', value: summary.lastUpdated, icon: Clock3, tone: 'neutral' },
+  ]
+
   return (
     <section className="dashboard-header" aria-labelledby="dashboard-heading">
       <div className="dashboard-header__intro">

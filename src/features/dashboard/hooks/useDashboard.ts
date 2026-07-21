@@ -1,23 +1,19 @@
-import { useEffect, useState } from 'react'
-import { getDashboardData } from '../services/dashboard.service'
-import type { DashboardData } from '../types/dashboard.types'
+import { useQuery } from '@tanstack/react-query'
 import { toErrorMessage } from '../../../shared/errors/app-error'
+import { getDashboardData } from '../services/dashboard.service'
 
-const empty: DashboardData = { kpis: [], projects: [], entries: [], actions: [] }
+const dashboardQueryKey = ['dashboard'] as const
 
 export function useDashboard() {
-  const [data, setData] = useState<DashboardData>(empty)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState('')
-  useEffect(() => {
-    let active = true
-    getDashboardData()
-      .then((value) => active && setData(value))
-      .catch((loadError) => active && setError(toErrorMessage(loadError, 'تعذر تحميل لوحة التحكم.')))
-      .finally(() => active && setIsLoading(false))
-    return () => {
-      active = false
-    }
-  }, [])
-  return { data, isLoading, error }
+  const dashboardQuery = useQuery({
+    queryKey: dashboardQueryKey,
+    queryFn: getDashboardData,
+    staleTime: 30_000,
+  })
+
+  return {
+    data: dashboardQuery.data,
+    isLoading: dashboardQuery.isLoading,
+    error: dashboardQuery.error ? toErrorMessage(dashboardQuery.error, 'تعذر تحميل لوحة التحكم.') : '',
+  }
 }
