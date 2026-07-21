@@ -2,6 +2,7 @@ export type ProjectStatus = 'active' | 'completed' | 'paused' | 'archived'
 
 export type Project = {
   id: string
+  code: string
   name: string
   client: string
   location: string
@@ -13,6 +14,7 @@ export type Project = {
   spent: number
   startDate: string
   endDate: string
+  notes: string
 }
 
 export type ProjectStatusFilter = 'all' | ProjectStatus
@@ -51,5 +53,23 @@ export type ProjectRecord = {
   start_date?: string | null
   end_date?: string | null
   close_date?: string | null
+  notes?: string | null
   is_archived?: boolean | null
+  created_at?: string | null
+  updated_at?: string | null
+  created_by?: string | null
+}
+
+export type ProjectInsertRecord = {
+  name: string
+  code: string | null
+  client_name: string | null
+  location: string | null
+  manager: string | null
+  status: Exclude<ProjectStatus, 'archived'>
+  contract_value: number
+  start_date: string
+  end_date: string | null
+  notes: string | null
+  is_archived: false
 }

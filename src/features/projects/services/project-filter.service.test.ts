@@ -5,6 +5,7 @@ import { filterProjects } from './project-filter.service'
 const projects: Project[] = [
   {
     id: '1',
+    code: 'PRJ-001',
     name: 'هايد بارك',
     client: 'ليجاسي',
     location: 'القاهرة',
@@ -16,9 +17,11 @@ const projects: Project[] = [
     spent: 0,
     startDate: '',
     endDate: '',
+    notes: '',
   },
   {
     id: '2',
+    code: 'PRJ-002',
     name: 'العيادة',
     client: 'محمد',
     location: 'المعادي',
@@ -30,6 +33,7 @@ const projects: Project[] = [
     spent: 0,
     startDate: '',
     endDate: '',
+    notes: '',
   },
 ]
 

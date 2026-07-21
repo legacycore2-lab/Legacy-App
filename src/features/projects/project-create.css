@@ -52,6 +52,14 @@
   background: transparent;
 }
 
+.project-create-dialog button:disabled,
+.project-create-dialog input:disabled,
+.project-create-dialog select:disabled,
+.project-create-dialog textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 .project-create-dialog form {
   padding: 20px;
 }
@@ -103,6 +111,14 @@
   background: #fff1f0;
 }
 
+.project-create-errors p {
+  margin: 0;
+}
+
+.project-create-errors p + p {
+  margin-top: 6px;
+}
+
 .project-create-preview {
   display: flex;
   justify-content: space-between;
@@ -114,6 +130,16 @@
 .project-create-dialog form > footer {
   margin: 20px -20px -20px;
   border-top: 1px solid var(--border);
+}
+
+.project-create-spinner {
+  animation: project-create-spin 0.8s linear infinite;
+}
+
+@keyframes project-create-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 760px) {

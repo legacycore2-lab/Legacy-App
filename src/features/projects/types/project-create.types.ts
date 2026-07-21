@@ -35,5 +35,7 @@ export type ProjectCreateFormState = {
   submitted: boolean
   errors: string[]
   preview: ProjectCreatePreview | null
-  review: () => void
+  isSaving: boolean
+  saveError: string
+  submit: () => Promise<void>
 }

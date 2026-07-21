@@ -1,5 +1,6 @@
 import { DataValidationError } from '../../../shared/errors/app-error'
-import type { Project, ProjectRecord, ProjectStatus } from '../types/project.types'
+import type { Project, ProjectInsertRecord, ProjectRecord, ProjectStatus } from '../types/project.types'
+import type { ProjectCreatePreview } from '../types/project-create.types'
 
 function toFiniteNumber(value: number | string | null | undefined, fieldName: string): number {
   if (value === null || value === undefined || value === '') return 0
@@ -45,6 +46,7 @@ export function mapProject(record: ProjectRecord): Project {
 
   return {
     id: record.id,
+    code: record.code?.trim() ?? '',
     name: record.name.trim(),
     client: record.client_name?.trim() ?? '',
     location: record.location?.trim() ?? '',
@@ -56,5 +58,22 @@ export function mapProject(record: ProjectRecord): Project {
     spent: toFiniteNumber(record.spent, 'إجمالي المصروف'),
     startDate: record.start_date ?? '',
     endDate: record.end_date ?? record.close_date ?? '',
+    notes: record.notes?.trim() ?? '',
+  }
+}
+
+export function mapProjectCreateToRecord(input: ProjectCreatePreview): ProjectInsertRecord {
+  return {
+    name: input.name,
+    code: input.code || null,
+    client_name: input.client || null,
+    location: input.location || null,
+    manager: input.manager || null,
+    status: input.status === 'archived' ? 'active' : input.status,
+    contract_value: input.contractValue,
+    start_date: input.startDate,
+    end_date: input.endDate || null,
+    notes: input.notes || null,
+    is_archived: false,
   }
 }
