@@ -1,8 +1,10 @@
 import { findProjects } from '../repositories/projects.repository'
 import type { Project, ProjectRow, ProjectsSummary } from '../types/project.types'
+import { mapProject } from './project.mapper'
 
-export function getProjects(): Promise<Project[]> {
-  return findProjects()
+export async function getProjects(): Promise<Project[]> {
+  const records = await findProjects()
+  return records.map(mapProject)
 }
 
 export function summarizeProjects(projects: Project[]): ProjectsSummary {
