@@ -74,7 +74,6 @@ export async function findJournalEntries(query: JournalEntriesQuery): Promise<Jo
   }
 }
 
-
 export async function postSingleLineEntry(input: SingleLineJournalInput): Promise<string> {
   const { data, error } = await getSupabaseClient().rpc('post_single_line_entry', {
     entry_date: input.entryDate,
@@ -88,7 +87,9 @@ export async function postSingleLineEntry(input: SingleLineJournalInput): Promis
   })
 
   if (error) throw error
-  if (typeof data !== 'string') throw new Error('Supabase did not return the posted entry identifier.')
+  if (typeof data !== 'string') {
+    throw new Error('Supabase did not return the posted entry identifier.')
+  }
 
   return data
 }
