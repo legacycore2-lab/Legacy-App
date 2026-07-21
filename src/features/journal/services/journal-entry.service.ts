@@ -1,7 +1,4 @@
-import type {
-  JournalPostingPreview,
-  SingleLineJournalInput,
-} from '../types/journal-entry.types'
+import type { JournalPostingPreview, SingleLineJournalInput } from '../types/journal-entry.types'
 
 export function validateSingleLineEntry(input: SingleLineJournalInput): string[] {
   const errors: string[] = []
@@ -17,17 +14,10 @@ export function validateSingleLineEntry(input: SingleLineJournalInput): string[]
   return errors
 }
 
-export function buildJournalPreview(
-  input: SingleLineJournalInput,
-): JournalPostingPreview | null {
+export function buildJournalPreview(input: SingleLineJournalInput): JournalPostingPreview | null {
   const amount = Number(input.amount)
 
-  if (
-    !input.category.trim() ||
-    !input.paymentAccount.trim() ||
-    !Number.isFinite(amount) ||
-    amount <= 0
-  ) {
+  if (!input.category.trim() || !input.paymentAccount.trim() || !Number.isFinite(amount) || amount <= 0) {
     return null
   }
 
