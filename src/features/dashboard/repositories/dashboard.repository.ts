@@ -12,7 +12,10 @@ const LEGACY_ENTRY_FIELDS = 'id, project_id, type, amount, description, entry_da
 
 async function findProjects(): Promise<DashboardProjectRecord[]> {
   const supabase = getSupabaseClient()
-  const currentResult = await supabase.from('projects').select(PROJECT_FIELDS).order('name', { ascending: true })
+  const currentResult = await supabase
+    .from('projects')
+    .select(PROJECT_FIELDS)
+    .order('name', { ascending: true })
 
   if (!currentResult.error) return (currentResult.data ?? []) as DashboardProjectRecord[]
 
@@ -28,7 +31,10 @@ async function findProjects(): Promise<DashboardProjectRecord[]> {
 
 async function findEntries(): Promise<DashboardEntryRecord[]> {
   const supabase = getSupabaseClient()
-  const currentResult = await supabase.from('entries').select(ENTRY_FIELDS).order('seq', { ascending: false })
+  const currentResult = await supabase
+    .from('entries')
+    .select(ENTRY_FIELDS)
+    .order('seq', { ascending: false })
 
   if (!currentResult.error) return (currentResult.data ?? []) as DashboardEntryRecord[]
 
