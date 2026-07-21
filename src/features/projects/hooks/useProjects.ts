@@ -17,7 +17,7 @@ export function useProjects() {
     staleTime: 30_000,
   })
 
-  const projects = projectsQuery.data ?? []
+  const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data])
   const filteredProjects = useMemo(() => filterProjects(projects, query, status), [projects, query, status])
   const summary = useMemo(() => summarizeProjects(projects), [projects])
   const projectRows = useMemo(() => buildProjectRows(filteredProjects), [filteredProjects])
