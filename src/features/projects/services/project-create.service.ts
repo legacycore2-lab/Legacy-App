@@ -17,7 +17,9 @@ export function validateProjectCreateInput(input: ProjectCreateInput): string[] 
   return errors
 }
 
-export function buildProjectCreatePreview(input: ProjectCreateInput): ProjectCreatePreview | null {
+export function buildProjectCreatePreview(
+  input: ProjectCreateInput,
+): ProjectCreatePreview | null {
   if (validateProjectCreateInput(input).length > 0) return null
 
   return {
