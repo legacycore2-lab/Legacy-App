@@ -31,7 +31,7 @@ export async function findProjects(): Promise<ProjectRecord[]> {
 
   if (error) throw error
 
-  return (data ?? []) as ProjectRecord[]
+  return (data ?? []) as unknown as ProjectRecord[]
 }
 
 export async function insertProject(record: ProjectInsertRecord): Promise<ProjectRecord> {
@@ -44,5 +44,5 @@ export async function insertProject(record: ProjectInsertRecord): Promise<Projec
   if (error) throw error
   if (!data) throw new Error('Supabase did not return the created project.')
 
-  return data as ProjectRecord
+  return data as unknown as ProjectRecord
 }

@@ -5,6 +5,7 @@ import { buildProjectRows, summarizeProjects } from './projects.service'
 const projects: Project[] = [
   {
     id: 'one',
+    code: 'PRJ-001',
     name: 'الأول',
     client: 'عميل',
     location: 'القاهرة',
@@ -16,9 +17,11 @@ const projects: Project[] = [
     spent: 250,
     startDate: '',
     endDate: '',
+    notes: '',
   },
   {
     id: 'two',
+    code: 'PRJ-002',
     name: 'الثاني',
     client: 'عميل',
     location: 'الجيزة',
@@ -30,6 +33,7 @@ const projects: Project[] = [
     spent: 400,
     startDate: '',
     endDate: '',
+    notes: '',
   },
 ]
 

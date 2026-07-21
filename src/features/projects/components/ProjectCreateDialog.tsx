@@ -43,7 +43,11 @@ export function ProjectCreateDialog({
           <div className="project-create-grid">
             <label>
               اسم المشروع
-              <input value={value.name} onChange={(event) => update('name', event.target.value)} disabled={isSaving} />
+              <input
+                value={value.name}
+                onChange={(event) => update('name', event.target.value)}
+                disabled={isSaving}
+              />
             </label>
             <label>
               كود المشروع
@@ -56,15 +60,27 @@ export function ProjectCreateDialog({
             </label>
             <label>
               اسم العميل
-              <input value={value.client} onChange={(event) => update('client', event.target.value)} disabled={isSaving} />
+              <input
+                value={value.client}
+                onChange={(event) => update('client', event.target.value)}
+                disabled={isSaving}
+              />
             </label>
             <label>
               الموقع
-              <input value={value.location} onChange={(event) => update('location', event.target.value)} disabled={isSaving} />
+              <input
+                value={value.location}
+                onChange={(event) => update('location', event.target.value)}
+                disabled={isSaving}
+              />
             </label>
             <label>
               مدير المشروع
-              <input value={value.manager} onChange={(event) => update('manager', event.target.value)} disabled={isSaving} />
+              <input
+                value={value.manager}
+                onChange={(event) => update('manager', event.target.value)}
+                disabled={isSaving}
+              />
             </label>
             <label>
               الحالة
@@ -107,7 +123,11 @@ export function ProjectCreateDialog({
             </label>
             <label className="project-create-wide">
               ملاحظات
-              <textarea value={value.notes} onChange={(event) => update('notes', event.target.value)} disabled={isSaving} />
+              <textarea
+                value={value.notes}
+                onChange={(event) => update('notes', event.target.value)}
+                disabled={isSaving}
+              />
             </label>
           </div>
 

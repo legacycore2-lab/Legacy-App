@@ -3,6 +3,7 @@ import type { Project } from '../types/project.types'
 export const projectsMock: Project[] = [
   {
     id: 'hyde-park',
+    code: 'PRJ-001',
     name: 'هايد بارك',
     client: 'شركة ليجاسي',
     location: 'القاهرة الجديدة',
@@ -14,9 +15,11 @@ export const projectsMock: Project[] = [
     spent: 3150000,
     startDate: '2026-01-15',
     endDate: '2026-11-30',
+    notes: '',
   },
   {
     id: 'pool-tagamoa',
+    code: 'PRJ-002',
     name: 'حمام سباحة التجمع',
     client: 'أحمد فؤاد',
     location: 'التجمع الخامس',
@@ -28,9 +31,11 @@ export const projectsMock: Project[] = [
     spent: 1680000,
     startDate: '2026-02-01',
     endDate: '2026-09-15',
+    notes: '',
   },
   {
     id: 'office-50',
+    code: 'PRJ-003',
     name: 'المكتب 50',
     client: 'Legacy Fine Touch',
     location: 'مدينة نصر',
@@ -42,9 +47,11 @@ export const projectsMock: Project[] = [
     spent: 2010000,
     startDate: '2025-09-10',
     endDate: '2026-03-01',
+    notes: '',
   },
   {
     id: 'clinic',
+    code: 'PRJ-004',
     name: 'العيادة',
     client: 'د. محمد سالم',
     location: 'المعادي',
@@ -56,9 +63,11 @@ export const projectsMock: Project[] = [
     spent: 845000,
     startDate: '2026-03-20',
     endDate: '2026-10-01',
+    notes: '',
   },
   {
     id: 'palm-hills',
+    code: 'PRJ-005',
     name: 'بالم هيلز',
     client: 'خالد منصور',
     location: '6 أكتوبر',
@@ -70,9 +79,11 @@ export const projectsMock: Project[] = [
     spent: 3380000,
     startDate: '2025-12-05',
     endDate: '2026-08-25',
+    notes: '',
   },
   {
     id: 'district',
+    code: 'PRJ-006',
     name: 'ديستركت',
     client: 'شركة أركان',
     location: 'الشيخ زايد',
@@ -84,5 +95,6 @@ export const projectsMock: Project[] = [
     spent: 2990000,
     startDate: '2024-08-01',
     endDate: '2025-02-15',
+    notes: '',
   },
 ]
