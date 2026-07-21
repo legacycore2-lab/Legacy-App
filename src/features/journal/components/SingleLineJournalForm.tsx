@@ -107,7 +107,11 @@ export function SingleLineJournalForm({ onClose }: Props) {
           </div>
         )}
 
-        {saveError && <div className="journal-entry-errors"><p>{saveError}</p></div>}
+        {saveError && (
+          <div className="journal-entry-errors">
+            <p>{saveError}</p>
+          </div>
+        )}
 
         {preview && (
           <div className="journal-entry-preview">
