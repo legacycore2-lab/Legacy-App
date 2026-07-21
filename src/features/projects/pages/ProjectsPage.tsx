@@ -13,7 +13,8 @@ import '../projects-table.css'
 import '../projects.css'
 
 export function ProjectsPage() {
-  const { projectRows, summary, query, setQuery, status, setStatus, isLoading, error } = useProjects()
+  const { projectRows, summary, query, setQuery, status, setStatus, isLoading, error } =
+    useProjects()
   const projectCreate = useProjectCreateForm()
   const [importOpen, setImportOpen] = useState(false)
 
@@ -26,10 +27,18 @@ export function ProjectsPage() {
           <p>متابعة التنفيذ والتدفقات المالية واستيراد البيانات من مكان واحد.</p>
         </div>
         <div className="projects-hero__actions">
-          <button className="projects-secondary-action" type="button" onClick={() => setImportOpen(true)}>
+          <button
+            className="projects-secondary-action"
+            type="button"
+            onClick={() => setImportOpen(true)}
+          >
             استيراد من Excel
           </button>
-          <button className="projects-primary-action" type="button" onClick={projectCreate.open}>
+          <button
+            className="projects-primary-action"
+            type="button"
+            onClick={projectCreate.open}
+          >
             <Plus size={18} /> مشروع جديد
           </button>
         </div>
@@ -37,7 +46,12 @@ export function ProjectsPage() {
       <ProjectsStats summary={summary} />
       {isLoading && <div className="projects-empty">جاري تحميل المشاريع...</div>}
       {error && <div className="projects-empty">{error}</div>}
-      <ProjectsToolbar query={query} status={status} onQueryChange={setQuery} onStatusChange={setStatus} />
+      <ProjectsToolbar
+        query={query}
+        status={status}
+        onQueryChange={setQuery}
+        onStatusChange={setStatus}
+      />
       <div className="projects-section-heading">
         <div>
           <span>المحفظة الحالية</span>
