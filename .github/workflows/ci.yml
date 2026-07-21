@@ -38,7 +38,7 @@ jobs:
         run: npm run lint
 
       - name: Check architecture boundaries
-        run: npm run architecture:check
+        run: npm run architecture:test && npm run architecture:check
 
       - name: Run unit tests
         run: npm test

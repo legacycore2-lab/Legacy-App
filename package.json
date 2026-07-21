@@ -15,7 +15,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "architecture:check": "node scripts/check-architecture.mjs",
-    "quality": "npm run format:check && npm run lint && npm run architecture:check && npm test && npm run build"
+    "architecture:test": "node --test scripts/check-architecture.contract.mjs",
+    "quality": "npm run format:check && npm run lint && npm run architecture:test && npm run architecture:check && npm test && npm run build"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
