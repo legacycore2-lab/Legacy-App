@@ -12,7 +12,7 @@ export async function findDashboardData(): Promise<DashboardSourceData> {
   const supabase = getSupabaseClient()
   const [projectsResult, entriesResult] = await Promise.all([
     supabase.from('projects').select(PROJECT_FIELDS).order('name', { ascending: true }),
-    supabase.from('entries').select(ENTRY_FIELDS).order('seq', { ascending: false }).limit(100),
+    supabase.from('entries').select(ENTRY_FIELDS).order('seq', { ascending: false }),
   ])
 
   if (projectsResult.error) throw projectsResult.error
