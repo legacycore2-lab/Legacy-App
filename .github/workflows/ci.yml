@@ -34,6 +34,9 @@ jobs:
       - name: Check formatting
         run: npm run format:check
 
+      - name: Lint source
+        run: npm run lint
+
       - name: Check architecture boundaries
         run: npm run architecture:check
 
