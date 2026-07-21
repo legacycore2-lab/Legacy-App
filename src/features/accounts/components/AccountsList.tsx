@@ -30,12 +30,7 @@ export function AccountsList({
           value={search}
           onChange={(event) => onSearchChange(event.target.value)}
         />
-        <select
-          value={type}
-          onChange={(event) =>
-            onTypeChange(event.target.value as AccountType | 'all')
-          }
-        >
+        <select value={type} onChange={(event) => onTypeChange(event.target.value as AccountType | 'all')}>
           <option value="all">كل الأنواع</option>
           {accountTypes.map((item) => (
             <option key={item.value} value={item.value}>
@@ -63,10 +58,7 @@ export function AccountsList({
               </tr>
             ) : (
               accounts.map((account) => (
-                <tr
-                  key={account.id}
-                  className={!account.isActive ? 'inactive' : ''}
-                >
+                <tr key={account.id} className={!account.isActive ? 'inactive' : ''}>
                   <td>{account.code}</td>
                   <td
                     style={{
@@ -79,17 +71,13 @@ export function AccountsList({
                   <td>{getAccountTypeLabel(account.accountType)}</td>
                   <td>{account.level}</td>
                   <td>
-                    {account.isActive ? 'نشط' : 'متوقف'} ·{' '}
-                    {account.isPostable ? 'ترحيل' : 'تجميعي'}
+                    {account.isActive ? 'نشط' : 'متوقف'} · {account.isPostable ? 'ترحيل' : 'تجميعي'}
                   </td>
                   <td>
                     <button type="button" onClick={() => onEdit(account)}>
                       تعديل
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => onToggle(account.id, !account.isActive)}
-                    >
+                    <button type="button" onClick={() => onToggle(account.id, !account.isActive)}>
                       {account.isActive ? 'إيقاف' : 'تفعيل'}
                     </button>
                   </td>
