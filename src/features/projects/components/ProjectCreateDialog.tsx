@@ -29,12 +29,7 @@ export function ProjectCreateDialog({
             <h2>إنشاء مشروع</h2>
             <p>أدخل بيانات المشروع، وسيظهر في القائمة فور نجاح الحفظ.</p>
           </div>
-          <button
-            type="button"
-            onClick={close}
-            aria-label="إغلاق"
-            disabled={isSaving}
-          >
+          <button type="button" onClick={close} aria-label="إغلاق" disabled={isSaving}>
             <X size={18} />
           </button>
         </header>
@@ -48,11 +43,7 @@ export function ProjectCreateDialog({
           <div className="project-create-grid">
             <label>
               اسم المشروع
-              <input
-                value={value.name}
-                onChange={(event) => update('name', event.target.value)}
-                disabled={isSaving}
-              />
+              <input value={value.name} onChange={(event) => update('name', event.target.value)} disabled={isSaving} />
             </label>
             <label>
               كود المشروع
@@ -65,35 +56,21 @@ export function ProjectCreateDialog({
             </label>
             <label>
               اسم العميل
-              <input
-                value={value.client}
-                onChange={(event) => update('client', event.target.value)}
-                disabled={isSaving}
-              />
+              <input value={value.client} onChange={(event) => update('client', event.target.value)} disabled={isSaving} />
             </label>
             <label>
               الموقع
-              <input
-                value={value.location}
-                onChange={(event) => update('location', event.target.value)}
-                disabled={isSaving}
-              />
+              <input value={value.location} onChange={(event) => update('location', event.target.value)} disabled={isSaving} />
             </label>
             <label>
               مدير المشروع
-              <input
-                value={value.manager}
-                onChange={(event) => update('manager', event.target.value)}
-                disabled={isSaving}
-              />
+              <input value={value.manager} onChange={(event) => update('manager', event.target.value)} disabled={isSaving} />
             </label>
             <label>
               الحالة
               <select
                 value={value.status}
-                onChange={(event) =>
-                  update('status', event.target.value as typeof value.status)
-                }
+                onChange={(event) => update('status', event.target.value as typeof value.status)}
                 disabled={isSaving}
               >
                 <option value="active">نشط</option>
@@ -106,9 +83,7 @@ export function ProjectCreateDialog({
               <input
                 inputMode="decimal"
                 value={value.contractValue}
-                onChange={(event) =>
-                  update('contractValue', event.target.value)
-                }
+                onChange={(event) => update('contractValue', event.target.value)}
                 disabled={isSaving}
               />
             </label>
@@ -132,11 +107,7 @@ export function ProjectCreateDialog({
             </label>
             <label className="project-create-wide">
               ملاحظات
-              <textarea
-                value={value.notes}
-                onChange={(event) => update('notes', event.target.value)}
-                disabled={isSaving}
-              />
+              <textarea value={value.notes} onChange={(event) => update('notes', event.target.value)} disabled={isSaving} />
             </label>
           </div>
 
@@ -156,31 +127,17 @@ export function ProjectCreateDialog({
             <div className="project-create-preview">
               <strong>جاهز للحفظ</strong>
               <span>
-                {preview.name} · {preview.client} ·{' '}
-                {preview.contractValue.toLocaleString('ar-EG')} ج.م
+                {preview.name} · {preview.client} · {preview.contractValue.toLocaleString('ar-EG')} ج.م
               </span>
             </div>
           )}
 
           <footer>
-            <button
-              type="button"
-              className="projects-secondary-action"
-              onClick={close}
-              disabled={isSaving}
-            >
+            <button type="button" className="projects-secondary-action" onClick={close} disabled={isSaving}>
               إلغاء
             </button>
-            <button
-              type="submit"
-              className="projects-primary-action"
-              disabled={isSaving}
-            >
-              {isSaving ? (
-                <LoaderCircle className="project-create-spinner" size={17} />
-              ) : (
-                <Save size={17} />
-              )}
+            <button type="submit" className="projects-primary-action" disabled={isSaving}>
+              {isSaving ? <LoaderCircle className="project-create-spinner" size={17} /> : <Save size={17} />}
               {isSaving ? 'جارٍ الحفظ...' : 'حفظ المشروع'}
             </button>
           </footer>
