@@ -10,7 +10,13 @@ type Props = {
   onCancel: () => void
 }
 
-export function AccountForm({ accounts, editing, isSaving, onSave, onCancel }: Props) {
+export function AccountForm({
+  accounts,
+  editing,
+  isSaving,
+  onSave,
+  onCancel,
+}: Props) {
   const form = useAccountForm({ editing, onSave, onCancel })
 
   return (
@@ -18,7 +24,11 @@ export function AccountForm({ accounts, editing, isSaving, onSave, onCancel }: P
       <h2>{editing ? 'تعديل الحساب' : 'إضافة حساب'}</h2>
       <label>
         كود الحساب
-        <input value={form.value.code} onChange={(event) => form.update('code', event.target.value)} required />
+        <input
+          value={form.value.code}
+          onChange={(event) => form.update('code', event.target.value)}
+          required
+        />
       </label>
       <label>
         الاسم العربي
@@ -30,13 +40,18 @@ export function AccountForm({ accounts, editing, isSaving, onSave, onCancel }: P
       </label>
       <label>
         الاسم الإنجليزي
-        <input value={form.value.nameEn} onChange={(event) => form.update('nameEn', event.target.value)} />
+        <input
+          value={form.value.nameEn}
+          onChange={(event) => form.update('nameEn', event.target.value)}
+        />
       </label>
       <label>
         نوع الحساب
         <select
           value={form.value.accountType}
-          onChange={(event) => form.updateType(event.target.value as AccountInput['accountType'])}
+          onChange={(event) =>
+            form.updateType(event.target.value as AccountInput['accountType'])
+          }
         >
           {accountTypes.map((item) => (
             <option key={item.value} value={item.value}>
@@ -55,7 +70,8 @@ export function AccountForm({ accounts, editing, isSaving, onSave, onCancel }: P
           {accounts
             .filter(
               (account) =>
-                account.accountType === form.value.accountType && account.id !== form.value.id,
+                account.accountType === form.value.accountType &&
+                account.id !== form.value.id,
             )
             .map((account) => (
               <option key={account.id} value={account.id}>
@@ -83,9 +99,16 @@ export function AccountForm({ accounts, editing, isSaving, onSave, onCancel }: P
         </label>
       </div>
       <div className="account-actions">
-        <button disabled={isSaving}>{isSaving ? 'جارٍ الحفظ...' : 'حفظ الحساب'}</button>
+        <button disabled={isSaving}>
+          {isSaving ? 'جارٍ الحفظ...' : 'حفظ الحساب'}
+        </button>
         {editing && (
-          <button type="button" className="secondary" onClick={form.cancel} disabled={isSaving}>
+          <button
+            type="button"
+            className="secondary"
+            onClick={form.cancel}
+            disabled={isSaving}
+          >
             إلغاء
           </button>
         )}
