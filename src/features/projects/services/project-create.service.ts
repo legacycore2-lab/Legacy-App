@@ -1,4 +1,7 @@
+import { insertProject } from '../repositories/projects.repository'
+import type { Project } from '../types/project.types'
 import type { ProjectCreateInput, ProjectCreatePreview } from '../types/project-create.types'
+import { mapProject, mapProjectCreateToRecord } from './project.mapper'
 
 export function validateProjectCreateInput(input: ProjectCreateInput): string[] {
   const errors: string[] = []
@@ -32,4 +35,14 @@ export function buildProjectCreatePreview(input: ProjectCreateInput): ProjectCre
     endDate: input.endDate,
     notes: input.notes.trim(),
   }
+}
+
+export async function createProject(input: ProjectCreateInput): Promise<Project> {
+  const preview = buildProjectCreatePreview(input)
+  if (!preview) {
+    throw new Error(validateProjectCreateInput(input)[0] ?? 'بيانات المشروع غير صالحة.')
+  }
+
+  const record = await insertProject(mapProjectCreateToRecord(preview))
+  return mapProject(record)
 }
