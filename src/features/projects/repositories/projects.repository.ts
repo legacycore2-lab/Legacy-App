@@ -1,8 +1,5 @@
 import { getSupabaseClient } from '../../../lib/supabase/client'
-import type {
-  ProjectInsertRecord,
-  ProjectRecord,
-} from '../types/project.types'
+import type { ProjectInsertRecord, ProjectRecord } from '../types/project.types'
 
 const PROJECT_FIELDS = [
   'id',
@@ -37,9 +34,7 @@ export async function findProjects(): Promise<ProjectRecord[]> {
   return (data ?? []) as ProjectRecord[]
 }
 
-export async function insertProject(
-  record: ProjectInsertRecord,
-): Promise<ProjectRecord> {
+export async function insertProject(record: ProjectInsertRecord): Promise<ProjectRecord> {
   const { data, error } = await getSupabaseClient()
     .from('projects')
     .insert(record)
