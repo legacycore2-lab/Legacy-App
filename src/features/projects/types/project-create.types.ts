@@ -31,10 +31,7 @@ export type ProjectCreateFormState = {
   open: () => void
   close: () => void
   value: ProjectCreateInput
-  update: <K extends keyof ProjectCreateInput>(
-    key: K,
-    next: ProjectCreateInput[K],
-  ) => void
+  update: <K extends keyof ProjectCreateInput>(key: K, next: ProjectCreateInput[K]) => void
   submitted: boolean
   errors: string[]
   preview: ProjectCreatePreview | null
