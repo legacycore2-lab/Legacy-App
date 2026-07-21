@@ -1,8 +1,5 @@
 import { useMemo, useState } from 'react'
-import {
-  buildProjectCreatePreview,
-  validateProjectCreateInput,
-} from '../services/project-create.service'
+import { buildProjectCreatePreview, validateProjectCreateInput } from '../services/project-create.service'
 import type { ProjectCreateFormState, ProjectCreateInput } from '../types/project-create.types'
 
 const initialValue: ProjectCreateInput = {
