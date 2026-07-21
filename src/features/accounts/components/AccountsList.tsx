@@ -70,13 +70,17 @@ export function AccountsList({
                   <td>{getAccountTypeLabel(account.accountType)}</td>
                   <td>{account.level}</td>
                   <td>
-                    {account.isActive ? 'نشط' : 'متوقف'} · {account.isPostable ? 'ترحيل' : 'تجميعي'}
+                    {account.isActive ? 'نشط' : 'متوقف'} ·{' '}
+                    {account.isPostable ? 'ترحيل' : 'تجميعي'}
                   </td>
                   <td>
                     <button type="button" onClick={() => onEdit(account)}>
                       تعديل
                     </button>
-                    <button type="button" onClick={() => onToggle(account.id, !account.isActive)}>
+                    <button
+                      type="button"
+                      onClick={() => onToggle(account.id, !account.isActive)}
+                    >
                       {account.isActive ? 'إيقاف' : 'تفعيل'}
                     </button>
                   </td>
