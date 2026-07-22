@@ -1,4 +1,8 @@
-import { findJournalPostingOptions, postSingleLineEntry } from '../repositories/journal.repository'
+import {
+  findJournalPostingOptions,
+  postSingleLineEntry,
+  subscribeToJournalPostingOptionChanges,
+} from '../repositories/journal.repository'
 import type {
   JournalPostingOptions,
   JournalPostingPreview,
@@ -59,4 +63,8 @@ export async function submitSingleLineEntry(input: SingleLineJournalInput): Prom
 
 export async function getJournalPostingOptions(): Promise<JournalPostingOptions> {
   return findJournalPostingOptions()
+}
+
+export function watchJournalPostingOptions(onChange: () => void): () => void {
+  return subscribeToJournalPostingOptionChanges(onChange)
 }

@@ -1,4 +1,5 @@
 import { getSupabaseClient } from '../../../lib/supabase/client'
+import { subscribeToTableChanges } from '../../../lib/supabase/realtime'
 import type { ProjectInsertRecord, ProjectRecord } from '../types/project.types'
 
 const PROJECT_FIELDS = [
@@ -44,4 +45,8 @@ export async function insertProject(record: ProjectInsertRecord): Promise<Projec
   if (!data) throw new Error('Supabase did not return the created project.')
 
   return data as unknown as ProjectRecord
+}
+
+export function subscribeToProjectChanges(onChange: () => void): () => void {
+  return subscribeToTableChanges('projects', ['projects'], onChange)
 }

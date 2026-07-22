@@ -1,4 +1,5 @@
 import { getSupabaseClient } from '../../../lib/supabase/client'
+import { subscribeToTableChanges } from '../../../lib/supabase/realtime'
 import type { AccountInput, AccountType, NormalBalance } from '../types/accounts.types'
 
 export type AccountRecord = {
@@ -49,4 +50,8 @@ export async function setAccountActive(id: string, isActive: boolean): Promise<v
   const { error } = await getSupabaseClient().from('accounts').update({ is_active: isActive }).eq('id', id)
 
   if (error) throw error
+}
+
+export function subscribeToAccountChanges(onChange: () => void): () => void {
+  return subscribeToTableChanges('accounts', ['accounts'], onChange)
 }

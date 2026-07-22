@@ -2,6 +2,7 @@ import {
   findAccounts,
   saveAccount,
   setAccountActive,
+  subscribeToAccountChanges,
   type AccountRecord,
 } from '../repositories/accounts.repository'
 import type { Account, AccountInput, AccountType, NormalBalance } from '../types/accounts.types'
@@ -98,4 +99,8 @@ export async function toggleAccount(id: string, isActive: boolean, accounts: Acc
   }
 
   await setAccountActive(id, isActive)
+}
+
+export function watchAccounts(onChange: () => void): () => void {
+  return subscribeToAccountChanges(onChange)
 }

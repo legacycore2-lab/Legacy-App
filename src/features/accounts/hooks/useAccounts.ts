@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
-import { getAccounts, toggleAccount, upsertAccount } from '../services/accounts.service'
+import { getAccounts, toggleAccount, upsertAccount, watchAccounts } from '../services/accounts.service'
 import type { Account, AccountInput, AccountType } from '../types/accounts.types'
 
 export function useAccounts() {
@@ -11,6 +11,11 @@ export function useAccounts() {
   const [editing, setEditing] = useState<Account | null>(null)
   const query = useQuery({ queryKey: ['accounts'], queryFn: getAccounts, staleTime: 30_000 })
   const accounts = useMemo(() => query.data ?? [], [query.data])
+
+  useEffect(
+    () => watchAccounts(() => void queryClient.invalidateQueries({ queryKey: ['accounts'] })),
+    [queryClient],
+  )
 
   const filteredAccounts = useMemo(() => {
     const term = search.trim().toLowerCase()

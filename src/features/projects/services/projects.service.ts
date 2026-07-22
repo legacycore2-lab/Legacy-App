@@ -1,4 +1,4 @@
-import { findProjects } from '../repositories/projects.repository'
+import { findProjects, subscribeToProjectChanges } from '../repositories/projects.repository'
 import type { Project, ProjectRow, ProjectsSummary } from '../types/project.types'
 import { mapProject } from './project.mapper'
 
@@ -45,4 +45,8 @@ export function buildProjectRows(projects: Project[]): ProjectRow[] {
     ...project,
     balance: project.received - project.spent,
   }))
+}
+
+export function watchProjects(onChange: () => void): () => void {
+  return subscribeToProjectChanges(onChange)
 }

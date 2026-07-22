@@ -1,13 +1,14 @@
-import { useQuery } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useMemo, useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
 import { filterProjects } from '../services/project-filter.service'
-import { buildProjectRows, getProjects, summarizeProjects } from '../services/projects.service'
+import { buildProjectRows, getProjects, summarizeProjects, watchProjects } from '../services/projects.service'
 import type { ProjectStatusFilter } from '../types/project.types'
 
 const projectsQueryKey = ['projects'] as const
 
 export function useProjects() {
+  const queryClient = useQueryClient()
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<ProjectStatusFilter>('all')
 
@@ -16,6 +17,11 @@ export function useProjects() {
     queryFn: getProjects,
     staleTime: 30_000,
   })
+
+  useEffect(
+    () => watchProjects(() => void queryClient.invalidateQueries({ queryKey: projectsQueryKey })),
+    [queryClient],
+  )
 
   const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data])
   const filteredProjects = useMemo(() => filterProjects(projects, query, status), [projects, query, status])

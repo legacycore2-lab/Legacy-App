@@ -1,4 +1,5 @@
 import { getSupabaseClient } from '../../../lib/supabase/client'
+import { subscribeToTableChanges } from '../../../lib/supabase/realtime'
 import type {
   JournalPostingAccountOption,
   JournalPostingOptions,
@@ -137,4 +138,12 @@ export async function findJournalPostingOptions(): Promise<JournalPostingOptions
       accountType: account.account_type,
     })),
   }
+}
+
+export function subscribeToJournalChanges(onChange: () => void): () => void {
+  return subscribeToTableChanges('journal', ['entries'], onChange)
+}
+
+export function subscribeToJournalPostingOptionChanges(onChange: () => void): () => void {
+  return subscribeToTableChanges('journal-options', ['projects', 'accounts'], onChange)
 }

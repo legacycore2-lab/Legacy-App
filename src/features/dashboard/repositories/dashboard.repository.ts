@@ -1,4 +1,5 @@
 import { getSupabaseClient } from '../../../lib/supabase/client'
+import { subscribeToTableChanges } from '../../../lib/supabase/realtime'
 import type {
   DashboardEntryRecord,
   DashboardProjectRecord,
@@ -44,4 +45,8 @@ export async function findDashboardData(): Promise<DashboardSourceData> {
   const [projects, entries] = await Promise.all([findProjects(), findEntries()])
 
   return { projects, entries }
+}
+
+export function subscribeToDashboardChanges(onChange: () => void): () => void {
+  return subscribeToTableChanges('dashboard', ['projects', 'entries'], onChange)
 }
