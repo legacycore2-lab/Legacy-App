@@ -30,5 +30,6 @@ export function mapJournalEntry(record: JournalEntryRecord): JournalEntry {
     contractor: record.contractor ?? '',
     paymentMethod: record.payment_method ?? '',
     amount,
+    isReversal: Boolean(record.is_reversal),
   }
 }
