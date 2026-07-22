@@ -17,6 +17,11 @@ function toAmount(value: number | string | null): number {
   return Number.isFinite(amount) ? amount : 0
 }
 
+function toEffectiveAmount(entry: DashboardEntryRecord): number {
+  const amount = toAmount(entry.amount)
+  return entry.is_reversal ? -amount : amount
+}
+
 function toProgress(value: number | string | null): number {
   const progress = Number(value ?? 0)
   if (!Number.isFinite(progress)) return 0
@@ -39,7 +44,7 @@ function isActiveProject(project: DashboardProjectRecord): boolean {
 function buildProjectBalances(entries: DashboardEntryRecord[]): Map<string, number> {
   return entries.reduce((balances, entry) => {
     if (!entry.project_id) return balances
-    const amount = toAmount(entry.amount)
+    const amount = toEffectiveAmount(entry)
     const signedAmount = normalizeEntryType(entry.type) === 'income' ? amount : -amount
     balances.set(entry.project_id, (balances.get(entry.project_id) ?? 0) + signedAmount)
     return balances
@@ -66,7 +71,7 @@ export async function getDashboardData(): Promise<DashboardData> {
 
   const totals = source.entries.reduce(
     (summary, entry) => {
-      const amount = toAmount(entry.amount)
+      const amount = toEffectiveAmount(entry)
       if (normalizeEntryType(entry.type) === 'income') summary.income += amount
       else summary.expense += amount
       return summary
@@ -127,7 +132,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       project: entry.project_id ? (projectNames.get(entry.project_id) ?? 'مشروع غير معروف') : 'بدون مشروع',
       description: entry.description?.trim() || 'بدون بيان',
       date: formatEntryDate(entry.entry_date),
-      amount: formatAmount(toAmount(entry.amount)),
+      amount: formatAmount(toEffectiveAmount(entry)),
       type: normalizeEntryType(entry.type),
     })),
     actions: dashboardActions,
