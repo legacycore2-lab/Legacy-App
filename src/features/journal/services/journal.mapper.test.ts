@@ -13,6 +13,7 @@ const base: JournalEntryRecord = {
   payment_method: 'تحويل',
   amount: '1500',
   project: { name: 'هايد بارك' },
+  is_reversal: null,
 }
 
 describe('mapJournalEntry', () => {
