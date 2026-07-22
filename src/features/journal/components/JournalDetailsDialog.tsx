@@ -1,5 +1,7 @@
-import { X } from 'lucide-react'
+import { RotateCcw, X } from 'lucide-react'
+import { useState } from 'react'
 import { useJournalDetails } from '../hooks/useJournalDetails'
+import { useReverseEntry } from '../hooks/useReverseEntry'
 
 type Props = {
   entryId: string | null
@@ -11,7 +13,20 @@ const statusLabel = { draft: 'مسودة', posted: 'مرحّل', reversed: 'مع
 
 export function JournalDetailsDialog({ entryId, onClose }: Props) {
   const { details, isLoading, error } = useJournalDetails(entryId)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+
+  const {
+    reverse,
+    isReversing,
+    error: reverseError,
+  } = useReverseEntry(() => {
+    setConfirmOpen(false)
+    onClose()
+  })
+
   if (!entryId) return null
+
+  const canReverse = details?.status === 'posted'
 
   return (
     <div className="journal-details-backdrop" role="presentation">
@@ -31,6 +46,7 @@ export function JournalDetailsDialog({ entryId, onClose }: Props) {
         {!isLoading && !error && !details && (
           <div className="journal-details-state">هذا قيد قديم ولا توجد له تفاصيل محاسبية مرتبطة.</div>
         )}
+
         {details && (
           <div className="journal-details-content">
             <dl className="journal-details-summary">
@@ -44,7 +60,13 @@ export function JournalDetailsDialog({ entryId, onClose }: Props) {
               </div>
               <div>
                 <dt>الحالة</dt>
-                <dd>{statusLabel[details.status]}</dd>
+                <dd>
+                  {details.status === 'reversed' ? (
+                    <span className="journal-status-reversed">⚠ {statusLabel[details.status]}</span>
+                  ) : (
+                    statusLabel[details.status]
+                  )}
+                </dd>
               </div>
               <div>
                 <dt>البيان</dt>
@@ -82,6 +104,45 @@ export function JournalDetailsDialog({ entryId, onClose }: Props) {
                 </tfoot>
               </table>
             </div>
+
+            {canReverse && !confirmOpen && (
+              <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>
+                <button type="button" className="journal-reverse-btn" onClick={() => setConfirmOpen(true)}>
+                  <RotateCcw size={15} />
+                  عكس القيد
+                </button>
+              </div>
+            )}
+
+            {canReverse && confirmOpen && (
+              <div className="journal-reverse-confirm">
+                <span>هل أنت متأكد من عكس هذا القيد؟ لا يمكن التراجع عن هذه العملية.</span>
+                <div className="journal-reverse-confirm-actions">
+                  <button
+                    type="button"
+                    className="confirm-no"
+                    onClick={() => setConfirmOpen(false)}
+                    disabled={isReversing}
+                  >
+                    إلغاء
+                  </button>
+                  <button
+                    type="button"
+                    className="confirm-yes"
+                    onClick={() => reverse(entryId)}
+                    disabled={isReversing}
+                  >
+                    {isReversing ? 'جارٍ العكس...' : 'تأكيد العكس'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {reverseError && (
+              <div className="journal-entry-errors" style={{ marginTop: '12px' }}>
+                <p>{reverseError}</p>
+              </div>
+            )}
           </div>
         )}
       </section>

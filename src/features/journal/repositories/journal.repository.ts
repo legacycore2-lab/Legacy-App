@@ -17,6 +17,7 @@ export type JournalEntryRecord = {
   contractor: string | null
   payment_method: string | null
   amount: number | string
+  is_reversal: boolean | null
   project: { name: string } | { name: string }[] | null
 }
 
@@ -83,7 +84,8 @@ export async function findJournalEntries(query: JournalEntriesQuery): Promise<Jo
       contractor:contractor_name,
       payment_method,
       amount,
-        project:projects(name)
+      is_reversal,
+      project:projects(name)
       `,
       { count: 'exact' },
     )
@@ -191,6 +193,19 @@ export async function findJournalPostingOptions(): Promise<JournalPostingOptions
       accountType: account.account_type,
     })),
   }
+}
+
+export async function reverseJournalEntry(sourceEntryId: string): Promise<string> {
+  const { data, error } = await getSupabaseClient().rpc('reverse_journal_entry', {
+    p_source_entry_id: sourceEntryId,
+  })
+
+  if (error) throw error
+  if (typeof data !== 'string') {
+    throw new Error('لم يتم إرجاع معرف القيد العكسي.')
+  }
+
+  return data
 }
 
 export function subscribeToJournalChanges(onChange: () => void): () => void {

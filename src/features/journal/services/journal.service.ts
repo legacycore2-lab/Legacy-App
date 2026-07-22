@@ -1,6 +1,7 @@
 import {
   findJournalDetails,
   findJournalEntries,
+  reverseJournalEntry,
   subscribeToJournalChanges,
   type JournalDetailsRecord,
 } from '../repositories/journal.repository'
@@ -13,10 +14,17 @@ import type {
 } from '../types/journal.types'
 import { mapJournalEntry } from './journal.mapper'
 
+function effectiveAmount(entry: JournalEntry): number {
+  return entry.isReversal ? -entry.amount : entry.amount
+}
+
 export function summarizeJournalPage(entries: JournalEntry[], totalCount: number): JournalSummary {
-  const pageIncome = entries.reduce((total, entry) => total + (entry.type === 'income' ? entry.amount : 0), 0)
+  const pageIncome = entries.reduce(
+    (total, entry) => total + (entry.type === 'income' ? effectiveAmount(entry) : 0),
+    0,
+  )
   const pageExpense = entries.reduce(
-    (total, entry) => total + (entry.type === 'expense' ? entry.amount : 0),
+    (total, entry) => total + (entry.type === 'expense' ? effectiveAmount(entry) : 0),
     0,
   )
 
@@ -50,6 +58,11 @@ export async function getJournalPage(request: JournalPageRequest): Promise<Journ
 
 export function watchJournal(onChange: () => void): () => void {
   return subscribeToJournalChanges(onChange)
+}
+
+export async function reverseEntry(sourceEntryId: string): Promise<string> {
+  if (!sourceEntryId) throw new Error('معرف القيد مطلوب.')
+  return reverseJournalEntry(sourceEntryId)
 }
 
 function relationValue<T>(value: T | T[] | null): T | null {
