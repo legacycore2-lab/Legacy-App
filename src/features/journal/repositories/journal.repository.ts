@@ -193,6 +193,19 @@ export async function findJournalPostingOptions(): Promise<JournalPostingOptions
   }
 }
 
+export async function reverseJournalEntry(sourceEntryId: string): Promise<string> {
+  const { data, error } = await getSupabaseClient().rpc('reverse_journal_entry', {
+    p_source_entry_id: sourceEntryId,
+  })
+
+  if (error) throw error
+  if (typeof data !== 'string') {
+    throw new Error('لم يتم إرجاع معرف القيد العكسي.')
+  }
+
+  return data
+}
+
 export function subscribeToJournalChanges(onChange: () => void): () => void {
   return subscribeToTableChanges('journal', ['entries'], onChange)
 }

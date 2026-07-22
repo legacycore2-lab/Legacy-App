@@ -1,6 +1,7 @@
 import {
   findJournalDetails,
   findJournalEntries,
+  reverseJournalEntry,
   subscribeToJournalChanges,
   type JournalDetailsRecord,
 } from '../repositories/journal.repository'
@@ -50,6 +51,11 @@ export async function getJournalPage(request: JournalPageRequest): Promise<Journ
 
 export function watchJournal(onChange: () => void): () => void {
   return subscribeToJournalChanges(onChange)
+}
+
+export async function reverseEntry(sourceEntryId: string): Promise<string> {
+  if (!sourceEntryId) throw new Error('معرف القيد مطلوب.')
+  return reverseJournalEntry(sourceEntryId)
 }
 
 function relationValue<T>(value: T | T[] | null): T | null {
