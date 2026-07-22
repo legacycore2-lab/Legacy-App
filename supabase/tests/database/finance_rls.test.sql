@@ -31,7 +31,7 @@ insert into public.accounts (
 )
 values (
   '20000000-0000-0000-0000-000000000001',
-  '1000',
+  '990001',
   'حساب اختبار',
   'asset',
   'debit',
@@ -63,7 +63,7 @@ select is(
   'viewer can read projects'
 );
 select is(
-  (select count(*) from public.accounts),
+  (select count(*) from public.accounts where id = '20000000-0000-0000-0000-000000000001'),
   1::bigint,
   'viewer can read chart of accounts'
 );
@@ -82,7 +82,7 @@ select throws_ok(
 
 select throws_ok(
   $$insert into public.accounts (code, name_ar, account_type, normal_balance, level, is_postable)
-    values ('1001', 'مرفوض', 'asset', 'debit', 1, true)$$,
+    values ('990002', 'مرفوض', 'asset', 'debit', 1, true)$$,
   '42501',
   'new row violates row-level security policy for table "accounts"',
   'viewer cannot create accounts'
