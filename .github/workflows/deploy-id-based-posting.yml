@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 10
     environment: production
     env:
-      PGDATABASE: ${{ secrets.SUPABASE_DB_URL }}
+      DATABASE_URL: ${{ secrets.SUPABASE_DB_URL }}
 
     steps:
       - name: Checkout repository
@@ -32,8 +32,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [[ -z "${PGDATABASE}" ]]; then
+          connection_uri="$(printf '%s' "${DATABASE_URL}" | tr -d '\r\n')"
+          connection_uri="${connection_uri#\"}"
+          connection_uri="${connection_uri%\"}"
+
+          if [[ -z "${connection_uri}" ]]; then
             echo "::error::SUPABASE_DB_URL is not configured for the production environment."
+            exit 1
+          fi
+
+          if [[ "${connection_uri}" != postgres://* && "${connection_uri}" != postgresql://* ]]; then
+            echo "::error::SUPABASE_DB_URL must be a PostgreSQL URI beginning with postgres:// or postgresql://."
             exit 1
           fi
 
@@ -41,7 +50,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          psql \
+          connection_uri="$(printf '%s' "${DATABASE_URL}" | tr -d '\r\n')"
+          connection_uri="${connection_uri#\"}"
+          connection_uri="${connection_uri%\"}"
+
+          psql "${connection_uri}" \
             --set ON_ERROR_STOP=1 \
             --single-transaction \
             --file supabase/migrations/20260722040000_id_based_single_line_posting.sql
@@ -50,9 +63,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          connection_uri="$(printf '%s' "${DATABASE_URL}" | tr -d '\r\n')"
+          connection_uri="${connection_uri#\"}"
+          connection_uri="${connection_uri%\"}"
 
           signature="$(
-            psql \
+            psql "${connection_uri}" \
               --no-align \
               --tuples-only \
               --set ON_ERROR_STOP=1 \
@@ -60,7 +76,7 @@ jobs:
           )"
 
           column_name="$(
-            psql \
+            psql "${connection_uri}" \
               --no-align \
               --tuples-only \
               --set ON_ERROR_STOP=1 \
@@ -68,7 +84,7 @@ jobs:
           )"
 
           index_name="$(
-            psql \
+            psql "${connection_uri}" \
               --no-align \
               --tuples-only \
               --set ON_ERROR_STOP=1 \
