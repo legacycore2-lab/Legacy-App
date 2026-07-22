@@ -21,9 +21,14 @@ alter table public.projects
   add column if not exists notes text,
   add column if not exists created_at timestamptz not null default now(),
   add column if not exists updated_at timestamptz not null default now(),
-  add column if not exists created_by uuid default auth.uid();
+  add column if not exists created_by uuid default auth.uid(),
+  add column if not exists is_archived boolean not null default false;
 
--- Normalize known legacy status values before enforcing the new constraint.
+-- Legacy deployments may already have a narrower status constraint. Remove it
+-- before normalizing rows so valid target values are not rejected mid-migration.
+alter table public.projects
+  drop constraint if exists projects_status_check;
+
 update public.projects
 set status = case
   when status = 'open' then 'active'
@@ -47,7 +52,6 @@ end
 $$;
 
 alter table public.projects
-  drop constraint if exists projects_status_check,
   add constraint projects_status_check
     check (status in ('active', 'paused', 'completed', 'archived')),
   drop constraint if exists projects_contract_value_check,
