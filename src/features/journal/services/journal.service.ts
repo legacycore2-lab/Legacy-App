@@ -1,4 +1,4 @@
-import { findJournalEntries } from '../repositories/journal.repository'
+import { findJournalEntries, subscribeToJournalChanges } from '../repositories/journal.repository'
 import type {
   JournalEntry,
   JournalPageRequest,
@@ -40,4 +40,8 @@ export async function getJournalPage(request: JournalPageRequest): Promise<Journ
     totalPages: Math.max(1, Math.ceil(result.totalCount / pageSize)),
     summary: summarizeJournalPage(entries, result.totalCount),
   }
+}
+
+export function watchJournal(onChange: () => void): () => void {
+  return subscribeToJournalChanges(onChange)
 }

@@ -1,12 +1,13 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { useDeferredValue, useState } from 'react'
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useDeferredValue, useEffect, useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
-import { getJournalPage } from '../services/journal.service'
+import { getJournalPage, watchJournal } from '../services/journal.service'
 import type { JournalFilters } from '../types/journal.types'
 
 const PAGE_SIZE = 25
 
 export function useJournal() {
+  const queryClient = useQueryClient()
   const [filters, setFilters] = useState<JournalFilters>({ query: '', type: 'all' })
   const [page, setPage] = useState(1)
   const deferredSearch = useDeferredValue(filters.query)
@@ -17,6 +18,11 @@ export function useJournal() {
     placeholderData: keepPreviousData,
     staleTime: 30_000,
   })
+
+  useEffect(
+    () => watchJournal(() => void queryClient.invalidateQueries({ queryKey: ['journal'] })),
+    [queryClient],
+  )
 
   const updateFilters = (nextFilters: JournalFilters) => {
     setPage(1)

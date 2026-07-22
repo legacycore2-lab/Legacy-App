@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
 import {
   buildJournalPreview,
@@ -7,6 +7,7 @@ import {
   getJournalPostingOptions,
   submitSingleLineEntry,
   validateSingleLineEntry,
+  watchJournalPostingOptions,
 } from '../services/journal-entry.service'
 import type { SingleLineJournalInput } from '../types/journal-entry.types'
 
@@ -37,6 +38,14 @@ export function useSingleLineJournalForm() {
     queryFn: getJournalPostingOptions,
     staleTime: 60_000,
   })
+
+  useEffect(
+    () =>
+      watchJournalPostingOptions(
+        () => void queryClient.invalidateQueries({ queryKey: ['journal', 'posting-options'] }),
+      ),
+    [queryClient],
+  )
   const errors = useMemo(() => validateSingleLineEntry(value), [value])
   const preview = useMemo(() => buildJournalPreview(value), [value])
   const mutation = useMutation({

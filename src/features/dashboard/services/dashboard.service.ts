@@ -1,6 +1,6 @@
 import { ArrowDownLeft, ArrowUpRight, BriefcaseBusiness, WalletCards } from 'lucide-react'
 import { dashboardActions } from '../data/dashboard.mock'
-import { findDashboardData } from '../repositories/dashboard.repository'
+import { findDashboardData, subscribeToDashboardChanges } from '../repositories/dashboard.repository'
 import type { DashboardData, DashboardEntryRecord, DashboardProjectRecord } from '../types/dashboard.types'
 
 const numberFormatter = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 })
@@ -132,4 +132,8 @@ export async function getDashboardData(): Promise<DashboardData> {
     })),
     actions: dashboardActions,
   }
+}
+
+export function watchDashboard(onChange: () => void): () => void {
+  return subscribeToDashboardChanges(onChange)
 }
