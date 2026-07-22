@@ -45,9 +45,10 @@ export type DashboardData = {
 export type DashboardProjectRecord = {
   id: string
   name: string
-  start_date?: string | null
-  close_date?: string | null
-  is_archived?: boolean | null
+  client_name: string | null
+  status: string | null
+  progress: number | string | null
+  is_archived: boolean | null
 }
 
 export type DashboardEntryRecord = {
