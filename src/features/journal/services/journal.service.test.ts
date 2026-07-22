@@ -39,6 +39,27 @@ describe('summarizeJournalPage', () => {
       pageNet: 1100,
     })
   })
+
+  it('cancels the financial effect of a reversal entry', () => {
+    const originalExpense: JournalEntry = {
+      ...entries[1],
+      id: 'original-expense',
+      amount: 10000,
+    }
+    const reversalExpense: JournalEntry = {
+      ...originalExpense,
+      id: 'reversal-expense',
+      description: 'عكس: شراء خامات',
+      isReversal: true,
+    }
+
+    expect(summarizeJournalPage([originalExpense, reversalExpense], 2)).toEqual({
+      totalCount: 2,
+      pageIncome: 0,
+      pageExpense: 0,
+      pageNet: 0,
+    })
+  })
 })
 
 describe('mapJournalDetails', () => {
