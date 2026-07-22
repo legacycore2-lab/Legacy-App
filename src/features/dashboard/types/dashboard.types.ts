@@ -59,7 +59,7 @@ export type DashboardEntryRecord = {
   description: string | null
   entry_date: string | null
   seq: number | null
-  is_reversal: boolean | null
+  is_reversal?: boolean | null
 }
 
 export type DashboardSourceData = {
