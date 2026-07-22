@@ -8,7 +8,10 @@ export function useReverseEntry(onSuccess: () => void) {
   const mutation = useMutation({
     mutationFn: (sourceEntryId: string) => reverseEntry(sourceEntryId),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['journal'] })
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['journal'] }),
+        queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+      ])
       onSuccess()
     },
   })
