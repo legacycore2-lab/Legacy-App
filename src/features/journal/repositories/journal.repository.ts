@@ -1,5 +1,10 @@
 import { getSupabaseClient } from '../../../lib/supabase/client'
-import type { SingleLineJournalInput } from '../types/journal-entry.types'
+import type {
+  JournalPostingAccountOption,
+  JournalPostingOptions,
+  JournalPostingProjectOption,
+  SingleLineJournalInput,
+} from '../types/journal-entry.types'
 
 export type JournalEntryRecord = {
   id: string
@@ -24,6 +29,15 @@ export type JournalEntriesQuery = {
 export type JournalEntriesResult = {
   records: JournalEntryRecord[]
   totalCount: number
+}
+
+type PostingProjectRecord = JournalPostingProjectOption
+
+type PostingAccountRecord = {
+  id: string
+  code: string
+  name_ar: string
+  account_type: JournalPostingAccountOption['accountType']
 }
 
 function normalizeSearch(value: string): string {
@@ -76,14 +90,15 @@ export async function findJournalEntries(query: JournalEntriesQuery): Promise<Jo
 
 export async function postSingleLineEntry(input: SingleLineJournalInput): Promise<string> {
   const { data, error } = await getSupabaseClient().rpc('post_single_line_entry', {
-    entry_date: input.entryDate,
-    project_name: input.projectName.trim(),
-    entry_type: input.type,
-    category_account: input.category.trim(),
-    description: input.description.trim(),
-    contractor_name: input.contractor.trim(),
-    payment_account: input.paymentAccount.trim(),
-    amount: Number(input.amount),
+    p_client_request_id: input.requestId,
+    p_entry_date: input.entryDate,
+    p_project_id: input.projectId,
+    p_entry_type: input.type,
+    p_category_account_id: input.categoryAccountId,
+    p_description: input.description.trim(),
+    p_contractor_name: input.contractor.trim(),
+    p_payment_account_id: input.paymentAccountId,
+    p_amount: Number(input.amount),
   })
 
   if (error) throw error
@@ -92,4 +107,34 @@ export async function postSingleLineEntry(input: SingleLineJournalInput): Promis
   }
 
   return data
+}
+
+export async function findJournalPostingOptions(): Promise<JournalPostingOptions> {
+  const client = getSupabaseClient()
+  const [projectsResult, accountsResult] = await Promise.all([
+    client.from('projects').select('id,name').eq('is_archived', false).order('name'),
+    client
+      .from('accounts')
+      .select('id,code,name_ar,account_type')
+      .eq('is_active', true)
+      .eq('is_postable', true)
+      .in('account_type', ['asset', 'revenue', 'expense'])
+      .order('code'),
+  ])
+
+  if (projectsResult.error) throw projectsResult.error
+  if (accountsResult.error) throw accountsResult.error
+
+  const projects = (projectsResult.data ?? []) as PostingProjectRecord[]
+  const accounts = (accountsResult.data ?? []) as PostingAccountRecord[]
+
+  return {
+    projects,
+    accounts: accounts.map((account) => ({
+      id: account.id,
+      code: account.code,
+      name: account.name_ar,
+      accountType: account.account_type,
+    })),
+  }
 }
