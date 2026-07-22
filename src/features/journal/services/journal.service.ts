@@ -1,5 +1,11 @@
-import { findJournalEntries, subscribeToJournalChanges } from '../repositories/journal.repository'
+import {
+  findJournalDetails,
+  findJournalEntries,
+  subscribeToJournalChanges,
+  type JournalDetailsRecord,
+} from '../repositories/journal.repository'
 import type {
+  JournalDetails,
   JournalEntry,
   JournalPageRequest,
   JournalPageResult,
@@ -44,4 +50,47 @@ export async function getJournalPage(request: JournalPageRequest): Promise<Journ
 
 export function watchJournal(onChange: () => void): () => void {
   return subscribeToJournalChanges(onChange)
+}
+
+function relationValue<T>(value: T | T[] | null): T | null {
+  return Array.isArray(value) ? (value[0] ?? null) : value
+}
+
+function toAmount(value: number | string): number {
+  const amount = Number(value)
+  return Number.isFinite(amount) ? amount : 0
+}
+
+export function mapJournalDetails(record: JournalDetailsRecord): JournalDetails {
+  const lines = (record.lines ?? []).map((line) => {
+    const account = relationValue(line.account)
+    return {
+      id: line.id,
+      lineNumber: line.line_number,
+      accountCode: account?.code ?? '',
+      accountName: account?.name_ar ?? 'حساب غير معروف',
+      description: line.description ?? '',
+      debit: toAmount(line.debit),
+      credit: toAmount(line.credit),
+    }
+  })
+
+  return {
+    id: record.id,
+    journalNumber: toAmount(record.journal_number),
+    journalDate: record.journal_date,
+    description: record.description,
+    status: record.status === 'draft' || record.status === 'reversed' ? record.status : 'posted',
+    projectName: relationValue(record.project)?.name ?? 'بدون مشروع',
+    createdAt: record.created_at,
+    postedAt: record.posted_at ?? '',
+    totalDebit: lines.reduce((total, line) => total + line.debit, 0),
+    totalCredit: lines.reduce((total, line) => total + line.credit, 0),
+    lines,
+  }
+}
+
+export async function getJournalDetails(entryId: string): Promise<JournalDetails | null> {
+  const record = await findJournalDetails(entryId)
+  return record ? mapJournalDetails(record) : null
 }

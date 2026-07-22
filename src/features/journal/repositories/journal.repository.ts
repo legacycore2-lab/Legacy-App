@@ -32,6 +32,27 @@ export type JournalEntriesResult = {
   totalCount: number
 }
 
+export type JournalDetailsRecord = {
+  id: string
+  journal_number: number | string
+  journal_date: string
+  description: string
+  status: string
+  created_at: string
+  posted_at: string | null
+  project: { name: string } | { name: string }[] | null
+  lines:
+    | {
+        id: string
+        line_number: number
+        description: string | null
+        debit: number | string
+        credit: number | string
+        account: { code: string; name_ar: string } | { code: string; name_ar: string }[] | null
+      }[]
+    | null
+}
+
 type PostingProjectRecord = JournalPostingProjectOption
 
 type PostingAccountRecord = {
@@ -87,6 +108,38 @@ export async function findJournalEntries(query: JournalEntriesQuery): Promise<Jo
     records: (data ?? []) as JournalEntryRecord[],
     totalCount: count ?? 0,
   }
+}
+
+export async function findJournalDetails(entryId: string): Promise<JournalDetailsRecord | null> {
+  const { data, error } = await getSupabaseClient()
+    .from('journals')
+    .select(
+      `
+      id,
+      journal_number,
+      journal_date,
+      description,
+      status,
+      created_at,
+      posted_at,
+      project:projects(name),
+      lines:journal_lines(
+        id,
+        line_number,
+        description,
+        debit,
+        credit,
+        account:accounts(code,name_ar)
+      )
+      `,
+    )
+    .eq('source_type', 'single_line_entry')
+    .eq('source_id', entryId)
+    .order('line_number', { referencedTable: 'journal_lines', ascending: true })
+    .maybeSingle()
+
+  if (error) throw error
+  return data as unknown as JournalDetailsRecord | null
 }
 
 export async function postSingleLineEntry(input: SingleLineJournalInput): Promise<string> {

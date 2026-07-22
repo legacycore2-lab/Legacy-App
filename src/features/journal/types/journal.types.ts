@@ -38,3 +38,27 @@ export type JournalPageResult = {
   totalPages: number
   summary: JournalSummary
 }
+
+export type JournalLineDetails = {
+  id: string
+  lineNumber: number
+  accountCode: string
+  accountName: string
+  description: string
+  debit: number
+  credit: number
+}
+
+export type JournalDetails = {
+  id: string
+  journalNumber: number
+  journalDate: string
+  description: string
+  status: 'draft' | 'posted' | 'reversed'
+  projectName: string
+  createdAt: string
+  postedAt: string
+  lines: JournalLineDetails[]
+  totalDebit: number
+  totalCredit: number
+}
