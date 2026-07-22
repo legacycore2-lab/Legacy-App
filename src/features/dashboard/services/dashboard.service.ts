@@ -5,9 +5,22 @@ import type { DashboardData, DashboardEntryRecord, DashboardProjectRecord } from
 
 const numberFormatter = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 })
 
+const projectStatusLabels: Record<string, string> = {
+  active: 'جاري',
+  completed: 'مكتمل',
+  paused: 'متوقف',
+  archived: 'مؤرشف',
+}
+
 function toAmount(value: number | string | null): number {
   const amount = Number(value ?? 0)
   return Number.isFinite(amount) ? amount : 0
+}
+
+function toProgress(value: number | string | null): number {
+  const progress = Number(value ?? 0)
+  if (!Number.isFinite(progress)) return 0
+  return Math.min(100, Math.max(0, Math.round(progress)))
 }
 
 function formatAmount(value: number): string {
@@ -16,6 +29,11 @@ function formatAmount(value: number): string {
 
 function normalizeEntryType(type: string | null): 'income' | 'expense' {
   return type === 'i' || type === 'income' ? 'income' : 'expense'
+}
+
+function isActiveProject(project: DashboardProjectRecord): boolean {
+  if (project.is_archived) return false
+  return !project.status || project.status === 'active'
 }
 
 function buildProjectBalances(entries: DashboardEntryRecord[]): Map<string, number> {
@@ -36,6 +54,11 @@ function formatEntryDate(value: string | null): string {
   return value?.trim() || 'بدون تاريخ'
 }
 
+function formatProjectStatus(project: DashboardProjectRecord): string {
+  if (project.is_archived) return projectStatusLabels.archived
+  return projectStatusLabels[project.status ?? 'active'] ?? 'غير محدد'
+}
+
 export async function getDashboardData(): Promise<DashboardData> {
   const source = await findDashboardData()
   const projectBalances = buildProjectBalances(source.entries)
@@ -52,12 +75,12 @@ export async function getDashboardData(): Promise<DashboardData> {
   )
 
   const balance = totals.income - totals.expense
-  const activeProjects = source.projects.filter((project) => !project.is_archived).length
-  const alertCount = source.projects.filter((project) => (projectBalances.get(project.id) ?? 0) < 0).length
+  const activeProjects = source.projects.filter(isActiveProject)
+  const alertCount = activeProjects.filter((project) => (projectBalances.get(project.id) ?? 0) < 0).length
 
   return {
     header: {
-      activeProjects: String(activeProjects),
+      activeProjects: String(activeProjects.length),
       alerts: String(alertCount),
       balance: formatAmount(balance),
       lastUpdated: 'الآن',
@@ -86,22 +109,19 @@ export async function getDashboardData(): Promise<DashboardData> {
       },
       {
         label: 'المشاريع النشطة',
-        value: String(activeProjects),
+        value: String(activeProjects.length),
         trend: `${source.projects.length} مشروع إجمالًا`,
         icon: BriefcaseBusiness,
         tone: 'green',
       },
     ],
-    projects: source.projects
-      .filter((project) => !project.is_archived)
-      .slice(0, 3)
-      .map((project) => ({
-        name: project.name,
-        client: '',
-        balance: formatAmount(projectBalances.get(project.id) ?? 0),
-        progress: 0,
-        status: 'جاري',
-      })),
+    projects: activeProjects.slice(0, 3).map((project) => ({
+      name: project.name,
+      client: project.client_name?.trim() || 'بدون عميل',
+      balance: formatAmount(projectBalances.get(project.id) ?? 0),
+      progress: toProgress(project.progress),
+      status: formatProjectStatus(project),
+    })),
     entries: source.entries.slice(0, 3).map((entry) => ({
       id: entry.seq ? `#${entry.seq}` : entry.id,
       project: entry.project_id ? (projectNames.get(entry.project_id) ?? 'مشروع غير معروف') : 'بدون مشروع',
