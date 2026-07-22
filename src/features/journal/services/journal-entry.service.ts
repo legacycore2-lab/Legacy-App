@@ -46,13 +46,9 @@ function mapJournalPostingError(error: unknown): AppError {
     })
   }
 
-  return new AppError(
-    'تعذر حفظ وترحيل القيد. راجع البيانات وحاول مرة أخرى.',
-    'JOURNAL_POSTING_FAILED',
-    {
-      cause: error,
-    },
-  )
+  return new AppError('تعذر حفظ وترحيل القيد. راجع البيانات وحاول مرة أخرى.', 'JOURNAL_POSTING_FAILED', {
+    cause: error,
+  })
 }
 
 export function validateSingleLineEntry(input: SingleLineJournalInput): string[] {
