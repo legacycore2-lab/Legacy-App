@@ -1,15 +1,22 @@
-import { postSingleLineEntry } from '../repositories/journal.repository'
-import type { JournalPostingPreview, SingleLineJournalInput } from '../types/journal-entry.types'
+import { findJournalPostingOptions, postSingleLineEntry } from '../repositories/journal.repository'
+import type {
+  JournalPostingOptions,
+  JournalPostingPreview,
+  SingleLineJournalInput,
+} from '../types/journal-entry.types'
 
 export function validateSingleLineEntry(input: SingleLineJournalInput): string[] {
   const errors: string[] = []
   const amount = Number(input.amount)
 
   if (!input.entryDate) errors.push('التاريخ مطلوب.')
-  if (!input.projectName.trim()) errors.push('المشروع مطلوب.')
-  if (!input.category.trim()) errors.push('البند مطلوب.')
+  if (!input.projectId) errors.push('المشروع مطلوب.')
+  if (!input.categoryAccountId) errors.push('البند مطلوب.')
   if (!input.description.trim()) errors.push('البيان مطلوب.')
-  if (!input.paymentAccount.trim()) errors.push('الحساب المقابل مطلوب.')
+  if (!input.paymentAccountId) errors.push('الحساب المقابل مطلوب.')
+  if (input.categoryAccountId && input.categoryAccountId === input.paymentAccountId) {
+    errors.push('يجب اختيار حسابين مختلفين لطرفي القيد.')
+  }
   if (!Number.isFinite(amount) || amount <= 0) errors.push('أدخل مبلغًا صحيحًا أكبر من صفر.')
 
   return errors
@@ -40,4 +47,8 @@ export async function submitSingleLineEntry(input: SingleLineJournalInput): Prom
   if (errors.length > 0) throw new Error(errors[0])
 
   return postSingleLineEntry(input)
+}
+
+export async function getJournalPostingOptions(): Promise<JournalPostingOptions> {
+  return findJournalPostingOptions()
 }

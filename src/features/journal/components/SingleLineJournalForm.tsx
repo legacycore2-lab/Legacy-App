@@ -7,8 +7,25 @@ type Props = {
 }
 
 export function SingleLineJournalForm({ onClose }: Props) {
-  const { value, submitted, errors, preview, update, submit, isSaving, saveError } =
-    useSingleLineJournalForm()
+  const {
+    value,
+    submitted,
+    errors,
+    preview,
+    update,
+    submit,
+    isSaving,
+    saveError,
+    selectProject,
+    selectCategoryAccount,
+    selectPaymentAccount,
+    selectType,
+    projects,
+    categoryAccounts,
+    paymentAccounts,
+    isLoadingOptions,
+    optionsError,
+  } = useSingleLineJournalForm()
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -42,7 +59,7 @@ export function SingleLineJournalForm({ onClose }: Props) {
             النوع
             <select
               value={value.type}
-              onChange={(event) => update('type', event.target.value as SingleLineJournalInput['type'])}
+              onChange={(event) => selectType(event.target.value as SingleLineJournalInput['type'])}
             >
               <option value="expense">مصروف</option>
               <option value="income">إيراد</option>
@@ -50,27 +67,42 @@ export function SingleLineJournalForm({ onClose }: Props) {
           </label>
           <label>
             المشروع
-            <input
-              value={value.projectName}
-              onChange={(event) => update('projectName', event.target.value)}
-              placeholder="اختر أو اكتب المشروع"
-            />
+            <select value={value.projectId} onChange={(event) => selectProject(event.target.value)}>
+              <option value="">اختر المشروع</option>
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
           </label>
           <label>
             البند
-            <input
-              value={value.category}
-              onChange={(event) => update('category', event.target.value)}
-              placeholder="مثال: خرسانة"
-            />
+            <select
+              value={value.categoryAccountId}
+              onChange={(event) => selectCategoryAccount(event.target.value)}
+            >
+              <option value="">اختر الحساب</option>
+              {categoryAccounts.map((account) => (
+                <option key={account.id} value={account.id}>
+                  {account.code} — {account.name}
+                </option>
+              ))}
+            </select>
           </label>
           <label>
             الحساب المقابل
-            <input
-              value={value.paymentAccount}
-              onChange={(event) => update('paymentAccount', event.target.value)}
-              placeholder="الخزنة، البنك، عهدة..."
-            />
+            <select
+              value={value.paymentAccountId}
+              onChange={(event) => selectPaymentAccount(event.target.value)}
+            >
+              <option value="">اختر الحساب المقابل</option>
+              {paymentAccounts.map((account) => (
+                <option key={account.id} value={account.id}>
+                  {account.code} — {account.name}
+                </option>
+              ))}
+            </select>
           </label>
           <label>
             المبلغ
@@ -107,6 +139,12 @@ export function SingleLineJournalForm({ onClose }: Props) {
           </div>
         )}
 
+        {optionsError && (
+          <div className="journal-entry-errors">
+            <p>{optionsError}</p>
+          </div>
+        )}
+
         {saveError && (
           <div className="journal-entry-errors">
             <p>{saveError}</p>
@@ -132,7 +170,7 @@ export function SingleLineJournalForm({ onClose }: Props) {
           <button type="button" className="journal-secondary" onClick={onClose}>
             إلغاء
           </button>
-          <button type="submit" className="journal-primary" disabled={isSaving}>
+          <button type="submit" className="journal-primary" disabled={isSaving || isLoadingOptions}>
             <Save size={17} /> {isSaving ? 'جارٍ الحفظ...' : 'حفظ وترحيل القيد'}
           </button>
         </footer>
