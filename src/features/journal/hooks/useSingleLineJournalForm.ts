@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
+import { formatLocalDateInput } from '../../../shared/date/local-date'
 import { toErrorMessage } from '../../../shared/errors/app-error'
 import {
   buildJournalPreview,
@@ -10,7 +11,7 @@ import type { SingleLineJournalInput } from '../types/journal-entry.types'
 
 function createInitialValue(): SingleLineJournalInput {
   return {
-    entryDate: new Date().toISOString().slice(0, 10),
+    entryDate: formatLocalDateInput(),
     projectName: '',
     type: 'expense',
     category: '',
@@ -23,6 +24,7 @@ function createInitialValue(): SingleLineJournalInput {
 
 export function useSingleLineJournalForm() {
   const queryClient = useQueryClient()
+  const isSubmittingRef = useRef(false)
   const [value, setValue] = useState(createInitialValue)
   const [submitted, setSubmitted] = useState(false)
   const errors = useMemo(() => validateSingleLineEntry(value), [value])
@@ -38,9 +40,12 @@ export function useSingleLineJournalForm() {
     setValue((current) => ({ ...current, [key]: nextValue }))
 
   const submit = async (): Promise<boolean> => {
+    if (isSubmittingRef.current || mutation.isPending) return false
+
     setSubmitted(true)
     if (errors.length > 0) return false
 
+    isSubmittingRef.current = true
     try {
       await mutation.mutateAsync(value)
       setValue(createInitialValue())
@@ -48,6 +53,8 @@ export function useSingleLineJournalForm() {
       return true
     } catch {
       return false
+    } finally {
+      isSubmittingRef.current = false
     }
   }
 
