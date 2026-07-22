@@ -1,0 +1,91 @@
+name: Deploy ID-based journal posting migration
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy-id-based-posting.yml'
+      - 'supabase/migrations/20260722040000_id_based_single_line_posting.sql'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-database
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Apply and verify ID-based journal posting
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    env:
+      PGDATABASE: ${{ secrets.SUPABASE_DB_URL }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Validate deployment credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${PGDATABASE}" ]]; then
+            echo "::error::SUPABASE_DB_URL is not configured for the production environment."
+            exit 1
+          fi
+
+      - name: Apply migration atomically
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql \
+            --set ON_ERROR_STOP=1 \
+            --single-transaction \
+            --file supabase/migrations/20260722040000_id_based_single_line_posting.sql
+
+      - name: Verify deployed database objects
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          signature="$(
+            psql \
+              --no-align \
+              --tuples-only \
+              --set ON_ERROR_STOP=1 \
+              --command "select to_regprocedure('public.post_single_line_entry(uuid,date,uuid,text,uuid,text,text,uuid,numeric)');"
+          )"
+
+          column_name="$(
+            psql \
+              --no-align \
+              --tuples-only \
+              --set ON_ERROR_STOP=1 \
+              --command "select column_name from information_schema.columns where table_schema = 'public' and table_name = 'entries' and column_name = 'client_request_id';"
+          )"
+
+          index_name="$(
+            psql \
+              --no-align \
+              --tuples-only \
+              --set ON_ERROR_STOP=1 \
+              --command "select indexname from pg_indexes where schemaname = 'public' and tablename = 'entries' and indexname = 'entries_client_request_id_uidx';"
+          )"
+
+          if [[ "${signature}" != "post_single_line_entry(uuid,date,uuid,text,uuid,text,text,uuid,numeric)" ]]; then
+            echo "::error::ID-based journal posting function was not found after migration."
+            exit 1
+          fi
+
+          if [[ "${column_name}" != "client_request_id" ]]; then
+            echo "::error::Journal idempotency column was not found after migration."
+            exit 1
+          fi
+
+          if [[ "${index_name}" != "entries_client_request_id_uidx" ]]; then
+            echo "::error::Journal idempotency index was not found after migration."
+            exit 1
+          fi
