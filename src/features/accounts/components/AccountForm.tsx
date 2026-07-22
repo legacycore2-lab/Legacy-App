@@ -58,7 +58,11 @@ export function AccountForm({ accounts, editing, isSaving, onSave, onCancel }: P
           <option value="">بدون حساب رئيسي</option>
           {accounts
             .filter(
-              (account) => account.accountType === form.value.accountType && account.id !== form.value.id,
+              (account) =>
+                account.accountType === form.value.accountType &&
+                account.id !== form.value.id &&
+                account.isActive &&
+                !account.isPostable,
             )
             .map((account) => (
               <option key={account.id} value={account.id}>
@@ -74,7 +78,7 @@ export function AccountForm({ accounts, editing, isSaving, onSave, onCancel }: P
             checked={form.value.isPostable}
             onChange={(event) => form.update('isPostable', event.target.checked)}
           />
-          قابل للترحيل
+          قابل للتسجيل المباشر (ترحيل)
         </label>
         <label>
           <input
@@ -82,7 +86,7 @@ export function AccountForm({ accounts, editing, isSaving, onSave, onCancel }: P
             checked={form.value.isActive}
             onChange={(event) => form.update('isActive', event.target.checked)}
           />
-          نشط
+          متاح للاستخدام (نشط)
         </label>
       </div>
       <div className="account-actions">
