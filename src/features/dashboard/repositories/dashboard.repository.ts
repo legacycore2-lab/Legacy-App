@@ -5,14 +5,7 @@ import type {
   DashboardSourceData,
 } from '../types/dashboard.types'
 
-const DASHBOARD_PROJECT_FIELDS = [
-  'id',
-  'name',
-  'client_name',
-  'status',
-  'progress',
-  'is_archived',
-].join(', ')
+const DASHBOARD_PROJECT_FIELDS = ['id', 'name', 'client_name', 'status', 'progress', 'is_archived'].join(', ')
 
 const DASHBOARD_ENTRY_FIELDS = [
   'id',
