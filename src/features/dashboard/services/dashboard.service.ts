@@ -80,9 +80,7 @@ export async function getDashboardData(): Promise<DashboardData> {
 
   const balance = totals.income - totals.expense
   const activeProjects = source.projects.filter(isActiveProject)
-  const alertCount = activeProjects.filter(
-    (project) => (projectBalances.get(project.id) ?? 0) < 0,
-  ).length
+  const alertCount = activeProjects.filter((project) => (projectBalances.get(project.id) ?? 0) < 0).length
 
   return {
     header: {
