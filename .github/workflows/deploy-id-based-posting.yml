@@ -46,7 +46,7 @@ jobs:
             exit 1
           fi
 
-      - name: Apply migration atomically
+      - name: Apply and verify migration atomically
         shell: bash
         run: |
           set -euo pipefail
@@ -57,51 +57,33 @@ jobs:
           psql "${connection_uri}" \
             --set ON_ERROR_STOP=1 \
             --single-transaction \
-            --file supabase/migrations/20260722040000_id_based_single_line_posting.sql
+            --file supabase/migrations/20260722040000_id_based_single_line_posting.sql \
+            --command "
+              do \$verify\$
+              begin
+                if to_regprocedure('public.post_single_line_entry(uuid,date,uuid,text,uuid,text,text,uuid,numeric)') is null then
+                  raise exception 'ID-based journal posting function was not found after migration';
+                end if;
 
-      - name: Verify deployed database objects
-        shell: bash
-        run: |
-          set -euo pipefail
-          connection_uri="$(printf '%s' "${DATABASE_URL}" | tr -d '\r\n')"
-          connection_uri="${connection_uri#\"}"
-          connection_uri="${connection_uri%\"}"
+                if not exists (
+                  select 1
+                  from information_schema.columns
+                  where table_schema = 'public'
+                    and table_name = 'entries'
+                    and column_name = 'client_request_id'
+                ) then
+                  raise exception 'Journal idempotency column was not found after migration';
+                end if;
 
-          signature="$(
-            psql "${connection_uri}" \
-              --no-align \
-              --tuples-only \
-              --set ON_ERROR_STOP=1 \
-              --command "select to_regprocedure('public.post_single_line_entry(uuid,date,uuid,text,uuid,text,text,uuid,numeric)');"
-          )"
-
-          column_name="$(
-            psql "${connection_uri}" \
-              --no-align \
-              --tuples-only \
-              --set ON_ERROR_STOP=1 \
-              --command "select column_name from information_schema.columns where table_schema = 'public' and table_name = 'entries' and column_name = 'client_request_id';"
-          )"
-
-          index_name="$(
-            psql "${connection_uri}" \
-              --no-align \
-              --tuples-only \
-              --set ON_ERROR_STOP=1 \
-              --command "select indexname from pg_indexes where schemaname = 'public' and tablename = 'entries' and indexname = 'entries_client_request_id_uidx';"
-          )"
-
-          if [[ "${signature}" != "post_single_line_entry(uuid,date,uuid,text,uuid,text,text,uuid,numeric)" ]]; then
-            echo "::error::ID-based journal posting function was not found after migration."
-            exit 1
-          fi
-
-          if [[ "${column_name}" != "client_request_id" ]]; then
-            echo "::error::Journal idempotency column was not found after migration."
-            exit 1
-          fi
-
-          if [[ "${index_name}" != "entries_client_request_id_uidx" ]]; then
-            echo "::error::Journal idempotency index was not found after migration."
-            exit 1
-          fi
+                if not exists (
+                  select 1
+                  from pg_indexes
+                  where schemaname = 'public'
+                    and tablename = 'entries'
+                    and indexname = 'entries_client_request_id_uidx'
+                ) then
+                  raise exception 'Journal idempotency index was not found after migration';
+                end if;
+              end
+              \$verify\$;
+            "
