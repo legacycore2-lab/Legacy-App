@@ -16,6 +16,7 @@ const DASHBOARD_ENTRY_FIELDS = [
   'description',
   'entry_date',
   'seq:entry_number',
+  'is_reversal',
 ].join(', ')
 
 async function findProjects(): Promise<DashboardProjectRecord[]> {
