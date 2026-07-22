@@ -15,7 +15,6 @@ const PROJECT_FIELDS = [
   'spent',
   'start_date',
   'end_date',
-  'close_date',
   'notes',
   'is_archived',
   'created_at',
