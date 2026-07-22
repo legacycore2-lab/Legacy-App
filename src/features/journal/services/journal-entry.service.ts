@@ -24,27 +24,25 @@ function mapJournalPostingError(error: unknown): AppError {
   }
 
   if (message.includes('Project not found or archived')) {
-    return new AppError(
-      'المشروع غير موجود أو مؤرشف. اختر مشروعًا نشطًا.',
-      'JOURNAL_PROJECT_NOT_FOUND',
-      { cause: error },
-    )
+    return new AppError('المشروع غير موجود أو مؤرشف. اختر مشروعًا نشطًا.', 'JOURNAL_PROJECT_NOT_FOUND', {
+      cause: error,
+    })
   }
 
   if (message.includes('Category account not found')) {
     return new AppError(
       'البند المحاسبي غير موجود أو غير مناسب لنوع القيد.',
       'JOURNAL_CATEGORY_ACCOUNT_INVALID',
-      { cause: error },
+      {
+        cause: error,
+      },
     )
   }
 
   if (message.includes('Payment account not found')) {
-    return new AppError(
-      'الحساب المقابل غير موجود أو غير متاح للترحيل.',
-      'JOURNAL_PAYMENT_ACCOUNT_INVALID',
-      { cause: error },
-    )
+    return new AppError('الحساب المقابل غير موجود أو غير متاح للترحيل.', 'JOURNAL_PAYMENT_ACCOUNT_INVALID', {
+      cause: error,
+    })
   }
 
   if (message.includes('Journal sides must use different accounts')) {
@@ -56,7 +54,9 @@ function mapJournalPostingError(error: unknown): AppError {
   return new AppError(
     'تعذر حفظ وترحيل القيد. راجع البيانات وحاول مرة أخرى.',
     'JOURNAL_POSTING_FAILED',
-    { cause: error },
+    {
+      cause: error,
+    },
   )
 }
 
