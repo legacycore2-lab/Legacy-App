@@ -1,9 +1,6 @@
 import { AppError } from '../../../shared/errors/app-error'
 import { postSingleLineEntry } from '../repositories/journal.repository'
-import type {
-  JournalPostingPreview,
-  SingleLineJournalInput,
-} from '../types/journal-entry.types'
+import type { JournalPostingPreview, SingleLineJournalInput } from '../types/journal-entry.types'
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === 'object' && error !== null && 'message' in error) {
@@ -18,9 +15,7 @@ function mapJournalPostingError(error: unknown): AppError {
   const message = getErrorMessage(error)
 
   if (message.includes('Insufficient permissions')) {
-    return new AppError('ليست لديك صلاحية ترحيل القيود.', 'JOURNAL_PERMISSION_DENIED', {
-      cause: error,
-    })
+    return new AppError('ليست لديك صلاحية ترحيل القيود.', 'JOURNAL_PERMISSION_DENIED', { cause: error })
   }
 
   if (message.includes('Project not found or archived')) {
