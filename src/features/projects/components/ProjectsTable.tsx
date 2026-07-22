@@ -1,12 +1,15 @@
-import { Eye, MoreHorizontal, Pencil } from 'lucide-react'
+import { Pencil } from 'lucide-react'
 import type { ProjectRow } from '../types/project.types'
 
-type Props = { projects: ProjectRow[] }
+type Props = {
+  projects: ProjectRow[]
+  onEdit: (project: ProjectRow) => void
+}
 
 const money = new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 0 })
 const statusLabel = { active: 'مفتوح', completed: 'مكتمل', paused: 'متوقف', archived: 'مؤرشف' }
 
-export function ProjectsTable({ projects }: Props) {
+export function ProjectsTable({ projects, onEdit }: Props) {
   return (
     <div className="projects-table-shell">
       <div className="projects-table-scroll">
@@ -51,14 +54,8 @@ export function ProjectsTable({ projects }: Props) {
                   </td>
                   <td>
                     <div className="table-actions">
-                      <button title="عرض">
-                        <Eye size={16} />
-                      </button>
-                      <button title="تعديل">
+                      <button type="button" title="تعديل المشروع" onClick={() => onEdit(project)}>
                         <Pencil size={16} />
-                      </button>
-                      <button title="المزيد">
-                        <MoreHorizontal size={16} />
                       </button>
                     </div>
                   </td>

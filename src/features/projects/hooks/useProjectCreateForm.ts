@@ -3,9 +3,10 @@ import { useMemo, useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
 import {
   buildProjectCreatePreview,
-  createProject,
+  saveProject,
   validateProjectCreateInput,
 } from '../services/project-create.service'
+import type { Project } from '../types/project.types'
 import type { ProjectCreateFormState, ProjectCreateInput } from '../types/project-create.types'
 
 function createInitialValue(): ProjectCreateInput {
@@ -28,15 +29,18 @@ export function useProjectCreateForm(): ProjectCreateFormState {
   const [isOpen, setIsOpen] = useState(false)
   const [value, setValue] = useState(createInitialValue)
   const [submitted, setSubmitted] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const errors = useMemo(() => validateProjectCreateInput(value), [value])
   const preview = useMemo(() => buildProjectCreatePreview(value), [value])
 
   const createMutation = useMutation({
-    mutationFn: createProject,
+    mutationFn: ({ input, projectId }: { input: ProjectCreateInput; projectId?: string }) =>
+      saveProject(input, projectId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['projects'] })
       setIsOpen(false)
       setSubmitted(false)
+      setEditingId(null)
       setValue(createInitialValue())
     },
   })
@@ -51,6 +55,7 @@ export function useProjectCreateForm(): ProjectCreateFormState {
 
     setIsOpen(false)
     setSubmitted(false)
+    setEditingId(null)
     setValue(createInitialValue())
     createMutation.reset()
   }
@@ -59,13 +64,36 @@ export function useProjectCreateForm(): ProjectCreateFormState {
     setSubmitted(true)
     if (errors.length > 0 || !preview || createMutation.isPending) return
 
-    await createMutation.mutateAsync(value).catch(() => undefined)
+    await createMutation
+      .mutateAsync({ input: value, projectId: editingId ?? undefined })
+      .catch(() => undefined)
   }
 
   return {
     isOpen,
+    isEditing: editingId !== null,
     open: () => {
       createMutation.reset()
+      setEditingId(null)
+      setValue(createInitialValue())
+      setIsOpen(true)
+    },
+    edit: (project: Project) => {
+      createMutation.reset()
+      setSubmitted(false)
+      setEditingId(project.id)
+      setValue({
+        name: project.name,
+        code: project.code,
+        client: project.client,
+        location: project.location,
+        manager: project.manager,
+        status: project.status === 'archived' ? 'paused' : project.status,
+        contractValue: String(project.contractValue),
+        startDate: project.startDate,
+        endDate: project.endDate,
+        notes: project.notes,
+      })
       setIsOpen(true)
     },
     close,

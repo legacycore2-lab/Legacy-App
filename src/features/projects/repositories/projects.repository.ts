@@ -47,6 +47,20 @@ export async function insertProject(record: ProjectInsertRecord): Promise<Projec
   return data as unknown as ProjectRecord
 }
 
+export async function updateProject(id: string, record: ProjectInsertRecord): Promise<ProjectRecord> {
+  const { data, error } = await getSupabaseClient()
+    .from('projects')
+    .update(record)
+    .eq('id', id)
+    .select(PROJECT_FIELDS)
+    .single()
+
+  if (error) throw error
+  if (!data) throw new Error('Supabase did not return the updated project.')
+
+  return data as unknown as ProjectRecord
+}
+
 export function subscribeToProjectChanges(onChange: () => void): () => void {
   return subscribeToTableChanges('projects', ['projects'], onChange)
 }

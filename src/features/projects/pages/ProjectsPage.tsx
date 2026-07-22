@@ -46,7 +46,7 @@ export function ProjectsPage() {
         <small>{projectRows.length} مشروع</small>
       </div>
       {!isLoading && !error && projectRows.length > 0 ? (
-        <ProjectsTable projects={projectRows} />
+        <ProjectsTable projects={projectRows} onEdit={projectCreate.edit} />
       ) : !isLoading && !error ? (
         <div className="projects-empty">
           <BriefcaseBusiness size={28} />
