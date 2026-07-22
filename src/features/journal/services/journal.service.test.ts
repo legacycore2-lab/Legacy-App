@@ -15,6 +15,7 @@ const entries: JournalEntry[] = [
     contractor: '',
     paymentMethod: 'تحويل',
     amount: 1500,
+    isReversal: false,
   },
   {
     id: 'expense',
@@ -27,6 +28,7 @@ const entries: JournalEntry[] = [
     contractor: '',
     paymentMethod: 'نقدي',
     amount: 400,
+    isReversal: false,
   },
 ]
 
