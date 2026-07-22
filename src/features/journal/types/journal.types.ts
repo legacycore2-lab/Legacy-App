@@ -11,7 +11,7 @@ export type JournalEntry = {
   contractor: string
   paymentMethod: string
   amount: number
-  isReversal: boolean
+  isReversal?: boolean
 }
 
 export type JournalFilters = {
