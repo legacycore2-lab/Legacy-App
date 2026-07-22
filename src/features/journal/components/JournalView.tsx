@@ -1,7 +1,8 @@
-import { ArrowDownCircle, ArrowUpCircle, FileText, Plus, Search } from 'lucide-react'
+import { ArrowDownCircle, ArrowUpCircle, Eye, FileText, Plus, Search } from 'lucide-react'
 import { useState } from 'react'
 import type { JournalEntry, JournalFilters, JournalSummary } from '../types/journal.types'
 import { SingleLineJournalForm } from './SingleLineJournalForm'
+import { JournalDetailsDialog } from './JournalDetailsDialog'
 
 const currency = new Intl.NumberFormat('ar-EG')
 
@@ -33,6 +34,7 @@ export function JournalView({
   error,
 }: Props) {
   const [isEntryFormOpen, setIsEntryFormOpen] = useState(false)
+  const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null)
 
   return (
     <section className="journal-page">
@@ -48,6 +50,7 @@ export function JournalView({
       </header>
 
       {isEntryFormOpen && <SingleLineJournalForm onClose={() => setIsEntryFormOpen(false)} />}
+      <JournalDetailsDialog entryId={selectedEntryId} onClose={() => setSelectedEntryId(null)} />
 
       <div className="journal-stats">
         <article>
@@ -116,6 +119,7 @@ export function JournalView({
                 <th>المقاول</th>
                 <th>طريقة الدفع</th>
                 <th>المبلغ</th>
+                <th>التفاصيل</th>
               </tr>
             </thead>
             <tbody>
@@ -134,6 +138,16 @@ export function JournalView({
                   <td>{entry.contractor || '—'}</td>
                   <td>{entry.paymentMethod || '—'}</td>
                   <td>{currency.format(entry.amount)} ج.م</td>
+                  <td>
+                    <button
+                      type="button"
+                      className="journal-view-button"
+                      onClick={() => setSelectedEntryId(entry.id)}
+                      title="عرض تفاصيل القيد"
+                    >
+                      <Eye size={16} /> عرض
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
