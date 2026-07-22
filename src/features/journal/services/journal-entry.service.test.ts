@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { postSingleLineEntry } from '../repositories/journal.repository'
 import type { SingleLineJournalInput } from '../types/journal-entry.types'
-import { submitSingleLineEntry } from './journal-entry.service'
+import { getLocalDateInputValue, submitSingleLineEntry } from './journal-entry.service'
 
 vi.mock('../repositories/journal.repository', () => ({
   postSingleLineEntry: vi.fn(),
@@ -49,5 +49,15 @@ describe('single-line journal submission', () => {
       }),
     ).rejects.toThrow('يجب اختيار حسابين مختلفين لطرفي القيد.')
     expect(postSingleLineEntry).not.toHaveBeenCalled()
+  })
+})
+
+describe('journal entry date', () => {
+  it('formats the date from the user local calendar', () => {
+    expect(getLocalDateInputValue(new Date(2026, 6, 22, 0, 30))).toBe('2026-07-22')
+  })
+
+  it('pads single-digit months and days', () => {
+    expect(getLocalDateInputValue(new Date(2026, 0, 5))).toBe('2026-01-05')
   })
 })

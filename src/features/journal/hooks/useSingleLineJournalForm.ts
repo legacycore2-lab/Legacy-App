@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
 import {
   buildJournalPreview,
+  getLocalDateInputValue,
   getJournalPostingOptions,
   submitSingleLineEntry,
   validateSingleLineEntry,
@@ -12,7 +13,7 @@ import type { SingleLineJournalInput } from '../types/journal-entry.types'
 function createInitialValue(): SingleLineJournalInput {
   return {
     requestId: crypto.randomUUID(),
-    entryDate: new Date().toISOString().slice(0, 10),
+    entryDate: getLocalDateInputValue(),
     projectId: '',
     projectName: '',
     type: 'expense',
@@ -28,6 +29,7 @@ function createInitialValue(): SingleLineJournalInput {
 
 export function useSingleLineJournalForm() {
   const queryClient = useQueryClient()
+  const submissionInProgressRef = useRef(false)
   const [value, setValue] = useState(createInitialValue)
   const [submitted, setSubmitted] = useState(false)
   const optionsQuery = useQuery({
@@ -40,7 +42,10 @@ export function useSingleLineJournalForm() {
   const mutation = useMutation({
     mutationFn: submitSingleLineEntry,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['journal'] })
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['journal'] }),
+        queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+      ])
     },
   })
 
@@ -80,9 +85,12 @@ export function useSingleLineJournalForm() {
   }
 
   const submit = async (): Promise<boolean> => {
+    if (submissionInProgressRef.current || mutation.isPending) return false
+
     setSubmitted(true)
     if (errors.length > 0) return false
 
+    submissionInProgressRef.current = true
     try {
       await mutation.mutateAsync(value)
       setValue(createInitialValue())
@@ -90,6 +98,8 @@ export function useSingleLineJournalForm() {
       return true
     } catch {
       return false
+    } finally {
+      submissionInProgressRef.current = false
     }
   }
 
