@@ -1,4 +1,4 @@
-import type { ProjectStatus } from './project.types'
+import type { Project, ProjectStatus } from './project.types'
 
 export type ProjectCreateInput = {
   name: string
@@ -28,7 +28,9 @@ export type ProjectCreatePreview = {
 
 export type ProjectCreateFormState = {
   isOpen: boolean
+  isEditing: boolean
   open: () => void
+  edit: (project: Project) => void
   close: () => void
   value: ProjectCreateInput
   update: <K extends keyof ProjectCreateInput>(key: K, next: ProjectCreateInput[K]) => void

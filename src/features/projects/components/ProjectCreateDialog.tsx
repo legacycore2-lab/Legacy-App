@@ -3,6 +3,7 @@ import type { ProjectCreateFormState } from '../types/project-create.types'
 
 export function ProjectCreateDialog({
   isOpen,
+  isEditing,
   close,
   value,
   update,
@@ -25,9 +26,13 @@ export function ProjectCreateDialog({
       >
         <header>
           <div>
-            <span>مشروع جديد</span>
-            <h2>إنشاء مشروع</h2>
-            <p>أدخل بيانات المشروع، وسيظهر في القائمة فور نجاح الحفظ.</p>
+            <span>{isEditing ? 'تعديل البيانات' : 'مشروع جديد'}</span>
+            <h2>{isEditing ? 'تعديل المشروع' : 'إنشاء مشروع'}</h2>
+            <p>
+              {isEditing
+                ? 'حدّث بيانات المشروع واحفظ التغييرات.'
+                : 'أدخل بيانات المشروع، وسيظهر في القائمة فور نجاح الحفظ.'}
+            </p>
           </div>
           <button type="button" onClick={close} aria-label="إغلاق" disabled={isSaving}>
             <X size={18} />
@@ -158,7 +163,7 @@ export function ProjectCreateDialog({
             </button>
             <button type="submit" className="projects-primary-action" disabled={isSaving}>
               {isSaving ? <LoaderCircle className="project-create-spinner" size={17} /> : <Save size={17} />}
-              {isSaving ? 'جارٍ الحفظ...' : 'حفظ المشروع'}
+              {isSaving ? 'جارٍ الحفظ...' : isEditing ? 'حفظ التعديلات' : 'حفظ المشروع'}
             </button>
           </footer>
         </form>
