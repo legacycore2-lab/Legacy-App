@@ -1,7 +1,11 @@
 import { ArrowDownLeft, ArrowUpRight, BriefcaseBusiness, WalletCards } from 'lucide-react'
 import { dashboardActions } from '../data/dashboard.mock'
 import { findDashboardData } from '../repositories/dashboard.repository'
-import type { DashboardData, DashboardEntryRecord, DashboardProjectRecord } from '../types/dashboard.types'
+import type {
+  DashboardData,
+  DashboardEntryRecord,
+  DashboardProjectRecord,
+} from '../types/dashboard.types'
 
 const numberFormatter = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 })
 
@@ -76,7 +80,9 @@ export async function getDashboardData(): Promise<DashboardData> {
 
   const balance = totals.income - totals.expense
   const activeProjects = source.projects.filter(isActiveProject)
-  const alertCount = activeProjects.filter((project) => (projectBalances.get(project.id) ?? 0) < 0).length
+  const alertCount = activeProjects.filter(
+    (project) => (projectBalances.get(project.id) ?? 0) < 0,
+  ).length
 
   return {
     header: {
@@ -124,7 +130,9 @@ export async function getDashboardData(): Promise<DashboardData> {
     })),
     entries: source.entries.slice(0, 3).map((entry) => ({
       id: entry.seq ? `#${entry.seq}` : entry.id,
-      project: entry.project_id ? (projectNames.get(entry.project_id) ?? 'مشروع غير معروف') : 'بدون مشروع',
+      project: entry.project_id
+        ? (projectNames.get(entry.project_id) ?? 'مشروع غير معروف')
+        : 'بدون مشروع',
       description: entry.description?.trim() || 'بدون بيان',
       date: formatEntryDate(entry.entry_date),
       amount: formatAmount(toAmount(entry.amount)),
