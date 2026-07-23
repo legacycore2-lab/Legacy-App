@@ -15,7 +15,11 @@ export function JournalDetailsDialog({ entryId, onClose }: Props) {
   const { details, isLoading, error } = useJournalDetails(entryId)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
-  const { deleteEntry, isDeleting, error: deleteError } = useDeleteEntry(() => {
+  const {
+    deleteEntry,
+    isDeleting,
+    error: deleteError,
+  } = useDeleteEntry(() => {
     setConfirmDelete(false)
     onClose()
   })
@@ -95,11 +99,7 @@ export function JournalDetailsDialog({ entryId, onClose }: Props) {
 
             {!confirmDelete && (
               <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>
-                <button
-                  type="button"
-                  className="journal-delete-btn"
-                  onClick={() => setConfirmDelete(true)}
-                >
+                <button type="button" className="journal-delete-btn" onClick={() => setConfirmDelete(true)}>
                   <Trash2 size={15} />
                   حذف القيد
                 </button>
