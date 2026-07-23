@@ -1,4 +1,6 @@
-import { X } from 'lucide-react'
+import { Trash2, X } from 'lucide-react'
+import { useState } from 'react'
+import { useDeleteEntry } from '../hooks/useDeleteEntry'
 import { useJournalDetails } from '../hooks/useJournalDetails'
 
 type Props = {
@@ -11,6 +13,13 @@ const statusLabel = { draft: 'مسودة', posted: 'مرحّل', reversed: 'مع
 
 export function JournalDetailsDialog({ entryId, onClose }: Props) {
   const { details, isLoading, error } = useJournalDetails(entryId)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+
+  const { deleteEntry, isDeleting, error: deleteError } = useDeleteEntry(() => {
+    setConfirmDelete(false)
+    onClose()
+  })
+
   if (!entryId) return null
 
   return (
@@ -31,6 +40,7 @@ export function JournalDetailsDialog({ entryId, onClose }: Props) {
         {!isLoading && !error && !details && (
           <div className="journal-details-state">هذا قيد قديم ولا توجد له تفاصيل محاسبية مرتبطة.</div>
         )}
+
         {details && (
           <div className="journal-details-content">
             <dl className="journal-details-summary">
@@ -82,6 +92,49 @@ export function JournalDetailsDialog({ entryId, onClose }: Props) {
                 </tfoot>
               </table>
             </div>
+
+            {!confirmDelete && (
+              <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  className="journal-delete-btn"
+                  onClick={() => setConfirmDelete(true)}
+                >
+                  <Trash2 size={15} />
+                  حذف القيد
+                </button>
+              </div>
+            )}
+
+            {confirmDelete && (
+              <div className="journal-delete-confirm">
+                <span>هل أنت متأكد من حذف هذا القيد؟ لا يمكن التراجع عن هذه العملية.</span>
+                <div className="journal-delete-confirm-actions">
+                  <button
+                    type="button"
+                    className="confirm-no"
+                    onClick={() => setConfirmDelete(false)}
+                    disabled={isDeleting}
+                  >
+                    إلغاء
+                  </button>
+                  <button
+                    type="button"
+                    className="confirm-yes"
+                    onClick={() => deleteEntry(entryId)}
+                    disabled={isDeleting}
+                  >
+                    {isDeleting ? 'جارٍ الحذف...' : 'تأكيد الحذف'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {deleteError && (
+              <div className="journal-entry-errors" style={{ marginTop: '12px' }}>
+                <p>{deleteError}</p>
+              </div>
+            )}
           </div>
         )}
       </section>

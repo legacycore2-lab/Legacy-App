@@ -1,4 +1,5 @@
 import {
+  deleteJournalEntry,
   findJournalDetails,
   findJournalEntries,
   subscribeToJournalChanges,
@@ -50,6 +51,11 @@ export async function getJournalPage(request: JournalPageRequest): Promise<Journ
 
 export function watchJournal(onChange: () => void): () => void {
   return subscribeToJournalChanges(onChange)
+}
+
+export async function deleteEntry(entryId: string): Promise<void> {
+  if (!entryId) throw new Error('معرف القيد مطلوب.')
+  return deleteJournalEntry(entryId)
 }
 
 function relationValue<T>(value: T | T[] | null): T | null {

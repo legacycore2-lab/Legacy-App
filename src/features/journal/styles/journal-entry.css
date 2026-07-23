@@ -137,6 +137,68 @@
   padding: 10px 16px;
 }
 
+.journal-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid #f3b7b2;
+  border-radius: 10px;
+  color: #b42318;
+  background: #fff1f0;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.journal-delete-btn:hover:not(:disabled) {
+  background: #ffe4e2;
+}
+
+.journal-delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.journal-delete-confirm {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid #f3b7b2;
+  border-radius: 12px;
+  background: #fff1f0;
+  color: #b42318;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.journal-delete-confirm-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.journal-delete-confirm-actions button {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.journal-delete-confirm-actions .confirm-yes {
+  background: #b42318;
+  color: #fff;
+  border: none;
+}
+
+.journal-delete-confirm-actions .confirm-no {
+  background: transparent;
+  border: 1px solid #f3b7b2;
+  color: #b42318;
+}
+
 @media (max-width: 1100px) {
   .journal-entry-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));

@@ -193,6 +193,27 @@ export async function findJournalPostingOptions(): Promise<JournalPostingOptions
   }
 }
 
+export async function deleteJournalEntry(entryId: string): Promise<void> {
+  const client = getSupabaseClient()
+
+  const { data: journal, error: findError } = await client
+    .from('journals')
+    .select('id')
+    .eq('source_type', 'single_line_entry')
+    .eq('source_id', entryId)
+    .maybeSingle()
+
+  if (findError) throw findError
+
+  if (journal) {
+    const { error: journalError } = await client.from('journals').delete().eq('id', journal.id)
+    if (journalError) throw journalError
+  }
+
+  const { error: entryError } = await client.from('entries').delete().eq('id', entryId)
+  if (entryError) throw entryError
+}
+
 export function subscribeToJournalChanges(onChange: () => void): () => void {
   return subscribeToTableChanges('journal', ['entries'], onChange)
 }
