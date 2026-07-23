@@ -39,27 +39,56 @@ jobs:
           fi
           echo "Credentials validated."
 
-      - name: Apply all pending migrations
+      - name: Ensure migration tracking table exists
         shell: bash
         run: |
           set -euo pipefail
           uri="$(printf '%s' "${DATABASE_URL}" | tr -d '\r\n')"
+          psql "${uri}" --set ON_ERROR_STOP=1 --command "
+            create table if not exists public._legacy_migrations (
+              filename  text primary key,
+              applied_at timestamptz not null default now()
+            );
+          "
 
-          for migration in supabase/migrations/*.sql; do
-            echo "Applying: ${migration}"
+      - name: Apply only new migrations
+        shell: bash
+        run: |
+          set -euo pipefail
+          uri="$(printf '%s' "${DATABASE_URL}" | tr -d '\r\n')"
+          applied=0
+
+          for migration in $(ls supabase/migrations/*.sql | sort); do
+            filename="$(basename "${migration}")"
+
+            already_applied=$(psql "${uri}" --tuples-only --no-align --command \
+              "select count(*) from public._legacy_migrations where filename = '${filename}';")
+
+            if [[ "${already_applied}" == "1" ]]; then
+              echo "Skipping (already applied): ${filename}"
+              continue
+            fi
+
+            echo "Applying: ${filename}"
             psql "${uri}" \
               --set ON_ERROR_STOP=1 \
               --single-transaction \
               --file "${migration}"
-            echo "Done: ${migration}"
+
+            psql "${uri}" --set ON_ERROR_STOP=1 --command \
+              "insert into public._legacy_migrations (filename) values ('${filename}');"
+
+            echo "Done: ${filename}"
+            applied=$((applied + 1))
           done
+
+          echo "Total migrations applied: ${applied}"
 
       - name: Verify schema health
         shell: bash
         run: |
           set -euo pipefail
           uri="$(printf '%s' "${DATABASE_URL}" | tr -d '\r\n')"
-
           psql "${uri}" --set ON_ERROR_STOP=1 --command "
             do \$verify\$
             declare
