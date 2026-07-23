@@ -1,0 +1,80 @@
+name: Deploy database migrations to production
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/**'
+      - '.github/workflows/deploy-migrations.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-database
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    name: Apply migrations to production
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    env:
+      DATABASE_URL: ${{ secrets.SUPABASE_DB_URL }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Validate database credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          uri="$(printf '%s' "${DATABASE_URL}" | tr -d '\r\n')"
+          if [[ "${uri}" != postgres://* && "${uri}" != postgresql://* ]]; then
+            echo "::error::SUPABASE_DB_URL must be a valid PostgreSQL URI."
+            exit 1
+          fi
+          echo "Credentials validated."
+
+      - name: Apply all pending migrations
+        shell: bash
+        run: |
+          set -euo pipefail
+          uri="$(printf '%s' "${DATABASE_URL}" | tr -d '\r\n')"
+
+          for migration in supabase/migrations/*.sql; do
+            echo "Applying: ${migration}"
+            psql "${uri}" \
+              --set ON_ERROR_STOP=1 \
+              --single-transaction \
+              --file "${migration}"
+            echo "Done: ${migration}"
+          done
+
+      - name: Verify schema health
+        shell: bash
+        run: |
+          set -euo pipefail
+          uri="$(printf '%s' "${DATABASE_URL}" | tr -d '\r\n')"
+
+          psql "${uri}" --set ON_ERROR_STOP=1 --command "
+            do \$verify\$
+            declare
+              tbl text;
+            begin
+              foreach tbl in array array['entries','journals','journal_lines','accounts','projects']
+              loop
+                if not exists (
+                  select 1 from information_schema.tables
+                  where table_schema = 'public' and table_name = tbl
+                ) then
+                  raise exception 'Required table missing: %', tbl;
+                end if;
+              end loop;
+              raise notice 'Schema health check passed.';
+            end
+            \$verify\$;
+          "
