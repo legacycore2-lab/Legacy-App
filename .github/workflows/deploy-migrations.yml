@@ -46,10 +46,45 @@ jobs:
           uri="$(printf '%s' "${DATABASE_URL}" | tr -d '\r\n')"
           psql "${uri}" --set ON_ERROR_STOP=1 --command "
             create table if not exists public._legacy_migrations (
-              filename  text primary key,
-              applied_at timestamptz not null default now()
+              filename    text primary key,
+              applied_at  timestamptz not null default now()
             );
           "
+
+      - name: Seed history for already-applied migrations
+        shell: bash
+        run: |
+          set -euo pipefail
+          uri="$(printf '%s' "${DATABASE_URL}" | tr -d '\r\n')"
+
+          # لو الجدول فاضل تماماً (أول مرة يشتغل الـ workflow)،
+          # نسجّل كل الـ migrations الموجودة ما عدا الأخير كـ applied
+          # عشان نفترض إن Production كان شغال صح قبل الـ workflow ده.
+
+          count=$(psql "${uri}" --tuples-only --no-align \
+            --command "select count(*) from public._legacy_migrations;")
+
+          if [[ "${count}" == "0" ]]; then
+            echo "First run — seeding migration history for existing migrations..."
+
+            # جمع كل الملفات مرتبة
+            all_files=($(ls supabase/migrations/*.sql | sort))
+            total=${#all_files[@]}
+
+            # سجّل كل حاجة ما عدا الأخير كـ applied
+            if [[ $total -gt 1 ]]; then
+              for ((i=0; i<total-1; i++)); do
+                filename="$(basename "${all_files[$i]}")"
+                psql "${uri}" --set ON_ERROR_STOP=1 --command \
+                  "insert into public._legacy_migrations (filename)
+                   values ('${filename}')
+                   on conflict (filename) do nothing;"
+                echo "Seeded: ${filename}"
+              done
+            fi
+          else
+            echo "Migration history exists (${count} records) — skipping seed."
+          fi
 
       - name: Apply only new migrations
         shell: bash
@@ -61,10 +96,10 @@ jobs:
           for migration in $(ls supabase/migrations/*.sql | sort); do
             filename="$(basename "${migration}")"
 
-            already_applied=$(psql "${uri}" --tuples-only --no-align --command \
+            already=$(psql "${uri}" --tuples-only --no-align --command \
               "select count(*) from public._legacy_migrations where filename = '${filename}';")
 
-            if [[ "${already_applied}" == "1" ]]; then
+            if [[ "${already}" == "1" ]]; then
               echo "Skipping (already applied): ${filename}"
               continue
             fi
@@ -82,7 +117,7 @@ jobs:
             applied=$((applied + 1))
           done
 
-          echo "Total migrations applied: ${applied}"
+          echo "Total new migrations applied: ${applied}"
 
       - name: Verify schema health
         shell: bash
