@@ -32,113 +32,87 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          uri="$(printf '%s' "${DATABASE_URL}" | tr -d '\r\n')"
-          if [[ "${uri}" != postgres://* && "${uri}" != postgresql://* ]]; then
+          if [[ "${DATABASE_URL}" != postgres://* && "${DATABASE_URL}" != postgresql://* ]]; then
             echo "::error::SUPABASE_DB_URL must be a valid PostgreSQL URI."
             exit 1
           fi
           echo "Credentials validated."
 
-      - name: Ensure migration tracking table exists
+      - name: Setup migration tracking and apply new migrations
         shell: bash
         run: |
           set -euo pipefail
-          uri="$(printf '%s' "${DATABASE_URL}" | tr -d '\r\n')"
-          psql "${uri}" --set ON_ERROR_STOP=1 --command "
+          DB="${DATABASE_URL}"
+
+          # 1. إنشاء جدول التتبع لو مش موجود
+          psql "${DB}" -c "
             create table if not exists public._legacy_migrations (
-              filename    text primary key,
-              applied_at  timestamptz not null default now()
+              filename   text primary key,
+              applied_at timestamptz not null default now()
             );
           "
 
-      - name: Seed history for already-applied migrations
-        shell: bash
-        run: |
-          set -euo pipefail
-          uri="$(printf '%s' "${DATABASE_URL}" | tr -d '\r\n')"
-
-          # لو الجدول فاضل تماماً (أول مرة يشتغل الـ workflow)،
-          # نسجّل كل الـ migrations الموجودة ما عدا الأخير كـ applied
-          # عشان نفترض إن Production كان شغال صح قبل الـ workflow ده.
-
-          count=$(psql "${uri}" --tuples-only --no-align \
-            --command "select count(*) from public._legacy_migrations;")
-
-          if [[ "${count}" == "0" ]]; then
-            echo "First run — seeding migration history for existing migrations..."
-
-            # جمع كل الملفات مرتبة
-            all_files=($(ls supabase/migrations/*.sql | sort))
-            total=${#all_files[@]}
-
-            # سجّل كل حاجة ما عدا الأخير كـ applied
-            if [[ $total -gt 1 ]]; then
-              for ((i=0; i<total-1; i++)); do
-                filename="$(basename "${all_files[$i]}")"
-                psql "${uri}" --set ON_ERROR_STOP=1 --command \
-                  "insert into public._legacy_migrations (filename)
-                   values ('${filename}')
-                   on conflict (filename) do nothing;"
-                echo "Seeded: ${filename}"
+          # 2. لو الجدول فاضل — سجّل كل الـ migrations القديمة (ما عدا الأخير) كـ applied
+          EXISTING=$(psql "${DB}" -t -A -c "select count(*) from public._legacy_migrations;")
+          if [[ "${EXISTING}" -eq 0 ]]; then
+            echo "First run — seeding existing migrations..."
+            ALL=($(ls supabase/migrations/*.sql | sort))
+            TOTAL=${#ALL[@]}
+            if [[ $TOTAL -gt 1 ]]; then
+              for ((i=0; i<TOTAL-1; i++)); do
+                FNAME="$(basename "${ALL[$i]}")"
+                psql "${DB}" -c "
+                  insert into public._legacy_migrations (filename)
+                  values ('${FNAME}')
+                  on conflict (filename) do nothing;
+                "
+                echo "Seeded: ${FNAME}"
               done
             fi
-          else
-            echo "Migration history exists (${count} records) — skipping seed."
           fi
 
-      - name: Apply only new migrations
-        shell: bash
-        run: |
-          set -euo pipefail
-          uri="$(printf '%s' "${DATABASE_URL}" | tr -d '\r\n')"
-          applied=0
-
-          for migration in $(ls supabase/migrations/*.sql | sort); do
-            filename="$(basename "${migration}")"
-
-            already=$(psql "${uri}" --tuples-only --no-align --command \
-              "select count(*) from public._legacy_migrations where filename = '${filename}';")
-
-            if [[ "${already}" == "1" ]]; then
-              echo "Skipping (already applied): ${filename}"
+          # 3. طبّق كل migration مش مسجّل
+          APPLIED=0
+          for MIGRATION in $(ls supabase/migrations/*.sql | sort); do
+            FNAME="$(basename "${MIGRATION}")"
+            IS_DONE=$(psql "${DB}" -t -A -c "
+              select exists(
+                select 1 from public._legacy_migrations where filename = '${FNAME}'
+              );
+            ")
+            if [[ "${IS_DONE}" == "t" ]]; then
+              echo "Skip: ${FNAME}"
               continue
             fi
-
-            echo "Applying: ${filename}"
-            psql "${uri}" \
-              --set ON_ERROR_STOP=1 \
-              --single-transaction \
-              --file "${migration}"
-
-            psql "${uri}" --set ON_ERROR_STOP=1 --command \
-              "insert into public._legacy_migrations (filename) values ('${filename}');"
-
-            echo "Done: ${filename}"
-            applied=$((applied + 1))
+            echo "Apply: ${FNAME}"
+            psql "${DB}" -v ON_ERROR_STOP=1 --single-transaction -f "${MIGRATION}"
+            psql "${DB}" -c "
+              insert into public._legacy_migrations (filename)
+              values ('${FNAME}')
+              on conflict (filename) do nothing;
+            "
+            echo "Done: ${FNAME}"
+            APPLIED=$((APPLIED + 1))
           done
-
-          echo "Total new migrations applied: ${applied}"
+          echo "New migrations applied: ${APPLIED}"
 
       - name: Verify schema health
         shell: bash
         run: |
           set -euo pipefail
-          uri="$(printf '%s' "${DATABASE_URL}" | tr -d '\r\n')"
-          psql "${uri}" --set ON_ERROR_STOP=1 --command "
-            do \$verify\$
-            declare
-              tbl text;
+          psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -c "
+            do \$\$
+            declare tbl text;
             begin
-              foreach tbl in array array['entries','journals','journal_lines','accounts','projects']
-              loop
+              foreach tbl in array array['entries','journals','journal_lines','accounts','projects'] loop
                 if not exists (
                   select 1 from information_schema.tables
                   where table_schema = 'public' and table_name = tbl
                 ) then
-                  raise exception 'Required table missing: %', tbl;
+                  raise exception 'Missing table: %', tbl;
                 end if;
               end loop;
-              raise notice 'Schema health check passed.';
+              raise notice 'Schema OK.';
             end
-            \$verify\$;
+            \$\$;
           "
