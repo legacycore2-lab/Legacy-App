@@ -24,82 +24,20 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
-      - name: Setup migration tracking and apply new migrations
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link Supabase project
+        run: supabase link --project-ref qsmlbjptgjtgjqvjosne
         env:
-          PGHOST: db.qsmlbjptgjtgjqvjosne.supabase.co
-          PGPORT: '5432'
-          PGDATABASE: postgres
-          PGUSER: postgres
-          PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-        shell: bash
-        run: |
-          set -euo pipefail
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
-          # 1. إنشاء جدول التتبع
-          psql -c "
-            create table if not exists public._legacy_migrations (
-              filename   text primary key,
-              applied_at timestamptz not null default now()
-            );
-          "
-
-          # 2. أول مرة — سجّل الـ migrations القديمة كـ applied
-          EXISTING=$(psql -t -A -c "select count(*) from public._legacy_migrations;")
-          if [[ "${EXISTING}" -eq 0 ]]; then
-            echo "First run — seeding existing migrations..."
-            ALL=($(ls supabase/migrations/*.sql | sort))
-            TOTAL=${#ALL[@]}
-            if [[ $TOTAL -gt 1 ]]; then
-              for ((i=0; i<TOTAL-1; i++)); do
-                FNAME="$(basename "${ALL[$i]}")"
-                psql -c "insert into public._legacy_migrations (filename) values ('${FNAME}') on conflict do nothing;"
-                echo "Seeded: ${FNAME}"
-              done
-            fi
-          fi
-
-          # 3. طبّق الجديد فقط
-          APPLIED=0
-          for MIGRATION in $(ls supabase/migrations/*.sql | sort); do
-            FNAME="$(basename "${MIGRATION}")"
-            IS_DONE=$(psql -t -A -c "select exists(select 1 from public._legacy_migrations where filename = '${FNAME}');")
-            if [[ "${IS_DONE}" == "t" ]]; then
-              echo "Skip: ${FNAME}"
-              continue
-            fi
-            echo "Apply: ${FNAME}"
-            psql -v ON_ERROR_STOP=1 --single-transaction -f "${MIGRATION}"
-            psql -c "insert into public._legacy_migrations (filename) values ('${FNAME}') on conflict do nothing;"
-            echo "Done: ${FNAME}"
-            APPLIED=$((APPLIED + 1))
-          done
-          echo "New migrations applied: ${APPLIED}"
-
-      - name: Verify schema health
+      - name: Apply migrations to production
+        run: supabase db push
         env:
-          PGHOST: db.qsmlbjptgjtgjqvjosne.supabase.co
-          PGPORT: '5432'
-          PGDATABASE: postgres
-          PGUSER: postgres
-          PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          psql -v ON_ERROR_STOP=1 -c "
-            do \$\$
-            declare tbl text;
-            begin
-              foreach tbl in array array['entries','journals','journal_lines','accounts','projects'] loop
-                if not exists (
-                  select 1 from information_schema.tables
-                  where table_schema = 'public' and table_name = tbl
-                ) then
-                  raise exception 'Missing table: %', tbl;
-                end if;
-              end loop;
-              raise notice 'Schema OK.';
-            end
-            \$\$;
-          "
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
