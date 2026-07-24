@@ -21,39 +21,32 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: production
-    env:
-      DATABASE_URL: ${{ secrets.SUPABASE_DB_URL }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Validate database credentials
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [[ "${DATABASE_URL}" != postgres://* && "${DATABASE_URL}" != postgresql://* ]]; then
-            echo "::error::SUPABASE_DB_URL must be a valid PostgreSQL URI."
-            exit 1
-          fi
-          echo "Credentials validated."
-
       - name: Setup migration tracking and apply new migrations
+        env:
+          PGHOST: db.qsmlbjptgjtgjqvjosne.supabase.co
+          PGPORT: "5432"
+          PGDATABASE: postgres
+          PGUSER: postgres
+          PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
         shell: bash
         run: |
           set -euo pipefail
-          DB="${DATABASE_URL}"
 
-          # 1. إنشاء جدول التتبع لو مش موجود
-          psql "${DB}" -c "
+          # 1. إنشاء جدول التتبع
+          psql -c "
             create table if not exists public._legacy_migrations (
               filename   text primary key,
               applied_at timestamptz not null default now()
             );
           "
 
-          # 2. لو الجدول فاضل — سجّل كل الـ migrations القديمة (ما عدا الأخير) كـ applied
-          EXISTING=$(psql "${DB}" -t -A -c "select count(*) from public._legacy_migrations;")
+          # 2. أول مرة — سجّل الـ migrations القديمة كـ applied
+          EXISTING=$(psql -t -A -c "select count(*) from public._legacy_migrations;")
           if [[ "${EXISTING}" -eq 0 ]]; then
             echo "First run — seeding existing migrations..."
             ALL=($(ls supabase/migrations/*.sql | sort))
@@ -61,46 +54,40 @@ jobs:
             if [[ $TOTAL -gt 1 ]]; then
               for ((i=0; i<TOTAL-1; i++)); do
                 FNAME="$(basename "${ALL[$i]}")"
-                psql "${DB}" -c "
-                  insert into public._legacy_migrations (filename)
-                  values ('${FNAME}')
-                  on conflict (filename) do nothing;
-                "
+                psql -c "insert into public._legacy_migrations (filename) values ('${FNAME}') on conflict do nothing;"
                 echo "Seeded: ${FNAME}"
               done
             fi
           fi
 
-          # 3. طبّق كل migration مش مسجّل
+          # 3. طبّق الجديد فقط
           APPLIED=0
           for MIGRATION in $(ls supabase/migrations/*.sql | sort); do
             FNAME="$(basename "${MIGRATION}")"
-            IS_DONE=$(psql "${DB}" -t -A -c "
-              select exists(
-                select 1 from public._legacy_migrations where filename = '${FNAME}'
-              );
-            ")
+            IS_DONE=$(psql -t -A -c "select exists(select 1 from public._legacy_migrations where filename = '${FNAME}');")
             if [[ "${IS_DONE}" == "t" ]]; then
               echo "Skip: ${FNAME}"
               continue
             fi
             echo "Apply: ${FNAME}"
-            psql "${DB}" -v ON_ERROR_STOP=1 --single-transaction -f "${MIGRATION}"
-            psql "${DB}" -c "
-              insert into public._legacy_migrations (filename)
-              values ('${FNAME}')
-              on conflict (filename) do nothing;
-            "
+            psql -v ON_ERROR_STOP=1 --single-transaction -f "${MIGRATION}"
+            psql -c "insert into public._legacy_migrations (filename) values ('${FNAME}') on conflict do nothing;"
             echo "Done: ${FNAME}"
             APPLIED=$((APPLIED + 1))
           done
           echo "New migrations applied: ${APPLIED}"
 
       - name: Verify schema health
+        env:
+          PGHOST: db.qsmlbjptgjtgjqvjosne.supabase.co
+          PGPORT: "5432"
+          PGDATABASE: postgres
+          PGUSER: postgres
+          PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
         shell: bash
         run: |
           set -euo pipefail
-          psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -c "
+          psql -v ON_ERROR_STOP=1 -c "
             do \$\$
             declare tbl text;
             begin
