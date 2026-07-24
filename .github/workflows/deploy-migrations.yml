@@ -29,7 +29,7 @@ jobs:
       - name: Setup migration tracking and apply new migrations
         env:
           PGHOST: db.qsmlbjptgjtgjqvjosne.supabase.co
-          PGPORT: "5432"
+          PGPORT: '5432'
           PGDATABASE: postgres
           PGUSER: postgres
           PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
@@ -80,7 +80,7 @@ jobs:
       - name: Verify schema health
         env:
           PGHOST: db.qsmlbjptgjtgjqvjosne.supabase.co
-          PGPORT: "5432"
+          PGPORT: '5432'
           PGDATABASE: postgres
           PGUSER: postgres
           PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
