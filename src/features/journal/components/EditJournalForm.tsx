@@ -80,10 +80,7 @@ export function EditJournalForm({ entry, onClose }: Props) {
           </label>
           <label>
             البند
-            <select
-              value={value.categoryAccountId}
-              onChange={(e) => selectCategoryAccount(e.target.value)}
-            >
+            <select value={value.categoryAccountId} onChange={(e) => selectCategoryAccount(e.target.value)}>
               <option value="">اختر الحساب</option>
               {categoryAccounts.map((a) => (
                 <option key={a.id} value={a.id}>
@@ -94,10 +91,7 @@ export function EditJournalForm({ entry, onClose }: Props) {
           </label>
           <label>
             الحساب المقابل
-            <select
-              value={value.paymentAccountId}
-              onChange={(e) => selectPaymentAccount(e.target.value)}
-            >
+            <select value={value.paymentAccountId} onChange={(e) => selectPaymentAccount(e.target.value)}>
               <option value="">اختر الحساب المقابل</option>
               {paymentAccounts.map((a) => (
                 <option key={a.id} value={a.id}>
