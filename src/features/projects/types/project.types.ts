@@ -52,7 +52,6 @@ export type ProjectRecord = {
   spent?: number | string | null
   start_date?: string | null
   end_date?: string | null
-  close_date?: string | null
   notes?: string | null
   is_archived?: boolean | null
   created_at?: string | null

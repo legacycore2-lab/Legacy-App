@@ -1,6 +1,19 @@
-import { findProjects, subscribeToProjectChanges } from '../repositories/projects.repository'
-import type { Project, ProjectRow, ProjectsSummary } from '../types/project.types'
+import {
+  findProjectById,
+  findProjectEntries,
+  findProjects,
+  subscribeToProjectChanges,
+} from '../repositories/projects.repository'
+import type {
+  Project,
+  ProjectDetails,
+  ProjectEntry,
+  ProjectFinancialSummary,
+  ProjectRow,
+  ProjectsSummary,
+} from '../types/project.types'
 import { mapProject } from './project.mapper'
+import type { ProjectEntryRecord } from '../repositories/projects.repository'
 
 export async function getProjects(): Promise<Project[]> {
   const records = await findProjects()
@@ -51,12 +64,7 @@ export function watchProjects(onChange: () => void): () => void {
   return subscribeToProjectChanges(onChange)
 }
 
-import { findProjectById, findProjectEntries } from '../repositories/projects.repository'
-import type { ProjectDetails, ProjectEntry, ProjectFinancialSummary } from '../types/project.types'
-
-function mapProjectEntry(
-  record: import('../repositories/projects.repository').ProjectEntryRecord,
-): ProjectEntry {
+function mapProjectEntry(record: ProjectEntryRecord): ProjectEntry {
   const amount = Number(record.amount)
   return {
     id: record.id,

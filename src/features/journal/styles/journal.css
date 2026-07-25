@@ -10,14 +10,14 @@
 }
 .journal-header span {
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--muted);
 }
 .journal-header h1 {
   margin: 4px 0 6px;
 }
 .journal-header p {
   margin: 0;
-  color: var(--text-muted);
+  color: var(--muted);
 }
 .journal-primary {
   display: inline-flex;
@@ -52,7 +52,7 @@
   grid-row: 1/3;
 }
 .journal-stats span {
-  color: var(--text-muted);
+  color: var(--muted);
   font-size: 13px;
 }
 .journal-stats strong {
@@ -108,7 +108,7 @@
 }
 .journal-table-wrap th {
   font-size: 12px;
-  color: var(--text-muted);
+  color: var(--muted);
 }
 .journal-state {
   min-height: 260px;
@@ -117,7 +117,7 @@
   align-content: center;
   gap: 8px;
   text-align: center;
-  color: var(--text-muted);
+  color: var(--muted);
   padding: 28px;
 }
 .journal-state h2,
@@ -148,7 +148,7 @@
   gap: 12px;
 }
 .journal-pagination span {
-  color: var(--text-muted);
+  color: var(--muted);
   font-size: 13px;
 }
 .journal-pagination button {
@@ -207,7 +207,7 @@
 }
 .journal-details-dialog header span,
 .journal-details-summary dt {
-  color: var(--text-muted);
+  color: var(--muted);
 }
 .journal-details-dialog header button {
   display: grid;
@@ -230,7 +230,7 @@
   display: grid;
   place-items: center;
   padding: 24px;
-  color: var(--text-muted);
+  color: var(--muted);
 }
 .journal-details-summary {
   display: grid;
@@ -271,7 +271,7 @@
 .journal-details-lines td small {
   display: block;
   margin-top: 3px;
-  color: var(--text-muted);
+  color: var(--muted);
 }
 .journal-details-lines tfoot th {
   background: var(--surface-soft);
