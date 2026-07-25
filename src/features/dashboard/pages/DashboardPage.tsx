@@ -14,10 +14,10 @@ export function DashboardPage() {
   if (!data) return <section className="dashboard-details">لا توجد بيانات متاحة.</section>
 
   return (
-    <section className="dashboard-details">
+    <section className="dashboard-details erp-viewport-page">
       <DashboardHeader summary={data.header} />
       <KpiGrid kpis={data.kpis} />
-      <div className="dashboard-primary-grid">
+      <div className="dashboard-primary-grid erp-scroll-region">
         <RecentProjects projects={data.projects} />
         <RecentEntries entries={data.entries} />
       </div>
