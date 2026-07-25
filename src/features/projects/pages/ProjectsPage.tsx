@@ -19,7 +19,7 @@ export function ProjectsPage() {
   const [importOpen, setImportOpen] = useState(false)
 
   return (
-    <section className="projects-page erp-viewport-page">
+    <section className="projects-page">
       <header className="projects-hero">
         <div>
           <span className="projects-hero__eyebrow">مركز إدارة المشاريع</span>
@@ -46,7 +46,7 @@ export function ProjectsPage() {
         </div>
         <small>{projectRows.length} مشروع</small>
       </div>
-      <div className="projects-results erp-scroll-region">
+      <div className="projects-results">
         {!isLoading && !error && projectRows.length > 0 ? (
           <ProjectsTable projects={projectRows} onEdit={projectCreate.edit} />
         ) : !isLoading && !error ? (

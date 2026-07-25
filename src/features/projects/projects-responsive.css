@@ -1,6 +1,10 @@
-.projects-page.erp-viewport-page {
+/* ─── Projects Responsive Overrides ─────────────────────────────────────────
+ * Overrides and additions on top of projects.css.
+ * No phantom classes — targets .projects-page directly.
+ */
+
+.projects-page {
   min-height: 0;
-  grid-template-rows: auto auto auto auto minmax(0, 1fr);
   gap: clamp(10px, 1.1vw, 16px);
 }
 
@@ -64,8 +68,9 @@
   min-width: 0;
   min-height: 0;
   flex: 1;
-  overflow: auto;
-  overscroll-behavior: contain;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .projects-page .projects-table thead th {
@@ -79,12 +84,15 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Currency cells — never clip */
 .projects-page .money-positive,
 .projects-page .money-negative {
   direction: ltr;
   unicode-bidi: isolate;
   white-space: nowrap;
 }
+
+/* ─── Container queries ──────────────────────────────────────────────────── */
 
 @container page (max-width: 1180px) {
   .projects-page .projects-stats {
@@ -93,12 +101,6 @@
 }
 
 @container page (max-width: 760px) {
-  .projects-page.erp-viewport-page {
-    display: grid;
-    min-height: auto;
-    grid-template-rows: none;
-  }
-
   .projects-page .projects-hero {
     align-items: stretch;
     flex-direction: column;
@@ -127,15 +129,16 @@
     flex: 1 1 180px;
   }
 
+  /* On tablet/mobile: natural page scroll, table scrolls horizontally only */
   .projects-page .projects-results,
-  .projects-page .projects-table-shell,
-  .projects-page .projects-table-scroll {
+  .projects-page .projects-table-shell {
     height: auto;
     overflow: visible;
   }
 
   .projects-page .projects-table-scroll {
     overflow-x: auto;
+    overflow-y: visible;
   }
 }
 
