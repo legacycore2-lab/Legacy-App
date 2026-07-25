@@ -73,3 +73,28 @@ export type ProjectInsertRecord = {
   notes: string | null
   is_archived: false
 }
+
+export type ProjectEntry = {
+  id: string
+  seq: number | null
+  entryDate: string
+  type: 'income' | 'expense'
+  category: string
+  description: string
+  contractor: string
+  paymentMethod: string
+  amount: number
+}
+
+export type ProjectFinancialSummary = {
+  totalIncome: number
+  totalExpense: number
+  balance: number
+  entryCount: number
+}
+
+export type ProjectDetails = {
+  project: Project
+  entries: ProjectEntry[]
+  summary: ProjectFinancialSummary
+}

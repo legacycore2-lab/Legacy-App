@@ -1,4 +1,5 @@
 import { Pencil } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import type { ProjectRow } from '../types/project.types'
 
 type Props = {
@@ -10,6 +11,8 @@ const money = new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 0 })
 const statusLabel = { active: 'مفتوح', completed: 'مكتمل', paused: 'متوقف', archived: 'مؤرشف' }
 
 export function ProjectsTable({ projects, onEdit }: Props) {
+  const navigate = useNavigate()
+
   return (
     <div className="projects-table-shell">
       <div className="projects-table-scroll">
@@ -29,7 +32,11 @@ export function ProjectsTable({ projects, onEdit }: Props) {
           <tbody>
             {projects.map((project) => {
               return (
-                <tr key={project.id}>
+                <tr
+                  key={project.id}
+                  className="projects-table-row--clickable"
+                  onClick={() => navigate(`/projects/${project.id}`)}
+                >
                   <td>
                     <strong>{project.name}</strong>
                     <small>{project.location}</small>
@@ -54,7 +61,14 @@ export function ProjectsTable({ projects, onEdit }: Props) {
                   </td>
                   <td>
                     <div className="table-actions">
-                      <button type="button" title="تعديل المشروع" onClick={() => onEdit(project)}>
+                      <button
+                        type="button"
+                        title="تعديل المشروع"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onEdit(project)
+                        }}
+                      >
                         <Pencil size={16} />
                       </button>
                     </div>
