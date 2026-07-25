@@ -1,11 +1,8 @@
-import { ArrowDownCircle, ArrowUpCircle, Eye, FileText, Pencil, Plus, Search, Trash2 } from 'lucide-react'
+import { ArrowDownCircle, ArrowUpCircle, Eye, FileText, Plus, Search } from 'lucide-react'
 import { useState } from 'react'
 import type { JournalEntry, JournalFilters, JournalSummary } from '../types/journal.types'
 import { SingleLineJournalForm } from './SingleLineJournalForm'
 import { JournalDetailsDialog } from './JournalDetailsDialog'
-import { EditJournalForm } from './EditJournalForm'
-import { DeleteConfirmDialog } from './DeleteConfirmDialog'
-import { useJournalActions } from '../hooks/useJournalActions'
 
 const currency = new Intl.NumberFormat('ar-EG')
 
@@ -38,20 +35,6 @@ export function JournalView({
 }: Props) {
   const [isEntryFormOpen, setIsEntryFormOpen] = useState(false)
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null)
-  const [editingEntry, setEditingEntry] = useState<JournalEntry | null>(null)
-  const [deletingEntry, setDeletingEntry] = useState<JournalEntry | null>(null)
-
-  const { deleteEntry, isDeleting, deleteError } = useJournalActions()
-
-  const handleDelete = async () => {
-    if (!deletingEntry) return
-    try {
-      await deleteEntry(deletingEntry.id)
-      setDeletingEntry(null)
-    } catch {
-      // deleteError يتعرض في الـ dialog
-    }
-  }
 
   return (
     <section className="journal-page">
@@ -67,19 +50,7 @@ export function JournalView({
       </header>
 
       {isEntryFormOpen && <SingleLineJournalForm onClose={() => setIsEntryFormOpen(false)} />}
-      {editingEntry && <EditJournalForm entry={editingEntry} onClose={() => setEditingEntry(null)} />}
-
       <JournalDetailsDialog entryId={selectedEntryId} onClose={() => setSelectedEntryId(null)} />
-
-      {deletingEntry && (
-        <DeleteConfirmDialog
-          entry={deletingEntry}
-          isDeleting={isDeleting}
-          error={deleteError}
-          onConfirm={handleDelete}
-          onCancel={() => setDeletingEntry(null)}
-        />
-      )}
 
       <div className="journal-stats">
         <article>
@@ -109,13 +80,15 @@ export function JournalView({
           <Search size={17} />
           <input
             value={filters.query}
-            onChange={(e) => onFiltersChange({ ...filters, query: e.target.value })}
+            onChange={(event) => onFiltersChange({ ...filters, query: event.target.value })}
             placeholder="ابحث بالكود أو البند أو البيان أو المقاول..."
           />
         </label>
         <select
           value={filters.type}
-          onChange={(e) => onFiltersChange({ ...filters, type: e.target.value as JournalFilters['type'] })}
+          onChange={(event) =>
+            onFiltersChange({ ...filters, type: event.target.value as JournalFilters['type'] })
+          }
         >
           <option value="all">كل الحركات</option>
           <option value="income">إيرادات</option>
@@ -146,7 +119,7 @@ export function JournalView({
                 <th>المقاول</th>
                 <th>طريقة الدفع</th>
                 <th>المبلغ</th>
-                <th>الإجراءات</th>
+                <th>التفاصيل</th>
               </tr>
             </thead>
             <tbody>
@@ -166,32 +139,14 @@ export function JournalView({
                   <td>{entry.paymentMethod || '—'}</td>
                   <td>{currency.format(entry.amount)} ج.م</td>
                   <td>
-                    <div className="journal-actions">
-                      <button
-                        type="button"
-                        className="journal-view-button"
-                        onClick={() => setSelectedEntryId(entry.id)}
-                        title="عرض تفاصيل القيد"
-                      >
-                        <Eye size={15} />
-                      </button>
-                      <button
-                        type="button"
-                        className="journal-view-button"
-                        onClick={() => setEditingEntry(entry)}
-                        title="تعديل القيد"
-                      >
-                        <Pencil size={15} />
-                      </button>
-                      <button
-                        type="button"
-                        className="journal-view-button journal-delete-button"
-                        onClick={() => setDeletingEntry(entry)}
-                        title="حذف القيد"
-                      >
-                        <Trash2 size={15} />
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      className="journal-view-button"
+                      onClick={() => setSelectedEntryId(entry.id)}
+                      title="عرض تفاصيل القيد"
+                    >
+                      <Eye size={16} /> عرض
+                    </button>
                   </td>
                 </tr>
               ))}
