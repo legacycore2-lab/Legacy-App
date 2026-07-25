@@ -31,9 +31,9 @@ function entryToInput(entry: JournalEntry): SingleLineJournalInput {
 export function useEditJournalForm(entry: JournalEntry) {
   const queryClient = useQueryClient()
   const submissionInProgressRef = useRef(false)
+  const idsResolvedRef = useRef(false)
   const [value, setValue] = useState<SingleLineJournalInput>(() => entryToInput(entry))
   const [submitted, setSubmitted] = useState(false)
-  const [optionsLoaded, setOptionsLoaded] = useState(false)
 
   const optionsQuery = useQuery({
     queryKey: ['journal', 'posting-options'],
@@ -49,27 +49,33 @@ export function useEditJournalForm(entry: JournalEntry) {
     [queryClient],
   )
 
-  // ربط الـ IDs بالأسماء بعد تحميل الـ options — مرة واحدة فقط
+  // ربط الـ IDs بالأسماء بعد تحميل الـ options — مرة واحدة فقط بدون state إضافية
+  const options = optionsQuery.data
   useEffect(() => {
-    if (!optionsQuery.data || optionsLoaded) return
-    setOptionsLoaded(true)
-    const { projects, accounts } = optionsQuery.data
-    const matchedProject = projects.find((p) => p.name === entry.projectName)
-    const matchedCategory = accounts.find(
+    if (!options || idsResolvedRef.current) return
+    idsResolvedRef.current = true
+    const matchedProject = options.projects.find((p) => p.name === entry.projectName)
+    const matchedCategory = options.accounts.find(
       (a) => a.name === entry.category || `${a.code} - ${a.name}` === entry.category,
     )
-    const matchedPayment = accounts.find(
+    const matchedPayment = options.accounts.find(
       (a) => a.name === entry.paymentMethod || `${a.code} - ${a.name}` === entry.paymentMethod,
     )
-    if (matchedProject || matchedCategory || matchedPayment) {
+    const patch = {
+      projectId: matchedProject?.id,
+      categoryAccountId: matchedCategory?.id,
+      paymentAccountId: matchedPayment?.id,
+    }
+    const hasPatch = Object.values(patch).some(Boolean)
+    if (hasPatch) {
       setValue((current) => ({
         ...current,
-        projectId: matchedProject?.id ?? current.projectId,
-        categoryAccountId: matchedCategory?.id ?? current.categoryAccountId,
-        paymentAccountId: matchedPayment?.id ?? current.paymentAccountId,
+        ...(patch.projectId ? { projectId: patch.projectId } : {}),
+        ...(patch.categoryAccountId ? { categoryAccountId: patch.categoryAccountId } : {}),
+        ...(patch.paymentAccountId ? { paymentAccountId: patch.paymentAccountId } : {}),
       }))
     }
-  }, [optionsQuery.data, optionsLoaded, entry])
+  }, [options, entry])
 
   const errors = useMemo(() => validateSingleLineEntry(value), [value])
   const preview = useMemo(() => buildJournalPreview(value), [value])
@@ -89,13 +95,11 @@ export function useEditJournalForm(entry: JournalEntry) {
     nextValue: SingleLineJournalInput[K],
   ) => setValue((current) => ({ ...current, [key]: nextValue }))
 
-  const projects = optionsQuery.data?.projects ?? []
-  const categoryAccounts = (optionsQuery.data?.accounts ?? []).filter((a) =>
+  const projects = options?.projects ?? []
+  const categoryAccounts = (options?.accounts ?? []).filter((a) =>
     value.type === 'expense' ? a.accountType === 'expense' : a.accountType === 'revenue',
   )
-  const paymentAccounts = (optionsQuery.data?.accounts ?? []).filter(
-    (a) => a.accountType === 'asset',
-  )
+  const paymentAccounts = (options?.accounts ?? []).filter((a) => a.accountType === 'asset')
 
   const selectProject = (id: string) => {
     const project = projects.find((p) => p.id === id)
