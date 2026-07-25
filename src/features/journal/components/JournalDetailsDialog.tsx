@@ -1,27 +1,25 @@
 import { AlertTriangle, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
-import { useAuth } from '../../auth/hooks/useAuth'
 import { useJournalActions } from '../hooks/useJournalActions'
 import { useJournalDetails } from '../hooks/useJournalDetails'
 
 type Props = {
   entryId: string | null
   onClose: () => void
+  isAdmin?: boolean
 }
 
 const money = new Intl.NumberFormat('ar-EG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 const statusLabel = { draft: 'مسودة', posted: 'مرحّل', reversed: 'معكوس' }
 
-export function JournalDetailsDialog({ entryId, onClose }: Props) {
+export function JournalDetailsDialog({ entryId, onClose, isAdmin = false }: Props) {
   const { details, isLoading, error } = useJournalDetails(entryId)
-  const { user } = useAuth()
   const { forceDeleteEntry, isForceDeleting, forceDeleteError } = useJournalActions()
 
   const [showConfirm, setShowConfirm] = useState(false)
   const [reason, setReason] = useState('')
   const [confirmText, setConfirmText] = useState('')
 
-  const isAdmin = user?.role === 'admin' || user?.role === 'super_admin'
   const canDelete = confirmText === 'DELETE' && reason.trim().length >= 5 && !isForceDeleting
 
   const handleForceDelete = async () => {
