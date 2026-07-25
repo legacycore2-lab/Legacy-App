@@ -1,150 +1,70 @@
-import { getSupabaseClient } from '../../../lib/supabase/client'
-import { subscribeToTableChanges } from '../../../lib/supabase/realtime'
+import { getSupabaseClient } from '../../../shared/supabase/client'
+import { subscribeToTableChanges } from '../../../shared/supabase/realtime'
+import type { SingleLineJournalInput } from '../types/journal-entry.types'
 import type {
-  JournalPostingAccountOption,
+  JournalDetailsRecord,
+  JournalEntryRecord,
+  JournalPageResult,
   JournalPostingOptions,
-  JournalPostingProjectOption,
-  SingleLineJournalInput,
-} from '../types/journal-entry.types'
+  PostingAccountRecord,
+  PostingProjectRecord,
+} from '../types/journal.repository.types'
 
-export type JournalEntryRecord = {
-  id: string
-  seq: number | null
-  entry_date: string
-  type: string
-  category: string | null
-  description: string | null
-  contractor: string | null
-  payment_method: string | null
-  amount: number | string
-  project: { name: string } | { name: string }[] | null
-}
+export async function findJournalEntries(
+  query: string,
+  type: string,
+  page: number,
+  pageSize: number,
+  projectId?: string,
+): Promise<JournalPageResult> {
+  const client = getSupabaseClient()
+  const offset = (page - 1) * pageSize
 
-export type JournalEntriesQuery = {
-  offset: number
-  limit: number
-  query: string
-  type: 'all' | 'income' | 'expense'
-}
-
-export type JournalEntriesResult = {
-  records: JournalEntryRecord[]
-  totalCount: number
-}
-
-export type JournalDetailsRecord = {
-  id: string
-  journal_number: number | string
-  journal_date: string
-  description: string
-  status: string
-  created_at: string
-  posted_at: string | null
-  project: { name: string } | { name: string }[] | null
-  lines:
-    | {
-        id: string
-        line_number: number
-        description: string | null
-        debit: number | string
-        credit: number | string
-        account: { code: string; name_ar: string } | { code: string; name_ar: string }[] | null
-      }[]
-    | null
-}
-
-type PostingProjectRecord = JournalPostingProjectOption
-
-type PostingAccountRecord = {
-  id: string
-  code: string
-  name_ar: string
-  account_type: JournalPostingAccountOption['accountType']
-}
-
-function normalizeSearch(value: string): string {
-  return value
-    .replace(/[(),%_]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
-
-export async function findJournalEntries(query: JournalEntriesQuery): Promise<JournalEntriesResult> {
-  let request = getSupabaseClient()
+  let request = client
     .from('entries')
     .select(
-      `
-      id,
-      seq:entry_number,
-      entry_date,
-      type:entry_type,
-      category,
-      description,
-      contractor:contractor_name,
-      payment_method,
-      amount,
-        project:projects(name)
-      `,
+      'id, entry_number, entry_date, entry_type, category, description, contractor_name, payment_method, amount, project_id, projects(name)',
       { count: 'exact' },
     )
     .order('entry_date', { ascending: false })
     .order('entry_number', { ascending: false })
-    .range(query.offset, query.offset + query.limit - 1)
+    .range(offset, offset + pageSize - 1)
 
-  if (query.type !== 'all') request = request.eq('entry_type', query.type)
-
-  const search = normalizeSearch(query.query)
-  if (search) {
-    const pattern = `%${search}%`
+  if (projectId) request = request.eq('project_id', projectId)
+  if (type && type !== 'all') request = request.eq('entry_type', type)
+  if (query) {
+    const normalized = query.trim().replaceAll(',', ' ')
     request = request.or(
-      `description.ilike.${pattern},category.ilike.${pattern},contractor_name.ilike.${pattern},payment_method.ilike.${pattern},entry_code.ilike.${pattern}`,
+      `description.ilike.%${normalized}%,category.ilike.%${normalized}%,contractor_name.ilike.%${normalized}%,payment_method.ilike.%${normalized}%,entry_code.ilike.%${normalized}%`,
     )
   }
 
   const { data, error, count } = await request
-
   if (error) throw error
+
   return {
     records: (data ?? []) as JournalEntryRecord[],
-    totalCount: count ?? 0,
+    count: count ?? 0,
   }
 }
 
 export async function findJournalDetails(entryId: string): Promise<JournalDetailsRecord | null> {
-  const { data, error } = await getSupabaseClient()
+  const client = getSupabaseClient()
+  const { data, error } = await client
     .from('journals')
     .select(
-      `
-      id,
-      journal_number,
-      journal_date,
-      description,
-      status,
-      created_at,
-      posted_at,
-      project:projects(name),
-      lines:journal_lines(
-        id,
-        line_number,
-        description,
-        debit,
-        credit,
-        account:accounts(code,name_ar)
-      )
-      `,
+      'id, journal_number, journal_date, description, status, project_id, projects(name), journal_lines(id, line_number, account_id, debit, credit, accounts(code, name_ar))',
     )
     .eq('source_type', 'single_line_entry')
     .eq('source_id', entryId)
-    .order('line_number', { referencedTable: 'journal_lines', ascending: true })
     .maybeSingle()
 
   if (error) throw error
-  return data as unknown as JournalDetailsRecord | null
+  return data as JournalDetailsRecord | null
 }
 
 export async function postSingleLineEntry(input: SingleLineJournalInput): Promise<string> {
   const { data, error } = await getSupabaseClient().rpc('post_single_line_entry', {
-    p_client_request_id: input.requestId,
     p_entry_date: input.entryDate,
     p_project_id: input.projectId,
     p_entry_type: input.type,
@@ -154,26 +74,15 @@ export async function postSingleLineEntry(input: SingleLineJournalInput): Promis
     p_payment_account_id: input.paymentAccountId,
     p_amount: Number(input.amount),
   })
-
   if (error) throw error
-  if (typeof data !== 'string') {
-    throw new Error('Supabase did not return the posted entry identifier.')
-  }
-
-  return data
+  return data as string
 }
 
 export async function findJournalPostingOptions(): Promise<JournalPostingOptions> {
   const client = getSupabaseClient()
   const [projectsResult, accountsResult] = await Promise.all([
-    client.from('projects').select('id,name').eq('is_archived', false).order('name'),
-    client
-      .from('accounts')
-      .select('id,code,name_ar,account_type')
-      .eq('is_active', true)
-      .eq('is_postable', true)
-      .in('account_type', ['asset', 'revenue', 'expense'])
-      .order('code'),
+    client.from('projects').select('id, name').order('name'),
+    client.from('accounts').select('id, code, name_ar, account_type').eq('is_active', true).order('code'),
   ])
 
   if (projectsResult.error) throw projectsResult.error
@@ -204,6 +113,14 @@ export function subscribeToJournalPostingOptionChanges(onChange: () => void): ()
 export async function deleteJournalEntry(entryId: string): Promise<void> {
   const { error } = await getSupabaseClient().rpc('delete_single_line_entry', {
     p_entry_id: entryId,
+  })
+  if (error) throw error
+}
+
+export async function forceDeleteJournalEntry(entryId: string, reason: string): Promise<void> {
+  const { error } = await getSupabaseClient().rpc('force_delete_single_line_entry', {
+    p_entry_id: entryId,
+    p_reason: reason,
   })
   if (error) throw error
 }
