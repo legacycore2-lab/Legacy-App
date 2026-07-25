@@ -1,0 +1,169 @@
+:root {
+  --app-sidebar-width: clamp(224px, 16vw, 264px);
+  --app-top-gap: clamp(10px, 1vw, 16px);
+  --app-page-gap: clamp(10px, 1vw, 16px);
+  --app-page-padding-inline: clamp(10px, 1.25vw, 20px);
+  --app-page-padding-block: clamp(10px, 1vw, 16px);
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+}
+
+@media (min-width: 901px) {
+  html,
+  body,
+  #root {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .app-layout {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+    grid-template-columns: minmax(0, 1fr) var(--app-sidebar-width);
+  }
+
+  .sidebar {
+    width: var(--app-sidebar-width);
+  }
+
+  .app-main {
+    min-height: 0;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: var(--app-page-padding-block) var(--app-page-padding-inline);
+  }
+
+  .app-main > header,
+  .app-main > .topbar {
+    flex: 0 0 auto;
+  }
+
+  .page-content {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding-top: var(--app-top-gap);
+    padding-bottom: var(--app-page-padding-block);
+    scrollbar-gutter: stable;
+  }
+
+  .page-content > * {
+    min-width: 0;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1280px) {
+  :root {
+    --app-sidebar-width: 88px;
+  }
+}
+
+@media (max-width: 900px) {
+  html,
+  body,
+  #root {
+    min-height: 100%;
+    overflow-x: clip;
+    overflow-y: auto;
+  }
+
+  .app-layout,
+  .app-main {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  .app-main {
+    width: 100%;
+    overflow: visible;
+  }
+
+  .page-content {
+    width: 100%;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --app-page-padding-inline: 8px;
+    --app-page-padding-block: 8px;
+    --app-top-gap: 8px;
+  }
+}
+
+/* Shared responsive primitives for current and future ERP pages. */
+.erp-viewport-page {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-page-gap);
+}
+
+.erp-responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: var(--app-page-gap);
+}
+
+.erp-scroll-region {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.erp-table-shell {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+}
+
+.erp-table-scroll {
+  min-width: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.erp-table-scroll table {
+  width: 100%;
+}
+
+.erp-table-scroll thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.erp-money-value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+  unicode-bidi: isolate;
+}
+
+@media (max-width: 720px) {
+  .erp-responsive-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .erp-responsive-grid {
+    grid-template-columns: 1fr;
+  }
+}
