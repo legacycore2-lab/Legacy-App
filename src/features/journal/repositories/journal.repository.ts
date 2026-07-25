@@ -200,3 +200,11 @@ export function subscribeToJournalChanges(onChange: () => void): () => void {
 export function subscribeToJournalPostingOptionChanges(onChange: () => void): () => void {
   return subscribeToTableChanges('journal-options', ['projects', 'accounts'], onChange)
 }
+
+export async function forceDeleteJournalEntry(entryId: string, reason: string): Promise<void> {
+  const { error } = await getSupabaseClient().rpc('force_delete_single_line_entry', {
+    p_entry_id: entryId,
+    p_reason: reason.trim(),
+  })
+  if (error) throw error
+}
