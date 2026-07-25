@@ -41,12 +41,6 @@ function CurrencyValue({ value }: { value: number }) {
   )
 }
 
-const embeddedMetaStyle: CSSProperties = {
-  marginTop: '0.7rem',
-  paddingInlineStart: 0,
-  gap: '0.75rem 1.25rem',
-}
-
 export function ProjectDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -86,7 +80,7 @@ export function ProjectDetailsPage() {
                 {project.code || 'بدون كود'} · {project.client || 'بدون عميل'}
               </p>
 
-              <div className="project-v2-hero__meta" style={embeddedMetaStyle}>
+              <div className="project-v2-hero__meta">
                 <span>
                   <MapPin size={15} />
                   {project.location || 'الموقع غير محدد'}
