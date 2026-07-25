@@ -1,5 +1,6 @@
 import { ArrowDownCircle, ArrowUpCircle, Eye, FileText, Plus, Search } from 'lucide-react'
 import { useState } from 'react'
+import { useJournalPermissions } from '../hooks/useJournalPermissions'
 import type { JournalEntry, JournalFilters, JournalSummary } from '../types/journal.types'
 import { SingleLineJournalForm } from './SingleLineJournalForm'
 import { JournalDetailsDialog } from './JournalDetailsDialog'
@@ -33,6 +34,7 @@ export function JournalView({
   isRefreshing,
   error,
 }: Props) {
+  const { canForceDelete } = useJournalPermissions()
   const [isEntryFormOpen, setIsEntryFormOpen] = useState(false)
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null)
 
@@ -50,7 +52,11 @@ export function JournalView({
       </header>
 
       {isEntryFormOpen && <SingleLineJournalForm onClose={() => setIsEntryFormOpen(false)} />}
-      <JournalDetailsDialog entryId={selectedEntryId} onClose={() => setSelectedEntryId(null)} />
+      <JournalDetailsDialog
+        entryId={selectedEntryId}
+        onClose={() => setSelectedEntryId(null)}
+        isAdmin={canForceDelete}
+      />
 
       <div className="journal-stats">
         <article>

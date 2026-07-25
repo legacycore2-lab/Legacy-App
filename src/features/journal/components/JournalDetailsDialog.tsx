@@ -1,16 +1,43 @@
-import { X } from 'lucide-react'
+import { AlertTriangle, Trash2, X } from 'lucide-react'
+import { useState } from 'react'
+import { useJournalActions } from '../hooks/useJournalActions'
 import { useJournalDetails } from '../hooks/useJournalDetails'
 
 type Props = {
   entryId: string | null
   onClose: () => void
+  isAdmin?: boolean
 }
 
 const money = new Intl.NumberFormat('ar-EG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 const statusLabel = { draft: 'مسودة', posted: 'مرحّل', reversed: 'معكوس' }
 
-export function JournalDetailsDialog({ entryId, onClose }: Props) {
+export function JournalDetailsDialog({ entryId, onClose, isAdmin = false }: Props) {
   const { details, isLoading, error } = useJournalDetails(entryId)
+  const { forceDeleteEntry, isForceDeleting, forceDeleteError } = useJournalActions()
+
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [reason, setReason] = useState('')
+  const [confirmText, setConfirmText] = useState('')
+
+  const canDelete = confirmText === 'DELETE' && reason.trim().length >= 5 && !isForceDeleting
+
+  const handleForceDelete = async () => {
+    if (!entryId || !canDelete) return
+    try {
+      await forceDeleteEntry(entryId, reason)
+      onClose()
+    } catch {
+      // error shown in UI
+    }
+  }
+
+  const resetConfirm = () => {
+    setShowConfirm(false)
+    setReason('')
+    setConfirmText('')
+  }
+
   if (!entryId) return null
 
   return (
@@ -31,7 +58,8 @@ export function JournalDetailsDialog({ entryId, onClose }: Props) {
         {!isLoading && !error && !details && (
           <div className="journal-details-state">هذا قيد قديم ولا توجد له تفاصيل محاسبية مرتبطة.</div>
         )}
-        {details && (
+
+        {details && !showConfirm && (
           <div className="journal-details-content">
             <dl className="journal-details-summary">
               <div>
@@ -81,6 +109,75 @@ export function JournalDetailsDialog({ entryId, onClose }: Props) {
                   </tr>
                 </tfoot>
               </table>
+            </div>
+
+            {isAdmin && (
+              <div className="journal-details-admin-actions">
+                <button
+                  type="button"
+                  className="journal-force-delete-btn"
+                  onClick={() => setShowConfirm(true)}
+                >
+                  <Trash2 size={15} />
+                  حذف نهائي
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {details && showConfirm && (
+          <div className="journal-force-delete-panel">
+            <div className="journal-force-delete-warning">
+              <AlertTriangle size={22} />
+              <p>
+                هذا الإجراء <strong>لا يمكن التراجع عنه</strong>. سيُحذف القيد وقيده اليومي نهائيًا ويُسجَّل
+                في سجل المراجعة.
+              </p>
+            </div>
+
+            <label className="journal-force-delete-label">
+              سبب الحذف <span>(5 أحرف على الأقل)</span>
+              <textarea
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder="اكتب سبب الحذف..."
+                rows={3}
+                disabled={isForceDeleting}
+              />
+            </label>
+
+            <label className="journal-force-delete-label">
+              تأكيد الحذف — اكتب <strong>DELETE</strong>
+              <input
+                value={confirmText}
+                onChange={(e) => setConfirmText(e.target.value)}
+                placeholder="DELETE"
+                disabled={isForceDeleting}
+                dir="ltr"
+              />
+            </label>
+
+            {forceDeleteError && <div className="journal-force-delete-error">{forceDeleteError}</div>}
+
+            <div className="journal-force-delete-footer">
+              <button
+                type="button"
+                className="journal-force-delete-cancel"
+                onClick={resetConfirm}
+                disabled={isForceDeleting}
+              >
+                إلغاء
+              </button>
+              <button
+                type="button"
+                className="journal-force-delete-confirm"
+                onClick={handleForceDelete}
+                disabled={!canDelete}
+              >
+                <Trash2 size={15} />
+                {isForceDeleting ? 'جارٍ الحذف...' : 'تأكيد الحذف النهائي'}
+              </button>
             </div>
           </div>
         )}
