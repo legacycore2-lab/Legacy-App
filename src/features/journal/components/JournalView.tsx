@@ -55,7 +55,7 @@ export function JournalView({
       <JournalDetailsDialog
         entryId={selectedEntryId}
         onClose={() => setSelectedEntryId(null)}
-        isAdmin={isAdmin}
+        isAdmin={canForceDelete}
       />
 
       <div className="journal-stats">
