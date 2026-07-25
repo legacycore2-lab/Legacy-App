@@ -16,5 +16,15 @@ export class DataValidationError extends AppError {
 }
 
 export function toErrorMessage(error: unknown, fallback: string): string {
-  return error instanceof AppError ? error.message : fallback
+  if (error instanceof AppError) return error.message
+  if (error instanceof Error) return error.message
+  if (
+    error !== null &&
+    typeof error === 'object' &&
+    'message' in error &&
+    typeof (error as Record<string, unknown>)['message'] === 'string'
+  ) {
+    return (error as Record<string, unknown>)['message'] as string
+  }
+  return fallback
 }
