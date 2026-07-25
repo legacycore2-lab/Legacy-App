@@ -1,4 +1,6 @@
-import { X } from 'lucide-react'
+import { Trash2, X } from 'lucide-react'
+import { useState } from 'react'
+import { useJournalActions } from '../hooks/useJournalActions'
 import { useJournalDetails } from '../hooks/useJournalDetails'
 
 type Props = {
@@ -11,7 +13,20 @@ const statusLabel = { draft: 'مسودة', posted: 'مرحّل', reversed: 'مع
 
 export function JournalDetailsDialog({ entryId, onClose }: Props) {
   const { details, isLoading, error } = useJournalDetails(entryId)
+  const { forceDeleteEntry, isForceDeleting, forceDeleteError } = useJournalActions()
+  const [showForceDelete, setShowForceDelete] = useState(false)
+  const [confirmation, setConfirmation] = useState('')
+  const [reason, setReason] = useState('')
+
   if (!entryId) return null
+
+  const canSubmitForceDelete = confirmation === 'DELETE' && reason.trim().length >= 5 && !isForceDeleting
+
+  const handleForceDelete = async () => {
+    if (!canSubmitForceDelete) return
+    await forceDeleteEntry(entryId, reason)
+    onClose()
+  }
 
   return (
     <div className="journal-details-backdrop" role="presentation">
@@ -82,6 +97,69 @@ export function JournalDetailsDialog({ entryId, onClose }: Props) {
                 </tfoot>
               </table>
             </div>
+
+            {!showForceDelete && (
+              <div className="journal-danger-actions">
+                <button type="button" className="journal-force-delete-button" onClick={() => setShowForceDelete(true)}>
+                  <Trash2 size={16} />
+                  حذف نهائي
+                </button>
+              </div>
+            )}
+
+            {showForceDelete && (
+              <div className="journal-force-delete-panel" aria-label="تأكيد الحذف النهائي">
+                <strong>تحذير: سيتم حذف القيد وكل سطوره المحاسبية نهائيًا.</strong>
+                <p>هذه العملية مخصصة للمدير فقط، ولا يمكن التراجع عنها. ستُحفظ نسخة من القيد في سجل المراجعة.</p>
+
+                <label>
+                  سبب الحذف
+                  <textarea
+                    value={reason}
+                    onChange={(event) => setReason(event.target.value)}
+                    placeholder="اكتب سببًا واضحًا للحذف النهائي"
+                    rows={3}
+                    disabled={isForceDeleting}
+                  />
+                </label>
+
+                <label>
+                  اكتب DELETE للتأكيد
+                  <input
+                    value={confirmation}
+                    onChange={(event) => setConfirmation(event.target.value)}
+                    autoComplete="off"
+                    disabled={isForceDeleting}
+                  />
+                </label>
+
+                {forceDeleteError && <div className="journal-entry-errors">{forceDeleteError}</div>}
+
+                <div className="journal-force-delete-actions">
+                  <button
+                    type="button"
+                    className="journal-secondary"
+                    onClick={() => {
+                      setShowForceDelete(false)
+                      setConfirmation('')
+                      setReason('')
+                    }}
+                    disabled={isForceDeleting}
+                  >
+                    إلغاء
+                  </button>
+                  <button
+                    type="button"
+                    className="journal-force-delete-confirm"
+                    onClick={handleForceDelete}
+                    disabled={!canSubmitForceDelete}
+                  >
+                    <Trash2 size={16} />
+                    {isForceDeleting ? 'جارٍ الحذف النهائي...' : 'تأكيد الحذف النهائي'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </section>
