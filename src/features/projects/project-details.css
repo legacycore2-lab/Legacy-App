@@ -57,7 +57,9 @@
   height: 14rem;
   border: 1px solid rgb(255 255 255 / 9%);
   border-radius: 50%;
-  box-shadow: 0 0 0 2.5rem rgb(255 255 255 / 3%), 0 0 0 5rem rgb(255 255 255 / 2%);
+  box-shadow:
+    0 0 0 2.5rem rgb(255 255 255 / 3%),
+    0 0 0 5rem rgb(255 255 255 / 2%);
 }
 
 .project-v2-hero__content,

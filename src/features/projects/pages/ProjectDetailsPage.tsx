@@ -5,7 +5,7 @@ import {
   Building2,
   CalendarDays,
   CircleDollarSign,
-  FileBarChart3,
+  FileBarChart,
   FileText,
   MapPin,
   Plus,
@@ -66,11 +66,7 @@ export function ProjectDetailsPage() {
 
   return (
     <section className="project-v2-page">
-      <button
-        type="button"
-        className="project-v2-back"
-        onClick={() => navigate('/projects')}
-      >
+      <button type="button" className="project-v2-back" onClick={() => navigate('/projects')}>
         <ArrowRight size={16} />
         العودة إلى المشاريع
       </button>
@@ -96,7 +92,7 @@ export function ProjectDetailsPage() {
 
           <div className="project-v2-actions">
             <button type="button" className="project-v2-action project-v2-action--ghost">
-              <FileBarChart3 size={17} />
+              <FileBarChart size={17} />
               تقرير المشروع
             </button>
             <button
@@ -167,9 +163,7 @@ export function ProjectDetailsPage() {
 
             <article
               className={`project-v2-kpi ${
-                summary.balance >= 0
-                  ? 'project-v2-kpi--balance'
-                  : 'project-v2-kpi--expense'
+                summary.balance >= 0 ? 'project-v2-kpi--balance' : 'project-v2-kpi--expense'
               }`}
             >
               <span className="project-v2-kpi__icon">
@@ -254,25 +248,17 @@ export function ProjectDetailsPage() {
                   <tbody>
                     {entries.map((entry) => (
                       <tr key={entry.id}>
-                        <td className="project-v2-number">
-                          {entry.seq ? `#${entry.seq}` : '—'}
-                        </td>
+                        <td className="project-v2-number">{entry.seq ? `#${entry.seq}` : '—'}</td>
                         <td dir="ltr">{entry.entryDate}</td>
                         <td>
-                          <span
-                            className={`project-v2-badge project-v2-badge--${entry.type}`}
-                          >
+                          <span className={`project-v2-badge project-v2-badge--${entry.type}`}>
                             {entry.type === 'income' ? 'إيراد' : 'مصروف'}
                           </span>
                         </td>
                         <td>{entry.category || '—'}</td>
-                        <td className="project-v2-description">
-                          {entry.description || '—'}
-                        </td>
+                        <td className="project-v2-description">{entry.description || '—'}</td>
                         <td>{entry.contractor || '—'}</td>
-                        <td
-                          className={`project-v2-amount project-v2-amount--${entry.type}`}
-                        >
+                        <td className={`project-v2-amount project-v2-amount--${entry.type}`}>
                           <CurrencyValue value={entry.amount} />
                         </td>
                       </tr>
