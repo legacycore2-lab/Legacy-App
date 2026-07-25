@@ -62,20 +62,10 @@ export function DeleteConfirmDialog({ entry, isDeleting, error, onConfirm, onCan
           )}
 
           <footer className="journal-delete-footer">
-            <button
-              type="button"
-              className="journal-secondary"
-              onClick={onCancel}
-              disabled={isDeleting}
-            >
+            <button type="button" className="journal-secondary" onClick={onCancel} disabled={isDeleting}>
               إلغاء
             </button>
-            <button
-              type="button"
-              className="journal-danger"
-              onClick={onConfirm}
-              disabled={isDeleting}
-            >
+            <button type="button" className="journal-danger" onClick={onConfirm} disabled={isDeleting}>
               <Trash2 size={16} />
               {isDeleting ? 'جارٍ الحذف...' : 'تأكيد الحذف'}
             </button>
