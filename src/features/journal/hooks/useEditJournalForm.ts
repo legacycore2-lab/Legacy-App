@@ -15,7 +15,7 @@ function entryToInput(entry: JournalEntry): SingleLineJournalInput {
   return {
     requestId: crypto.randomUUID(),
     entryDate: entry.entryDate,
-    projectId: '', // يتحدد بعد تحميل الـ options
+    projectId: '',
     projectName: entry.projectName,
     type: entry.type,
     categoryAccountId: '',
@@ -33,33 +33,13 @@ export function useEditJournalForm(entry: JournalEntry) {
   const submissionInProgressRef = useRef(false)
   const [value, setValue] = useState<SingleLineJournalInput>(() => entryToInput(entry))
   const [submitted, setSubmitted] = useState(false)
+  const [optionsLoaded, setOptionsLoaded] = useState(false)
 
   const optionsQuery = useQuery({
     queryKey: ['journal', 'posting-options'],
     queryFn: getJournalPostingOptions,
     staleTime: 60_000,
   })
-
-  // عندما تتحمل الـ options، نربط الـ IDs بالأسماء الموجودة في الـ entry
-  useEffect(() => {
-    if (!optionsQuery.data) return
-    const { projects, accounts } = optionsQuery.data
-
-    const matchedProject = projects.find((p) => p.name === entry.projectName)
-    const matchedCategory = accounts.find(
-      (a) => a.name === entry.category || `${a.code} - ${a.name}` === entry.category,
-    )
-    const matchedPayment = accounts.find(
-      (a) => a.name === entry.paymentMethod || `${a.code} - ${a.name}` === entry.paymentMethod,
-    )
-
-    setValue((current) => ({
-      ...current,
-      projectId: matchedProject?.id ?? '',
-      categoryAccountId: matchedCategory?.id ?? '',
-      paymentAccountId: matchedPayment?.id ?? '',
-    }))
-  }, [optionsQuery.data, entry])
 
   useEffect(
     () =>
@@ -68,6 +48,28 @@ export function useEditJournalForm(entry: JournalEntry) {
       ),
     [queryClient],
   )
+
+  // ربط الـ IDs بالأسماء بعد تحميل الـ options — مرة واحدة فقط
+  useEffect(() => {
+    if (!optionsQuery.data || optionsLoaded) return
+    setOptionsLoaded(true)
+    const { projects, accounts } = optionsQuery.data
+    const matchedProject = projects.find((p) => p.name === entry.projectName)
+    const matchedCategory = accounts.find(
+      (a) => a.name === entry.category || `${a.code} - ${a.name}` === entry.category,
+    )
+    const matchedPayment = accounts.find(
+      (a) => a.name === entry.paymentMethod || `${a.code} - ${a.name}` === entry.paymentMethod,
+    )
+    if (matchedProject || matchedCategory || matchedPayment) {
+      setValue((current) => ({
+        ...current,
+        projectId: matchedProject?.id ?? current.projectId,
+        categoryAccountId: matchedCategory?.id ?? current.categoryAccountId,
+        paymentAccountId: matchedPayment?.id ?? current.paymentAccountId,
+      }))
+    }
+  }, [optionsQuery.data, optionsLoaded, entry])
 
   const errors = useMemo(() => validateSingleLineEntry(value), [value])
   const preview = useMemo(() => buildJournalPreview(value), [value])
@@ -82,14 +84,18 @@ export function useEditJournalForm(entry: JournalEntry) {
     },
   })
 
-  const update = <K extends keyof SingleLineJournalInput>(key: K, nextValue: SingleLineJournalInput[K]) =>
-    setValue((current) => ({ ...current, [key]: nextValue }))
+  const update = <K extends keyof SingleLineJournalInput>(
+    key: K,
+    nextValue: SingleLineJournalInput[K],
+  ) => setValue((current) => ({ ...current, [key]: nextValue }))
 
   const projects = optionsQuery.data?.projects ?? []
   const categoryAccounts = (optionsQuery.data?.accounts ?? []).filter((a) =>
     value.type === 'expense' ? a.accountType === 'expense' : a.accountType === 'revenue',
   )
-  const paymentAccounts = (optionsQuery.data?.accounts ?? []).filter((a) => a.accountType === 'asset')
+  const paymentAccounts = (optionsQuery.data?.accounts ?? []).filter(
+    (a) => a.accountType === 'asset',
+  )
 
   const selectProject = (id: string) => {
     const project = projects.find((p) => p.id === id)
@@ -140,7 +146,9 @@ export function useEditJournalForm(entry: JournalEntry) {
     categoryAccounts,
     paymentAccounts,
     isLoadingOptions: optionsQuery.isLoading,
-    optionsError: optionsQuery.error ? toErrorMessage(optionsQuery.error, 'تعذر تحميل خيارات القيد.') : '',
+    optionsError: optionsQuery.error
+      ? toErrorMessage(optionsQuery.error, 'تعذر تحميل خيارات القيد.')
+      : '',
     submit,
     isSaving: mutation.isPending,
     saveError: mutation.error ? toErrorMessage(mutation.error, 'تعذر حفظ التعديل.') : '',
