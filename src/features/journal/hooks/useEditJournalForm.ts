@@ -16,7 +16,7 @@ function entryToInput(entry: JournalEntry): SingleLineJournalInput {
   return {
     requestId: crypto.randomUUID(),
     entryDate: entry.entryDate,
-    projectId: '',       // يتحدد بعد تحميل الـ options
+    projectId: '', // يتحدد بعد تحميل الـ options
     projectName: entry.projectName,
     type: entry.type,
     categoryAccountId: '',
@@ -83,18 +83,14 @@ export function useEditJournalForm(entry: JournalEntry) {
     },
   })
 
-  const update = <K extends keyof SingleLineJournalInput>(
-    key: K,
-    nextValue: SingleLineJournalInput[K],
-  ) => setValue((current) => ({ ...current, [key]: nextValue }))
+  const update = <K extends keyof SingleLineJournalInput>(key: K, nextValue: SingleLineJournalInput[K]) =>
+    setValue((current) => ({ ...current, [key]: nextValue }))
 
   const projects = optionsQuery.data?.projects ?? []
   const categoryAccounts = (optionsQuery.data?.accounts ?? []).filter((a) =>
     value.type === 'expense' ? a.accountType === 'expense' : a.accountType === 'revenue',
   )
-  const paymentAccounts = (optionsQuery.data?.accounts ?? []).filter(
-    (a) => a.accountType === 'asset',
-  )
+  const paymentAccounts = (optionsQuery.data?.accounts ?? []).filter((a) => a.accountType === 'asset')
 
   const selectProject = (id: string) => {
     const project = projects.find((p) => p.id === id)
@@ -145,9 +141,7 @@ export function useEditJournalForm(entry: JournalEntry) {
     categoryAccounts,
     paymentAccounts,
     isLoadingOptions: optionsQuery.isLoading,
-    optionsError: optionsQuery.error
-      ? toErrorMessage(optionsQuery.error, 'تعذر تحميل خيارات القيد.')
-      : '',
+    optionsError: optionsQuery.error ? toErrorMessage(optionsQuery.error, 'تعذر تحميل خيارات القيد.') : '',
     submit,
     isSaving: mutation.isPending,
     saveError: mutation.error ? toErrorMessage(mutation.error, 'تعذر حفظ التعديل.') : '',
