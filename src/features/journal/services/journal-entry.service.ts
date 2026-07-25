@@ -75,5 +75,3 @@ export async function forceDeleteEntry(entryId: string, reason: string): Promise
   if (reason.trim().length < 5) throw new Error('سبب الحذف يجب أن يكون 5 أحرف على الأقل.')
   return forceDeleteJournalEntry(entryId, reason)
 }
-
-

@@ -10,10 +10,7 @@ const roles: Record<AppRole, string> = {
 }
 
 export function resolveRole(value: unknown): AppRole {
-  return value === 'super_admin' ||
-    value === 'admin' ||
-    value === 'accountant' ||
-    value === 'viewer'
+  return value === 'super_admin' || value === 'admin' || value === 'accountant' || value === 'viewer'
     ? value
     : 'viewer'
 }

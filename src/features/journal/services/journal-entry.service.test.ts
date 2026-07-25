@@ -137,7 +137,11 @@ describe('buildJournalPreview', () => {
   })
 
   it('trims whitespace from account names', () => {
-    const preview = buildJournalPreview({ ...validInput, category: '  خرسانة  ', paymentAccount: '  البنك  ' })
+    const preview = buildJournalPreview({
+      ...validInput,
+      category: '  خرسانة  ',
+      paymentAccount: '  البنك  ',
+    })
     expect(preview?.debitAccount).toBe('خرسانة')
     expect(preview?.creditAccount).toBe('البنك')
   })

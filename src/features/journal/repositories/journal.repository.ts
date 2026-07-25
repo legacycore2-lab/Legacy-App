@@ -208,5 +208,3 @@ export async function forceDeleteJournalEntry(entryId: string, reason: string): 
   })
   if (error) throw error
 }
-
-

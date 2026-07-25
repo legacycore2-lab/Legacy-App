@@ -1,9 +1,4 @@
-import {
-  Banknote,
-  BriefcaseBusiness,
-  FolderPlus,
-  ReceiptText,
-} from 'lucide-react'
+import { Banknote, BriefcaseBusiness, FolderPlus, ReceiptText } from 'lucide-react'
 import type { DashboardAction } from '../types/dashboard.types'
 
 export const dashboardActions: DashboardAction[] = [
