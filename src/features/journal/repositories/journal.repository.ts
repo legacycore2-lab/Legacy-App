@@ -20,14 +20,14 @@ export type JournalEntryRecord = {
   project: { name: string } | { name: string }[] | null
 }
 
-export type JournalEntriesQuery = {
+type JournalEntriesQuery = {
   offset: number
   limit: number
   query: string
   type: 'all' | 'income' | 'expense'
 }
 
-export type JournalEntriesResult = {
+type JournalEntriesResult = {
   records: JournalEntryRecord[]
   totalCount: number
 }
