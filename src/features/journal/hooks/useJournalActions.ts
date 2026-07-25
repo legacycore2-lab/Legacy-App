@@ -26,15 +26,11 @@ export function useJournalActions() {
   return {
     deleteEntry: (entryId: string) => deleteMutation.mutateAsync(entryId),
     isDeleting: deleteMutation.isPending,
-    deleteError: deleteMutation.error
-      ? toErrorMessage(deleteMutation.error, 'تعذر حذف القيد.')
-      : '',
+    deleteError: deleteMutation.error ? toErrorMessage(deleteMutation.error, 'تعذر حذف القيد.') : '',
 
     updateEntry: (entryId: string, input: SingleLineJournalInput) =>
       updateMutation.mutateAsync({ entryId, input }),
     isUpdating: updateMutation.isPending,
-    updateError: updateMutation.error
-      ? toErrorMessage(updateMutation.error, 'تعذر تعديل القيد.')
-      : '',
+    updateError: updateMutation.error ? toErrorMessage(updateMutation.error, 'تعذر تعديل القيد.') : '',
   }
 }
