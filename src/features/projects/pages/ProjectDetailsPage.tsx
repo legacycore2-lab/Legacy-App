@@ -41,28 +41,24 @@ function CurrencyValue({ value }: { value: number }) {
   )
 }
 
+const embeddedMetaStyle: CSSProperties = {
+  marginTop: '0.7rem',
+  paddingInlineStart: 0,
+  gap: '0.75rem 1.25rem',
+}
+
 export function ProjectDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { details, isLoading, error } = useProjectDetails(id ?? null)
 
-  if (isLoading) {
-    return <div className="project-v2-state">جارٍ تحميل تفاصيل المشروع...</div>
-  }
-
-  if (error) {
-    return <div className="project-v2-state project-v2-state--error">{error}</div>
-  }
-
-  if (!details) {
-    return <div className="project-v2-state">المشروع غير موجود.</div>
-  }
+  if (isLoading) return <div className="project-v2-state">جارٍ تحميل تفاصيل المشروع...</div>
+  if (error) return <div className="project-v2-state project-v2-state--error">{error}</div>
+  if (!details) return <div className="project-v2-state">المشروع غير موجود.</div>
 
   const { project, entries, summary } = details
   const progress = Math.min(100, Math.max(0, project.progress))
-  const progressStyle = {
-    '--project-progress': `${progress * 3.6}deg`,
-  } as CSSProperties
+  const progressStyle = { '--project-progress': `${progress * 3.6}deg` } as CSSProperties
 
   return (
     <section className="project-v2-page">
@@ -77,6 +73,7 @@ export function ProjectDetailsPage() {
             <span className="project-v2-hero__icon">
               <Building2 size={28} />
             </span>
+
             <div>
               <div className="project-v2-hero__title-row">
                 <h1>{project.name}</h1>
@@ -84,9 +81,25 @@ export function ProjectDetailsPage() {
                   {statusLabel[project.status] ?? project.status}
                 </span>
               </div>
+
               <p>
                 {project.code || 'بدون كود'} · {project.client || 'بدون عميل'}
               </p>
+
+              <div className="project-v2-hero__meta" style={embeddedMetaStyle}>
+                <span>
+                  <MapPin size={15} />
+                  {project.location || 'الموقع غير محدد'}
+                </span>
+                <span>
+                  <CalendarDays size={15} />
+                  <bdi dir="ltr">{project.startDate || 'تاريخ البدء غير محدد'}</bdi>
+                </span>
+                <span>
+                  <UserRound size={15} />
+                  {project.manager || 'المدير غير محدد'}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -104,21 +117,6 @@ export function ProjectDetailsPage() {
               إضافة قيد
             </button>
           </div>
-        </div>
-
-        <div className="project-v2-hero__meta">
-          <span>
-            <MapPin size={15} />
-            {project.location || 'الموقع غير محدد'}
-          </span>
-          <span>
-            <CalendarDays size={15} />
-            {project.startDate || 'تاريخ البدء غير محدد'}
-          </span>
-          <span>
-            <UserRound size={15} />
-            {project.manager || 'المدير غير محدد'}
-          </span>
         </div>
       </div>
 
@@ -162,9 +160,7 @@ export function ProjectDetailsPage() {
             </article>
 
             <article
-              className={`project-v2-kpi ${
-                summary.balance >= 0 ? 'project-v2-kpi--balance' : 'project-v2-kpi--expense'
-              }`}
+              className={`project-v2-kpi ${summary.balance >= 0 ? 'project-v2-kpi--balance' : 'project-v2-kpi--expense'}`}
             >
               <span className="project-v2-kpi__icon">
                 <Wallet size={21} />
