@@ -1,5 +1,6 @@
 import { ArrowDownCircle, ArrowUpCircle, Eye, FileText, Plus, Search } from 'lucide-react'
 import { useState } from 'react'
+import { useJournalPermissions } from '../hooks/useJournalPermissions'
 import type { JournalEntry, JournalFilters, JournalSummary } from '../types/journal.types'
 import { SingleLineJournalForm } from './SingleLineJournalForm'
 import { JournalDetailsDialog } from './JournalDetailsDialog'
@@ -18,7 +19,6 @@ type Props = {
   isLoading: boolean
   isRefreshing: boolean
   error: string
-  isAdmin?: boolean
 }
 
 export function JournalView({
@@ -33,8 +33,8 @@ export function JournalView({
   isLoading,
   isRefreshing,
   error,
-  isAdmin = false,
 }: Props) {
+  const { canForceDelete } = useJournalPermissions()
   const [isEntryFormOpen, setIsEntryFormOpen] = useState(false)
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null)
 
