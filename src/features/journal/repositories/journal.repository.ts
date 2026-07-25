@@ -200,3 +200,28 @@ export function subscribeToJournalChanges(onChange: () => void): () => void {
 export function subscribeToJournalPostingOptionChanges(onChange: () => void): () => void {
   return subscribeToTableChanges('journal-options', ['projects', 'accounts'], onChange)
 }
+
+export async function deleteJournalEntry(entryId: string): Promise<void> {
+  const { error } = await getSupabaseClient().rpc('delete_single_line_entry', {
+    p_entry_id: entryId,
+  })
+  if (error) throw error
+}
+
+export async function updateJournalEntry(
+  entryId: string,
+  input: SingleLineJournalInput,
+): Promise<void> {
+  const { error } = await getSupabaseClient().rpc('update_single_line_entry', {
+    p_entry_id:              entryId,
+    p_entry_date:            input.entryDate,
+    p_project_id:            input.projectId,
+    p_entry_type:            input.type,
+    p_category_account_id:   input.categoryAccountId,
+    p_description:           input.description.trim(),
+    p_contractor_name:       input.contractor.trim(),
+    p_payment_account_id:    input.paymentAccountId,
+    p_amount:                Number(input.amount),
+  })
+  if (error) throw error
+}
