@@ -114,3 +114,12 @@
     padding: 12px 10px;
   }
 }
+
+.projects-table-row--clickable {
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.projects-table-row--clickable:hover {
+  background: var(--color-bg);
+}

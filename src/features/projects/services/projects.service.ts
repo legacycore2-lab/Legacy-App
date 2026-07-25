@@ -50,3 +50,50 @@ export function buildProjectRows(projects: Project[]): ProjectRow[] {
 export function watchProjects(onChange: () => void): () => void {
   return subscribeToProjectChanges(onChange)
 }
+
+import { findProjectById, findProjectEntries } from '../repositories/projects.repository'
+import type { ProjectDetails, ProjectEntry, ProjectFinancialSummary } from '../types/project.types'
+
+function mapProjectEntry(
+  record: import('../repositories/projects.repository').ProjectEntryRecord,
+): ProjectEntry {
+  const amount = Number(record.amount)
+  return {
+    id: record.id,
+    seq: record.seq,
+    entryDate: record.entry_date,
+    type: record.entry_type === 'income' ? 'income' : 'expense',
+    category: record.category?.trim() ?? '',
+    description: record.description?.trim() ?? '',
+    contractor: record.contractor_name?.trim() ?? '',
+    paymentMethod: record.payment_method?.trim() ?? '',
+    amount: Number.isFinite(amount) ? amount : 0,
+  }
+}
+
+function summarizeEntries(entries: ProjectEntry[]): ProjectFinancialSummary {
+  return entries.reduce<ProjectFinancialSummary>(
+    (summary, entry) => ({
+      totalIncome: summary.totalIncome + (entry.type === 'income' ? entry.amount : 0),
+      totalExpense: summary.totalExpense + (entry.type === 'expense' ? entry.amount : 0),
+      balance: summary.balance + (entry.type === 'income' ? entry.amount : -entry.amount),
+      entryCount: summary.entryCount + 1,
+    }),
+    { totalIncome: 0, totalExpense: 0, balance: 0, entryCount: 0 },
+  )
+}
+
+export async function getProjectDetails(projectId: string): Promise<ProjectDetails | null> {
+  const [record, entryRecords] = await Promise.all([
+    findProjectById(projectId),
+    findProjectEntries(projectId),
+  ])
+
+  if (!record) return null
+
+  const project = mapProject(record)
+  const entries = entryRecords.map(mapProjectEntry)
+  const summary = summarizeEntries(entries)
+
+  return { project, entries, summary }
+}
