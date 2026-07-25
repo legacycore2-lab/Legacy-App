@@ -7,6 +7,7 @@ import { AppErrorBoundary } from './app/AppErrorBoundary'
 import { AuthProvider } from './features/auth/providers/AuthProvider'
 import './styles/global.css'
 import './styles/responsive-guardrails.css'
+import './styles/responsive-layout-foundation.css'
 import './styles/scrollbar.css'
 
 const queryClient = new QueryClient()
