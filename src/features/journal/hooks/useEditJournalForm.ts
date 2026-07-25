@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
 import {
   buildJournalPreview,
@@ -10,7 +10,6 @@ import {
 } from '../services/journal-entry.service'
 import type { SingleLineJournalInput } from '../types/journal-entry.types'
 import type { JournalEntry } from '../types/journal.types'
-import { useEffect } from 'react'
 
 function entryToInput(entry: JournalEntry): SingleLineJournalInput {
   return {
