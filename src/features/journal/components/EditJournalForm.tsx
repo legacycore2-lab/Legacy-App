@@ -1,6 +1,5 @@
 import { Eye, Save, X } from 'lucide-react'
 import { useEditJournalForm } from '../hooks/useEditJournalForm'
-import type { SingleLineJournalInput } from '../types/journal-entry.types'
 import type { JournalEntry } from '../types/journal.types'
 
 type Props = {
