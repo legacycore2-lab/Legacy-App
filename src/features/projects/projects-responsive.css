@@ -1,0 +1,152 @@
+.projects-page.erp-viewport-page {
+  min-height: 0;
+  grid-template-rows: auto auto auto auto minmax(0, 1fr);
+  gap: clamp(10px, 1.1vw, 16px);
+}
+
+.projects-page .projects-hero {
+  min-width: 0;
+  padding: clamp(16px, 1.4vw, 22px);
+}
+
+.projects-page .projects-hero > div:first-child,
+.projects-page .projects-stat > div:last-child,
+.projects-page .projects-section-heading > div {
+  min-width: 0;
+}
+
+.projects-page .projects-hero h1,
+.projects-page .projects-hero p,
+.projects-page .projects-stat strong,
+.projects-page .projects-stat small,
+.projects-page .projects-stat span {
+  overflow-wrap: anywhere;
+}
+
+.projects-page .projects-stats {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: clamp(8px, 0.9vw, 12px);
+}
+
+.projects-page .projects-stat {
+  min-width: 0;
+  min-height: 88px;
+  padding: clamp(12px, 1vw, 15px);
+}
+
+.projects-page .projects-stat strong {
+  font-size: clamp(15px, 1.35vw, 20px);
+  font-variant-numeric: tabular-nums;
+}
+
+.projects-page .projects-toolbar {
+  min-width: 0;
+}
+
+.projects-page .projects-search,
+.projects-page .projects-filter {
+  min-width: 0;
+}
+
+.projects-page .projects-results {
+  min-width: 0;
+  min-height: 0;
+}
+
+.projects-page .projects-table-shell {
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.projects-page .projects-table-scroll {
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.projects-page .projects-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.projects-page .projects-table td,
+.projects-page .projects-table th {
+  font-variant-numeric: tabular-nums;
+}
+
+.projects-page .money-positive,
+.projects-page .money-negative {
+  direction: ltr;
+  unicode-bidi: isolate;
+  white-space: nowrap;
+}
+
+@container page (max-width: 1180px) {
+  .projects-page .projects-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@container page (max-width: 760px) {
+  .projects-page.erp-viewport-page {
+    display: grid;
+    min-height: auto;
+    grid-template-rows: none;
+  }
+
+  .projects-page .projects-hero {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .projects-page .projects-hero__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .projects-page .projects-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .projects-page .projects-toolbar {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  .projects-page .projects-search {
+    flex-basis: 100%;
+  }
+
+  .projects-page .projects-filter,
+  .projects-page .projects-toolbar__button {
+    flex: 1 1 180px;
+  }
+
+  .projects-page .projects-results,
+  .projects-page .projects-table-shell,
+  .projects-page .projects-table-scroll {
+    height: auto;
+    overflow: visible;
+  }
+
+  .projects-page .projects-table-scroll {
+    overflow-x: auto;
+  }
+}
+
+@container page (max-width: 460px) {
+  .projects-page .projects-hero__actions,
+  .projects-page .projects-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .projects-page .projects-section-heading {
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
