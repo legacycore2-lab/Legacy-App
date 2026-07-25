@@ -137,6 +137,94 @@
   padding: 10px 16px;
 }
 
+.journal-danger-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+.journal-force-delete-button,
+.journal-force-delete-confirm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 15px;
+  border: 1px solid #f3b7b2;
+  border-radius: 10px;
+  color: #b42318;
+  background: #fff1f0;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.journal-force-delete-button:hover,
+.journal-force-delete-confirm:hover:not(:disabled) {
+  background: #ffe4e2;
+}
+
+.journal-force-delete-panel {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid #f3b7b2;
+  border-radius: 14px;
+  color: var(--text);
+  background: color-mix(in srgb, #b42318 7%, var(--surface));
+}
+
+.journal-force-delete-panel > strong {
+  color: #b42318;
+}
+
+.journal-force-delete-panel > p {
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.journal-force-delete-panel label {
+  display: grid;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.journal-force-delete-panel input,
+.journal-force-delete-panel textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  outline: 0;
+  color: var(--text);
+  background: var(--background, var(--surface));
+  font: inherit;
+}
+
+.journal-force-delete-panel input:focus,
+.journal-force-delete-panel textarea:focus {
+  border-color: #b42318;
+}
+
+.journal-force-delete-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.journal-force-delete-confirm {
+  border-color: #b42318;
+  color: #fff;
+  background: #b42318;
+}
+
+.journal-force-delete-confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 @media (max-width: 1100px) {
   .journal-entry-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -161,8 +249,13 @@
     flex-direction: column-reverse;
   }
 
-  .journal-entry-card form > footer button {
+  .journal-entry-card form > footer button,
+  .journal-force-delete-actions button {
     justify-content: center;
     width: 100%;
+  }
+
+  .journal-force-delete-actions {
+    flex-direction: column-reverse;
   }
 }
