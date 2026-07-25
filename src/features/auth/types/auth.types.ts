@@ -1,4 +1,4 @@
-export type AppRole = 'admin' | 'accountant' | 'viewer'
+export type AppRole = 'super_admin' | 'admin' | 'accountant' | 'viewer'
 
 export type AuthUser = {
   id: string

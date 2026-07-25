@@ -3,13 +3,19 @@ import { authRepository } from '../repositories/auth.repository'
 import type { AppRole, AuthIdentity, AuthUser, LoginCredentials } from '../types/auth.types'
 
 const roles: Record<AppRole, string> = {
+  super_admin: 'مدير عام',
   admin: 'مدير النظام',
   accountant: 'محاسب',
   viewer: 'مشاهدة فقط',
 }
 
 export function resolveRole(value: unknown): AppRole {
-  return value === 'admin' || value === 'accountant' || value === 'viewer' ? value : 'viewer'
+  return value === 'super_admin' ||
+    value === 'admin' ||
+    value === 'accountant' ||
+    value === 'viewer'
+    ? value
+    : 'viewer'
 }
 
 function mapUser(identity: AuthIdentity): AuthUser {
