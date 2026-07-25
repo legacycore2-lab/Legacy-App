@@ -1,6 +1,8 @@
 import {
   findJournalPostingOptions,
   postSingleLineEntry,
+  deleteJournalEntry,
+  updateJournalEntry,
   subscribeToJournalPostingOptionChanges,
 } from '../repositories/journal.repository'
 import type {
@@ -67,4 +69,17 @@ export async function getJournalPostingOptions(): Promise<JournalPostingOptions>
 
 export function watchJournalPostingOptions(onChange: () => void): () => void {
   return subscribeToJournalPostingOptionChanges(onChange)
+}
+
+export async function removeJournalEntry(entryId: string): Promise<void> {
+  return deleteJournalEntry(entryId)
+}
+
+export async function editJournalEntry(
+  entryId: string,
+  input: SingleLineJournalInput,
+): Promise<void> {
+  const errors = validateSingleLineEntry(input)
+  if (errors.length > 0) throw new Error(errors[0])
+  return updateJournalEntry(entryId, input)
 }
