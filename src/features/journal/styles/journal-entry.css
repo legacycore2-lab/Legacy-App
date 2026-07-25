@@ -166,3 +166,152 @@
     width: 100%;
   }
 }
+
+
+/* ── Force Delete ── */
+.journal-details-admin-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 20px 0;
+  border-top: 1px solid var(--border);
+  margin-top: 16px;
+}
+
+.journal-force-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  border: 1px solid #fda29b;
+  border-radius: 10px;
+  background: transparent;
+  color: #b42318;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.journal-force-delete-btn:hover {
+  background: #fff1f0;
+}
+
+.journal-force-delete-panel {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+}
+
+.journal-force-delete-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  background: #fff4e5;
+  border: 1px solid #f5a623;
+  border-radius: 12px;
+  color: #7a4100;
+}
+
+.journal-force-delete-warning svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #f5a623;
+}
+
+.journal-force-delete-warning p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.journal-force-delete-label {
+  display: grid;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.journal-force-delete-label span {
+  font-weight: 400;
+}
+
+.journal-force-delete-label textarea,
+.journal-force-delete-label input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  background: var(--background, var(--surface));
+  font-size: 14px;
+  resize: vertical;
+}
+
+.journal-force-delete-label textarea:focus,
+.journal-force-delete-label input:focus {
+  outline: none;
+  border-color: #b42318;
+}
+
+.journal-force-delete-error {
+  padding: 10px 14px;
+  border: 1px solid #fecdca;
+  border-radius: 10px;
+  background: #fff1f0;
+  color: #b42318;
+  font-size: 13px;
+}
+
+.journal-force-delete-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.journal-force-delete-cancel {
+  padding: 10px 18px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.journal-force-delete-cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.journal-force-delete-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 10px;
+  background: #b42318;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.journal-force-delete-confirm:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .journal-force-delete-footer {
+    flex-direction: column-reverse;
+  }
+
+  .journal-force-delete-cancel,
+  .journal-force-delete-confirm {
+    width: 100%;
+    justify-content: center;
+  }
+}
