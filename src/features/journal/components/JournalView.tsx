@@ -67,9 +67,7 @@ export function JournalView({
       </header>
 
       {isEntryFormOpen && <SingleLineJournalForm onClose={() => setIsEntryFormOpen(false)} />}
-      {editingEntry && (
-        <EditJournalForm entry={editingEntry} onClose={() => setEditingEntry(null)} />
-      )}
+      {editingEntry && <EditJournalForm entry={editingEntry} onClose={() => setEditingEntry(null)} />}
 
       <JournalDetailsDialog entryId={selectedEntryId} onClose={() => setSelectedEntryId(null)} />
 
@@ -117,9 +115,7 @@ export function JournalView({
         </label>
         <select
           value={filters.type}
-          onChange={(e) =>
-            onFiltersChange({ ...filters, type: e.target.value as JournalFilters['type'] })
-          }
+          onChange={(e) => onFiltersChange({ ...filters, type: e.target.value as JournalFilters['type'] })}
         >
           <option value="all">كل الحركات</option>
           <option value="income">إيرادات</option>
@@ -213,11 +209,7 @@ export function JournalView({
             صفحة {currency.format(page)} من {currency.format(totalPages)}
             {isRefreshing ? ' · جاري التحديث' : ''}
           </span>
-          <button
-            type="button"
-            onClick={onNextPage}
-            disabled={page >= totalPages || isRefreshing}
-          >
+          <button type="button" onClick={onNextPage} disabled={page >= totalPages || isRefreshing}>
             التالي
           </button>
         </nav>
