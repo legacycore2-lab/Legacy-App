@@ -11,6 +11,7 @@ import '../excel-import.css'
 import '../project-create.css'
 import '../projects-table.css'
 import '../projects.css'
+import '../projects-responsive.css'
 
 export function ProjectsPage() {
   const { projectRows, summary, query, setQuery, status, setStatus, isLoading, error } = useProjects()
@@ -18,7 +19,7 @@ export function ProjectsPage() {
   const [importOpen, setImportOpen] = useState(false)
 
   return (
-    <section className="projects-page">
+    <section className="projects-page erp-viewport-page">
       <header className="projects-hero">
         <div>
           <span className="projects-hero__eyebrow">مركز إدارة المشاريع</span>
@@ -45,15 +46,17 @@ export function ProjectsPage() {
         </div>
         <small>{projectRows.length} مشروع</small>
       </div>
-      {!isLoading && !error && projectRows.length > 0 ? (
-        <ProjectsTable projects={projectRows} onEdit={projectCreate.edit} />
-      ) : !isLoading && !error ? (
-        <div className="projects-empty">
-          <BriefcaseBusiness size={28} />
-          <h3>لا توجد مشاريع مطابقة</h3>
-          <p>جرّب تغيير كلمة البحث أو حالة المشروع.</p>
-        </div>
-      ) : null}
+      <div className="projects-results erp-scroll-region">
+        {!isLoading && !error && projectRows.length > 0 ? (
+          <ProjectsTable projects={projectRows} onEdit={projectCreate.edit} />
+        ) : !isLoading && !error ? (
+          <div className="projects-empty">
+            <BriefcaseBusiness size={28} />
+            <h3>لا توجد مشاريع مطابقة</h3>
+            <p>جرّب تغيير كلمة البحث أو حالة المشروع.</p>
+          </div>
+        ) : null}
+      </div>
       <ProjectCreateDialog {...projectCreate} />
       <ExcelImportDialog open={importOpen} onClose={() => setImportOpen(false)} />
     </section>
