@@ -57,7 +57,7 @@ export function mapProject(record: ProjectRecord): Project {
     received: toFiniteNumber(record.received, 'إجمالي المحصل'),
     spent: toFiniteNumber(record.spent, 'إجمالي المصروف'),
     startDate: record.start_date ?? '',
-    endDate: record.end_date ?? record.close_date ?? '',
+    endDate: record.end_date ?? '',
     notes: record.notes?.trim() ?? '',
   }
 }

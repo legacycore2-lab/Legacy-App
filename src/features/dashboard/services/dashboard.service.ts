@@ -1,5 +1,12 @@
-import { ArrowDownLeft, ArrowUpRight, BriefcaseBusiness, WalletCards } from 'lucide-react'
-import { dashboardActions } from '../data/dashboard.mock'
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  Banknote,
+  BriefcaseBusiness,
+  FolderPlus,
+  ReceiptText,
+  WalletCards,
+} from 'lucide-react'
 import { findDashboardData, subscribeToDashboardChanges } from '../repositories/dashboard.repository'
 import type { DashboardData, DashboardEntryRecord, DashboardProjectRecord } from '../types/dashboard.types'
 
@@ -130,7 +137,12 @@ export async function getDashboardData(): Promise<DashboardData> {
       amount: formatAmount(toAmount(entry.amount)),
       type: normalizeEntryType(entry.type),
     })),
-    actions: dashboardActions,
+    actions: [
+      { label: 'إضافة مشروع', description: 'إنشاء مشروع جديد', icon: FolderPlus },
+      { label: 'إضافة قيد', description: 'دخل أو مصروف', icon: ReceiptText },
+      { label: 'تسجيل عهدة', description: 'إنشاء عهدة جديدة', icon: BriefcaseBusiness },
+      { label: 'تحويل مالي', description: 'بين الخزنة والبنوك', icon: Banknote },
+    ],
   }
 }
 
