@@ -18,6 +18,7 @@ type Props = {
   isLoading: boolean
   isRefreshing: boolean
   error: string
+  isAdmin?: boolean
 }
 
 export function JournalView({
@@ -32,6 +33,7 @@ export function JournalView({
   isLoading,
   isRefreshing,
   error,
+  isAdmin = false,
 }: Props) {
   const [isEntryFormOpen, setIsEntryFormOpen] = useState(false)
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null)
@@ -50,7 +52,11 @@ export function JournalView({
       </header>
 
       {isEntryFormOpen && <SingleLineJournalForm onClose={() => setIsEntryFormOpen(false)} />}
-      <JournalDetailsDialog entryId={selectedEntryId} onClose={() => setSelectedEntryId(null)} />
+      <JournalDetailsDialog
+        entryId={selectedEntryId}
+        onClose={() => setSelectedEntryId(null)}
+        isAdmin={isAdmin}
+      />
 
       <div className="journal-stats">
         <article>
