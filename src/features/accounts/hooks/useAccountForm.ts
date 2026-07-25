@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 import type { Account, AccountInput, AccountType } from '../types/accounts.types'
 
 const emptyForm: AccountInput = {
@@ -13,6 +13,7 @@ const emptyForm: AccountInput = {
 }
 
 type Options = {
+  allAccounts: Account[]
   editing: Account | null
   onSave: (input: AccountInput) => Promise<void>
   onCancel: () => void
@@ -32,8 +33,20 @@ function toAccountInput(account: Account): AccountInput {
   }
 }
 
-export function useAccountForm({ editing, onSave, onCancel }: Options) {
+export function useAccountForm({ allAccounts, editing, onSave, onCancel }: Options) {
   const [value, setValue] = useState<AccountInput>(() => (editing ? toAccountInput(editing) : emptyForm))
+
+  const parentAccountOptions = useMemo(
+    () =>
+      allAccounts.filter(
+        (account) =>
+          account.accountType === value.accountType &&
+          account.id !== value.id &&
+          account.isActive &&
+          !account.isPostable,
+      ),
+    [allAccounts, value.accountType, value.id],
+  )
 
   const update = <Key extends keyof AccountInput>(key: Key, next: AccountInput[Key]) => {
     setValue((current) => ({ ...current, [key]: next }))
@@ -64,5 +77,5 @@ export function useAccountForm({ editing, onSave, onCancel }: Options) {
     onCancel()
   }
 
-  return { value, update, updateType, submit, cancel }
+  return { value, update, updateType, submit, cancel, parentAccountOptions }
 }
