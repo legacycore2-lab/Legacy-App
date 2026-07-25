@@ -1,22 +1,28 @@
 .dashboard-details {
+  min-height: 0;
   display: grid;
-  gap: 14px;
-  padding-bottom: 8px;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  gap: clamp(10px, 1vw, 14px);
+  padding-bottom: 4px;
 }
 
 .dashboard-header {
-  min-height: 118px;
+  min-height: 96px;
   display: grid;
-  grid-template-columns: minmax(240px, 0.82fr) minmax(0, 1.75fr);
+  grid-template-columns: minmax(220px, 0.72fr) minmax(0, 1.8fr);
   align-items: center;
-  gap: 18px;
-  padding: 18px 20px;
+  gap: 14px;
+  padding: 14px 16px;
   border: 1px solid var(--border);
   border-radius: 18px;
   background:
     radial-gradient(circle at 10% 50%, rgba(209, 170, 96, 0.13), transparent 25%),
     linear-gradient(135deg, color-mix(in srgb, var(--surface-strong) 97%, transparent), var(--surface));
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-header__intro {
+  min-width: 0;
 }
 
 .dashboard-header__intro > span {
@@ -26,34 +32,36 @@
 }
 .dashboard-header__intro h1 {
   margin: 3px 0 0;
-  font-size: clamp(23px, 2.6vw, 34px);
+  overflow-wrap: anywhere;
+  font-size: clamp(21px, 2.2vw, 31px);
   line-height: 1.2;
 }
 .dashboard-header__intro p {
-  margin: 7px 0 0;
+  margin: 5px 0 0;
   color: var(--muted);
   font-size: 11px;
-  line-height: 1.7;
+  line-height: 1.55;
 }
 .dashboard-header__summary {
+  min-width: 0;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 9px;
+  gap: 8px;
 }
 .dashboard-summary-card {
   min-width: 0;
-  min-height: 72px;
+  min-height: 62px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 11px;
+  gap: 9px;
+  padding: 9px 10px;
   border: 1px solid var(--border);
   border-radius: 13px;
   background: color-mix(in srgb, var(--surface-soft) 92%, transparent);
 }
 .dashboard-summary-card__icon {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   display: grid;
   place-items: center;
   flex: 0 0 auto;
@@ -71,33 +79,40 @@
   color: var(--muted);
   background: color-mix(in srgb, var(--surface-strong) 82%, transparent);
 }
+.dashboard-summary-card > div:last-child {
+  min-width: 0;
+}
 .dashboard-summary-card small,
 .dashboard-summary-card strong {
   display: block;
+}
+.dashboard-summary-card small {
   overflow: hidden;
+  color: var(--muted);
+  font-size: 9px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.dashboard-summary-card small {
-  color: var(--muted);
-  font-size: 9px;
-}
 .dashboard-summary-card strong {
-  margin-top: 4px;
+  margin-top: 3px;
   font:
-    700 15px Manrope,
+    700 clamp(13px, 1.15vw, 16px) Manrope,
     'IBM Plex Sans Arabic',
     sans-serif;
+  overflow-wrap: anywhere;
 }
 
 .dashboard-primary-grid {
+  min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(340px, 0.82fr);
-  gap: 14px;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.82fr);
+  gap: 12px;
   align-items: stretch;
 }
 .dashboard-primary-grid > .dashboard-widget {
+  min-height: 0;
   height: 100%;
+  overflow: auto;
 }
 
 @media (max-width: 1240px) {
@@ -105,7 +120,7 @@
     grid-template-columns: 1fr;
   }
   .dashboard-primary-grid {
-    grid-template-columns: minmax(0, 1.25fr) minmax(310px, 0.8fr);
+    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
   }
 }
 @media (max-width: 1040px) {
@@ -116,9 +131,19 @@
     grid-template-columns: 1fr;
   }
 }
+@media (max-width: 900px) {
+  .dashboard-details {
+    grid-template-rows: auto;
+  }
+
+  .dashboard-primary-grid,
+  .dashboard-primary-grid > .dashboard-widget {
+    overflow: visible;
+  }
+}
 @media (max-width: 520px) {
   .dashboard-header {
-    padding: 16px;
+    padding: 14px;
     border-radius: 16px;
   }
   .dashboard-header__summary {
