@@ -8,21 +8,32 @@ import {
   validateSingleLineEntry,
   watchJournalPostingOptions,
 } from '../services/journal-entry.service'
-import type { SingleLineJournalInput } from '../types/journal-entry.types'
+import type { JournalPostingOptions, SingleLineJournalInput } from '../types/journal-entry.types'
 import type { JournalEntry } from '../types/journal.types'
 
-function entryToInput(entry: JournalEntry): SingleLineJournalInput {
+function resolveIds(entry: JournalEntry, options: JournalPostingOptions | undefined): SingleLineJournalInput {
+  const projects = options?.projects ?? []
+  const accounts = options?.accounts ?? []
+
+  const matchedProject = projects.find((p) => p.name === entry.projectName)
+  const matchedCategory = accounts.find(
+    (a) => a.name === entry.category || `${a.code} - ${a.name}` === entry.category,
+  )
+  const matchedPayment = accounts.find(
+    (a) => a.name === entry.paymentMethod || `${a.code} - ${a.name}` === entry.paymentMethod,
+  )
+
   return {
     requestId: crypto.randomUUID(),
     entryDate: entry.entryDate,
-    projectId: '',
+    projectId: matchedProject?.id ?? '',
     projectName: entry.projectName,
     type: entry.type,
-    categoryAccountId: '',
+    categoryAccountId: matchedCategory?.id ?? '',
     category: entry.category,
     description: entry.description,
     contractor: entry.contractor ?? '',
-    paymentAccountId: '',
+    paymentAccountId: matchedPayment?.id ?? '',
     paymentAccount: entry.paymentMethod ?? '',
     amount: String(entry.amount),
   }
@@ -31,8 +42,8 @@ function entryToInput(entry: JournalEntry): SingleLineJournalInput {
 export function useEditJournalForm(entry: JournalEntry) {
   const queryClient = useQueryClient()
   const submissionInProgressRef = useRef(false)
-  const idsResolvedRef = useRef(false)
-  const [value, setValue] = useState<SingleLineJournalInput>(() => entryToInput(entry))
+  const initializedRef = useRef(false)
+  const [value, setValue] = useState<SingleLineJournalInput>(() => resolveIds(entry, undefined))
   const [submitted, setSubmitted] = useState(false)
 
   const optionsQuery = useQuery({
@@ -49,33 +60,17 @@ export function useEditJournalForm(entry: JournalEntry) {
     [queryClient],
   )
 
-  // ربط الـ IDs بالأسماء بعد تحميل الـ options — مرة واحدة فقط بدون state إضافية
-  const options = optionsQuery.data
-  useEffect(() => {
-    if (!options || idsResolvedRef.current) return
-    idsResolvedRef.current = true
-    const matchedProject = options.projects.find((p) => p.name === entry.projectName)
-    const matchedCategory = options.accounts.find(
-      (a) => a.name === entry.category || `${a.code} - ${a.name}` === entry.category,
-    )
-    const matchedPayment = options.accounts.find(
-      (a) => a.name === entry.paymentMethod || `${a.code} - ${a.name}` === entry.paymentMethod,
-    )
-    const patch = {
-      projectId: matchedProject?.id,
-      categoryAccountId: matchedCategory?.id,
-      paymentAccountId: matchedPayment?.id,
-    }
-    const hasPatch = Object.values(patch).some(Boolean)
-    if (hasPatch) {
-      setValue((current) => ({
-        ...current,
-        ...(patch.projectId ? { projectId: patch.projectId } : {}),
-        ...(patch.categoryAccountId ? { categoryAccountId: patch.categoryAccountId } : {}),
-        ...(patch.paymentAccountId ? { paymentAccountId: patch.paymentAccountId } : {}),
-      }))
-    }
-  }, [options, entry])
+  // بعد تحميل الـ options، نحدّث الـ IDs مرة واحدة فقط عبر scheduler
+  const resolvedValue = useMemo(
+    () => (optionsQuery.data && !initializedRef.current ? resolveIds(entry, optionsQuery.data) : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [optionsQuery.data],
+  )
+
+  if (resolvedValue && !initializedRef.current) {
+    initializedRef.current = true
+    setValue(resolvedValue)
+  }
 
   const errors = useMemo(() => validateSingleLineEntry(value), [value])
   const preview = useMemo(() => buildJournalPreview(value), [value])
@@ -95,6 +90,7 @@ export function useEditJournalForm(entry: JournalEntry) {
     nextValue: SingleLineJournalInput[K],
   ) => setValue((current) => ({ ...current, [key]: nextValue }))
 
+  const options = optionsQuery.data
   const projects = options?.projects ?? []
   const categoryAccounts = (options?.accounts ?? []).filter((a) =>
     value.type === 'expense' ? a.accountType === 'expense' : a.accountType === 'revenue',
