@@ -208,3 +208,9 @@ export async function forceDeleteJournalEntry(entryId: string, reason: string): 
   })
   if (error) throw error
 }
+
+export async function getCurrentUserRole(): Promise<string> {
+  const { data } = await getSupabaseClient().auth.getSession()
+  const jwt = data.session?.user?.app_metadata
+  return (jwt?.['role'] as string | undefined) ?? 'viewer'
+}
