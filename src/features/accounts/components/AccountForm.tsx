@@ -3,15 +3,15 @@ import { useAccountForm } from '../hooks/useAccountForm'
 import type { Account, AccountInput } from '../types/accounts.types'
 
 type Props = {
-  accounts: Account[]
+  allAccounts: Account[]
   editing: Account | null
   isSaving: boolean
   onSave: (input: AccountInput) => Promise<void>
   onCancel: () => void
 }
 
-export function AccountForm({ accounts, editing, isSaving, onSave, onCancel }: Props) {
-  const form = useAccountForm({ editing, onSave, onCancel })
+export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }: Props) {
+  const form = useAccountForm({ allAccounts, editing, onSave, onCancel })
 
   return (
     <form className="account-form" onSubmit={form.submit}>
@@ -56,19 +56,11 @@ export function AccountForm({ accounts, editing, isSaving, onSave, onCancel }: P
           onChange={(event) => form.update('parentId', event.target.value || null)}
         >
           <option value="">بدون حساب رئيسي</option>
-          {accounts
-            .filter(
-              (account) =>
-                account.accountType === form.value.accountType &&
-                account.id !== form.value.id &&
-                account.isActive &&
-                !account.isPostable,
-            )
-            .map((account) => (
-              <option key={account.id} value={account.id}>
-                {account.code} — {account.nameAr}
-              </option>
-            ))}
+          {form.parentAccountOptions.map((account) => (
+            <option key={account.id} value={account.id}>
+              {account.code} — {account.nameAr}
+            </option>
+          ))}
         </select>
       </label>
       <div className="account-checks">
