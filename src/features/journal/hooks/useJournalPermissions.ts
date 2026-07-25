@@ -1,18 +1,9 @@
-import { useQuery } from '@tanstack/react-query'
-import { getJournalUserRole } from '../services/journal-entry.service'
+import { useAuth } from '../../auth/hooks/useAuth'
 
-/**
- * Journal-specific permission checks.
- * Fetches user role via Supabase session — no cross-feature imports.
- */
 export function useJournalPermissions() {
-  const { data: role } = useQuery({
-    queryKey: ['journal', 'user-role'],
-    queryFn: getJournalUserRole,
-    staleTime: Infinity,
-  })
+  const { user } = useAuth()
 
   return {
-    canForceDelete: role === 'admin' || role === 'super_admin',
+    canForceDelete: user?.role === 'admin' || user?.role === 'super_admin',
   }
 }

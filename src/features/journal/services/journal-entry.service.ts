@@ -1,7 +1,6 @@
 import {
   findJournalPostingOptions,
   forceDeleteJournalEntry,
-  getCurrentUserRole,
   postSingleLineEntry,
   subscribeToJournalPostingOptionChanges,
 } from '../repositories/journal.repository'
@@ -77,6 +76,4 @@ export async function forceDeleteEntry(entryId: string, reason: string): Promise
   return forceDeleteJournalEntry(entryId, reason)
 }
 
-export async function getJournalUserRole(): Promise<string> {
-  return getCurrentUserRole()
-}
+
