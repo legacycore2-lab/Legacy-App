@@ -167,7 +167,9 @@ export function ProjectDetailsPage() {
 
             <article
               className={`project-v2-kpi ${
-                summary.balance >= 0 ? 'project-v2-kpi--balance' : 'project-v2-kpi--expense'
+                summary.balance >= 0
+                  ? 'project-v2-kpi--balance'
+                  : 'project-v2-kpi--expense'
               }`}
             >
               <span className="project-v2-kpi__icon">
@@ -257,7 +259,9 @@ export function ProjectDetailsPage() {
                         </td>
                         <td dir="ltr">{entry.entryDate}</td>
                         <td>
-                          <span className={`project-v2-badge project-v2-badge--${entry.type}`}>
+                          <span
+                            className={`project-v2-badge project-v2-badge--${entry.type}`}
+                          >
                             {entry.type === 'income' ? 'إيراد' : 'مصروف'}
                           </span>
                         </td>
@@ -266,7 +270,9 @@ export function ProjectDetailsPage() {
                           {entry.description || '—'}
                         </td>
                         <td>{entry.contractor || '—'}</td>
-                        <td className={`project-v2-amount project-v2-amount--${entry.type}`}>
+                        <td
+                          className={`project-v2-amount project-v2-amount--${entry.type}`}
+                        >
                           <CurrencyValue value={entry.amount} />
                         </td>
                       </tr>
