@@ -288,8 +288,8 @@
   padding: 10px 13px;
   border: 1px solid rgba(194, 60, 52, 0.19);
   border-radius: 7px;
-  color: #9e332e;
-  background: #fff5f4;
+  color: var(--danger-text);
+  background: var(--danger-bg);
   font-size: 14px;
 }
 

@@ -17,7 +17,7 @@
 
 .accounts-header p {
   margin: 0;
-  color: var(--text-muted);
+  color: var(--muted);
 }
 
 .accounts-eyebrow {
@@ -40,7 +40,7 @@
 .accounts-total small {
   display: block;
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: var(--muted);
 }
 
 .accounts-grid {
@@ -150,12 +150,12 @@
 
 .accounts-table-wrap th {
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--muted);
 }
 
 .accounts-table-wrap td small {
   display: block;
-  color: var(--text-muted);
+  color: var(--muted);
   margin-top: 3px;
 }
 
@@ -172,7 +172,7 @@
   padding: 12px 14px;
   border-radius: 12px;
   background: rgba(190, 40, 40, 0.12);
-  color: #b52828;
+  color: var(--danger-text);
 }
 
 @media (max-width: 900px) {

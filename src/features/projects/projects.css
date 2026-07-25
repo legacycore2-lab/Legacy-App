@@ -78,8 +78,8 @@
   gap: 8px;
   padding: 0 18px;
   border-color: transparent;
-  background: linear-gradient(135deg, var(--gold), #e1c27f);
-  color: #172018;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--text);
   font-weight: 800;
 }
 

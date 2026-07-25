@@ -98,9 +98,9 @@
 }
 
 .journal-entry-errors {
-  border: 1px solid #f3b7b2;
-  color: #b42318;
-  background: #fff1f0;
+  border: 1px solid var(--danger-border);
+  color: var(--danger-text);
+  background: var(--danger-bg);
 }
 
 .journal-entry-errors p + p {
@@ -181,10 +181,10 @@
   align-items: center;
   gap: 7px;
   padding: 9px 16px;
-  border: 1px solid #fda29b;
+  border: 1px solid var(--danger-border);
   border-radius: 10px;
   background: transparent;
-  color: #b42318;
+  color: var(--danger-text);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -192,7 +192,7 @@
 }
 
 .journal-force-delete-btn:hover {
-  background: #fff1f0;
+  background: var(--danger-bg);
 }
 
 .journal-force-delete-panel {
@@ -206,16 +206,16 @@
   align-items: flex-start;
   gap: 12px;
   padding: 14px;
-  background: #fff4e5;
-  border: 1px solid #f5a623;
+  background: var(--warning-bg);
+  border: 1px solid var(--warning);
   border-radius: 12px;
-  color: #7a4100;
+  color: var(--warning-text);
 }
 
 .journal-force-delete-warning svg {
   flex-shrink: 0;
   margin-top: 2px;
-  color: #f5a623;
+  color: var(--warning);
 }
 
 .journal-force-delete-warning p {
@@ -251,15 +251,15 @@
 .journal-force-delete-label textarea:focus,
 .journal-force-delete-label input:focus {
   outline: none;
-  border-color: #b42318;
+  border-color: var(--danger-text);
 }
 
 .journal-force-delete-error {
   padding: 10px 14px;
-  border: 1px solid #fecdca;
+  border: 1px solid var(--danger-border);
   border-radius: 10px;
-  background: #fff1f0;
-  color: #b42318;
+  background: var(--danger-bg);
+  color: var(--danger-text);
   font-size: 13px;
 }
 
@@ -291,7 +291,7 @@
   padding: 10px 18px;
   border: none;
   border-radius: 10px;
-  background: #b42318;
+  background: var(--danger-text);
   color: #fff;
   font-weight: 700;
   cursor: pointer;

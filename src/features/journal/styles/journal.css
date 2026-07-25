@@ -125,7 +125,7 @@
   margin: 0;
 }
 .journal-error {
-  color: #b42318;
+  color: var(--danger-text);
 }
 .journal-type {
   padding: 4px 9px;
@@ -134,12 +134,12 @@
   font-weight: 700;
 }
 .journal-type--income {
-  background: #e8f7ef;
-  color: #167a45;
+  background: var(--income-bg);
+  color: var(--income-text);
 }
 .journal-type--expense {
-  background: #fdecec;
-  color: #b42318;
+  background: var(--expense-bg);
+  color: var(--danger-text);
 }
 .journal-pagination {
   display: flex;
