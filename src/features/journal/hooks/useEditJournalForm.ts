@@ -18,9 +18,8 @@ function resolveIds(
   if (!options) return { projectId: '', categoryAccountId: '', paymentAccountId: '' }
   const projectId = options.projects.find((p) => p.name === entry.projectName)?.id ?? ''
   const categoryAccountId =
-    options.accounts.find(
-      (a) => a.name === entry.category || `${a.code} - ${a.name}` === entry.category,
-    )?.id ?? ''
+    options.accounts.find((a) => a.name === entry.category || `${a.code} - ${a.name}` === entry.category)
+      ?.id ?? ''
   const paymentAccountId =
     options.accounts.find(
       (a) => a.name === entry.paymentMethod || `${a.code} - ${a.name}` === entry.paymentMethod,
@@ -28,7 +27,18 @@ function resolveIds(
   return { projectId, categoryAccountId, paymentAccountId }
 }
 
-type LocalOverrides = Partial<Pick<SingleLineJournalInput, 'projectId' | 'projectName' | 'categoryAccountId' | 'category' | 'paymentAccountId' | 'paymentAccount' | 'type'>>
+type LocalOverrides = Partial<
+  Pick<
+    SingleLineJournalInput,
+    | 'projectId'
+    | 'projectName'
+    | 'categoryAccountId'
+    | 'category'
+    | 'paymentAccountId'
+    | 'paymentAccount'
+    | 'type'
+  >
+>
 
 export function useEditJournalForm(entry: JournalEntry) {
   const queryClient = useQueryClient()
@@ -57,10 +67,7 @@ export function useEditJournalForm(entry: JournalEntry) {
   )
 
   // الـ IDs بتتحسب من الـ options — مش state، مش effect
-  const resolvedIds = useMemo(
-    () => resolveIds(entry, optionsQuery.data),
-    [entry, optionsQuery.data],
-  )
+  const resolvedIds = useMemo(() => resolveIds(entry, optionsQuery.data), [entry, optionsQuery.data])
 
   // القيمة النهائية = resolved IDs + overrides من المستخدم + باقي الحقول
   const value: SingleLineJournalInput = useMemo(
@@ -154,9 +161,7 @@ export function useEditJournalForm(entry: JournalEntry) {
     categoryAccounts,
     paymentAccounts,
     isLoadingOptions: optionsQuery.isLoading,
-    optionsError: optionsQuery.error
-      ? toErrorMessage(optionsQuery.error, 'تعذر تحميل خيارات القيد.')
-      : '',
+    optionsError: optionsQuery.error ? toErrorMessage(optionsQuery.error, 'تعذر تحميل خيارات القيد.') : '',
     submit,
     isSaving: mutation.isPending,
     saveError: mutation.error ? toErrorMessage(mutation.error, 'تعذر حفظ التعديل.') : '',
