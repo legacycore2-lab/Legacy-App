@@ -11,39 +11,35 @@ import {
 import type { JournalPostingOptions, SingleLineJournalInput } from '../types/journal-entry.types'
 import type { JournalEntry } from '../types/journal.types'
 
-function resolveIds(entry: JournalEntry, options: JournalPostingOptions | undefined): SingleLineJournalInput {
-  const projects = options?.projects ?? []
-  const accounts = options?.accounts ?? []
-
-  const matchedProject = projects.find((p) => p.name === entry.projectName)
-  const matchedCategory = accounts.find(
-    (a) => a.name === entry.category || `${a.code} - ${a.name}` === entry.category,
-  )
-  const matchedPayment = accounts.find(
-    (a) => a.name === entry.paymentMethod || `${a.code} - ${a.name}` === entry.paymentMethod,
-  )
-
-  return {
-    requestId: crypto.randomUUID(),
-    entryDate: entry.entryDate,
-    projectId: matchedProject?.id ?? '',
-    projectName: entry.projectName,
-    type: entry.type,
-    categoryAccountId: matchedCategory?.id ?? '',
-    category: entry.category,
-    description: entry.description,
-    contractor: entry.contractor ?? '',
-    paymentAccountId: matchedPayment?.id ?? '',
-    paymentAccount: entry.paymentMethod ?? '',
-    amount: String(entry.amount),
-  }
+function resolveIds(
+  entry: JournalEntry,
+  options: JournalPostingOptions | undefined,
+): Pick<SingleLineJournalInput, 'projectId' | 'categoryAccountId' | 'paymentAccountId'> {
+  if (!options) return { projectId: '', categoryAccountId: '', paymentAccountId: '' }
+  const projectId = options.projects.find((p) => p.name === entry.projectName)?.id ?? ''
+  const categoryAccountId =
+    options.accounts.find(
+      (a) => a.name === entry.category || `${a.code} - ${a.name}` === entry.category,
+    )?.id ?? ''
+  const paymentAccountId =
+    options.accounts.find(
+      (a) => a.name === entry.paymentMethod || `${a.code} - ${a.name}` === entry.paymentMethod,
+    )?.id ?? ''
+  return { projectId, categoryAccountId, paymentAccountId }
 }
+
+type LocalOverrides = Partial<Pick<SingleLineJournalInput, 'projectId' | 'projectName' | 'categoryAccountId' | 'category' | 'paymentAccountId' | 'paymentAccount' | 'type'>>
 
 export function useEditJournalForm(entry: JournalEntry) {
   const queryClient = useQueryClient()
   const submissionInProgressRef = useRef(false)
-  const initializedRef = useRef(false)
-  const [value, setValue] = useState<SingleLineJournalInput>(() => resolveIds(entry, undefined))
+  const [overrides, setOverrides] = useState<LocalOverrides>({})
+  const [fields, setFields] = useState({
+    entryDate: entry.entryDate,
+    description: entry.description,
+    contractor: entry.contractor ?? '',
+    amount: String(entry.amount),
+  })
   const [submitted, setSubmitted] = useState(false)
 
   const optionsQuery = useQuery({
@@ -60,17 +56,30 @@ export function useEditJournalForm(entry: JournalEntry) {
     [queryClient],
   )
 
-  // بعد تحميل الـ options، نحدّث الـ IDs مرة واحدة فقط عبر scheduler
-  const resolvedValue = useMemo(
-    () => (optionsQuery.data && !initializedRef.current ? resolveIds(entry, optionsQuery.data) : null),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [optionsQuery.data],
+  // الـ IDs بتتحسب من الـ options — مش state، مش effect
+  const resolvedIds = useMemo(
+    () => resolveIds(entry, optionsQuery.data),
+    [entry, optionsQuery.data],
   )
 
-  if (resolvedValue && !initializedRef.current) {
-    initializedRef.current = true
-    setValue(resolvedValue)
-  }
+  // القيمة النهائية = resolved IDs + overrides من المستخدم + باقي الحقول
+  const value: SingleLineJournalInput = useMemo(
+    () => ({
+      requestId: entry.id,
+      entryDate: fields.entryDate,
+      projectId: overrides.projectId ?? resolvedIds.projectId,
+      projectName: overrides.projectName ?? entry.projectName,
+      type: overrides.type ?? entry.type,
+      categoryAccountId: overrides.categoryAccountId ?? resolvedIds.categoryAccountId,
+      category: overrides.category ?? entry.category,
+      description: fields.description,
+      contractor: fields.contractor,
+      paymentAccountId: overrides.paymentAccountId ?? resolvedIds.paymentAccountId,
+      paymentAccount: overrides.paymentAccount ?? entry.paymentMethod ?? '',
+      amount: fields.amount,
+    }),
+    [fields, overrides, resolvedIds, entry],
+  )
 
   const errors = useMemo(() => validateSingleLineEntry(value), [value])
   const preview = useMemo(() => buildJournalPreview(value), [value])
@@ -85,35 +94,34 @@ export function useEditJournalForm(entry: JournalEntry) {
     },
   })
 
-  const update = <K extends keyof SingleLineJournalInput>(
-    key: K,
-    nextValue: SingleLineJournalInput[K],
-  ) => setValue((current) => ({ ...current, [key]: nextValue }))
+  const update = (key: keyof typeof fields, nextValue: string) =>
+    setFields((current) => ({ ...current, [key]: nextValue }))
 
   const options = optionsQuery.data
   const projects = options?.projects ?? []
+  const currentType = value.type
   const categoryAccounts = (options?.accounts ?? []).filter((a) =>
-    value.type === 'expense' ? a.accountType === 'expense' : a.accountType === 'revenue',
+    currentType === 'expense' ? a.accountType === 'expense' : a.accountType === 'revenue',
   )
   const paymentAccounts = (options?.accounts ?? []).filter((a) => a.accountType === 'asset')
 
   const selectProject = (id: string) => {
     const project = projects.find((p) => p.id === id)
-    setValue((c) => ({ ...c, projectId: id, projectName: project?.name ?? '' }))
+    setOverrides((c) => ({ ...c, projectId: id, projectName: project?.name ?? '' }))
   }
 
   const selectCategoryAccount = (id: string) => {
     const account = categoryAccounts.find((a) => a.id === id)
-    setValue((c) => ({ ...c, categoryAccountId: id, category: account?.name ?? '' }))
+    setOverrides((c) => ({ ...c, categoryAccountId: id, category: account?.name ?? '' }))
   }
 
   const selectPaymentAccount = (id: string) => {
     const account = paymentAccounts.find((a) => a.id === id)
-    setValue((c) => ({ ...c, paymentAccountId: id, paymentAccount: account?.name ?? '' }))
+    setOverrides((c) => ({ ...c, paymentAccountId: id, paymentAccount: account?.name ?? '' }))
   }
 
   const selectType = (type: SingleLineJournalInput['type']) => {
-    setValue((c) => ({ ...c, type, categoryAccountId: '', category: '' }))
+    setOverrides((c) => ({ ...c, type, categoryAccountId: '', category: '' }))
   }
 
   const submit = async (): Promise<boolean> => {
