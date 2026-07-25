@@ -2,6 +2,7 @@ import {
   findJournalPostingOptions,
   postSingleLineEntry,
   deleteJournalEntry,
+  forceDeleteJournalEntry,
   updateJournalEntry,
   subscribeToJournalPostingOptionChanges,
 } from '../repositories/journal.repository'
@@ -73,6 +74,12 @@ export function watchJournalPostingOptions(onChange: () => void): () => void {
 
 export async function removeJournalEntry(entryId: string): Promise<void> {
   return deleteJournalEntry(entryId)
+}
+
+export async function permanentlyRemoveJournalEntry(entryId: string, reason: string): Promise<void> {
+  if (!entryId) throw new Error('معرف القيد مطلوب.')
+  if (reason.trim().length < 5) throw new Error('سبب الحذف النهائي مطلوب، وبحد أدنى 5 أحرف.')
+  return forceDeleteJournalEntry(entryId, reason.trim())
 }
 
 export async function editJournalEntry(entryId: string, input: SingleLineJournalInput): Promise<void> {
