@@ -112,7 +112,6 @@
 .dashboard-primary-grid > .dashboard-widget {
   min-height: 0;
   height: 100%;
-  overflow: auto;
 }
 
 @media (max-width: 1240px) {
@@ -134,11 +133,6 @@
 @media (max-width: 900px) {
   .dashboard-details {
     grid-template-rows: auto;
-  }
-
-  .dashboard-primary-grid,
-  .dashboard-primary-grid > .dashboard-widget {
-    overflow: visible;
   }
 }
 @media (max-width: 520px) {
