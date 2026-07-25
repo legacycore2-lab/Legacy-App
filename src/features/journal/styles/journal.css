@@ -1,24 +1,40 @@
+/* ─── Journal Page ───────────────────────────────────────────────────────── */
+
 .journal-page {
   display: grid;
-  gap: 22px;
+  gap: clamp(14px, 1.4vw, 22px);
+  min-width: 0;
 }
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+
 .journal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  min-width: 0;
 }
+
+.journal-header > div {
+  min-width: 0;
+}
+
 .journal-header span {
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--muted);
 }
+
 .journal-header h1 {
   margin: 4px 0 6px;
+  overflow-wrap: anywhere;
 }
+
 .journal-header p {
   margin: 0;
-  color: var(--text-muted);
+  color: var(--muted);
 }
+
 .journal-primary {
   display: inline-flex;
   align-items: center;
@@ -29,41 +45,66 @@
   background: var(--primary);
   color: #fff;
   font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
+
 .journal-primary:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
+
+/* ─── Stats ──────────────────────────────────────────────────────────────── */
+
 .journal-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
 }
+
 .journal-stats article {
+  min-width: 0;
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto minmax(0, 1fr);
   gap: 6px 10px;
   padding: 18px;
   border: 1px solid var(--border);
   border-radius: 16px;
   background: var(--surface);
 }
+
 .journal-stats article svg {
-  grid-row: 1/3;
+  grid-row: 1 / 3;
 }
+
 .journal-stats span {
-  color: var(--text-muted);
+  color: var(--muted);
   font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+
+/* Amount: never clip, wrap instead */
 .journal-stats strong {
-  font-size: 20px;
+  font-size: clamp(15px, 1.6vw, 20px);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
+
+/* ─── Toolbar ────────────────────────────────────────────────────────────── */
+
 .journal-toolbar {
   display: flex;
   gap: 12px;
+  min-width: 0;
 }
+
 .journal-toolbar label {
   flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -72,6 +113,7 @@
   border-radius: 12px;
   background: var(--surface);
 }
+
 .journal-toolbar input,
 .journal-toolbar select {
   width: 100%;
@@ -79,7 +121,9 @@
   outline: 0;
   background: transparent;
   color: inherit;
+  font: inherit;
 }
+
 .journal-toolbar select {
   width: auto;
   min-width: 150px;
@@ -88,17 +132,30 @@
   border-radius: 12px;
   background: var(--surface);
 }
+
+/* ─── Table wrapper ──────────────────────────────────────────────────────── */
+
+/*
+ * overflow-x: auto — horizontal scroll inside container only.
+ * NO overflow-y — let the page scroll naturally.
+ * This prevents the table from causing page-level horizontal scroll.
+ */
 .journal-table-wrap {
-  overflow: auto;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid var(--border);
   border-radius: 16px;
   background: var(--surface);
 }
+
 .journal-table-wrap table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1050px;
+  min-width: 980px;
 }
+
 .journal-table-wrap th,
 .journal-table-wrap td {
   padding: 14px 12px;
@@ -106,10 +163,27 @@
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
 }
+
+/* Sticky header inside scroll container */
 .journal-table-wrap th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
   font-size: 12px;
-  color: var(--text-muted);
+  color: var(--muted);
+  background: color-mix(in srgb, var(--surface) 97%, transparent);
 }
+
+.journal-table-wrap tbody tr:hover {
+  background: color-mix(in srgb, var(--primary) 3%, transparent);
+}
+
+.journal-table-wrap tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* ─── States ─────────────────────────────────────────────────────────────── */
+
 .journal-state {
   min-height: 260px;
   display: grid;
@@ -117,40 +191,55 @@
   align-content: center;
   gap: 8px;
   text-align: center;
-  color: var(--text-muted);
+  color: var(--muted);
   padding: 28px;
 }
+
 .journal-state h2,
 .journal-state p {
   margin: 0;
 }
+
 .journal-error {
-  color: #b42318;
+  color: var(--danger);
 }
+
+/* ─── Type badge ─────────────────────────────────────────────────────────── */
+
 .journal-type {
+  display: inline-flex;
+  align-items: center;
   padding: 4px 9px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
+  white-space: nowrap;
 }
+
 .journal-type--income {
-  background: #e8f7ef;
-  color: #167a45;
+  background: var(--green-soft);
+  color: var(--green);
 }
+
 .journal-type--expense {
-  background: #fdecec;
-  color: #b42318;
+  background: rgba(220, 38, 38, 0.1);
+  color: var(--danger);
 }
+
+/* ─── Pagination ─────────────────────────────────────────────────────────── */
+
 .journal-pagination {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
 }
+
 .journal-pagination span {
-  color: var(--text-muted);
+  color: var(--muted);
   font-size: 13px;
 }
+
 .journal-pagination button {
   min-width: 86px;
   padding: 9px 14px;
@@ -159,11 +248,16 @@
   color: var(--text);
   background: var(--surface);
   cursor: pointer;
+  font: inherit;
 }
+
 .journal-pagination button:disabled {
   cursor: not-allowed;
   opacity: 0.45;
 }
+
+/* ─── View button ────────────────────────────────────────────────────────── */
+
 .journal-view-button {
   display: inline-flex;
   align-items: center;
@@ -174,7 +268,12 @@
   color: var(--text);
   background: var(--surface-soft);
   cursor: pointer;
+  font: inherit;
+  white-space: nowrap;
 }
+
+/* ─── Details dialog ─────────────────────────────────────────────────────── */
+
 .journal-details-backdrop {
   position: fixed;
   inset: 0;
@@ -184,15 +283,17 @@
   padding: 20px;
   background: rgb(0 0 0 / 45%);
 }
+
 .journal-details-dialog {
   width: min(780px, 100%);
-  max-height: 90vh;
+  max-height: 90dvh;
   overflow: auto;
   border: 1px solid var(--border);
   border-radius: 20px;
   background: var(--surface);
   box-shadow: 0 24px 70px rgb(0 0 0 / 22%);
 }
+
 .journal-details-dialog > header {
   display: flex;
   align-items: center;
@@ -201,14 +302,17 @@
   padding: 20px;
   border-bottom: 1px solid var(--border);
 }
+
 .journal-details-dialog header h2,
 .journal-details-dialog header span {
   margin: 0;
 }
+
 .journal-details-dialog header span,
 .journal-details-summary dt {
-  color: var(--text-muted);
+  color: var(--muted);
 }
+
 .journal-details-dialog header button {
   display: grid;
   place-items: center;
@@ -219,87 +323,116 @@
   color: var(--text);
   background: transparent;
   cursor: pointer;
+  flex-shrink: 0;
 }
+
 .journal-details-content {
   display: grid;
   gap: 18px;
   padding: 20px;
 }
+
 .journal-details-state {
   min-height: 220px;
   display: grid;
   place-items: center;
   padding: 24px;
-  color: var(--text-muted);
+  color: var(--muted);
 }
+
 .journal-details-summary {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   margin: 0;
 }
+
 .journal-details-summary div {
   padding: 12px;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--surface-soft);
 }
+
 .journal-details-summary dt {
   margin-bottom: 5px;
   font-size: 12px;
 }
+
 .journal-details-summary dd {
   margin: 0;
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
+
 .journal-details-lines {
-  overflow: auto;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
   border: 1px solid var(--border);
   border-radius: 14px;
 }
+
 .journal-details-lines table {
   width: 100%;
   min-width: 560px;
   border-collapse: collapse;
 }
+
 .journal-details-lines th,
 .journal-details-lines td {
   padding: 12px;
   border-bottom: 1px solid var(--border);
   text-align: right;
+  white-space: nowrap;
 }
+
 .journal-details-lines td small {
   display: block;
   margin-top: 3px;
-  color: var(--text-muted);
+  color: var(--muted);
 }
+
 .journal-details-lines tfoot th {
   background: var(--surface-soft);
 }
+
+/* ─── Responsive breakpoints ─────────────────────────────────────────────── */
+
 @media (max-width: 900px) {
   .journal-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
   .journal-header,
   .journal-toolbar {
     align-items: stretch;
     flex-direction: column;
   }
+
+  .journal-primary {
+    align-self: flex-start;
+  }
+
   .journal-toolbar select {
     width: 100%;
   }
 }
+
 @media (max-width: 560px) {
   .journal-stats {
     grid-template-columns: 1fr;
   }
+
   .journal-header h1 {
     font-size: 25px;
   }
+
   .journal-details-summary {
     grid-template-columns: 1fr;
   }
 }
+
+/* ─── Container queries ──────────────────────────────────────────────────── */
 
 @container page (max-width: 720px) {
   .journal-stats {
@@ -310,6 +443,10 @@
   .journal-toolbar {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .journal-primary {
+    align-self: flex-start;
   }
 
   .journal-toolbar select {
