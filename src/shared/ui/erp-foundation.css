@@ -1,0 +1,368 @@
+/*
+ * Legacy Core ERP — Responsive Foundation
+ * Shared layout primitives reused by every page.
+ * Uses design tokens from tokens.css only — no hardcoded colors.
+ */
+
+/* ─── ERPPage ─────────────────────────────────────────────────────────────── */
+.erp-page {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  padding-bottom: 2rem;
+}
+
+/* ─── ERPSection ──────────────────────────────────────────────────────────── */
+.erp-section {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+
+.erp-section__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.95rem 1.15rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.erp-section__header-info > span {
+  display: block;
+  margin-bottom: 0.18rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.erp-section__header-info h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.erp-section__body {
+  padding: 1.1rem 1.15rem;
+}
+
+/* ─── ERPContent ──────────────────────────────────────────────────────────── */
+.erp-content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ─── ERPGrid ─────────────────────────────────────────────────────────────── */
+.erp-grid {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.erp-grid--4col {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.erp-grid--3col {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.erp-grid--2col {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.erp-grid--auto {
+  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
+}
+
+/* ─── ERPCard ─────────────────────────────────────────────────────────────── */
+.erp-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+[data-theme='dark'] .erp-card {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* ─── KPIGrid ─────────────────────────────────────────────────────────────── */
+.erp-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.erp-kpi-card {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+[data-theme='dark'] .erp-kpi-card {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.erp-kpi-card__icon {
+  width: 2.9rem;
+  height: 2.9rem;
+  flex: 0 0 2.9rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.85rem;
+}
+
+.erp-kpi-card__body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.erp-kpi-card__label {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+/*
+ * CRITICAL: KPI values must NEVER be clipped.
+ * word-break + overflow-wrap allow wrapping instead of ellipsis.
+ */
+.erp-kpi-card__value {
+  color: var(--text);
+  font-size: clamp(0.9rem, 1.4vw, 1.2rem);
+  font-weight: 900;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── ERPTable ────────────────────────────────────────────────────────────── */
+/*
+ * Horizontal scroll inside container only.
+ * Page NEVER gets a horizontal scrollbar.
+ * Header is sticky inside the scroll container.
+ */
+.erp-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.erp-table {
+  width: 100%;
+  min-width: 680px;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.erp-table th,
+.erp-table td {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  vertical-align: middle;
+}
+
+.erp-table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: color-mix(in srgb, var(--surface-soft) 95%, transparent);
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.erp-table td {
+  color: var(--text);
+}
+
+.erp-table tbody tr:hover {
+  background: color-mix(in srgb, var(--primary) 4%, transparent);
+}
+
+.erp-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Currency: never clip, never break mid-digit */
+.erp-table__currency {
+  white-space: nowrap;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.erp-table__number {
+  white-space: nowrap;
+  font-weight: 900;
+  direction: ltr;
+  text-align: center;
+}
+
+.erp-table__text {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── ERPBadge ────────────────────────────────────────────────────────────── */
+.erp-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.26rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.erp-badge--income {
+  background: var(--income-soft);
+  color: var(--income-text);
+}
+
+.erp-badge--expense {
+  background: var(--expense-soft);
+  color: var(--expense-text);
+}
+
+.erp-badge--neutral {
+  background: color-mix(in srgb, var(--surface-strong) 80%, transparent);
+  color: var(--muted);
+}
+
+.erp-badge--gold {
+  background: var(--gold-soft);
+  color: var(--gold);
+}
+
+.erp-badge--success {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+/* ─── ERPEmpty ────────────────────────────────────────────────────────────── */
+.erp-empty {
+  min-height: 12rem;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.65rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.erp-empty p {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+/* ─── ERPCurrency ─────────────────────────────────────────────────────────── */
+.erp-currency {
+  display: inline;
+  unicode-bidi: isolate;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Responsive breakpoints ──────────────────────────────────────────────── */
+
+@media (max-width: 1280px) {
+  .erp-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .erp-grid--4col {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1024px) {
+  .erp-grid--3col {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .erp-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .erp-grid--3col,
+  .erp-grid--4col {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .erp-kpi-grid,
+  .erp-grid--2col,
+  .erp-grid--3col,
+  .erp-grid--4col {
+    grid-template-columns: 1fr;
+  }
+
+  .erp-page {
+    gap: 0.85rem;
+    padding-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .erp-kpi-card {
+    padding: 0.85rem;
+  }
+
+  .erp-section__header {
+    padding: 0.85rem 1rem;
+  }
+
+  .erp-table th,
+  .erp-table td {
+    padding: 0.75rem;
+  }
+}
+
+/* ─── Container queries ───────────────────────────────────────────────────── */
+
+@container page (max-width: 900px) {
+  .erp-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .erp-grid--4col {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container page (max-width: 520px) {
+  .erp-kpi-grid,
+  .erp-grid--2col,
+  .erp-grid--3col,
+  .erp-grid--4col {
+    grid-template-columns: 1fr;
+  }
+}
