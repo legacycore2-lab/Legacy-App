@@ -186,12 +186,25 @@ a {
 }
 
 /* ─── Desktop one-screen mode ─────────────────────────────────────────────
-   app-main fills the full viewport height as a flex column.
-   page-content grows to fill exactly the space below the topbar.
-   Child pages opt in to one-screen by setting height:100% + overflow:hidden.
-   Tablet/mobile keeps normal block flow (height:auto, natural scroll).
+   Lock html → body → #root → app-layout → app-main to exactly 100dvh.
+   This is the only reliable way to prevent body scroll at any Zoom level.
+   page-content:overflow:auto handles scroll for non-dashboard pages.
+   Tablet/mobile resets everything to natural flow.
 ───────────────────────────────────────────────────────────────────────── */
 @media (min-width: 1041px) and (min-height: 700px) {
+  html,
+  body,
+  #root {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .app-layout {
+    height: 100dvh;
+    min-height: unset;
+    overflow: hidden;
+  }
+
   .app-main {
     height: 100dvh;
     overflow: hidden;
@@ -203,9 +216,23 @@ a {
   .page-content {
     flex: 1;
     min-height: 0;
-    /* overflow:auto: dashboard-details (height:100%, overflow:hidden) stays one-screen.
-       Other pages scroll within this container; erp-page provides its own bottom padding. */
+    /* overflow:auto: dashboard stays one-screen via height:100% + overflow:hidden.
+       Other pages scroll within page-content; topbar stays fixed above. */
     overflow: auto;
+  }
+}
+
+@media (max-width: 1040px), (max-height: 699px) {
+  html,
+  body,
+  #root {
+    height: auto;
+    overflow-x: clip;
+    overflow-y: auto;
+  }
+
+  .app-layout {
+    height: auto;
   }
 }
 
