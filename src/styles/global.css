@@ -185,6 +185,30 @@ a {
   container-type: inline-size;
 }
 
+/* ─── Desktop one-screen mode ─────────────────────────────────────────────
+   app-main fills the full viewport height as a flex column.
+   page-content grows to fill exactly the space below the topbar.
+   Child pages opt in to one-screen by setting height:100% + overflow:hidden.
+   Tablet/mobile keeps normal block flow (height:auto, natural scroll).
+───────────────────────────────────────────────────────────────────────── */
+@media (min-width: 1041px) and (min-height: 700px) {
+  .app-main {
+    height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 0;
+  }
+
+  .page-content {
+    flex: 1;
+    min-height: 0;
+    /* overflow:auto: dashboard-details (height:100%, overflow:hidden) stays one-screen.
+       Other pages scroll within this container; erp-page provides its own bottom padding. */
+    overflow: auto;
+  }
+}
+
 .avatar {
   width: 38px;
   height: 38px;
