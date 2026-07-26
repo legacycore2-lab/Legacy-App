@@ -139,7 +139,7 @@ export async function findJournalDetails(entryId: string): Promise<JournalDetail
     .maybeSingle()
 
   if (error) throw error
-  return data as unknown as JournalDetailsRecord | null
+  return (data ?? null) as JournalDetailsRecord | null
 }
 
 export async function postSingleLineEntry(input: SingleLineJournalInput): Promise<string> {

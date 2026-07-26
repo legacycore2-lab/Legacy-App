@@ -1,5 +1,6 @@
 import { getSupabaseClient } from '../../../lib/supabase/client'
 import { subscribeToTableChanges } from '../../../lib/supabase/realtime'
+import type { ProjectRow } from '../../../lib/supabase/database.types'
 import type { ProjectInsertRecord, ProjectRecord } from '../types/project.types'
 
 const PROJECT_FIELDS = [
@@ -31,7 +32,7 @@ export async function findProjects(): Promise<ProjectRecord[]> {
 
   if (error) throw error
 
-  return (data ?? []) as unknown as ProjectRecord[]
+  return (data ?? []) as ProjectRow[] as unknown as ProjectRecord[]
 }
 
 export async function insertProject(record: ProjectInsertRecord): Promise<ProjectRecord> {
@@ -44,7 +45,7 @@ export async function insertProject(record: ProjectInsertRecord): Promise<Projec
   if (error) throw error
   if (!data) throw new Error('Supabase did not return the created project.')
 
-  return data as unknown as ProjectRecord
+  return data as ProjectRow as unknown as ProjectRecord
 }
 
 export async function updateProject(id: string, record: ProjectInsertRecord): Promise<ProjectRecord> {
@@ -58,7 +59,7 @@ export async function updateProject(id: string, record: ProjectInsertRecord): Pr
   if (error) throw error
   if (!data) throw new Error('Supabase did not return the updated project.')
 
-  return data as unknown as ProjectRecord
+  return data as ProjectRow as unknown as ProjectRecord
 }
 
 export function subscribeToProjectChanges(onChange: () => void): () => void {
@@ -74,7 +75,7 @@ export type ProjectEntryRecord = {
   description: string | null
   contractor_name: string | null
   payment_method: string | null
-  amount: number | string
+  amount: number
 }
 
 export async function findProjectById(id: string): Promise<ProjectRecord | null> {
@@ -85,7 +86,7 @@ export async function findProjectById(id: string): Promise<ProjectRecord | null>
     .maybeSingle()
 
   if (error) throw error
-  return data as unknown as ProjectRecord | null
+  return data as ProjectRow | null as unknown as ProjectRecord | null
 }
 
 export async function findProjectEntries(projectId: string): Promise<ProjectEntryRecord[]> {
@@ -99,5 +100,5 @@ export async function findProjectEntries(projectId: string): Promise<ProjectEntr
     .order('entry_number', { ascending: false })
 
   if (error) throw error
-  return (data ?? []) as unknown as ProjectEntryRecord[]
+  return (data ?? []) as ProjectEntryRecord[]
 }
