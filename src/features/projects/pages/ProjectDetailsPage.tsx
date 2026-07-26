@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import {
   ArrowRight,
   BriefcaseBusiness,

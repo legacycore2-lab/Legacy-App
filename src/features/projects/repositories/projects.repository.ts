@@ -32,7 +32,7 @@ export async function findProjects(): Promise<ProjectRecord[]> {
 
   if (error) throw error
 
-  return (data ?? []) as ProjectRow[] as unknown as ProjectRecord[]
+  return (data ?? []) as unknown as ProjectRecord[]
 }
 
 export async function insertProject(record: ProjectInsertRecord): Promise<ProjectRecord> {
@@ -45,7 +45,7 @@ export async function insertProject(record: ProjectInsertRecord): Promise<Projec
   if (error) throw error
   if (!data) throw new Error('Supabase did not return the created project.')
 
-  return data as ProjectRow as unknown as ProjectRecord
+  return data as unknown as ProjectRecord
 }
 
 export async function updateProject(id: string, record: ProjectInsertRecord): Promise<ProjectRecord> {
@@ -59,7 +59,7 @@ export async function updateProject(id: string, record: ProjectInsertRecord): Pr
   if (error) throw error
   if (!data) throw new Error('Supabase did not return the updated project.')
 
-  return data as ProjectRow as unknown as ProjectRecord
+  return data as unknown as ProjectRecord
 }
 
 export function subscribeToProjectChanges(onChange: () => void): () => void {
