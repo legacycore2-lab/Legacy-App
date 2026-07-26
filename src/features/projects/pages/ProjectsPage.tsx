@@ -3,13 +3,12 @@ import { useState } from 'react'
 import { ExcelImportDialog } from '../components/ExcelImportDialog'
 import { ProjectCreateDialog } from '../components/ProjectCreateDialog'
 import { ProjectsStats } from '../components/ProjectsStats'
-import { ProjectsTable } from '../components/ProjectsTable'
 import { ProjectsToolbar } from '../components/ProjectsToolbar'
+import { ProjectsWorkspace } from '../components/ProjectsWorkspace'
 import { useProjectCreateForm } from '../hooks/useProjectCreateForm'
 import { useProjects } from '../hooks/useProjects'
 import '../excel-import.css'
 import '../project-create.css'
-import '../projects-table.css'
 import '../projects.css'
 
 export function ProjectsPage() {
@@ -23,30 +22,25 @@ export function ProjectsPage() {
         <div>
           <span className="projects-hero__eyebrow">مركز إدارة المشاريع</span>
           <h1>المشاريع</h1>
-          <p>متابعة التنفيذ والتدفقات المالية واستيراد البيانات من مكان واحد.</p>
+          <p>صورة لحظية للمشروعات والتنفيذ والسيولة من شاشة واحدة.</p>
         </div>
         <div className="projects-hero__actions">
           <button className="projects-secondary-action" type="button" onClick={() => setImportOpen(true)}>
-            استيراد من Excel
+            استيراد Excel
           </button>
           <button className="projects-primary-action" type="button" onClick={projectCreate.open}>
             <Plus size={18} /> مشروع جديد
           </button>
         </div>
       </header>
+
       <ProjectsStats summary={summary} />
+      <ProjectsToolbar query={query} status={status} onQueryChange={setQuery} onStatusChange={setStatus} />
+
       {isLoading && <div className="projects-empty">جاري تحميل المشاريع...</div>}
       {error && <div className="projects-empty">{error}</div>}
-      <ProjectsToolbar query={query} status={status} onQueryChange={setQuery} onStatusChange={setStatus} />
-      <div className="projects-section-heading">
-        <div>
-          <span>المحفظة الحالية</span>
-          <h2>كل المشاريع</h2>
-        </div>
-        <small>{projectRows.length} مشروع</small>
-      </div>
       {!isLoading && !error && projectRows.length > 0 ? (
-        <ProjectsTable projects={projectRows} onEdit={projectCreate.edit} />
+        <ProjectsWorkspace projects={projectRows} onEdit={projectCreate.edit} />
       ) : !isLoading && !error ? (
         <div className="projects-empty">
           <BriefcaseBusiness size={28} />
@@ -54,6 +48,7 @@ export function ProjectsPage() {
           <p>جرّب تغيير كلمة البحث أو حالة المشروع.</p>
         </div>
       ) : null}
+
       <ProjectCreateDialog {...projectCreate} />
       <ExcelImportDialog open={importOpen} onClose={() => setImportOpen(false)} />
     </section>
