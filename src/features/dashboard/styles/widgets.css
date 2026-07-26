@@ -164,6 +164,46 @@
   color: var(--danger);
 }
 
+@media (min-width: 1041px) and (min-height: 700px) {
+  .dashboard-widget {
+    min-height: 0;
+    overflow: hidden;
+    padding: clamp(12px, 1.5vh, 16px);
+    border-radius: 15px;
+  }
+
+  .widget-header {
+    margin-bottom: clamp(5px, 0.8vh, 9px);
+  }
+
+  .widget-header h2 {
+    font-size: 16px;
+  }
+
+  .project-list,
+  .entries-list {
+    min-height: 0;
+    max-height: calc(100% - 44px);
+    overflow: auto;
+    scrollbar-width: thin;
+  }
+
+  .project-row {
+    gap: 10px;
+    padding: clamp(7px, 1vh, 10px) 6px;
+  }
+
+  .entry-row {
+    padding: clamp(7px, 0.95vh, 10px) 6px;
+  }
+
+  .entry-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+  }
+}
+
 @media (max-width: 760px) {
   .project-row {
     grid-template-columns: 1fr auto;
