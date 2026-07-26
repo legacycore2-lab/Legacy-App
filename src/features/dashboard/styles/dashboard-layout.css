@@ -105,7 +105,7 @@
 /* Desktop/Laptop one-screen mode: page itself never scrolls. */
 @media (min-width: 1041px) and (min-height: 700px) {
   .dashboard-details {
-    height: calc(100dvh - 104px);
+    height: calc(100dvh - 104px - clamp(20px, 2vw, 32px));
     min-height: 0;
     overflow: hidden;
     grid-template-rows: auto auto minmax(0, 1fr) auto;
