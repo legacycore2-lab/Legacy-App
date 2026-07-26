@@ -1,6 +1,5 @@
 import { getSupabaseClient } from '../../../lib/supabase/client'
 import { subscribeToTableChanges } from '../../../lib/supabase/realtime'
-import type { ProjectRow, EntryRow } from '../../../lib/supabase/database.types'
 import type {
   DashboardEntryRecord,
   DashboardProjectRecord,
@@ -27,10 +26,7 @@ async function findProjects(): Promise<DashboardProjectRecord[]> {
 
   if (error) throw error
 
-  return (data ?? []) as Pick<
-    ProjectRow,
-    'id' | 'name' | 'client_name' | 'status' | 'progress' | 'is_archived'
-  >[] as unknown as DashboardProjectRecord[]
+  return (data ?? []) as unknown as DashboardProjectRecord[]
 }
 
 async function findEntries(): Promise<DashboardEntryRecord[]> {
@@ -42,7 +38,7 @@ async function findEntries(): Promise<DashboardEntryRecord[]> {
 
   if (error) throw error
 
-  return (data ?? []) as Partial<EntryRow>[] as unknown as DashboardEntryRecord[]
+  return (data ?? []) as unknown as DashboardEntryRecord[]
 }
 
 export async function findDashboardData(): Promise<DashboardSourceData> {
