@@ -38,7 +38,7 @@
 
 .project-create-dialog header span,
 .project-create-dialog header p {
-  color: var(--text-muted);
+  color: var(--muted);
 }
 
 .project-create-dialog header button {
@@ -73,7 +73,7 @@
 .project-create-grid label {
   display: grid;
   gap: 7px;
-  color: var(--text-muted);
+  color: var(--muted);
   font-size: 12px;
   font-weight: 700;
 }
@@ -106,9 +106,9 @@
 }
 
 .project-create-errors {
-  border: 1px solid #f3b7b2;
-  color: #b42318;
-  background: #fff1f0;
+  border: 1px solid var(--danger-border);
+  color: var(--danger-text);
+  background: var(--danger-bg);
 }
 
 .project-create-errors p {

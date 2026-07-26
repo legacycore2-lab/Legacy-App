@@ -10,11 +10,39 @@
   --muted: #68766f;
   --gold: #c8a55f;
   --gold-soft: rgba(200, 165, 95, 0.16);
+  --gold-light: #e1c27f;
   --green: #4d9b68;
   --green-soft: rgba(77, 155, 104, 0.14);
   --danger: #d9554d;
+  --danger-soft: rgba(220, 38, 38, 0.1);
+  --danger-border: #fda29b;
+  --danger-bg: #fff1f0;
+  --danger-text: #b42318;
   --border: rgba(27, 60, 45, 0.12);
   --primary: #0d5c3d;
+  --primary-dark: #075440;
+  --primary-darker: #003c30;
+  --primary-hover: #0e6047;
+
+  /* Semantic: income / expense */
+  --income: #16a34a;
+  --income-soft: rgba(22, 163, 74, 0.1);
+  --income-bg: #e8f7ef;
+  --income-text: #15803d;
+  --expense: #dc2626;
+  --expense-soft: rgba(220, 38, 38, 0.1);
+  --expense-bg: #fdecec;
+  --expense-text: #b42318;
+
+  /* Semantic: warning */
+  --warning-bg: #fff4e5;
+  --warning-border: #f5a623;
+  --warning-text: #7a4100;
+  --warning: #f5a623;
+
+  /* Semantic: contract / gold variant */
+  --contract: #a16207;
+  --contract-soft: rgba(202, 138, 4, 0.12);
 
   --radius-sm: 7px;
   --radius-md: 11px;
@@ -46,11 +74,37 @@
   --muted: #98a8a0;
   --gold: #d1aa60;
   --gold-soft: rgba(209, 170, 96, 0.14);
+  --gold-light: #c9a85c;
   --green: #75bf83;
   --green-soft: rgba(67, 145, 83, 0.17);
   --danger: #f05c51;
+  --danger-soft: rgba(240, 92, 81, 0.12);
+  --danger-border: #f97066;
+  --danger-bg: rgba(240, 92, 81, 0.1);
+  --danger-text: #f87171;
   --border: rgba(209, 170, 96, 0.15);
   --primary: #1a7a52;
+  --primary-dark: #0f6b51;
+  --primary-darker: #064839;
+  --primary-hover: #1a8a5c;
+
+  --income: #22c55e;
+  --income-soft: rgba(34, 197, 94, 0.12);
+  --income-bg: rgba(34, 197, 94, 0.08);
+  --income-text: #4ade80;
+  --expense: #f87171;
+  --expense-soft: rgba(248, 113, 113, 0.12);
+  --expense-bg: rgba(248, 113, 113, 0.08);
+  --expense-text: #fca5a5;
+
+  --warning-bg: rgba(245, 166, 35, 0.1);
+  --warning-border: #f5a623;
+  --warning-text: #fcd34d;
+  --warning: #f5a623;
+
+  --contract: #d97706;
+  --contract-soft: rgba(217, 119, 6, 0.14);
+
   --shadow-card: 0 24px 70px rgba(0, 0, 0, 0.34);
   --shadow-topbar: 0 14px 34px rgba(0, 0, 0, 0.24);
 }
