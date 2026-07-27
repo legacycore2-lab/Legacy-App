@@ -1,0 +1,139 @@
+:root {
+  --app-page-gap: clamp(8px, 1vw, 14px);
+  --app-page-padding-inline: clamp(8px, 1.2vw, 18px);
+  --app-page-padding-block: clamp(8px, 1vw, 14px);
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+body {
+  overscroll-behavior: none;
+}
+
+.app-layout {
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.sidebar {
+  min-height: 0;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
+.app-main {
+  width: 100%;
+  height: 100dvh;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: var(--app-page-padding-block) var(--app-page-padding-inline);
+}
+
+.app-main > header,
+.app-main > .topbar {
+  flex: 0 0 auto;
+}
+
+.page-content {
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding-top: var(--app-page-gap);
+}
+
+.page-content > * {
+  min-width: 0;
+}
+
+/* Shared page primitives. Pages keep their headers fixed while their data region scrolls internally. */
+.erp-viewport-page {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-page-gap);
+  overflow: hidden;
+}
+
+.erp-page-static {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.erp-scroll-region {
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.erp-table-shell {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+}
+
+.erp-table-scroll {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.erp-table-scroll table {
+  width: 100%;
+}
+
+.erp-table-scroll thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+@media (max-width: 900px) {
+  :root {
+    --app-page-padding-inline: 8px;
+    --app-page-padding-block: 8px;
+    --app-page-gap: 8px;
+  }
+
+  .app-main {
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+
+  .page-content {
+    scrollbar-gutter: auto;
+  }
+}
+
+@media (max-height: 720px) and (min-width: 901px) {
+  :root {
+    --app-page-padding-block: 8px;
+    --app-page-gap: 8px;
+  }
+}
