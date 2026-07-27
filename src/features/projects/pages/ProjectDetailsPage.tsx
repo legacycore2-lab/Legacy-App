@@ -101,9 +101,7 @@ export function ProjectDetailsPage() {
           <div className="project-command__identity">
             <div className="project-command__headline">
               <h1>{project.name}</h1>
-              <span
-                className={`project-command__status project-command__status--${project.status}`}
-              >
+              <span className={`project-command__status project-command__status--${project.status}`}>
                 {statusLabel[project.status]}
               </span>
             </div>
@@ -130,10 +128,7 @@ export function ProjectDetailsPage() {
         </div>
 
         <div className="project-command__actions">
-          <button
-            type="button"
-            className="project-command__button project-command__button--secondary"
-          >
+          <button type="button" className="project-command__button project-command__button--secondary">
             <FileBarChart size={17} /> تقرير المشروع
           </button>
           <button
@@ -222,9 +217,7 @@ export function ProjectDetailsPage() {
               </div>
 
               {analytics.recentEntries.length === 0 ? (
-                <div className="project-command__empty">
-                  لا توجد قيود مرتبطة بالمشروع حتى الآن.
-                </div>
+                <div className="project-command__empty">لا توجد قيود مرتبطة بالمشروع حتى الآن.</div>
               ) : (
                 <div className="project-command__table-wrap">
                   <table style={{ minWidth: 600 }}>
@@ -252,13 +245,7 @@ export function ProjectDetailsPage() {
                           </td>
                           <td>{entry.category || '—'}</td>
                           <td>{entry.description || '—'}</td>
-                          <td
-                            className={
-                              entry.type === 'expense'
-                                ? 'is-expense-text'
-                                : 'is-income-text'
-                            }
-                          >
+                          <td className={entry.type === 'expense' ? 'is-expense-text' : 'is-income-text'}>
                             <Currency value={entry.amount} />
                           </td>
                         </tr>
