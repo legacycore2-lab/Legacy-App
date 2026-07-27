@@ -4,6 +4,7 @@
   --workspace-chart-3: #2f80c8;
   --workspace-chart-4: #7652a8;
   --workspace-chart-5: #99a1a8;
+  --workspace-blue: #2f80c8;
 }
 
 .project-workspace__hero {
@@ -98,7 +99,7 @@
   border: 0;
   border-radius: 11px;
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: #fff;
+  color: var(--text-on-primary, #fff);
   font: inherit;
   font-size: 12px;
   font-weight: 800;
@@ -221,8 +222,8 @@
 }
 
 .project-workspace__kpis .is-bank svg {
-  background: color-mix(in srgb, #2f80c8 13%, transparent);
-  color: #2f80c8;
+  background: color-mix(in srgb, var(--workspace-blue) 13%, transparent);
+  color: var(--workspace-blue);
 }
 
 .project-workspace__kpis .is-count svg {
@@ -270,9 +271,15 @@
   border-radius: 50%;
 }
 
-.project-workspace__chart-legend .is-income::before { background: var(--green); }
-.project-workspace__chart-legend .is-expense::before { background: var(--danger); }
-.project-workspace__chart-legend .is-balance::before { background: #2f80c8; }
+.project-workspace__chart-legend .is-income::before {
+  background: var(--green);
+}
+.project-workspace__chart-legend .is-expense::before {
+  background: var(--danger);
+}
+.project-workspace__chart-legend .is-balance::before {
+  background: var(--workspace-blue);
+}
 
 .project-workspace__bars {
   height: 205px;
@@ -299,8 +306,12 @@
   border-radius: 8px 8px 3px 3px;
 }
 
-.project-workspace__bars i { background: var(--green); }
-.project-workspace__bars b { background: var(--danger); }
+.project-workspace__bars i {
+  background: var(--green);
+}
+.project-workspace__bars b {
+  background: var(--danger);
+}
 
 .project-workspace__bars span {
   position: absolute;
