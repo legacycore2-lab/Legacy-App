@@ -21,6 +21,11 @@
   cursor: pointer;
 }
 
+.journal-import-message--success {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
 @media (max-width: 700px) {
   .journal-header-actions {
     display: grid;
