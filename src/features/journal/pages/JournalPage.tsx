@@ -2,6 +2,7 @@ import { JournalView } from '../components/JournalView'
 import { useJournal } from '../hooks/useJournal'
 import '../styles/journal.css'
 import '../styles/journal-entry.css'
+import '../styles/journal-import.css'
 
 export function JournalPage() {
   const journal = useJournal()
