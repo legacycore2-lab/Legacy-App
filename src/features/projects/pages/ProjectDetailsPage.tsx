@@ -14,10 +14,10 @@ import {
   UserRound,
   Wallet,
 } from 'lucide-react'
-import { useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useProjectDetails } from '../hooks/useProjectDetails'
 import '../styles/project-details.css'
+import '../styles/project-details-responsive-fixes.css'
 
 const money = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -39,6 +39,13 @@ const statusLabel = {
   archived: 'مؤرشف',
 }
 
+const projectMilestones = [
+  { label: 'بدء المشروع', point: 0 },
+  { label: 'الهيكل الأساسي', point: 25 },
+  { label: 'التشطيبات', point: 60 },
+  { label: 'التسليم', point: 100 },
+] as const
+
 function formatDate(value: string) {
   if (!value) return 'غير محدد'
   const parsed = new Date(value)
@@ -58,41 +65,20 @@ export function ProjectDetailsPage() {
   const navigate = useNavigate()
   const { details, isLoading, error } = useProjectDetails(id ?? null)
 
-  const analytics = useMemo(() => {
-    if (!details) return null
-
-    const expenseByCategory = new Map<string, number>()
-    details.entries.forEach((entry) => {
-      if (entry.type !== 'expense') return
-      const key = entry.category || 'غير مصنف'
-      expenseByCategory.set(key, (expenseByCategory.get(key) ?? 0) + entry.amount)
-    })
-
-    const categories = [...expenseByCategory.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 4)
-
-    const maxCategory = Math.max(1, ...categories.map(([, value]) => value))
-    const recentEntries = [...details.entries]
-      .sort((a, b) => b.entryDate.localeCompare(a.entryDate))
-      .slice(0, 6)
-
-    return { categories, maxCategory, recentEntries }
-  }, [details])
-
   if (isLoading) return <div className="project-command__state">جارٍ تحميل مركز المشروع...</div>
   if (error) return <div className="project-command__state project-command__state--error">{error}</div>
-  if (!details || !analytics) return <div className="project-command__state">المشروع غير موجود.</div>
+  if (!details) return <div className="project-command__state">المشروع غير موجود.</div>
 
-  const { project, summary } = details
+  const { project, summary, analytics } = details
   const progress = Math.min(100, Math.max(0, project.progress))
   const remaining = project.contractValue - summary.totalExpense
+  const projectJournalUrl = `/journal?projectId=${encodeURIComponent(project.id)}`
 
   return (
     <section className="project-command erp-viewport-page">
       <header className="project-command__header erp-page-static">
         <div className="project-command__title-area">
-          <button type="button" className="project-command__back" onClick={() => navigate('/projects')}>
+          <button type="button" className="project-command__back" onClick={() => navigate('/projects')} aria-label="العودة إلى المشاريع">
             <ArrowRight size={17} />
           </button>
           <div className="project-command__identity-icon">
@@ -118,7 +104,7 @@ export function ProjectDetailsPage() {
           <button type="button" className="project-command__button project-command__button--secondary">
             <FileBarChart size={17} /> تقرير المشروع
           </button>
-          <button type="button" className="project-command__button project-command__button--primary" onClick={() => navigate('/journal')}>
+          <button type="button" className="project-command__button project-command__button--primary" onClick={() => navigate(projectJournalUrl)}>
             <Plus size={17} /> إضافة قيد
           </button>
         </div>
@@ -142,8 +128,8 @@ export function ProjectDetailsPage() {
               </div>
               <div className="project-command__progress-track"><span style={{ width: `${progress}%` }} /></div>
               <div className="project-command__milestones">
-                {[['بدء المشروع', 0], ['الهيكل الأساسي', 25], ['التشطيبات', 60], ['التسليم', 100]].map(([label, point]) => (
-                  <div key={label as string} className={progress >= Number(point) ? 'is-done' : ''}>
+                {projectMilestones.map(({ label, point }) => (
+                  <div key={label} className={progress >= point ? 'is-done' : ''}>
                     <span />
                     <strong>{label}</strong>
                   </div>
@@ -154,7 +140,7 @@ export function ProjectDetailsPage() {
             <article className="project-command__panel">
               <div className="project-command__panel-heading">
                 <div><span>الحركة المالية</span><h2>آخر القيود</h2></div>
-                <button type="button" onClick={() => navigate('/journal')}>عرض الكل <ChevronLeft size={16} /></button>
+                <button type="button" onClick={() => navigate(projectJournalUrl)}>عرض الكل <ChevronLeft size={16} /></button>
               </div>
               {analytics.recentEntries.length === 0 ? (
                 <div className="project-command__empty">لا توجد قيود مرتبطة بالمشروع حتى الآن.</div>
@@ -187,12 +173,16 @@ export function ProjectDetailsPage() {
                 <BarChart3 size={20} />
               </div>
               <div className="project-command__categories">
-                {analytics.categories.length === 0 ? <div className="project-command__empty">لا توجد مصروفات بعد.</div> : analytics.categories.map(([label, value]) => (
-                  <div key={label}>
-                    <div><span>{label}</span><strong><Currency value={value} /></strong></div>
-                    <div className="project-command__category-track"><span style={{ width: `${(value / analytics.maxCategory) * 100}%` }} /></div>
-                  </div>
-                ))}
+                {analytics.expenseCategories.length === 0 ? (
+                  <div className="project-command__empty">لا توجد مصروفات بعد.</div>
+                ) : (
+                  analytics.expenseCategories.map(({ label, value, percentage }) => (
+                    <div key={label}>
+                      <div><span>{label}</span><strong><Currency value={value} /></strong></div>
+                      <div className="project-command__category-track"><span style={{ width: `${percentage}%` }} /></div>
+                    </div>
+                  ))
+                )}
               </div>
             </article>
 
