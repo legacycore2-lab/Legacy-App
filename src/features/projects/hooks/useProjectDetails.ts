@@ -4,7 +4,7 @@ import { getProjectDetails } from '../services/projects.service'
 
 export function useProjectDetails(projectId: string | null) {
   const { data, isLoading, error } = useQuery({
-    queryKey: ['projects', projectId],
+    queryKey: ['project-details', projectId],
     queryFn: () => getProjectDetails(projectId!),
     enabled: !!projectId,
   })
