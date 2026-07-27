@@ -1,11 +1,9 @@
 :root {
   --app-page-gap: clamp(8px, 1vw, 14px);
-  --app-page-padding-inline: clamp(8px, 1.2vw, 18px);
-  --app-page-padding-block: clamp(8px, 1vw, 14px);
 }
 
 /*
- * Viewport locking is intentionally scoped to the authenticated app shell.
+ * Viewport sizing is scoped to the authenticated app shell.
  * Global html/body/#root sizing remains owned by global.css so login, error
  * screens and the mobile virtual keyboard keep their normal browser behaviour.
  */
@@ -15,14 +13,13 @@
   height: 100dvh;
   min-width: 0;
   min-height: 0;
-  /* Do not clip overlays, dropdowns or popovers rendered inside the shell. */
   overflow: visible;
 }
 
 .sidebar {
   min-height: 0;
   max-height: 100dvh;
-  /* Sidebar children own their scrolling; never hide the navigation overflow here. */
+  /* Sidebar children own their scrolling; never clip the navigation region. */
   overflow: visible;
 }
 
@@ -34,8 +31,8 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  padding: var(--app-page-padding-block) var(--app-page-padding-inline);
+  /* Keep topbar dropdowns and popovers outside the scroll clipping boundary. */
+  overflow: visible;
 }
 
 .app-main > header,
@@ -50,16 +47,20 @@
   overflow: auto;
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
-  padding-top: var(--app-page-gap);
 }
 
 .page-content > * {
   min-width: 0;
 }
 
+/* Placeholder pages must use the available content height, not the viewport. */
+.placeholder-page {
+  min-height: 100%;
+}
+
 /*
  * Shared page primitives. They become active only when a page adopts them;
- * keeping them here establishes the contract without changing existing pages.
+ * keeping them here establishes the contract for the next page-by-page PRs.
  */
 .erp-viewport-page {
   width: 100%;
@@ -115,17 +116,13 @@
 
 @media (max-width: 900px) {
   :root {
-    --app-page-padding-inline: 8px;
-    --app-page-padding-block: 8px;
     --app-page-gap: 8px;
   }
 
   .app-main {
-    /* Keep app content internal-scroll based while allowing the viewport to
-       resize naturally when the mobile virtual keyboard is shown. */
     height: 100svh;
     height: 100dvh;
-    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
   }
 
   .sidebar {
@@ -141,7 +138,6 @@
 
 @media (max-height: 720px) and (min-width: 901px) {
   :root {
-    --app-page-padding-block: 8px;
     --app-page-gap: 8px;
   }
 }
