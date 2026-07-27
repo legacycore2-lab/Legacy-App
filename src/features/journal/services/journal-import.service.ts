@@ -107,7 +107,11 @@ function findAccount(
 
       const normalizedName = normalizeLookup(account.name)
       const normalizedCode = normalizeLookup(account.code)
-      return normalizedName === key || normalizedCode === key || (extractedCode && normalizedCode === extractedCode)
+      return (
+        normalizedName === key ||
+        normalizedCode === key ||
+        (extractedCode && normalizedCode === extractedCode)
+      )
     }) ?? null
   )
 }
@@ -292,7 +296,12 @@ export async function downloadJournalImportTemplate(): Promise<void> {
   const paymentAccounts = options.accounts
     .filter((account) => account.accountType === 'asset')
     .map((account) => [`${account.code} — ${account.name}`])
-  const maxReferenceRows = Math.max(projects.length, expenseAccounts.length, revenueAccounts.length, paymentAccounts.length)
+  const maxReferenceRows = Math.max(
+    projects.length,
+    expenseAccounts.length,
+    revenueAccounts.length,
+    paymentAccounts.length,
+  )
   const references = Array.from({ length: maxReferenceRows }, (_, index) => [
     projects[index]?.[0] ?? '',
     expenseAccounts[index]?.[0] ?? '',
