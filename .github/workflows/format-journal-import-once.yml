@@ -1,0 +1,49 @@
+name: Format Journal Import Once
+
+on:
+  push:
+    branches:
+      - feature/journal-excel-import
+    paths:
+      - .github/workflows/format-journal-import-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v7
+        with:
+          ref: feature/journal-excel-import
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Format changed files
+        run: |
+          npx prettier --write \
+            src/features/journal/components/JournalImportDialog.tsx \
+            src/features/journal/hooks/useJournalImport.ts \
+            src/features/journal/repositories/journal-import.repository.ts \
+            src/features/journal/services/journal-import-posting.service.ts \
+            src/features/journal/styles/journal-import-trigger.css \
+            supabase/migrations/20260727090000_add_atomic_journal_excel_import.sql
+
+      - name: Remove temporary workflow and commit
+        run: |
+          git rm .github/workflows/format-journal-import-once.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: format journal Excel import" || exit 0
+          git push origin HEAD:feature/journal-excel-import

@@ -1,0 +1,322 @@
+.journal-import-backdrop {
+  position: fixed;
+  z-index: 80;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: color-mix(in srgb, var(--text) 32%, transparent);
+  backdrop-filter: blur(4px);
+}
+
+.journal-import-dialog {
+  width: min(1180px, 100%);
+  max-height: min(900px, calc(100dvh - 36px));
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-card);
+  outline: none;
+}
+
+.journal-import-header,
+.journal-import-actions,
+.journal-import-summary,
+.journal-import-footer {
+  display: flex;
+  align-items: center;
+}
+
+.journal-import-header {
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.journal-import-header span {
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.journal-import-header h2 {
+  margin: 3px 0;
+  font-size: 22px;
+}
+
+.journal-import-header p,
+.journal-import-footer p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.journal-import-header > button {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: var(--surface-soft);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.journal-import-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.journal-import-steps span {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.journal-import-steps span.is-active {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.journal-import-actions {
+  align-items: stretch;
+  gap: 12px;
+  padding: 16px 20px;
+}
+
+.journal-import-template,
+.journal-import-upload {
+  min-height: 86px;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+  border-radius: 14px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.journal-import-template {
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.journal-import-upload {
+  border: 1px dashed var(--green);
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.journal-import-upload strong {
+  font-size: 13px;
+}
+
+.journal-import-upload span {
+  font-size: 10px;
+}
+
+.journal-import-actions + input,
+.journal-import-actions input,
+.journal-import-dialog > input[type='file'] {
+  display: none;
+}
+
+.journal-import-message,
+.journal-import-file-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 20px 14px;
+  padding: 10px 12px;
+  border-radius: 11px;
+  font-size: 12px;
+}
+
+.journal-import-message--error {
+  background: color-mix(in srgb, var(--danger) 11%, transparent);
+  color: var(--danger);
+}
+
+.journal-import-file-name {
+  background: var(--surface-soft);
+  color: var(--muted);
+}
+
+.journal-import-empty {
+  min-height: 210px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  padding: 24px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.journal-import-empty h3,
+.journal-import-empty p {
+  margin: 0;
+}
+
+.journal-import-summary {
+  gap: 10px;
+  padding: 0 20px 14px;
+}
+
+.journal-import-summary article {
+  min-width: 0;
+  flex: 1;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-soft);
+}
+
+.journal-import-summary span {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.journal-import-summary strong {
+  font-size: 20px;
+}
+
+.journal-import-summary .is-valid strong {
+  color: var(--green);
+}
+
+.journal-import-summary .is-invalid strong {
+  color: var(--danger);
+}
+
+.journal-import-table-wrap {
+  max-height: 390px;
+  overflow: auto;
+  border-block: 1px solid var(--border);
+}
+
+.journal-import-table-wrap table {
+  width: 100%;
+  min-width: 1050px;
+  border-collapse: collapse;
+  white-space: nowrap;
+}
+
+.journal-import-table-wrap th,
+.journal-import-table-wrap td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  text-align: start;
+  vertical-align: top;
+}
+
+.journal-import-table-wrap th {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  background: var(--surface-soft);
+  color: var(--muted);
+}
+
+.journal-import-table-wrap tr.is-invalid {
+  background: color-mix(in srgb, var(--danger) 5%, transparent);
+}
+
+.journal-import-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 800;
+}
+
+.journal-import-status.is-valid {
+  color: var(--green);
+}
+
+.journal-import-status.is-invalid,
+.journal-import-errors small {
+  color: var(--danger);
+}
+
+.journal-import-errors {
+  display: grid;
+  gap: 4px;
+  white-space: normal;
+}
+
+.journal-import-errors small {
+  max-width: 260px;
+  line-height: 1.5;
+}
+
+.journal-import-footer {
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+}
+
+.journal-import-footer p {
+  max-width: 720px;
+  line-height: 1.7;
+}
+
+.journal-import-footer button {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 11px;
+  background: var(--primary);
+  color: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.journal-import-footer button:disabled,
+.journal-import-template:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+@media (max-width: 700px) {
+  .journal-import-backdrop {
+    padding: 0;
+  }
+
+  .journal-import-dialog {
+    width: 100%;
+    height: 100dvh;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .journal-import-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .journal-import-actions,
+  .journal-import-summary,
+  .journal-import-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

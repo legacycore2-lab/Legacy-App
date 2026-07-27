@@ -1,9 +1,10 @@
-import { ArrowDownCircle, ArrowUpCircle, Eye, FileText, Plus, Search } from 'lucide-react'
+import { ArrowDownCircle, ArrowUpCircle, Eye, FileSpreadsheet, FileText, Plus, Search } from 'lucide-react'
 import { useState } from 'react'
 import { useJournalPermissions } from '../hooks/useJournalPermissions'
 import type { JournalEntry, JournalFilters, JournalSummary } from '../types/journal.types'
-import { SingleLineJournalForm } from './SingleLineJournalForm'
 import { JournalDetailsDialog } from './JournalDetailsDialog'
+import { JournalImportDialog } from './JournalImportDialog'
+import { SingleLineJournalForm } from './SingleLineJournalForm'
 
 const currency = new Intl.NumberFormat('ar-EG')
 
@@ -36,6 +37,7 @@ export function JournalView({
 }: Props) {
   const { canForceDelete } = useJournalPermissions()
   const [isEntryFormOpen, setIsEntryFormOpen] = useState(false)
+  const [isImportOpen, setIsImportOpen] = useState(false)
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null)
 
   return (
@@ -46,12 +48,18 @@ export function JournalView({
           <h1>القيود اليومية</h1>
           <p>إدارة ومراجعة جميع حركات الإيرادات والمصروفات.</p>
         </div>
-        <button type="button" className="journal-primary" onClick={() => setIsEntryFormOpen(true)}>
-          <Plus size={18} /> إضافة قيد
-        </button>
+        <div className="journal-header-actions">
+          <button type="button" className="journal-secondary" onClick={() => setIsImportOpen(true)}>
+            <FileSpreadsheet size={18} /> استيراد Excel
+          </button>
+          <button type="button" className="journal-primary" onClick={() => setIsEntryFormOpen(true)}>
+            <Plus size={18} /> إضافة قيد
+          </button>
+        </div>
       </header>
 
       {isEntryFormOpen && <SingleLineJournalForm onClose={() => setIsEntryFormOpen(false)} />}
+      <JournalImportDialog isOpen={isImportOpen} onClose={() => setIsImportOpen(false)} />
       <JournalDetailsDialog
         entryId={selectedEntryId}
         onClose={() => setSelectedEntryId(null)}
