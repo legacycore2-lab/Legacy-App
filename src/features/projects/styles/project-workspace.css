@@ -1,3 +1,4 @@
+/* ─── Design tokens ──────────────────────────────────────────────────────── */
 .project-workspace {
   --workspace-chart-1: #147a4b;
   --workspace-chart-2: #d59c2b;
@@ -7,6 +8,7 @@
   --workspace-blue: #2f80c8;
 }
 
+/* ─── Hero header ─────────────────────────────────────────────────────────── */
 .project-workspace__hero {
   position: relative;
   z-index: 5;
@@ -41,17 +43,39 @@
   color: var(--text);
 }
 
+/* ─── Identity row ────────────────────────────────────────────────────────── */
 .project-workspace__identity-row {
   justify-content: space-between;
   gap: 20px;
+}
+
+.project-workspace__identity-wrap {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.project-workspace__project-mark {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 18px;
+  color: var(--text-on-primary, #fff);
+  background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+  box-shadow: 0 14px 30px color-mix(in srgb, var(--primary) 24%, transparent);
 }
 
 .project-workspace__identity {
   min-width: 0;
 }
 
+/* ─── Title + favorite ────────────────────────────────────────────────────── */
 .project-workspace__title {
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .project-workspace__title h1 {
@@ -59,15 +83,31 @@
   font-size: clamp(24px, 2.5vw, 34px);
 }
 
+/* Single authoritative definition for favorite button */
 .project-workspace__favorite {
+  width: 34px;
+  height: 34px;
   display: grid;
   place-items: center;
-  border: 0;
-  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-soft);
   color: var(--gold);
   cursor: pointer;
+  transition:
+    transform 160ms ease,
+    background 160ms ease;
 }
 
+.project-workspace__favorite:hover {
+  transform: translateY(-1px);
+}
+
+.project-workspace__favorite.is-active {
+  background: var(--gold-soft);
+}
+
+/* ─── Meta ────────────────────────────────────────────────────────────────── */
 .project-workspace__meta {
   flex-wrap: wrap;
   gap: 8px 14px;
@@ -82,30 +122,74 @@
   gap: 5px;
 }
 
+.project-workspace__meta .is-code {
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: var(--text);
+  background: var(--surface-soft);
+  font-weight: 800;
+}
+
+/* ─── Hero action buttons ─────────────────────────────────────────────────── */
+/* Single authoritative definition for hero-actions */
 .project-workspace__hero-actions {
-  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .project-workspace__actions-menu {
   position: relative;
 }
 
+/* Single authoritative definition for quick-button and actions-button */
+.project-workspace__quick-button,
 .project-workspace__actions-button {
-  min-height: 42px;
+  min-height: 40px;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 0 16px;
-  border: 0;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 13px;
   border-radius: 11px;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: var(--text-on-primary, #fff);
   font: inherit;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   cursor: pointer;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease;
 }
 
+.project-workspace__quick-button:hover,
+.project-workspace__actions-button:hover {
+  transform: translateY(-1px);
+}
+
+.project-workspace__quick-button.is-primary {
+  border: 1px solid transparent;
+  color: var(--text-on-primary, #fff);
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+
+.project-workspace__quick-button.is-secondary {
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: var(--surface-soft);
+}
+
+/* Icon-only overflow button */
+.project-workspace__actions-button {
+  width: 40px;
+  padding: 0;
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: var(--surface-soft);
+}
+
+/* ─── Dropdown ────────────────────────────────────────────────────────────── */
 .project-workspace__dropdown {
   position: absolute;
   top: calc(100% + 8px);
@@ -155,6 +239,52 @@
   background: var(--border);
 }
 
+/* ─── Progress bar ────────────────────────────────────────────────────────── */
+.project-workspace__hero-progress {
+  display: grid;
+  grid-template-columns: minmax(160px, 220px) minmax(240px, 1fr);
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--surface-soft) 70%, transparent);
+}
+
+.project-workspace__hero-progress > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.project-workspace__hero-progress span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.project-workspace__hero-progress strong {
+  color: var(--green);
+  font-size: 16px;
+}
+
+.project-workspace__hero-progress-track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface);
+}
+
+.project-workspace__hero-progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--green), var(--gold));
+  transition: width 300ms ease;
+}
+
+/* ─── Tabs ────────────────────────────────────────────────────────────────── */
 .project-workspace__tabs {
   gap: 4px;
   overflow-x: auto;
@@ -182,53 +312,73 @@
   cursor: pointer;
 }
 
-.project-workspace__tabs button.is-active {
+.project-workspace__tabs button.is-active,
+.project-workspace__tabs button[aria-selected='true'] {
   border-bottom-color: var(--green);
   color: var(--green);
 }
 
+/* ─── KPI grid — single authoritative definition ──────────────────────────── */
+/* Desktop: 4 columns for 8 cards (2 rows of 4) */
 .project-workspace__kpis {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
 }
 
 .project-workspace__kpis article {
+  position: relative;
   min-width: 0;
   display: grid;
   grid-template-columns: 42px minmax(0, 1fr);
-  grid-template-rows: auto auto;
+  grid-template-rows: auto auto auto;
   gap: 2px 10px;
   padding: 14px;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   background: var(--surface);
   box-shadow: var(--shadow-card);
+  overflow: hidden;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease;
 }
 
+.project-workspace__kpis article::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: -22px;
+  bottom: -30px;
+  width: 86px;
+  height: 86px;
+  border-radius: 50%;
+  background: color-mix(in srgb, currentColor 7%, transparent);
+}
+
+.project-workspace__kpis article:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--primary) 25%, var(--border));
+  box-shadow: 0 14px 32px color-mix(in srgb, #000 9%, transparent);
+}
+
+/* SVG icon spans all 3 rows */
 .project-workspace__kpis svg {
   width: 42px;
   height: 42px;
-  grid-row: 1 / 3;
+  grid-row: 1 / 4;
+  z-index: 1;
   padding: 10px;
   border-radius: 50%;
   background: var(--green-soft);
   color: var(--green);
 }
 
-.project-workspace__kpis .is-expense svg {
-  background: color-mix(in srgb, var(--danger) 12%, transparent);
-  color: var(--danger);
-}
-
-.project-workspace__kpis .is-bank svg {
-  background: color-mix(in srgb, var(--workspace-blue) 13%, transparent);
-  color: var(--workspace-blue);
-}
-
-.project-workspace__kpis .is-count svg {
-  background: var(--gold-soft);
-  color: var(--gold);
+.project-workspace__kpis article > span,
+.project-workspace__kpis article > strong,
+.project-workspace__kpis article > small {
+  position: relative;
+  z-index: 1;
 }
 
 .project-workspace__kpis span {
@@ -244,6 +394,43 @@
   white-space: nowrap;
 }
 
+.project-workspace__kpis small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* KPI color variants */
+.project-workspace__kpis .is-expense svg {
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger);
+}
+
+.project-workspace__kpis .is-bank svg {
+  background: color-mix(in srgb, var(--workspace-blue) 13%, transparent);
+  color: var(--workspace-blue);
+}
+
+.project-workspace__kpis .is-count svg,
+.project-workspace__kpis .is-contract svg,
+.project-workspace__kpis .is-files svg {
+  background: var(--gold-soft);
+  color: var(--gold);
+}
+
+.project-workspace__kpis .is-profit svg {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.project-workspace__kpis .is-progress svg {
+  background: color-mix(in srgb, var(--workspace-blue) 13%, transparent);
+  color: var(--workspace-blue);
+}
+
+/* ─── Dashboard grid ──────────────────────────────────────────────────────── */
 .project-workspace__dashboard-grid {
   min-height: 0;
   display: grid;
@@ -251,6 +438,7 @@
   gap: 12px;
 }
 
+/* ─── Cashflow chart ──────────────────────────────────────────────────────── */
 .project-workspace__cashflow {
   min-height: 290px;
 }
@@ -320,6 +508,7 @@
   font-size: 9px;
 }
 
+/* ─── Donut distribution ──────────────────────────────────────────────────── */
 .project-workspace__distribution {
   min-height: 290px;
 }
@@ -371,6 +560,7 @@
   color: var(--muted);
 }
 
+/* ─── Project facts ───────────────────────────────────────────────────────── */
 .project-workspace__facts dl {
   margin: 0;
   padding: 8px 15px 14px;
@@ -400,10 +590,12 @@
   text-align: end;
 }
 
+/* ─── Journal entries panel ───────────────────────────────────────────────── */
 .project-workspace__entries {
   grid-column: 1 / 3;
 }
 
+/* ─── Attachments panel ───────────────────────────────────────────────────── */
 .project-workspace__attachments {
   grid-column: 3;
 }
@@ -429,9 +621,15 @@
   font-size: 10px;
 }
 
+/* ─── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 1180px) {
   .project-workspace__kpis {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .project-workspace__hero-actions .project-workspace__quick-button.is-secondary:nth-of-type(3),
+  .project-workspace__hero-actions .project-workspace__quick-button.is-secondary:nth-of-type(4) {
+    display: none;
   }
 
   .project-workspace__dashboard-grid {
@@ -448,11 +646,7 @@
   }
 }
 
-@media (max-width: 760px) {
-  .project-workspace__hero {
-    padding: 12px 12px 0;
-  }
-
+@media (max-width: 900px) {
   .project-workspace__identity-row {
     align-items: flex-start;
     flex-direction: column;
@@ -460,16 +654,22 @@
 
   .project-workspace__hero-actions {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-start;
+  }
+
+  .project-workspace__kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .project-workspace__hero {
+    padding: 12px 12px 0;
   }
 
   .project-workspace__dropdown {
     inset-inline-end: auto;
     inset-inline-start: 0;
-  }
-
-  .project-workspace__kpis {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .project-workspace__dashboard-grid {
@@ -483,6 +683,35 @@
   }
 }
 
+@media (max-width: 640px) {
+  .project-workspace__identity-wrap {
+    align-items: flex-start;
+  }
+
+  .project-workspace__project-mark {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+  }
+
+  .project-workspace__title h1 {
+    font-size: 22px;
+  }
+
+  .project-workspace__hero-progress {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .project-workspace__quick-button {
+    flex: 1 1 calc(50% - 8px);
+  }
+
+  .project-workspace__actions-menu {
+    flex: 0 0 auto;
+  }
+}
+
 @media (max-width: 460px) {
   .project-workspace__kpis {
     grid-template-columns: 1fr;
@@ -490,5 +719,13 @@
 
   .project-workspace__meta {
     gap: 6px 10px;
+  }
+
+  .project-workspace__hero-actions .project-workspace__quick-button.is-secondary {
+    display: none;
+  }
+
+  .project-workspace__quick-button.is-primary {
+    flex: 1;
   }
 }

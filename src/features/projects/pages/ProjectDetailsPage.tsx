@@ -183,7 +183,11 @@ export function ProjectDetailsPage() {
             <button type="button" className="project-workspace__quick-button is-secondary">
               <Pencil size={16} /> تعديل
             </button>
-            <button type="button" className="project-workspace__quick-button is-primary" onClick={() => navigate('/journal')}>
+            <button
+              type="button"
+              className="project-workspace__quick-button is-primary"
+              onClick={() => navigate('/journal')}
+            >
               <Plus size={17} /> إضافة قيد
             </button>
             <button type="button" className="project-workspace__quick-button is-secondary">
@@ -198,6 +202,7 @@ export function ProjectDetailsPage() {
                 className="project-workspace__actions-button"
                 onClick={() => setActionsOpen((current) => !current)}
                 aria-expanded={actionsOpen}
+                aria-haspopup="menu"
                 aria-label="المزيد من إجراءات المشروع"
               >
                 <MoreVertical size={19} />
@@ -244,11 +249,13 @@ export function ProjectDetailsPage() {
           </div>
         </div>
 
-        <nav className="project-workspace__tabs" aria-label="أقسام المشروع">
+        <nav role="tablist" className="project-workspace__tabs" aria-label="أقسام المشروع">
           {workspaceTabs.map(({ id: tabId, label, icon: Icon }) => (
             <button
               key={tabId}
               type="button"
+              role="tab"
+              aria-selected={activeTab === tabId}
               className={activeTab === tabId ? 'is-active' : ''}
               onClick={() => selectTab(tabId)}
             >
@@ -263,31 +270,41 @@ export function ProjectDetailsPage() {
           <article className="is-contract">
             <CircleDollarSign />
             <span>قيمة العقد</span>
-            <strong><Currency value={project.contractValue} /></strong>
+            <strong>
+              <Currency value={project.contractValue} />
+            </strong>
             <small>القيمة الإجمالية</small>
           </article>
           <article className="is-income">
             <TrendingUp />
             <span>إجمالي الإيرادات</span>
-            <strong><Currency value={summary.totalIncome} /></strong>
+            <strong>
+              <Currency value={summary.totalIncome} />
+            </strong>
             <small>المقبوضات المسجلة</small>
           </article>
           <article className="is-expense">
             <TrendingDown />
             <span>إجمالي المصروفات</span>
-            <strong><Currency value={summary.totalExpense} /></strong>
+            <strong>
+              <Currency value={summary.totalExpense} />
+            </strong>
             <small>تكلفة المشروع</small>
           </article>
           <article className="is-profit">
             <Wallet />
             <span>صافي الربح</span>
-            <strong><Currency value={summary.balance} /></strong>
+            <strong>
+              <Currency value={summary.balance} />
+            </strong>
             <small>{profitMargin}% هامش الربح</small>
           </article>
           <article className="is-bank">
             <Landmark />
             <span>المتبقي من العقد</span>
-            <strong><Currency value={remaining} /></strong>
+            <strong>
+              <Currency value={remaining} />
+            </strong>
             <small>بعد المصروفات</small>
           </article>
           <article className="is-count">
@@ -313,7 +330,10 @@ export function ProjectDetailsPage() {
         <div className="project-workspace__dashboard-grid">
           <article className="project-command__panel project-workspace__cashflow">
             <div className="project-command__panel-heading">
-              <div><span>الحركة المالية</span><h2>الإيرادات والمصروفات</h2></div>
+              <div>
+                <span>الحركة المالية</span>
+                <h2>الإيرادات والمصروفات</h2>
+              </div>
               <strong>{new Date().getFullYear()}</strong>
             </div>
             <div className="project-workspace__chart-legend">
@@ -323,52 +343,144 @@ export function ProjectDetailsPage() {
             </div>
             <div className="project-workspace__bars" aria-label="ملخص بصري للتدفق المالي">
               {[42, 48, 66, 54, 61, 57, 69].map((height, index) => (
-                <div key={`bar-${index}`}><i style={{ height: `${height}%` }} /><b style={{ height: `${Math.max(18, height - 24)}%` }} /><span>{index + 1}</span></div>
+                <div key={`bar-${index}`}>
+                  <i style={{ height: `${height}%` }} />
+                  <b style={{ height: `${Math.max(18, height - 24)}%` }} />
+                  <span>{index + 1}</span>
+                </div>
               ))}
             </div>
           </article>
 
           <article className="project-command__panel project-workspace__distribution">
-            <div className="project-command__panel-heading"><div><span>التحليل</span><h2>توزيع المصروفات</h2></div><BarChart3 size={20} /></div>
-            <div className="project-workspace__donut" style={{ background: donutGradient }}><span><Currency value={summary.totalExpense} /></span></div>
+            <div className="project-command__panel-heading">
+              <div>
+                <span>التحليل</span>
+                <h2>توزيع المصروفات</h2>
+              </div>
+              <BarChart3 size={20} />
+            </div>
+            <div className="project-workspace__donut" style={{ background: donutGradient }}>
+              <span>
+                <Currency value={summary.totalExpense} />
+              </span>
+            </div>
             <div className="project-workspace__legend-list">
-              {donutSegments.length === 0 ? <p>لا توجد مصروفات بعد.</p> : donutSegments.map((item, index) => (
-                <div key={item.label}><i style={{ background: `var(--workspace-chart-${index + 1})` }} /><span>{item.label}</span><strong>{item.percentage}%</strong></div>
-              ))}
+              {donutSegments.length === 0 ? (
+                <p>لا توجد مصروفات بعد.</p>
+              ) : (
+                donutSegments.map((item, index) => (
+                  <div key={item.label}>
+                    <i style={{ background: `var(--workspace-chart-${index + 1})` }} />
+                    <span>{item.label}</span>
+                    <strong>{item.percentage}%</strong>
+                  </div>
+                ))
+              )}
             </div>
           </article>
 
           <article className="project-command__panel project-workspace__facts">
-            <div className="project-command__panel-heading"><div><span>البيانات الأساسية</span><h2>معلومات المشروع</h2></div><Building2 size={20} /></div>
+            <div className="project-command__panel-heading">
+              <div>
+                <span>البيانات الأساسية</span>
+                <h2>معلومات المشروع</h2>
+              </div>
+              <Building2 size={20} />
+            </div>
             <dl>
-              <div><dt>اسم المشروع</dt><dd>{project.name}</dd></div>
-              <div><dt>كود المشروع</dt><dd>{project.code || '—'}</dd></div>
-              <div><dt>العميل</dt><dd>{project.client || '—'}</dd></div>
-              <div><dt>الموقع</dt><dd>{project.location || '—'}</dd></div>
-              <div><dt>مدير المشروع</dt><dd>{project.manager || '—'}</dd></div>
-              <div><dt>قيمة العقد</dt><dd><Currency value={project.contractValue} /></dd></div>
+              <div>
+                <dt>اسم المشروع</dt>
+                <dd>{project.name}</dd>
+              </div>
+              <div>
+                <dt>كود المشروع</dt>
+                <dd>{project.code || '—'}</dd>
+              </div>
+              <div>
+                <dt>العميل</dt>
+                <dd>{project.client || '—'}</dd>
+              </div>
+              <div>
+                <dt>الموقع</dt>
+                <dd>{project.location || '—'}</dd>
+              </div>
+              <div>
+                <dt>مدير المشروع</dt>
+                <dd>{project.manager || '—'}</dd>
+              </div>
+              <div>
+                <dt>قيمة العقد</dt>
+                <dd>
+                  <Currency value={project.contractValue} />
+                </dd>
+              </div>
             </dl>
           </article>
 
           <article className="project-command__panel project-workspace__entries">
             <div className="project-command__panel-heading">
-              <div><span>الحركة المالية</span><h2>آخر القيود اليومية</h2></div>
-              <button type="button" onClick={() => navigate('/journal')}>عرض جميع القيود <ChevronLeft size={16} /></button>
+              <div>
+                <span>الحركة المالية</span>
+                <h2>آخر القيود اليومية</h2>
+              </div>
+              <button type="button" onClick={() => navigate('/journal')}>
+                عرض جميع القيود <ChevronLeft size={16} />
+              </button>
             </div>
-            {analytics.recentEntries.length === 0 ? <div className="project-command__empty">لا توجد قيود مرتبطة بالمشروع.</div> : (
+            {analytics.recentEntries.length === 0 ? (
+              <div className="project-command__empty">لا توجد قيود مرتبطة بالمشروع.</div>
+            ) : (
               <div className="project-command__table-wrap">
-                <table><thead><tr><th scope="col">رقم القيد</th><th scope="col">التاريخ</th><th scope="col">البيان</th><th scope="col">النوع</th><th scope="col">المبلغ</th><th scope="col">طريقة الدفع</th></tr></thead>
-                  <tbody>{analytics.recentEntries.map((entry) => (
-                    <tr key={entry.id}><td>#{entry.seq ?? '—'}</td><td>{formatDate(entry.entryDate)}</td><td>{entry.description || '—'}</td><td><span className={`project-command__entry-type project-command__entry-type--${entry.type}`}>{entry.type === 'income' ? 'إيراد' : 'مصروف'}</span></td><td><Currency value={entry.amount} /></td><td>{entry.paymentMethod || '—'}</td></tr>
-                  ))}</tbody>
+                <table>
+                  <thead>
+                    <tr>
+                      <th scope="col">رقم القيد</th>
+                      <th scope="col">التاريخ</th>
+                      <th scope="col">البيان</th>
+                      <th scope="col">النوع</th>
+                      <th scope="col">المبلغ</th>
+                      <th scope="col">طريقة الدفع</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {analytics.recentEntries.map((entry) => (
+                      <tr key={entry.id}>
+                        <td>#{entry.seq ?? '—'}</td>
+                        <td>{formatDate(entry.entryDate)}</td>
+                        <td>{entry.description || '—'}</td>
+                        <td>
+                          <span
+                            className={`project-command__entry-type project-command__entry-type--${entry.type}`}
+                          >
+                            {entry.type === 'income' ? 'إيراد' : 'مصروف'}
+                          </span>
+                        </td>
+                        <td>
+                          <Currency value={entry.amount} />
+                        </td>
+                        <td>{entry.paymentMethod || '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
                 </table>
               </div>
             )}
           </article>
 
           <article className="project-command__panel project-workspace__attachments">
-            <div className="project-command__panel-heading"><div><span>الملفات</span><h2>أحدث المرفقات</h2></div><Paperclip size={20} /></div>
-            <div className="project-workspace__empty-files"><FileText size={34} /><strong>المرفقات ستظهر هنا</strong><span>سيتم ربطها بوحدة المستندات في المرحلة التالية.</span></div>
+            <div className="project-command__panel-heading">
+              <div>
+                <span>الملفات</span>
+                <h2>أحدث المرفقات</h2>
+              </div>
+              <Paperclip size={20} />
+            </div>
+            <div className="project-workspace__empty-files">
+              <FileText size={34} />
+              <strong>المرفقات ستظهر هنا</strong>
+              <span>سيتم ربطها بوحدة المستندات في المرحلة التالية.</span>
+            </div>
           </article>
         </div>
       </div>
