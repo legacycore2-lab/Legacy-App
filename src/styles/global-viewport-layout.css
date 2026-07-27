@@ -4,36 +4,31 @@
   --app-page-padding-block: clamp(8px, 1vw, 14px);
 }
 
-html,
-body,
-#root {
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  overflow: hidden;
-}
-
-body {
-  overscroll-behavior: none;
-}
-
+/*
+ * Viewport locking is intentionally scoped to the authenticated app shell.
+ * Global html/body/#root sizing remains owned by global.css so login, error
+ * screens and the mobile virtual keyboard keep their normal browser behaviour.
+ */
 .app-layout {
   width: 100%;
   height: 100vh;
   height: 100dvh;
   min-width: 0;
   min-height: 0;
-  overflow: hidden;
+  /* Do not clip overlays, dropdowns or popovers rendered inside the shell. */
+  overflow: visible;
 }
 
 .sidebar {
   min-height: 0;
   max-height: 100dvh;
-  overflow: hidden;
+  /* Sidebar children own their scrolling; never hide the navigation overflow here. */
+  overflow: visible;
 }
 
 .app-main {
   width: 100%;
+  height: 100vh;
   height: 100dvh;
   min-width: 0;
   min-height: 0;
@@ -62,7 +57,10 @@ body {
   min-width: 0;
 }
 
-/* Shared page primitives. Pages keep their headers fixed while their data region scrolls internally. */
+/*
+ * Shared page primitives. They become active only when a page adopts them;
+ * keeping them here establishes the contract without changing existing pages.
+ */
 .erp-viewport-page {
   width: 100%;
   height: 100%;
@@ -123,7 +121,17 @@ body {
   }
 
   .app-main {
+    /* Keep app content internal-scroll based while allowing the viewport to
+       resize naturally when the mobile virtual keyboard is shown. */
+    height: 100svh;
+    height: 100dvh;
     padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+
+  .sidebar {
+    max-height: 100svh;
+    max-height: 100dvh;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   .page-content {
