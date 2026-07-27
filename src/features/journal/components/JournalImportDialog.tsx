@@ -163,7 +163,7 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
                 <span>صفوف صحيحة</span>
                 <strong>{number.format(preview.validRows)}</strong>
               </article>
-              <article className="is-invalid">
+              <article className={preview.invalidRows > 0 ? 'is-invalid' : ''}>
                 <span>صفوف بها أخطاء</span>
                 <strong>{number.format(preview.invalidRows)}</strong>
               </article>
