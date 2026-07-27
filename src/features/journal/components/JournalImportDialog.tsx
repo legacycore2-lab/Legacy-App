@@ -1,4 +1,11 @@
-import { AlertTriangle, CheckCircle2, Download, FileSpreadsheet, Upload, X } from 'lucide-react'
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Download,
+  FileSpreadsheet,
+  Upload,
+  X,
+} from 'lucide-react'
 import { useEffect, useId, useRef } from 'react'
 import { useJournalImport } from '../hooks/useJournalImport'
 
@@ -13,8 +20,18 @@ type Props = {
 export function JournalImportDialog({ isOpen, onClose }: Props) {
   const fileInputId = useId()
   const dialogRef = useRef<HTMLDivElement>(null)
-  const { preview, isParsing, isDownloading, error, loadFile, downloadTemplate, reset } =
-    useJournalImport()
+  const {
+    preview,
+    isParsing,
+    isDownloading,
+    isImporting,
+    error,
+    success,
+    loadFile,
+    downloadTemplate,
+    importEntries,
+    reset,
+  } = useJournalImport()
 
   useEffect(() => {
     if (!isOpen) return
@@ -23,7 +40,7 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
     dialogRef.current?.focus()
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
+      if (event.key === 'Escape' && !isImporting) onClose()
     }
 
     document.addEventListener('keydown', handleKeyDown)
@@ -31,7 +48,7 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
       document.removeEventListener('keydown', handleKeyDown)
       previousFocus?.focus()
     }
-  }, [isOpen, onClose])
+  }, [isImporting, isOpen, onClose])
 
   useEffect(() => {
     if (!isOpen) reset()
@@ -39,8 +56,16 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
 
   if (!isOpen) return null
 
+  const canImport = Boolean(preview?.canImport && !success && !isImporting)
+
   return (
-    <div className="journal-import-backdrop" role="presentation" onMouseDown={onClose}>
+    <div
+      className="journal-import-backdrop"
+      role="presentation"
+      onMouseDown={() => {
+        if (!isImporting) onClose()
+      }}
+    >
       <div
         ref={dialogRef}
         className="journal-import-dialog"
@@ -56,7 +81,12 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
             <h2 id="journal-import-title">استيراد القيود من Excel</h2>
             <p>حمّل النموذج الرسمي، املأه، ثم راجع كل صف قبل الاعتماد.</p>
           </div>
-          <button type="button" onClick={onClose} aria-label="إغلاق نافذة الاستيراد">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="إغلاق نافذة الاستيراد"
+            disabled={isImporting}
+          >
             <X size={20} />
           </button>
         </header>
@@ -65,11 +95,16 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
           <span className="is-active">1 تحميل النموذج</span>
           <span className={preview || isParsing ? 'is-active' : ''}>2 اختيار الملف</span>
           <span className={preview ? 'is-active' : ''}>3 المراجعة</span>
-          <span>4 الاعتماد</span>
+          <span className={success || isImporting ? 'is-active' : ''}>4 الاعتماد</span>
         </div>
 
         <div className="journal-import-actions">
-          <button type="button" className="journal-import-template" onClick={downloadTemplate} disabled={isDownloading}>
+          <button
+            type="button"
+            className="journal-import-template"
+            onClick={downloadTemplate}
+            disabled={isDownloading || isImporting}
+          >
             <Download size={18} />
             {isDownloading ? 'جارٍ إنشاء النموذج...' : 'تحميل نموذج Excel الرسمي'}
           </button>
@@ -83,7 +118,7 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
             id={fileInputId}
             type="file"
             accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
-            disabled={isParsing}
+            disabled={isParsing || isImporting}
             onChange={(event) => {
               const file = event.target.files?.[0]
               if (file) void loadFile(file)
@@ -98,6 +133,12 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
           </div>
         )}
 
+        {success && (
+          <div className="journal-import-message journal-import-message--success">
+            <CheckCircle2 size={18} /> {success}
+          </div>
+        )}
+
         {!preview && !error && !isParsing && (
           <div className="journal-import-empty">
             <FileSpreadsheet size={42} />
@@ -106,7 +147,11 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
           </div>
         )}
 
-        {isParsing && <div className="journal-import-empty">جارٍ قراءة الملف والتحقق من المشاريع والحسابات...</div>}
+        {isParsing && (
+          <div className="journal-import-empty">
+            جارٍ قراءة الملف والتحقق من المشاريع والحسابات...
+          </div>
+        )}
 
         {preview && (
           <>
@@ -146,22 +191,39 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
                 </thead>
                 <tbody>
                   {preview.rows.map((row) => (
-                    <tr key={row.excelRow} className={row.status === 'invalid' ? 'is-invalid' : ''}>
+                    <tr
+                      key={row.excelRow}
+                      className={row.status === 'invalid' ? 'is-invalid' : ''}
+                    >
                       <td>{number.format(row.excelRow)}</td>
                       <td>{row.project || '—'}</td>
                       <td>{row.date || '—'}</td>
-                      <td>{row.type === 'income' ? 'إيراد' : row.type === 'expense' ? 'مصروف' : '—'}</td>
+                      <td>
+                        {row.type === 'income'
+                          ? 'إيراد'
+                          : row.type === 'expense'
+                            ? 'مصروف'
+                            : '—'}
+                      </td>
                       <td>{row.category || '—'}</td>
                       <td>{row.description || '—'}</td>
                       <td>{row.paymentMethod || '—'}</td>
-                      <td>{row.amount === null ? '—' : `${money.format(row.amount)} ج.م`}</td>
+                      <td>
+                        {row.amount === null ? '—' : `${money.format(row.amount)} ج.م`}
+                      </td>
                       <td>
                         {row.status === 'valid' ? (
-                          <span className="journal-import-status is-valid"><CheckCircle2 size={14} /> صالح</span>
+                          <span className="journal-import-status is-valid">
+                            <CheckCircle2 size={14} /> صالح
+                          </span>
                         ) : (
                           <div className="journal-import-errors">
-                            <span className="journal-import-status is-invalid"><AlertTriangle size={14} /> خطأ</span>
-                            {row.errors.map((rowError) => <small key={rowError}>{rowError}</small>)}
+                            <span className="journal-import-status is-invalid">
+                              <AlertTriangle size={14} /> خطأ
+                            </span>
+                            {row.errors.map((rowError) => (
+                              <small key={rowError}>{rowError}</small>
+                            ))}
                           </div>
                         )}
                       </td>
@@ -173,10 +235,16 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
 
             <footer className="journal-import-footer">
               <p>
-                الاعتماد النهائي متوقف مؤقتًا حتى إضافة RPC ذرية تحفظ جميع الصفوف أو تلغيها كلها عند أي فشل.
+                {preview.canImport
+                  ? 'سيتم حفظ جميع القيود في عملية ذرية واحدة. عند فشل أي صف لن يتم حفظ أي قيد.'
+                  : 'عالج جميع الأخطاء الظاهرة قبل اعتماد الاستيراد.'}
               </p>
-              <button type="button" disabled title="يتطلب موافقة على RPC خاصة بالاستيراد الذري">
-                اعتماد الاستيراد
+              <button
+                type="button"
+                disabled={!canImport}
+                onClick={() => void importEntries()}
+              >
+                {isImporting ? 'جارٍ اعتماد القيود...' : 'اعتماد الاستيراد'}
               </button>
             </footer>
           </>
