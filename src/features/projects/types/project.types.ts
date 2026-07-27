@@ -93,8 +93,20 @@ export type ProjectFinancialSummary = {
   entryCount: number
 }
 
+export type ProjectExpenseCategory = {
+  label: string
+  value: number
+  percentage: number
+}
+
+export type ProjectAnalytics = {
+  recentEntries: ProjectEntry[]
+  expenseCategories: ProjectExpenseCategory[]
+}
+
 export type ProjectDetails = {
   project: Project
   entries: ProjectEntry[]
   summary: ProjectFinancialSummary
+  analytics: ProjectAnalytics
 }
