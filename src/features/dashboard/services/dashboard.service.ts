@@ -1,5 +1,5 @@
 import { ArrowDownLeft, ArrowUpRight, BriefcaseBusiness, WalletCards } from 'lucide-react'
-import { dashboardActions } from '../data/dashboard.mock'
+import { dashboardActions } from '../data/dashboard.data'
 import { findDashboardData, subscribeToDashboardChanges } from '../repositories/dashboard.repository'
 import type { DashboardData, DashboardEntryRecord, DashboardProjectRecord } from '../types/dashboard.types'
 
