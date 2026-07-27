@@ -173,3 +173,176 @@
   font-size: 11px;
   text-align: center;
 }
+
+/* Workspace visual polish — intentionally scoped to ProjectDetailsPage. */
+.project-command.project-workspace .project-workspace__hero {
+  gap: 10px;
+  padding: 11px 15px 0;
+}
+
+.project-command.project-workspace .project-workspace__topline {
+  min-height: 30px;
+}
+
+.project-command.project-workspace .project-workspace__identity-row {
+  gap: 14px;
+}
+
+.project-command.project-workspace .project-workspace__identity-wrap {
+  gap: 11px;
+}
+
+.project-command.project-workspace .project-workspace__project-mark {
+  width: 52px;
+  height: 52px;
+  border-radius: 15px;
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+.project-command.project-workspace .project-workspace__title h1 {
+  font-size: clamp(22px, 2.2vw, 30px);
+  line-height: 1.15;
+}
+
+.project-command.project-workspace .project-workspace__meta {
+  margin-top: 5px;
+  gap: 6px 12px;
+}
+
+.project-command.project-workspace .project-workspace__quick-button,
+.project-command.project-workspace .project-workspace__actions-button {
+  min-height: 37px;
+  border-radius: 10px;
+}
+
+.project-command.project-workspace .project-workspace__hero-progress {
+  grid-template-columns: minmax(155px, 205px) minmax(220px, 1fr);
+  gap: 12px;
+  padding: 9px 11px;
+  border-color: color-mix(in srgb, var(--green) 17%, var(--border));
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--green-soft) 62%, var(--surface)),
+    var(--surface-soft)
+  );
+}
+
+.project-command.project-workspace .project-workspace__hero-progress strong {
+  min-width: 48px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--green-soft);
+  text-align: center;
+}
+
+.project-command.project-workspace .project-workspace__hero-progress-track {
+  height: 10px;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 70%, transparent);
+}
+
+.project-command.project-workspace .project-workspace__hero-progress-track span {
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--green) 28%, transparent);
+}
+
+.project-command.project-workspace .project-workspace__tabs button {
+  min-height: 39px;
+}
+
+.project-command.project-workspace .project-workspace__kpis {
+  gap: 9px;
+}
+
+.project-command.project-workspace .project-workspace__kpis article {
+  padding: 13px;
+  border-color: color-mix(in srgb, var(--border) 88%, transparent);
+}
+
+.project-command.project-workspace .project-workspace__kpis article::after {
+  inset-inline-end: -28px;
+  bottom: -38px;
+  width: 78px;
+  height: 78px;
+  opacity: 0.42;
+}
+
+.project-command.project-workspace .project-workspace__kpis article:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--primary) 30%, var(--border));
+  box-shadow: 0 12px 26px color-mix(in srgb, #000 8%, transparent);
+}
+
+.project-command.project-workspace .project-workspace__kpis svg {
+  border-radius: 13px;
+}
+
+.project-command.project-workspace .project-workspace__kpis strong {
+  font-size: clamp(15px, 1.25vw, 19px);
+  letter-spacing: -0.01em;
+}
+
+.project-command.project-workspace .project-command__table-wrap {
+  max-height: min(360px, 42vh);
+  scrollbar-gutter: stable;
+}
+
+.project-command.project-workspace .project-command__table-wrap th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  box-shadow: 0 1px 0 var(--border);
+}
+
+.project-command.project-workspace .project-command__table-wrap tbody tr {
+  transition: background 150ms ease;
+}
+
+.project-command.project-workspace .project-command__table-wrap tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--surface-soft) 46%, transparent);
+}
+
+.project-command.project-workspace .project-command__table-wrap tbody tr:hover {
+  background: color-mix(in srgb, var(--green-soft) 58%, var(--surface));
+}
+
+.project-command.project-workspace .project-command__entry-type {
+  min-width: 54px;
+  justify-content: center;
+  padding: 5px 8px;
+  border: 1px solid currentColor;
+  border-color: color-mix(in srgb, currentColor 22%, transparent);
+}
+
+@media (max-width: 900px) {
+  .project-command.project-workspace .project-workspace__identity-row {
+    align-items: flex-start;
+  }
+
+  .project-command.project-workspace .project-workspace__hero-progress {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+}
+
+@media (max-width: 640px) {
+  .project-command.project-workspace .project-workspace__hero {
+    padding-inline: 11px;
+  }
+
+  .project-command.project-workspace .project-workspace__project-mark {
+    width: 46px;
+    height: 46px;
+  }
+
+  .project-command.project-workspace .project-workspace__hero-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .project-command.project-workspace .project-workspace__quick-button {
+    flex: 1 1 calc(50% - 6px);
+  }
+
+  .project-command.project-workspace .project-workspace__actions-button {
+    flex: 0 0 37px;
+  }
+}
