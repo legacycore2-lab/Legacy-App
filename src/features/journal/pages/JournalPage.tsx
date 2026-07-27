@@ -4,6 +4,7 @@ import '../styles/journal.css'
 import '../styles/journal-entry.css'
 import '../styles/journal-import.css'
 import '../styles/journal-import-trigger.css'
+import '../styles/journal-import-validation.css'
 
 export function JournalPage() {
   const journal = useJournal()
