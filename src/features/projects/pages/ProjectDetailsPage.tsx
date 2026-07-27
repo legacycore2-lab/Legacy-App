@@ -8,18 +8,23 @@ import {
   ClipboardList,
   FileBarChart,
   FileText,
+  Files,
   FolderArchive,
+  Gauge,
   HandCoins,
   Landmark,
   MapPin,
   MoreVertical,
   Paperclip,
+  Pencil,
+  Plus,
   ReceiptText,
   Settings,
   Star,
   TrendingDown,
   TrendingUp,
   Truck,
+  Upload,
   UsersRound,
   Wallet,
   X,
@@ -44,7 +49,7 @@ const date = new Intl.DateTimeFormat('ar-EG', {
 })
 
 const statusLabel = {
-  active: 'نشط',
+  active: 'جاري التنفيذ',
   completed: 'مكتمل',
   paused: 'متوقف مؤقتًا',
   archived: 'مؤرشف',
@@ -59,6 +64,8 @@ const workspaceTabs = [
   { id: 'contractors', label: 'المقاولون', icon: UsersRound },
   { id: 'suppliers', label: 'الموردون', icon: Truck },
   { id: 'attachments', label: 'المرفقات', icon: Paperclip },
+  { id: 'reports', label: 'التقارير', icon: FileBarChart },
+  { id: 'settings', label: 'الإعدادات', icon: Settings },
 ] as const
 
 function formatDate(value: string) {
@@ -80,6 +87,7 @@ export function ProjectDetailsPage() {
   const navigate = useNavigate()
   const { details, isLoading, error } = useProjectDetails(id ?? null)
   const [actionsOpen, setActionsOpen] = useState(false)
+  const [isFavorite, setIsFavorite] = useState(false)
   const [activeTab, setActiveTab] = useState<(typeof workspaceTabs)[number]['id']>('overview')
 
   if (isLoading) return <div className="project-command__state">جارٍ تحميل مساحة المشروع...</div>
@@ -87,7 +95,9 @@ export function ProjectDetailsPage() {
   if (!details) return <div className="project-command__state">المشروع غير موجود.</div>
 
   const { project, summary, analytics } = details
+  const progress = Math.min(100, Math.max(0, project.progress))
   const remaining = project.contractValue - summary.totalExpense
+  const profitMargin = summary.totalIncome > 0 ? Math.round((summary.balance / summary.totalIncome) * 100) : 0
   const donutSegments = analytics.expenseCategories.slice(0, 5)
   const donutGradient = donutSegments.length
     ? `conic-gradient(${donutSegments
@@ -99,7 +109,7 @@ export function ProjectDetailsPage() {
     : 'var(--surface-soft)'
 
   const actionItems = [
-    { label: 'تعديل المشروع', icon: Settings },
+    { label: 'تعديل المشروع', icon: Pencil },
     { label: 'القيود اليومية', icon: ClipboardList, action: () => navigate('/journal') },
     { label: 'المالية', icon: CircleDollarSign },
     { label: 'الخزنة والبنوك', icon: Landmark },
@@ -110,6 +120,15 @@ export function ProjectDetailsPage() {
     { label: 'تقارير المشروع', icon: FileBarChart },
     { label: 'إعدادات المشروع', icon: Settings },
   ]
+
+  const selectTab = (tabId: (typeof workspaceTabs)[number]['id']) => {
+    if (tabId === 'journal') {
+      navigate('/journal')
+      return
+    }
+
+    setActiveTab(tabId)
+  }
 
   return (
     <section className="project-command project-workspace erp-viewport-page">
@@ -124,38 +143,64 @@ export function ProjectDetailsPage() {
         </div>
 
         <div className="project-workspace__identity-row">
-          <div className="project-workspace__identity">
-            <div className="project-workspace__title">
-              <h1>{project.name}</h1>
-              <button type="button" className="project-workspace__favorite" aria-label="إضافة للمفضلة">
-                <Star size={20} />
-              </button>
+          <div className="project-workspace__identity-wrap">
+            <div className="project-workspace__project-mark">
+              <Building2 size={28} />
             </div>
-            <div className="project-workspace__meta">
-              <span>{project.code || 'بدون كود'}</span>
-              <span>{project.client || 'بدون عميل'}</span>
-              <span>
-                <MapPin size={14} /> {project.location || 'الموقع غير محدد'}
-              </span>
-              <span>
-                <CalendarDays size={14} /> {formatDate(project.startDate)}
-              </span>
-              <span>إلى {formatDate(project.endDate)}</span>
+            <div className="project-workspace__identity">
+              <div className="project-workspace__title">
+                <h1>{project.name}</h1>
+                <span className={`project-command__status project-command__status--${project.status}`}>
+                  {statusLabel[project.status]}
+                </span>
+                <button
+                  type="button"
+                  className={`project-workspace__favorite ${isFavorite ? 'is-active' : ''}`}
+                  aria-label={isFavorite ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
+                  aria-pressed={isFavorite}
+                  onClick={() => setIsFavorite((current) => !current)}
+                >
+                  <Star size={20} fill={isFavorite ? 'currentColor' : 'none'} />
+                </button>
+              </div>
+              <div className="project-workspace__meta">
+                <span className="is-code">{project.code || 'بدون كود'}</span>
+                <span>{project.client || 'بدون عميل'}</span>
+                <span>
+                  <MapPin size={14} /> {project.location || 'الموقع غير محدد'}
+                </span>
+                <span>
+                  <UsersRound size={14} /> {project.manager || 'المدير غير محدد'}
+                </span>
+                <span>
+                  <CalendarDays size={14} /> {formatDate(project.startDate)} — {formatDate(project.endDate)}
+                </span>
+              </div>
             </div>
           </div>
 
           <div className="project-workspace__hero-actions">
-            <span className={`project-command__status project-command__status--${project.status}`}>
-              {statusLabel[project.status]}
-            </span>
+            <button type="button" className="project-workspace__quick-button is-secondary">
+              <Pencil size={16} /> تعديل
+            </button>
+            <button type="button" className="project-workspace__quick-button is-primary" onClick={() => navigate('/journal')}>
+              <Plus size={17} /> إضافة قيد
+            </button>
+            <button type="button" className="project-workspace__quick-button is-secondary">
+              <Upload size={16} /> رفع ملف
+            </button>
+            <button type="button" className="project-workspace__quick-button is-secondary">
+              <FileBarChart size={16} /> تقرير
+            </button>
             <div className="project-workspace__actions-menu">
               <button
                 type="button"
                 className="project-workspace__actions-button"
                 onClick={() => setActionsOpen((current) => !current)}
                 aria-expanded={actionsOpen}
+                aria-label="المزيد من إجراءات المشروع"
               >
-                إجراءات <MoreVertical size={18} />
+                <MoreVertical size={19} />
               </button>
               {actionsOpen && (
                 <div className="project-workspace__dropdown">
@@ -163,11 +208,19 @@ export function ProjectDetailsPage() {
                     type="button"
                     className="project-workspace__dropdown-close"
                     onClick={() => setActionsOpen(false)}
+                    aria-label="إغلاق القائمة"
                   >
                     <X size={16} />
                   </button>
                   {actionItems.map(({ label, icon: Icon, action }) => (
-                    <button key={label} type="button" onClick={action}>
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => {
+                        action?.()
+                        setActionsOpen(false)
+                      }}
+                    >
                       <Icon size={16} /> {label}
                     </button>
                   ))}
@@ -181,13 +234,23 @@ export function ProjectDetailsPage() {
           </div>
         </div>
 
+        <div className="project-workspace__hero-progress">
+          <div>
+            <span>نسبة إنجاز المشروع</span>
+            <strong>{progress}%</strong>
+          </div>
+          <div className="project-workspace__hero-progress-track">
+            <span style={{ width: `${progress}%` }} />
+          </div>
+        </div>
+
         <nav className="project-workspace__tabs" aria-label="أقسام المشروع">
           {workspaceTabs.map(({ id: tabId, label, icon: Icon }) => (
             <button
               key={tabId}
               type="button"
               className={activeTab === tabId ? 'is-active' : ''}
-              onClick={() => setActiveTab(tabId)}
+              onClick={() => selectTab(tabId)}
             >
               <Icon size={16} /> {label}
             </button>
@@ -197,48 +260,60 @@ export function ProjectDetailsPage() {
 
       <div className="project-command__scroll erp-scroll-region">
         <div className="project-workspace__kpis">
+          <article className="is-contract">
+            <CircleDollarSign />
+            <span>قيمة العقد</span>
+            <strong><Currency value={project.contractValue} /></strong>
+            <small>القيمة الإجمالية</small>
+          </article>
           <article className="is-income">
             <TrendingUp />
             <span>إجمالي الإيرادات</span>
-            <strong>
-              <Currency value={summary.totalIncome} />
-            </strong>
+            <strong><Currency value={summary.totalIncome} /></strong>
+            <small>المقبوضات المسجلة</small>
           </article>
           <article className="is-expense">
             <TrendingDown />
             <span>إجمالي المصروفات</span>
-            <strong>
-              <Currency value={summary.totalExpense} />
-            </strong>
+            <strong><Currency value={summary.totalExpense} /></strong>
+            <small>تكلفة المشروع</small>
           </article>
-          <article>
+          <article className="is-profit">
             <Wallet />
             <span>صافي الربح</span>
-            <strong>
-              <Currency value={summary.balance} />
-            </strong>
+            <strong><Currency value={summary.balance} /></strong>
+            <small>{profitMargin}% هامش الربح</small>
           </article>
           <article className="is-bank">
             <Landmark />
-            <span>الرصيد الحالي</span>
-            <strong>
-              <Currency value={remaining} />
-            </strong>
+            <span>المتبقي من العقد</span>
+            <strong><Currency value={remaining} /></strong>
+            <small>بعد المصروفات</small>
           </article>
           <article className="is-count">
             <ReceiptText />
             <span>عدد القيود</span>
             <strong>{summary.entryCount}</strong>
+            <small>قيد مالي</small>
+          </article>
+          <article className="is-files">
+            <Files />
+            <span>المرفقات</span>
+            <strong>0</strong>
+            <small>ملف محفوظ</small>
+          </article>
+          <article className="is-progress">
+            <Gauge />
+            <span>نسبة الإنجاز</span>
+            <strong>{progress}%</strong>
+            <small>التقدم الحالي</small>
           </article>
         </div>
 
         <div className="project-workspace__dashboard-grid">
           <article className="project-command__panel project-workspace__cashflow">
             <div className="project-command__panel-heading">
-              <div>
-                <span>الحركة المالية</span>
-                <h2>الإيرادات والمصروفات</h2>
-              </div>
+              <div><span>الحركة المالية</span><h2>الإيرادات والمصروفات</h2></div>
               <strong>{new Date().getFullYear()}</strong>
             </div>
             <div className="project-workspace__chart-legend">
@@ -248,144 +323,52 @@ export function ProjectDetailsPage() {
             </div>
             <div className="project-workspace__bars" aria-label="ملخص بصري للتدفق المالي">
               {[42, 48, 66, 54, 61, 57, 69].map((height, index) => (
-                <div key={`bar-${index}`}>
-                  <i style={{ height: `${height}%` }} />
-                  <b style={{ height: `${Math.max(18, height - 24)}%` }} />
-                  <span>{index + 1}</span>
-                </div>
+                <div key={`bar-${index}`}><i style={{ height: `${height}%` }} /><b style={{ height: `${Math.max(18, height - 24)}%` }} /><span>{index + 1}</span></div>
               ))}
             </div>
           </article>
 
           <article className="project-command__panel project-workspace__distribution">
-            <div className="project-command__panel-heading">
-              <div>
-                <span>التحليل</span>
-                <h2>توزيع المصروفات</h2>
-              </div>
-              <BarChart3 size={20} />
-            </div>
-            <div className="project-workspace__donut" style={{ background: donutGradient }}>
-              <span>
-                <Currency value={summary.totalExpense} />
-              </span>
-            </div>
+            <div className="project-command__panel-heading"><div><span>التحليل</span><h2>توزيع المصروفات</h2></div><BarChart3 size={20} /></div>
+            <div className="project-workspace__donut" style={{ background: donutGradient }}><span><Currency value={summary.totalExpense} /></span></div>
             <div className="project-workspace__legend-list">
-              {donutSegments.length === 0 ? (
-                <p>لا توجد مصروفات بعد.</p>
-              ) : (
-                donutSegments.map((item, index) => (
-                  <div key={item.label}>
-                    <i style={{ background: `var(--workspace-chart-${index + 1})` }} />
-                    <span>{item.label}</span>
-                    <strong>{item.percentage}%</strong>
-                  </div>
-                ))
-              )}
+              {donutSegments.length === 0 ? <p>لا توجد مصروفات بعد.</p> : donutSegments.map((item, index) => (
+                <div key={item.label}><i style={{ background: `var(--workspace-chart-${index + 1})` }} /><span>{item.label}</span><strong>{item.percentage}%</strong></div>
+              ))}
             </div>
           </article>
 
           <article className="project-command__panel project-workspace__facts">
-            <div className="project-command__panel-heading">
-              <div>
-                <span>البيانات الأساسية</span>
-                <h2>معلومات المشروع</h2>
-              </div>
-              <Building2 size={20} />
-            </div>
+            <div className="project-command__panel-heading"><div><span>البيانات الأساسية</span><h2>معلومات المشروع</h2></div><Building2 size={20} /></div>
             <dl>
-              <div>
-                <dt>اسم المشروع</dt>
-                <dd>{project.name}</dd>
-              </div>
-              <div>
-                <dt>كود المشروع</dt>
-                <dd>{project.code || '—'}</dd>
-              </div>
-              <div>
-                <dt>العميل</dt>
-                <dd>{project.client || '—'}</dd>
-              </div>
-              <div>
-                <dt>الموقع</dt>
-                <dd>{project.location || '—'}</dd>
-              </div>
-              <div>
-                <dt>مدير المشروع</dt>
-                <dd>{project.manager || '—'}</dd>
-              </div>
-              <div>
-                <dt>قيمة العقد</dt>
-                <dd>
-                  <Currency value={project.contractValue} />
-                </dd>
-              </div>
+              <div><dt>اسم المشروع</dt><dd>{project.name}</dd></div>
+              <div><dt>كود المشروع</dt><dd>{project.code || '—'}</dd></div>
+              <div><dt>العميل</dt><dd>{project.client || '—'}</dd></div>
+              <div><dt>الموقع</dt><dd>{project.location || '—'}</dd></div>
+              <div><dt>مدير المشروع</dt><dd>{project.manager || '—'}</dd></div>
+              <div><dt>قيمة العقد</dt><dd><Currency value={project.contractValue} /></dd></div>
             </dl>
           </article>
 
           <article className="project-command__panel project-workspace__entries">
             <div className="project-command__panel-heading">
-              <div>
-                <span>الحركة المالية</span>
-                <h2>آخر القيود اليومية</h2>
-              </div>
-              <button type="button" onClick={() => navigate('/journal')}>
-                عرض جميع القيود <ChevronLeft size={16} />
-              </button>
+              <div><span>الحركة المالية</span><h2>آخر القيود اليومية</h2></div>
+              <button type="button" onClick={() => navigate('/journal')}>عرض جميع القيود <ChevronLeft size={16} /></button>
             </div>
-            {analytics.recentEntries.length === 0 ? (
-              <div className="project-command__empty">لا توجد قيود مرتبطة بالمشروع.</div>
-            ) : (
+            {analytics.recentEntries.length === 0 ? <div className="project-command__empty">لا توجد قيود مرتبطة بالمشروع.</div> : (
               <div className="project-command__table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th scope="col">رقم القيد</th>
-                      <th scope="col">التاريخ</th>
-                      <th scope="col">البيان</th>
-                      <th scope="col">النوع</th>
-                      <th scope="col">المبلغ</th>
-                      <th scope="col">طريقة الدفع</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {analytics.recentEntries.map((entry) => (
-                      <tr key={entry.id}>
-                        <td>#{entry.seq ?? '—'}</td>
-                        <td>{formatDate(entry.entryDate)}</td>
-                        <td>{entry.description || '—'}</td>
-                        <td>
-                          <span
-                            className={`project-command__entry-type project-command__entry-type--${entry.type}`}
-                          >
-                            {entry.type === 'income' ? 'إيراد' : 'مصروف'}
-                          </span>
-                        </td>
-                        <td>
-                          <Currency value={entry.amount} />
-                        </td>
-                        <td>{entry.paymentMethod || '—'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
+                <table><thead><tr><th scope="col">رقم القيد</th><th scope="col">التاريخ</th><th scope="col">البيان</th><th scope="col">النوع</th><th scope="col">المبلغ</th><th scope="col">طريقة الدفع</th></tr></thead>
+                  <tbody>{analytics.recentEntries.map((entry) => (
+                    <tr key={entry.id}><td>#{entry.seq ?? '—'}</td><td>{formatDate(entry.entryDate)}</td><td>{entry.description || '—'}</td><td><span className={`project-command__entry-type project-command__entry-type--${entry.type}`}>{entry.type === 'income' ? 'إيراد' : 'مصروف'}</span></td><td><Currency value={entry.amount} /></td><td>{entry.paymentMethod || '—'}</td></tr>
+                  ))}</tbody>
                 </table>
               </div>
             )}
           </article>
 
           <article className="project-command__panel project-workspace__attachments">
-            <div className="project-command__panel-heading">
-              <div>
-                <span>الملفات</span>
-                <h2>أحدث المرفقات</h2>
-              </div>
-              <Paperclip size={20} />
-            </div>
-            <div className="project-workspace__empty-files">
-              <FileText size={34} />
-              <strong>المرفقات ستظهر هنا</strong>
-              <span>سيتم ربطها بوحدة المستندات في المرحلة التالية.</span>
-            </div>
+            <div className="project-command__panel-heading"><div><span>الملفات</span><h2>أحدث المرفقات</h2></div><Paperclip size={20} /></div>
+            <div className="project-workspace__empty-files"><FileText size={34} /><strong>المرفقات ستظهر هنا</strong><span>سيتم ربطها بوحدة المستندات في المرحلة التالية.</span></div>
           </article>
         </div>
       </div>
