@@ -62,7 +62,8 @@ button {
 
   .sidebar {
     max-width: min(86vw, 310px);
-    contain: layout paint;
+    /* Layout containment is enough for isolation; paint containment would clip overlays. */
+    contain: layout;
   }
 
   .project-create-backdrop {
