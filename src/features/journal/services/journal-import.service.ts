@@ -82,13 +82,26 @@ function findAccount(
   allowedTypes: Array<'asset' | 'revenue' | 'expense'>,
 ) {
   const key = normalizeLookup(value)
-  return (
-    options.accounts.find(
-      (account) =>
-        allowedTypes.includes(account.accountType) &&
-        (normalizeLookup(account.name) === key || normalizeLookup(account.code) === key),
-    ) ?? null
+  const filtered = options.accounts.filter((a) => allowedTypes.includes(a.accountType))
+  const match = filtered.find(
+    (account) => normalizeLookup(account.name) === key || normalizeLookup(account.code) === key,
   )
+
+  // [DEBUG] — سيُحذف بعد التشخيص
+  console.group(`[findAccount] value="${value}"`)
+  console.log('  key (normalized):', JSON.stringify(key))
+  console.log('  allowedTypes:', allowedTypes)
+  console.log('  accounts in pool:', filtered.length)
+  filtered.forEach((a) => {
+    console.log(
+      `    account: code="${a.code}" name="${a.name}" normName=${JSON.stringify(normalizeLookup(a.name))} normCode=${JSON.stringify(normalizeLookup(a.code))} match=${normalizeLookup(a.name) === key || normalizeLookup(a.code) === key}`,
+    )
+  })
+  console.log('  matched id:', match?.id ?? 'null')
+  console.groupEnd()
+  // [/DEBUG]
+
+  return match ?? null
 }
 
 function buildDuplicateKey(row: JournalImportRow): string {
@@ -123,6 +136,16 @@ function mapRow(raw: RawImportRow, excelRow: number, options: JournalPostingOpti
   const amount = parseAmount(raw.Amount)
   const notes = normalizeText(raw.Notes)
   const errors: string[] = []
+
+  // [DEBUG] — سيُحذف بعد التشخيص
+  console.group(`[mapRow] excelRow=${excelRow}`)
+  console.log('  raw Type:', JSON.stringify(normalizeText(raw.Type)))
+  console.log('  parsed type:', type)
+  console.log('  raw Category:', JSON.stringify(category))
+  console.log('  normalized category:', JSON.stringify(normalizeLookup(category)))
+  console.log('  allowedTypes for category:', type === 'income' ? ['revenue'] : type === 'expense' ? ['expense'] : 'N/A (type null)')
+  console.groupEnd()
+  // [/DEBUG]
 
   const project = projectName ? findProject(options, projectName) : null
   const categoryAccount =
