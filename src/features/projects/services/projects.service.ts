@@ -1,5 +1,19 @@
-import { findProjects, subscribeToProjectChanges } from '../repositories/projects.repository'
-import type { Project, ProjectRow, ProjectsSummary } from '../types/project.types'
+import {
+  findProjectById,
+  findProjectEntries,
+  findProjects,
+  subscribeToProjectChanges,
+  type ProjectEntryRecord,
+} from '../repositories/projects.repository'
+import type {
+  Project,
+  ProjectAnalytics,
+  ProjectDetails,
+  ProjectEntry,
+  ProjectFinancialSummary,
+  ProjectRow,
+  ProjectsSummary,
+} from '../types/project.types'
 import { mapProject } from './project.mapper'
 
 export async function getProjects(): Promise<Project[]> {
@@ -51,13 +65,9 @@ export function watchProjects(onChange: () => void): () => void {
   return subscribeToProjectChanges(onChange)
 }
 
-import { findProjectById, findProjectEntries } from '../repositories/projects.repository'
-import type { ProjectDetails, ProjectEntry, ProjectFinancialSummary } from '../types/project.types'
-
-function mapProjectEntry(
-  record: import('../repositories/projects.repository').ProjectEntryRecord,
-): ProjectEntry {
+function mapProjectEntry(record: ProjectEntryRecord): ProjectEntry {
   const amount = Number(record.amount)
+
   return {
     id: record.id,
     seq: record.seq,
@@ -83,6 +93,33 @@ function summarizeEntries(entries: ProjectEntry[]): ProjectFinancialSummary {
   )
 }
 
+function buildProjectAnalytics(entries: ProjectEntry[]): ProjectAnalytics {
+  const categoryTotals = new Map<string, number>()
+
+  entries.forEach((entry) => {
+    if (entry.type !== 'expense') return
+
+    const category = entry.category || 'غير مصنف'
+    categoryTotals.set(category, (categoryTotals.get(category) ?? 0) + entry.amount)
+  })
+
+  const topCategories = [...categoryTotals.entries()]
+    .sort((left, right) => right[1] - left[1])
+    .slice(0, 4)
+  const maxCategoryValue = Math.max(1, ...topCategories.map(([, value]) => value))
+
+  return {
+    recentEntries: [...entries]
+      .sort((left, right) => right.entryDate.localeCompare(left.entryDate))
+      .slice(0, 6),
+    expenseCategories: topCategories.map(([label, value]) => ({
+      label,
+      value,
+      percentage: (value / maxCategoryValue) * 100,
+    })),
+  }
+}
+
 export async function getProjectDetails(projectId: string): Promise<ProjectDetails | null> {
   const [record, entryRecords] = await Promise.all([
     findProjectById(projectId),
@@ -93,7 +130,11 @@ export async function getProjectDetails(projectId: string): Promise<ProjectDetai
 
   const project = mapProject(record)
   const entries = entryRecords.map(mapProjectEntry)
-  const summary = summarizeEntries(entries)
 
-  return { project, entries, summary }
+  return {
+    project,
+    entries,
+    summary: summarizeEntries(entries),
+    analytics: buildProjectAnalytics(entries),
+  }
 }
