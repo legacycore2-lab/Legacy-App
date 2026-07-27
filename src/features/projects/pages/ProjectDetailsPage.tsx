@@ -85,28 +85,17 @@ function Currency({ value }: { value: number }) {
 export function ProjectDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { details, isLoading, error } = useProjectDetails(id ?? null)
+  const { viewModel, isLoading, error } = useProjectDetails(id ?? null)
   const [actionsOpen, setActionsOpen] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const [activeTab, setActiveTab] = useState<(typeof workspaceTabs)[number]['id']>('overview')
 
   if (isLoading) return <div className="project-command__state">جارٍ تحميل مساحة المشروع...</div>
   if (error) return <div className="project-command__state project-command__state--error">{error}</div>
-  if (!details) return <div className="project-command__state">المشروع غير موجود.</div>
+  if (!viewModel) return <div className="project-command__state">المشروع غير موجود.</div>
 
-  const { project, summary, analytics } = details
-  const progress = Math.min(100, Math.max(0, project.progress))
-  const remaining = project.contractValue - summary.totalExpense
-  const profitMargin = summary.totalIncome > 0 ? Math.round((summary.balance / summary.totalIncome) * 100) : 0
-  const donutSegments = analytics.expenseCategories.slice(0, 5)
-  const donutGradient = donutSegments.length
-    ? `conic-gradient(${donutSegments
-        .map((item, index) => {
-          const before = donutSegments.slice(0, index).reduce((sum, current) => sum + current.percentage, 0)
-          return `var(--workspace-chart-${index + 1}) ${before}% ${before + item.percentage}%`
-        })
-        .join(', ')})`
-    : 'var(--surface-soft)'
+  const { project, summary, analytics, progress, remaining, profitMargin, donutSegments, donutGradient } =
+    viewModel
 
   const actionItems = [
     { label: 'تعديل المشروع', icon: Pencil },
@@ -126,7 +115,6 @@ export function ProjectDetailsPage() {
       navigate('/journal')
       return
     }
-
     setActiveTab(tabId)
   }
 
@@ -369,11 +357,11 @@ export function ProjectDetailsPage() {
               {donutSegments.length === 0 ? (
                 <p>لا توجد مصروفات بعد.</p>
               ) : (
-                donutSegments.map((item, index) => (
-                  <div key={item.label}>
-                    <i style={{ background: `var(--workspace-chart-${index + 1})` }} />
-                    <span>{item.label}</span>
-                    <strong>{item.percentage}%</strong>
+                donutSegments.map((seg) => (
+                  <div key={seg.label}>
+                    <i style={{ background: seg.cssVar }} />
+                    <span>{seg.label}</span>
+                    <strong>{seg.percentage}%</strong>
                   </div>
                 ))
               )}
