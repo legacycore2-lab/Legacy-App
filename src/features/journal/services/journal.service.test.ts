@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import type { JournalEntry } from '../types/journal.types'
 import type { JournalDetailsRecord } from '../repositories/journal.repository'
-import { mapJournalDetails, summarizeJournalPage } from './journal.service'
+import { summarizeJournalPage } from './journal.service'
+import { mapJournalDetails } from './journal.mapper'
 
 const entries: JournalEntry[] = [
   {

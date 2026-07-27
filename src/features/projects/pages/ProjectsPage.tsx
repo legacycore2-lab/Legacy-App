@@ -7,10 +7,10 @@ import { ProjectsTable } from '../components/ProjectsTable'
 import { ProjectsToolbar } from '../components/ProjectsToolbar'
 import { useProjectCreateForm } from '../hooks/useProjectCreateForm'
 import { useProjects } from '../hooks/useProjects'
-import '../excel-import.css'
-import '../project-create.css'
-import '../projects-table.css'
-import '../projects.css'
+import '../styles/excel-import.css'
+import '../styles/project-create.css'
+import '../styles/projects-table.css'
+import '../styles/projects.css'
 
 export function ProjectsPage() {
   const { projectRows, summary, query, setQuery, status, setStatus, isLoading, error } = useProjects()

@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { Sidebar } from '../components/layout/Sidebar'
 import { Topbar } from '../components/layout/Topbar'
-import { useTheme } from '../hooks/useTheme'
+import { useTheme } from '../shared/hooks/useTheme'
 import { useAuth } from '../features/auth/hooks/useAuth'
 import { usePermissions } from '../features/auth/hooks/usePermissions'
 

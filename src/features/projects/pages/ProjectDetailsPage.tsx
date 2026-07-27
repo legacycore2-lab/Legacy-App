@@ -16,7 +16,7 @@ import {
 } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useProjectDetails } from '../hooks/useProjectDetails'
-import '../project-details.css'
+import '../styles/project-details.css'
 
 const money = new Intl.NumberFormat('en-US', {
   style: 'currency',
