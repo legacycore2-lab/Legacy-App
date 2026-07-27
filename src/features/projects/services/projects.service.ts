@@ -103,9 +103,7 @@ function buildProjectAnalytics(entries: ProjectEntry[]): ProjectAnalytics {
     categoryTotals.set(category, (categoryTotals.get(category) ?? 0) + entry.amount)
   })
 
-  const topCategories = [...categoryTotals.entries()]
-    .sort((left, right) => right[1] - left[1])
-    .slice(0, 4)
+  const topCategories = [...categoryTotals.entries()].sort((left, right) => right[1] - left[1]).slice(0, 4)
   const maxCategoryValue = Math.max(1, ...topCategories.map(([, value]) => value))
 
   return {
