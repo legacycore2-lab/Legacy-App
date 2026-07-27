@@ -57,7 +57,7 @@ button {
 
   .app-main,
   .page-content {
-    overflow-x: clip;
+    overflow-x: hidden;
   }
 
   .sidebar {
