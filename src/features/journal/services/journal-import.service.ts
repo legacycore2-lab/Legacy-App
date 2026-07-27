@@ -38,12 +38,24 @@ function normalizeText(value: unknown): string {
 }
 
 function normalizeLookup(value: string): string {
-  return value.toLocaleLowerCase('ar-EG').replace(/\s+/g, ' ').trim()
+  return value
+    .toLocaleLowerCase('ar-EG')
+    .normalize('NFKC')
+    .replace(/[\u064B-\u065F\u0670]/g, '')
+    .replace(/ـ/g, '')
+    .replace(/[أإآٱ]/g, 'ا')
+    .replace(/ى/g, 'ي')
+    .replace(/ة/g, 'ه')
+    .replace(/[–—−]/g, '-')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 function parseType(value: string): JournalEntryType | null {
-  const normalized = value.toLowerCase()
-  return normalized === 'income' || normalized === 'expense' ? normalized : null
+  const normalized = normalizeLookup(value)
+  if (['income', 'revenue', 'ايراد'].includes(normalized)) return 'income'
+  if (['expense', 'expenses', 'مصروف'].includes(normalized)) return 'expense'
+  return null
 }
 
 function parseAmount(value: unknown): number | null {
@@ -76,18 +88,31 @@ function findProject(options: JournalPostingOptions, value: string) {
   return options.projects.find((project) => normalizeLookup(project.name) === key) ?? null
 }
 
+function extractAccountCode(value: string): string {
+  const match = normalizeText(value).match(/^([^\s–—-]+)\s*[–—-]\s*.+$/)
+  return match?.[1]?.trim() ?? ''
+}
+
 function findAccount(
   options: JournalPostingOptions,
   value: string,
   allowedTypes: Array<'asset' | 'revenue' | 'expense'>,
 ) {
   const key = normalizeLookup(value)
+  const extractedCode = normalizeLookup(extractAccountCode(value))
+
   return (
-    options.accounts.find(
-      (account) =>
-        allowedTypes.includes(account.accountType) &&
-        (normalizeLookup(account.name) === key || normalizeLookup(account.code) === key),
-    ) ?? null
+    options.accounts.find((account) => {
+      if (!allowedTypes.includes(account.accountType)) return false
+
+      const normalizedName = normalizeLookup(account.name)
+      const normalizedCode = normalizeLookup(account.code)
+      return (
+        normalizedName === key ||
+        normalizedCode === key ||
+        (extractedCode && normalizedCode === extractedCode)
+      )
+    }) ?? null
   )
 }
 
@@ -133,7 +158,7 @@ function mapRow(raw: RawImportRow, excelRow: number, options: JournalPostingOpti
   else if (!project) errors.push('المشروع غير موجود أو الاسم غير مطابق.')
 
   if (!date) errors.push('التاريخ غير صالح، استخدم YYYY-MM-DD.')
-  if (!type) errors.push('النوع يجب أن يكون income أو expense.')
+  if (!type) errors.push('النوع يجب أن يكون income/إيراد أو expense/مصروف.')
   if (!category) errors.push('البند مطلوب.')
   else if (type && !categoryAccount) errors.push('حساب البند غير موجود أو لا يناسب نوع القيد.')
   if (!description) errors.push('البيان مطلوب.')
@@ -225,11 +250,11 @@ export async function downloadJournalImportTemplate(): Promise<void> {
     [
       exampleProject,
       new Date().toISOString().slice(0, 10),
-      'expense',
-      expenseAccount?.name ?? 'اسم حساب مصروف',
+      'مصروف',
+      expenseAccount ? `${expenseAccount.code} — ${expenseAccount.name}` : 'اسم حساب مصروف',
       'مثال توضيحي — احذف هذا الصف قبل الاستيراد',
       '',
-      paymentAccount?.name ?? 'اسم حساب دفع',
+      paymentAccount ? `${paymentAccount.code} — ${paymentAccount.name}` : 'اسم حساب دفع',
       1000,
       '',
     ],
@@ -239,10 +264,10 @@ export async function downloadJournalImportTemplate(): Promise<void> {
     { wch: 24 },
     { wch: 14 },
     { wch: 12 },
-    { wch: 24 },
+    { wch: 30 },
     { wch: 38 },
     { wch: 22 },
-    { wch: 24 },
+    { wch: 30 },
     { wch: 14 },
     { wch: 30 },
   ]
@@ -251,17 +276,47 @@ export async function downloadJournalImportTemplate(): Promise<void> {
 
   const instructionsSheet = XLSX.utils.aoa_to_sheet([
     ['تعليمات استيراد القيود اليومية'],
-    ['Project', 'اسم مشروع موجود في النظام بالضبط.'],
+    ['Project', 'استخدم اسم مشروع من Sheet المراجع.'],
     ['Date', 'التاريخ بصيغة YYYY-MM-DD.'],
-    ['Type', 'income للإيراد أو expense للمصروف.'],
-    ['Category', 'اسم حساب الإيراد/المصروف أو كوده كما هو في النظام.'],
-    ['Payment Method', 'اسم حساب الدفع أو كوده، ويجب أن يكون من نوع أصل.'],
+    ['Type', 'يمكن استخدام income أو إيراد، وexpense أو مصروف.'],
+    ['Category', 'استخدم اسم الحساب أو كوده أو القيمة الكاملة من Sheet المراجع.'],
+    ['Payment Method', 'استخدم حساب دفع من نوع أصل كما يظهر في Sheet المراجع.'],
     ['Amount', 'رقم موجب أكبر من صفر، بدون رمز عملة.'],
     ['مهم', 'صف المثال للتوضيح فقط ويجب حذفه قبل رفع الملف.'],
   ])
-  instructionsSheet['!cols'] = [{ wch: 22 }, { wch: 70 }]
+  instructionsSheet['!cols'] = [{ wch: 22 }, { wch: 78 }]
+
+  const projects = options.projects.map((project) => [project.name])
+  const expenseAccounts = options.accounts
+    .filter((account) => account.accountType === 'expense')
+    .map((account) => [`${account.code} — ${account.name}`])
+  const revenueAccounts = options.accounts
+    .filter((account) => account.accountType === 'revenue')
+    .map((account) => [`${account.code} — ${account.name}`])
+  const paymentAccounts = options.accounts
+    .filter((account) => account.accountType === 'asset')
+    .map((account) => [`${account.code} — ${account.name}`])
+  const maxReferenceRows = Math.max(
+    projects.length,
+    expenseAccounts.length,
+    revenueAccounts.length,
+    paymentAccounts.length,
+  )
+  const references = Array.from({ length: maxReferenceRows }, (_, index) => [
+    projects[index]?.[0] ?? '',
+    expenseAccounts[index]?.[0] ?? '',
+    revenueAccounts[index]?.[0] ?? '',
+    paymentAccounts[index]?.[0] ?? '',
+  ])
+  const referencesSheet = XLSX.utils.aoa_to_sheet([
+    ['المشاريع', 'حسابات المصروفات', 'حسابات الإيرادات', 'حسابات الدفع'],
+    ...references,
+  ])
+  referencesSheet['!cols'] = [{ wch: 28 }, { wch: 34 }, { wch: 34 }, { wch: 34 }]
+  referencesSheet['!freeze'] = { xSplit: 0, ySplit: 1 }
 
   XLSX.utils.book_append_sheet(workbook, journalSheet, SHEET_NAME)
   XLSX.utils.book_append_sheet(workbook, instructionsSheet, 'Instructions')
+  XLSX.utils.book_append_sheet(workbook, referencesSheet, 'References')
   XLSX.writeFile(workbook, TEMPLATE_FILE_NAME)
 }
