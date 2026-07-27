@@ -1,0 +1,123 @@
+.journal-import-summary article {
+  border-inline-start: 4px solid var(--border);
+}
+
+.journal-import-summary article.is-total {
+  border-inline-start-color: var(--primary);
+}
+
+.journal-import-summary article.is-valid {
+  border-inline-start-color: var(--green);
+}
+
+.journal-import-summary article.is-invalid {
+  border-inline-start-color: var(--danger);
+}
+
+.journal-import-summary article.is-total strong {
+  color: var(--primary);
+}
+
+.journal-import-error-summary {
+  margin: 0 20px 14px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--danger) 24%, var(--border));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--danger) 6%, var(--surface));
+}
+
+.journal-import-error-summary > div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 9px;
+  color: var(--danger);
+  font-size: 12px;
+}
+
+.journal-import-error-summary ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.journal-import-error-summary li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 6px 9px;
+  border: 1px solid color-mix(in srgb, var(--danger) 18%, var(--border));
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--danger);
+  font-size: 10px;
+}
+
+.journal-import-error-summary li span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.journal-import-error-summary li b {
+  min-width: 20px;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  text-align: center;
+}
+
+.journal-import-row-icon {
+  display: inline-grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+  border-radius: 50%;
+}
+
+.journal-import-row-icon.is-valid {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.journal-import-row-icon.is-invalid {
+  background: color-mix(in srgb, var(--danger) 11%, transparent);
+  color: var(--danger);
+}
+
+.journal-import-errors small {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 4px 7px;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
+}
+
+.journal-import-footer:has(button:disabled) {
+  background: color-mix(in srgb, var(--danger) 4%, transparent);
+}
+
+.journal-import-footer:has(button:disabled) p {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+@media (max-width: 700px) {
+  .journal-import-error-summary {
+    margin-inline: 12px;
+  }
+
+  .journal-import-error-summary ul {
+    display: grid;
+  }
+
+  .journal-import-error-summary li {
+    justify-content: space-between;
+    border-radius: 9px;
+  }
+}
