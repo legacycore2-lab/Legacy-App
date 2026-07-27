@@ -1,8 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
 import { toErrorMessage } from '../../../shared/errors/app-error'
-import { getProjectDetails } from '../services/projects.service'
+import { buildProjectDetailsViewModel, getProjectDetails } from '../services/projects.service'
+import type { ProjectDetailsViewModel } from '../types/project.types'
 
-export function useProjectDetails(projectId: string | null) {
+export function useProjectDetails(projectId: string | null): {
+  viewModel: ProjectDetailsViewModel | null
+  isLoading: boolean
+  error: string
+} {
   const { data, isLoading, error } = useQuery({
     queryKey: ['project-details', projectId],
     queryFn: () => getProjectDetails(projectId!),
@@ -10,7 +15,7 @@ export function useProjectDetails(projectId: string | null) {
   })
 
   return {
-    details: data ?? null,
+    viewModel: data ? buildProjectDetailsViewModel(data) : null,
     isLoading,
     error: error ? toErrorMessage(error, 'تعذر تحميل تفاصيل المشروع.') : '',
   }

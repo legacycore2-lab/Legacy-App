@@ -6,9 +6,11 @@ import {
   type ProjectEntryRecord,
 } from '../repositories/projects.repository'
 import type {
+  DonutSegment,
   Project,
   ProjectAnalytics,
   ProjectDetails,
+  ProjectDetailsViewModel,
   ProjectEntry,
   ProjectFinancialSummary,
   ProjectRow,
@@ -134,5 +136,40 @@ export async function getProjectDetails(projectId: string): Promise<ProjectDetai
     entries,
     summary: summarizeEntries(entries),
     analytics: buildProjectAnalytics(entries),
+  }
+}
+
+export function buildProjectDetailsViewModel(details: ProjectDetails): ProjectDetailsViewModel {
+  const { project, summary, analytics } = details
+
+  const progress = Math.min(100, Math.max(0, project.progress))
+  const remaining = project.contractValue - summary.totalExpense
+  const profitMargin = summary.totalIncome > 0 ? Math.round((summary.balance / summary.totalIncome) * 100) : 0
+
+  const donutSegments: DonutSegment[] = analytics.expenseCategories.slice(0, 5).map((item, index) => ({
+    label: item.label,
+    percentage: item.percentage,
+    cssVar: `var(--workspace-chart-${index + 1})`,
+  }))
+
+  const donutGradient =
+    donutSegments.length > 0
+      ? `conic-gradient(${donutSegments
+          .map((seg, index) => {
+            const before = donutSegments.slice(0, index).reduce((sum, s) => sum + s.percentage, 0)
+            return `${seg.cssVar} ${before}% ${before + seg.percentage}%`
+          })
+          .join(', ')})`
+      : 'var(--surface-soft)'
+
+  return {
+    project,
+    summary,
+    analytics,
+    progress,
+    remaining,
+    profitMargin,
+    donutSegments,
+    donutGradient,
   }
 }

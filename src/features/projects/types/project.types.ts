@@ -110,3 +110,25 @@ export type ProjectDetails = {
   summary: ProjectFinancialSummary
   analytics: ProjectAnalytics
 }
+
+export type DonutSegment = {
+  label: string
+  percentage: number
+  cssVar: string
+}
+
+export type ProjectDetailsViewModel = {
+  project: Project
+  summary: ProjectFinancialSummary
+  analytics: ProjectAnalytics
+  /** 0–100, clamped and normalised */
+  progress: number
+  /** contractValue − totalExpense */
+  remaining: number
+  /** balance / totalIncome × 100, 0 when no income */
+  profitMargin: number
+  /** top-5 expense categories ready for the donut chart */
+  donutSegments: DonutSegment[]
+  /** conic-gradient() string ready for inline style */
+  donutGradient: string
+}
