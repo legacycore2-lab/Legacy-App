@@ -14,9 +14,7 @@ export type AtomicJournalImportRow = {
   notes: string
 }
 
-export async function importJournalEntriesAtomic(
-  rows: AtomicJournalImportRow[],
-): Promise<string[]> {
+export async function importJournalEntriesAtomic(rows: AtomicJournalImportRow[]): Promise<string[]> {
   const { data, error } = await getSupabaseClient().rpc('import_journal_entries_atomic', {
     p_rows: rows.map((row) => ({
       request_id: row.requestId,

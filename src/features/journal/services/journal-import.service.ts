@@ -126,9 +126,7 @@ function mapRow(raw: RawImportRow, excelRow: number, options: JournalPostingOpti
 
   const project = projectName ? findProject(options, projectName) : null
   const categoryAccount =
-    type && category
-      ? findAccount(options, category, type === 'income' ? ['revenue'] : ['expense'])
-      : null
+    type && category ? findAccount(options, category, type === 'income' ? ['revenue'] : ['expense']) : null
   const paymentAccount = paymentMethod ? findAccount(options, paymentMethod, ['asset']) : null
 
   if (!projectName) errors.push('اسم المشروع مطلوب.')

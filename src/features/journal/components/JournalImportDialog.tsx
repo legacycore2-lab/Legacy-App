@@ -1,11 +1,4 @@
-import {
-  AlertTriangle,
-  CheckCircle2,
-  Download,
-  FileSpreadsheet,
-  Upload,
-  X,
-} from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Download, FileSpreadsheet, Upload, X } from 'lucide-react'
 import { useEffect, useId, useRef } from 'react'
 import { useJournalImport } from '../hooks/useJournalImport'
 
@@ -81,12 +74,7 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
             <h2 id="journal-import-title">استيراد القيود من Excel</h2>
             <p>حمّل النموذج الرسمي، املأه، ثم راجع كل صف قبل الاعتماد.</p>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="إغلاق نافذة الاستيراد"
-            disabled={isImporting}
-          >
+          <button type="button" onClick={onClose} aria-label="إغلاق نافذة الاستيراد" disabled={isImporting}>
             <X size={20} />
           </button>
         </header>
@@ -148,9 +136,7 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
         )}
 
         {isParsing && (
-          <div className="journal-import-empty">
-            جارٍ قراءة الملف والتحقق من المشاريع والحسابات...
-          </div>
+          <div className="journal-import-empty">جارٍ قراءة الملف والتحقق من المشاريع والحسابات...</div>
         )}
 
         {preview && (
@@ -191,26 +177,15 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
                 </thead>
                 <tbody>
                   {preview.rows.map((row) => (
-                    <tr
-                      key={row.excelRow}
-                      className={row.status === 'invalid' ? 'is-invalid' : ''}
-                    >
+                    <tr key={row.excelRow} className={row.status === 'invalid' ? 'is-invalid' : ''}>
                       <td>{number.format(row.excelRow)}</td>
                       <td>{row.project || '—'}</td>
                       <td>{row.date || '—'}</td>
-                      <td>
-                        {row.type === 'income'
-                          ? 'إيراد'
-                          : row.type === 'expense'
-                            ? 'مصروف'
-                            : '—'}
-                      </td>
+                      <td>{row.type === 'income' ? 'إيراد' : row.type === 'expense' ? 'مصروف' : '—'}</td>
                       <td>{row.category || '—'}</td>
                       <td>{row.description || '—'}</td>
                       <td>{row.paymentMethod || '—'}</td>
-                      <td>
-                        {row.amount === null ? '—' : `${money.format(row.amount)} ج.م`}
-                      </td>
+                      <td>{row.amount === null ? '—' : `${money.format(row.amount)} ج.م`}</td>
                       <td>
                         {row.status === 'valid' ? (
                           <span className="journal-import-status is-valid">
@@ -239,11 +214,7 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
                   ? 'سيتم حفظ جميع القيود في عملية ذرية واحدة. عند فشل أي صف لن يتم حفظ أي قيد.'
                   : 'عالج جميع الأخطاء الظاهرة قبل اعتماد الاستيراد.'}
               </p>
-              <button
-                type="button"
-                disabled={!canImport}
-                onClick={() => void importEntries()}
-              >
+              <button type="button" disabled={!canImport} onClick={() => void importEntries()}>
                 {isImporting ? 'جارٍ اعتماد القيود...' : 'اعتماد الاستيراد'}
               </button>
             </footer>

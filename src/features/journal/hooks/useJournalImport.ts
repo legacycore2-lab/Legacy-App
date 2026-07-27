@@ -2,10 +2,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
 import { commitJournalImport } from '../services/journal-import-posting.service'
-import {
-  downloadJournalImportTemplate,
-  parseJournalImportFile,
-} from '../services/journal-import.service'
+import { downloadJournalImportTemplate, parseJournalImportFile } from '../services/journal-import.service'
 import type { JournalImportPreview } from '../types/journal-import.types'
 
 export function useJournalImport() {

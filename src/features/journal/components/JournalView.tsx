@@ -1,12 +1,4 @@
-import {
-  ArrowDownCircle,
-  ArrowUpCircle,
-  Eye,
-  FileSpreadsheet,
-  FileText,
-  Plus,
-  Search,
-} from 'lucide-react'
+import { ArrowDownCircle, ArrowUpCircle, Eye, FileSpreadsheet, FileText, Plus, Search } from 'lucide-react'
 import { useState } from 'react'
 import { useJournalPermissions } from '../hooks/useJournalPermissions'
 import type { JournalEntry, JournalFilters, JournalSummary } from '../types/journal.types'
@@ -57,18 +49,10 @@ export function JournalView({
           <p>إدارة ومراجعة جميع حركات الإيرادات والمصروفات.</p>
         </div>
         <div className="journal-header-actions">
-          <button
-            type="button"
-            className="journal-secondary"
-            onClick={() => setIsImportOpen(true)}
-          >
+          <button type="button" className="journal-secondary" onClick={() => setIsImportOpen(true)}>
             <FileSpreadsheet size={18} /> استيراد Excel
           </button>
-          <button
-            type="button"
-            className="journal-primary"
-            onClick={() => setIsEntryFormOpen(true)}
-          >
+          <button type="button" className="journal-primary" onClick={() => setIsEntryFormOpen(true)}>
             <Plus size={18} /> إضافة قيد
           </button>
         </div>
