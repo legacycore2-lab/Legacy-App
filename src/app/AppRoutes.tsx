@@ -37,7 +37,10 @@ export function AppRoutes() {
             path="/advances"
             element={secured(
               '/advances',
-              <PlaceholderPage title="العهد" description="متابعة العهد المفتوحة والمصروف والمتبقي." />,
+              <PlaceholderPage
+                title="العهد"
+                description="متابعة العهد المفتوحة والمصروف والمتبقي."
+              />,
             )}
           />
           <Route
@@ -54,14 +57,20 @@ export function AppRoutes() {
             path="/users"
             element={secured(
               '/users',
-              <PlaceholderPage title="المستخدمون" description="إدارة المستخدمين والصلاحيات." />,
+              <PlaceholderPage
+                title="المستخدمون"
+                description="إدارة المستخدمين والصلاحيات."
+              />,
             )}
           />
           <Route
             path="/settings"
             element={secured(
               '/settings',
-              <PlaceholderPage title="الإعدادات" description="إعدادات النظام والهوية والتكاملات." />,
+              <PlaceholderPage
+                title="الإعدادات"
+                description="إعدادات النظام والهوية والتكاملات."
+              />,
             )}
           />
         </Route>
