@@ -1,7 +1,12 @@
 import { MoreVertical } from 'lucide-react'
 import type { CashBankMovement } from '../types/cash-banks.types'
 
-const movementLabels = { deposit: 'إيداع', withdrawal: 'سحب', transfer: 'تحويل', expense: 'مصروف' } as const
+const movementLabels = {
+  deposit: 'إيداع',
+  withdrawal: 'سحب',
+  transfer: 'تحويل',
+  expense: 'مصروف',
+} as const
 
 export function CashBanksMovements({ movements }: { movements: CashBankMovement[] }) {
   return (
@@ -41,7 +46,11 @@ export function CashBanksMovements({ movements }: { movements: CashBankMovement[
                     {movementLabels[movement.kind]}
                   </span>
                 </td>
-                <td className={movement.amount.startsWith('+') ? 'amount-positive' : 'amount-negative'}>
+                <td
+                  className={
+                    movement.amount.startsWith('+') ? 'amount-positive' : 'amount-negative'
+                  }
+                >
                   {movement.amount}
                 </td>
                 <td>{movement.balanceAfter}</td>
