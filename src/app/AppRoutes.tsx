@@ -6,6 +6,7 @@ import {
   RequireRouteAccess,
 } from '../features/auth/components/ProtectedRoute'
 import { LoginPage } from '../features/auth/pages/LoginPage'
+import { CashBanksPage } from '../features/cash-banks/pages/CashBanksPage'
 import { DashboardPage } from '../features/dashboard/pages/DashboardPage'
 import { JournalPage } from '../features/journal/pages/JournalPage'
 import { ProjectDetailsPage } from '../features/projects/pages/ProjectDetailsPage'
@@ -31,16 +32,7 @@ export function AppRoutes() {
           <Route path="/projects/:id" element={secured('/projects', <ProjectDetailsPage />)} />
           <Route path="/journal" element={secured('/journal', <JournalPage />)} />
           <Route path="/accounts" element={secured('/accounts', <AccountsPage />)} />
-          <Route
-            path="/banks"
-            element={secured(
-              '/banks',
-              <PlaceholderPage
-                title="الخزنة والبنوك"
-                description="إدارة الحسابات والتحويلات والحركات البنكية."
-              />,
-            )}
-          />
+          <Route path="/banks" element={secured('/banks', <CashBanksPage />)} />
           <Route
             path="/advances"
             element={secured(
