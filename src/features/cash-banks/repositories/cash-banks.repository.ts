@@ -24,7 +24,13 @@ const cashBanksSnapshot: CashBanksViewModel = {
       change: '+14.7% من الشهر الماضي',
       tone: 'gold',
     },
-    { id: 'accounts', label: 'عدد الحسابات', value: '12', change: '+2 عن الشهر الماضي', tone: 'purple' },
+    {
+      id: 'accounts',
+      label: 'عدد الحسابات',
+      value: '12',
+      change: '+2 عن الشهر الماضي',
+      tone: 'purple',
+    },
   ],
   accounts: [
     {
