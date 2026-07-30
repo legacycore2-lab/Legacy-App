@@ -13,10 +13,7 @@ export function CashBanksAccounts({ accounts }: { accounts: CashBankAccount[] })
       </div>
       <div className="cash-banks-account-grid">
         {accounts.map((account) => (
-          <div
-            className={`cash-banks-account cash-banks-tone--${account.tone}`}
-            key={account.id}
-          >
+          <div className={`cash-banks-account cash-banks-tone--${account.tone}`} key={account.id}>
             <div className="cash-banks-account__top">
               <div className="cash-banks-account__icon">
                 {account.kind === 'bank' ? <Landmark /> : <Banknote />}
