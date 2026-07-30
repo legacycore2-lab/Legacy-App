@@ -5,7 +5,10 @@ export function CashBanksMetrics({ metrics }: { metrics: CashBankMetric[] }) {
   return (
     <div className="cash-banks-metrics">
       {metrics.map((metric) => (
-        <article className={`cash-banks-metric cash-banks-tone--${metric.tone}`} key={metric.id}>
+        <article
+          className={`cash-banks-metric cash-banks-tone--${metric.tone}`}
+          key={metric.id}
+        >
           <div className="cash-banks-metric__icon">
             {metric.id === 'liquidity' ? (
               <WalletCards />
