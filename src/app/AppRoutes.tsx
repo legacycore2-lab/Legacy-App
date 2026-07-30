@@ -33,10 +33,37 @@ export function AppRoutes() {
           <Route path="/journal" element={secured('/journal', <JournalPage />)} />
           <Route path="/accounts" element={secured('/accounts', <AccountsPage />)} />
           <Route path="/banks" element={secured('/banks', <CashBanksPage />)} />
-          <Route path="/advances" element={secured('/advances', <PlaceholderPage title="العهد" description="متابعة العهد المفتوحة والمصروف والمتبقي." />)} />
-          <Route path="/reports" element={secured('/reports', <PlaceholderPage title="التقارير" description="التقارير المالية وتقارير المشاريع والمقاولين." />)} />
-          <Route path="/users" element={secured('/users', <PlaceholderPage title="المستخدمون" description="إدارة المستخدمين والصلاحيات." />)} />
-          <Route path="/settings" element={secured('/settings', <PlaceholderPage title="الإعدادات" description="إعدادات النظام والهوية والتكاملات." />)} />
+          <Route
+            path="/advances"
+            element={secured(
+              '/advances',
+              <PlaceholderPage title="العهد" description="متابعة العهد المفتوحة والمصروف والمتبقي." />,
+            )}
+          />
+          <Route
+            path="/reports"
+            element={secured(
+              '/reports',
+              <PlaceholderPage
+                title="التقارير"
+                description="التقارير المالية وتقارير المشاريع والمقاولين."
+              />,
+            )}
+          />
+          <Route
+            path="/users"
+            element={secured(
+              '/users',
+              <PlaceholderPage title="المستخدمون" description="إدارة المستخدمين والصلاحيات." />,
+            )}
+          />
+          <Route
+            path="/settings"
+            element={secured(
+              '/settings',
+              <PlaceholderPage title="الإعدادات" description="إعدادات النظام والهوية والتكاملات." />,
+            )}
+          />
         </Route>
       </Route>
     </Routes>
