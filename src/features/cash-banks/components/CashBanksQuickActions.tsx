@@ -1,4 +1,11 @@
-import { ArrowDownToLine, ArrowLeftRight, ArrowUpFromLine, Landmark, Plus, ReceiptText } from 'lucide-react'
+import {
+  ArrowDownToLine,
+  ArrowLeftRight,
+  ArrowUpFromLine,
+  Landmark,
+  Plus,
+  ReceiptText,
+} from 'lucide-react'
 
 export function CashBanksQuickActions() {
   return (
