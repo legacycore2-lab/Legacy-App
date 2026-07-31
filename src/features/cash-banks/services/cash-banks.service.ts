@@ -10,6 +10,8 @@ import {
   findCashBankBalances,
   findRecentCashBankTransactions,
   postCashBankDeposit,
+  findWithdrawalSourceAccounts,
+  postCashBankWithdrawal,
   updateCashBankAccount,
 } from '../repositories/cash-banks.repository'
 import type {
@@ -22,6 +24,8 @@ import type {
   CashBankBalanceRow,
   CashBankDepositInput,
   CashBankDepositPayload,
+  CashBankWithdrawalInput,
+  CashBankWithdrawalPayload,
   CashBankMetric,
   CashBankMetricTone,
   CashBankMovement,
@@ -174,6 +178,59 @@ export async function createCashBankDeposit(
     referenceNumber: clean(input.referenceNumber) || null,
   }
   return postCashBankDeposit(payload)
+}
+
+export function validateCashBankWithdrawalInput(
+  input: CashBankWithdrawalInput,
+  sourceLedgerAccountId?: string,
+  availableBalance?: number,
+): string[] {
+  const errors: string[] = []
+  const amount = Number(input.amount)
+
+  if (!input.sourceAccountId) errors.push('حساب السحب مطلوب.')
+  if (!input.offsetAccountId) errors.push('الحساب المقابل مطلوب.')
+  if (!input.transactionDate) errors.push('تاريخ السحب مطلوب.')
+  if (!Number.isFinite(amount) || amount <= 0) errors.push('مبلغ السحب يجب أن يكون أكبر من صفر.')
+  if (Number.isFinite(amount) && availableBalance !== undefined && amount > availableBalance) {
+    errors.push('الرصيد المتاح لا يكفي لإتمام السحب.')
+  }
+  if (!clean(input.description)) errors.push('وصف السحب مطلوب.')
+  if (sourceLedgerAccountId && sourceLedgerAccountId === input.offsetAccountId) {
+    errors.push('الحساب المقابل يجب أن يختلف عن حساب أستاذ الخزنة أو البنك.')
+  }
+
+  return errors
+}
+
+export async function getCashBankWithdrawalOptions() {
+  const [sourceAccounts, offsetAccounts] = await Promise.all([
+    findWithdrawalSourceAccounts(),
+    findDepositOffsetAccounts(),
+  ])
+  return { sourceAccounts, offsetAccounts }
+}
+
+export async function createCashBankWithdrawal(
+  input: CashBankWithdrawalInput,
+  clientRequestId: string,
+  sourceLedgerAccountId?: string,
+  availableBalance?: number,
+): Promise<string> {
+  const errors = validateCashBankWithdrawalInput(input, sourceLedgerAccountId, availableBalance)
+  if (errors.length > 0) throw new DataValidationError(errors[0])
+  if (!clientRequestId) throw new DataValidationError('معرّف طلب السحب مطلوب.')
+
+  const payload: CashBankWithdrawalPayload = {
+    clientRequestId,
+    sourceAccountId: input.sourceAccountId,
+    offsetAccountId: input.offsetAccountId,
+    transactionDate: input.transactionDate,
+    amount: Math.round(Number(input.amount) * 100) / 100,
+    description: clean(input.description),
+    referenceNumber: clean(input.referenceNumber) || null,
+  }
+  return postCashBankWithdrawal(payload)
 }
 
 // ─── Formatters ───────────────────────────────────────────────────────────────
