@@ -4,6 +4,119 @@
   color: var(--text);
   direction: rtl;
 }
+.cash-bank-dialog-backdrop {
+  position: fixed;
+  z-index: 50;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: color-mix(in srgb, #07111f 68%, transparent);
+}
+.cash-bank-dialog {
+  width: min(760px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: 0 24px 80px color-mix(in srgb, #000 30%, transparent);
+}
+.cash-bank-dialog > header,
+.cash-bank-dialog footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.cash-bank-dialog > header h2 {
+  margin: 3px 0;
+}
+.cash-bank-dialog > header p,
+.cash-bank-dialog > header span {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+.cash-bank-dialog button {
+  border: 0;
+  border-radius: 10px;
+}
+.cash-bank-dialog form {
+  padding: 20px;
+}
+.cash-bank-dialog-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.cash-bank-dialog-grid label {
+  display: grid;
+  gap: 7px;
+  color: var(--text);
+  font-size: 13px;
+}
+.cash-bank-dialog-grid input,
+.cash-bank-dialog-grid select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-soft);
+  color: var(--text);
+}
+.cash-bank-dialog-wide {
+  grid-column: 1 / -1;
+}
+.cash-bank-dialog-check {
+  display: flex !important;
+  align-items: center;
+}
+.cash-bank-dialog-check input {
+  width: auto;
+}
+.cash-bank-dialog-errors {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, #ef5350 12%, transparent);
+  color: #d33;
+}
+.cash-bank-dialog-errors p {
+  margin: 2px 0;
+}
+.cash-bank-dialog footer {
+  margin: 20px -20px -20px;
+  border-top: 1px solid var(--border);
+  border-bottom: 0;
+}
+.cash-bank-dialog footer span {
+  flex: 1;
+}
+.cash-bank-dialog footer button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 14px;
+}
+.cash-bank-secondary {
+  background: var(--surface-soft);
+  color: var(--text);
+}
+.cash-bank-danger {
+  background: color-mix(in srgb, #ef5350 12%, transparent);
+  color: #d33;
+}
+.cash-bank-spinner {
+  animation: cash-bank-spin 0.8s linear infinite;
+}
+@keyframes cash-bank-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 .cash-banks-state {
   padding: 24px;
 }
@@ -304,6 +417,15 @@
   }
 }
 @media (max-width: 640px) {
+  .cash-bank-dialog-grid {
+    grid-template-columns: 1fr;
+  }
+  .cash-bank-dialog-wide {
+    grid-column: auto;
+  }
+  .cash-bank-dialog footer {
+    flex-wrap: wrap;
+  }
   .cash-banks-hero {
     align-items: stretch;
     flex-direction: column;

@@ -1,7 +1,13 @@
 import { Banknote, Landmark, MoreVertical } from 'lucide-react'
 import type { CashBankAccountSummary } from '../types/cash-banks.types'
 
-export function CashBanksAccounts({ accounts }: { accounts: CashBankAccountSummary[] }) {
+export function CashBanksAccounts({
+  accounts,
+  onEdit,
+}: {
+  accounts: CashBankAccountSummary[]
+  onEdit: (id: string) => void
+}) {
   return (
     <article className="cash-banks-panel">
       <div className="cash-banks-panel__header">
@@ -18,7 +24,7 @@ export function CashBanksAccounts({ accounts }: { accounts: CashBankAccountSumma
               <div className="cash-banks-account__icon">
                 {account.kind === 'bank' ? <Landmark /> : <Banknote />}
               </div>
-              <button type="button">
+              <button type="button" onClick={() => onEdit(account.id)} aria-label={`تعديل ${account.name}`}>
                 <MoreVertical size={17} />
               </button>
             </div>

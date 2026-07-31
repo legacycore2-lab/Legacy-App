@@ -1,5 +1,20 @@
-import { findCashBankBalances, findRecentCashBankTransactions } from '../repositories/cash-banks.repository'
+import { DataValidationError } from '../../../shared/errors/app-error'
+import {
+  checkDuplicateAccountName,
+  createCashBankAccount,
+  deactivateCashBankAccount,
+  findAvailableLedgerAccounts,
+  findCashBankAccountById,
+  findCashBankBalances,
+  findRecentCashBankTransactions,
+  updateCashBankAccount,
+} from '../repositories/cash-banks.repository'
 import type {
+  CashBankAccount,
+  CashBankAccountInput,
+  CashBankAccountPayload,
+  CashBankAccountRow,
+  CashBankAccountUpdatePayload,
   CashBankAccountSummary,
   CashBankBalanceRow,
   CashBankMetric,
@@ -9,6 +24,104 @@ import type {
   CashBanksViewModel,
   CashFlowPoint,
 } from '../types/cash-banks.types'
+
+function clean(value: string): string {
+  return value.trim().replace(/\s+/g, ' ')
+}
+
+export function validateCashBankAccountInput(input: CashBankAccountInput): string[] {
+  const errors: string[] = []
+  const openingBalance = Number(input.openingBalance)
+
+  if (!clean(input.name)) errors.push('اسم الحساب مطلوب.')
+  if (!input.ledgerAccountId) errors.push('حساب الأستاذ مطلوب.')
+  if (input.kind !== 'cash' && input.kind !== 'bank') errors.push('نوع الحساب غير صالح.')
+  if (!Number.isFinite(openingBalance) || openingBalance < 0)
+    errors.push('الرصيد الافتتاحي يجب ألا يقل عن صفر.')
+  if (input.currencyCode !== 'EGP') errors.push('العملة المتاحة حاليًا هي الجنيه المصري فقط.')
+  if (
+    input.kind === 'cash' &&
+    [input.bankName, input.accountNumber, input.iban, input.branchName].some((value) => clean(value))
+  ) {
+    errors.push('لا يمكن إضافة بيانات بنكية إلى حساب خزنة.')
+  }
+
+  return errors
+}
+
+function buildAccountPayload(input: CashBankAccountInput): CashBankAccountPayload {
+  const errors = validateCashBankAccountInput(input)
+  if (errors.length > 0) throw new DataValidationError(errors[0])
+
+  const bankValue = (value: string) => (input.kind === 'bank' ? clean(value) || null : null)
+  return {
+    ledger_account_id: input.ledgerAccountId,
+    name: clean(input.name),
+    account_kind: input.kind,
+    bank_name: bankValue(input.bankName),
+    account_number: bankValue(input.accountNumber),
+    iban: bankValue(input.iban),
+    branch_name: bankValue(input.branchName),
+    opening_balance: Number(input.openingBalance),
+    currency_code: 'EGP',
+    is_active: input.isActive,
+  }
+}
+
+function buildAccountUpdatePayload(payload: CashBankAccountPayload): CashBankAccountUpdatePayload {
+  return {
+    name: payload.name,
+    account_kind: payload.account_kind,
+    bank_name: payload.bank_name,
+    account_number: payload.account_number,
+    iban: payload.iban,
+    branch_name: payload.branch_name,
+    currency_code: payload.currency_code,
+    is_active: payload.is_active,
+  }
+}
+
+function mapAccount(row: CashBankAccountRow): CashBankAccount {
+  return {
+    id: row.id,
+    ledgerAccountId: row.ledger_account_id,
+    name: row.name,
+    kind: row.account_kind,
+    bankName: row.bank_name,
+    accountNumber: row.account_number,
+    iban: row.iban,
+    branchName: row.branch_name,
+    openingBalance: Number(row.opening_balance),
+    currentBalance: Number(row.opening_balance),
+    currencyCode: row.currency_code,
+    isActive: row.is_active,
+  }
+}
+
+export async function getCashBankAccount(id: string): Promise<CashBankAccount> {
+  const row = await findCashBankAccountById(id)
+  if (!row) throw new DataValidationError('الحساب المطلوب غير موجود.')
+  return mapAccount(row)
+}
+
+export async function getCashBankLedgerAccounts() {
+  return findAvailableLedgerAccounts()
+}
+
+export async function saveCashBankAccount(input: CashBankAccountInput, id?: string): Promise<void> {
+  const payload = buildAccountPayload(input)
+  if (await checkDuplicateAccountName(payload.name, id)) {
+    throw new DataValidationError('يوجد حساب خزنة أو بنك بنفس الاسم.')
+  }
+
+  if (id) await updateCashBankAccount(id, buildAccountUpdatePayload(payload))
+  else await createCashBankAccount(payload)
+}
+
+export async function disableCashBankAccount(id: string): Promise<void> {
+  if (!id) throw new DataValidationError('معرّف الحساب مطلوب.')
+  await deactivateCashBankAccount(id)
+}
 
 // ─── Formatters ───────────────────────────────────────────────────────────────
 const money = new Intl.NumberFormat('ar-EG', {
