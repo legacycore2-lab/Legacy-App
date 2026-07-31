@@ -1,12 +1,17 @@
 import { MoreVertical } from 'lucide-react'
 import type { CashBankMovement } from '../types/cash-banks.types'
 
-const movementLabels = {
+const movementLabels: Record<string, string> = {
   deposit: 'إيداع',
   withdrawal: 'سحب',
   transfer: 'تحويل',
-  expense: 'مصروف',
-} as const
+}
+
+const statusLabels: Record<string, string> = {
+  draft: 'مسودة',
+  posted: 'مرحّلة',
+  void: 'ملغاة',
+}
 
 export function CashBanksMovements({ movements }: { movements: CashBankMovement[] }) {
   return (
@@ -22,37 +27,32 @@ export function CashBanksMovements({ movements }: { movements: CashBankMovement[
         <table>
           <thead>
             <tr>
-              <th>رقم الحركة</th>
-              <th>التاريخ</th>
-              <th>الحساب</th>
-              <th>النوع</th>
-              <th>المبلغ</th>
-              <th>الرصيد بعد الحركة</th>
-              <th>الحالة</th>
-              <th />
+              <th scope="col">رقم الحركة</th>
+              <th scope="col">التاريخ</th>
+              <th scope="col">الحساب</th>
+              <th scope="col">النوع</th>
+              <th scope="col">المبلغ</th>
+              <th scope="col">الحالة</th>
+              <th scope="col" />
             </tr>
           </thead>
           <tbody>
             {movements.map((movement) => (
               <tr key={movement.id}>
                 <td>{movement.number}</td>
-                <td>
-                  {movement.date}
-                  <small>{movement.time}</small>
-                </td>
+                <td>{movement.date}</td>
                 <td>{movement.account}</td>
                 <td>
-                  <span className={`movement-kind movement-kind--${movement.kind}`}>
-                    {movementLabels[movement.kind]}
+                  <span className={`movement-kind movement-kind--${movement.type}`}>
+                    {movementLabels[movement.type] ?? movement.type}
                   </span>
                 </td>
                 <td className={movement.amount.startsWith('+') ? 'amount-positive' : 'amount-negative'}>
                   {movement.amount}
                 </td>
-                <td>{movement.balanceAfter}</td>
                 <td>
                   <span className={`movement-status movement-status--${movement.status}`}>
-                    {movement.status === 'completed' ? 'مكتملة' : 'قيد المراجعة'}
+                    {statusLabels[movement.status] ?? movement.status}
                   </span>
                 </td>
                 <td>

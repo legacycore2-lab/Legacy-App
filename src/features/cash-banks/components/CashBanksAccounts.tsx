@@ -1,7 +1,7 @@
 import { Banknote, Landmark, MoreVertical } from 'lucide-react'
-import type { CashBankAccount } from '../types/cash-banks.types'
+import type { CashBankAccountSummary } from '../types/cash-banks.types'
 
-export function CashBanksAccounts({ accounts }: { accounts: CashBankAccount[] }) {
+export function CashBanksAccounts({ accounts }: { accounts: CashBankAccountSummary[] }) {
   return (
     <article className="cash-banks-panel">
       <div className="cash-banks-panel__header">
