@@ -10,6 +10,8 @@ import type {
   CashBankLedgerAccountOption,
   CashBankOffsetAccountOption,
   CashBankTransactionRow,
+  CashBankWithdrawalAccountOption,
+  CashBankWithdrawalPayload,
 } from '../types/cash-banks.types'
 
 const ACCOUNT_FIELDS =
@@ -161,5 +163,38 @@ export async function postCashBankDeposit(payload: CashBankDepositPayload): Prom
   if (error) throw new AppError(error.message, 'CASH_BANK_DEPOSIT_POST_FAILED')
   if (typeof data !== 'string')
     throw new AppError('Deposit did not return an identifier.', 'INVALID_DEPOSIT_ID')
+  return data
+}
+
+export async function findWithdrawalSourceAccounts(): Promise<CashBankWithdrawalAccountOption[]> {
+  const { data, error } = await getSupabaseClient()
+    .from('cash_bank_account_balances')
+    .select('id,ledger_account_id,name,current_balance')
+    .eq('is_active', true)
+    .order('name')
+
+  if (error) throw new AppError(error.message, 'CASH_BANK_WITHDRAWAL_ACCOUNTS_FETCH_FAILED')
+  return (data ?? []).map((account) => ({
+    id: account.id,
+    ledgerAccountId: account.ledger_account_id,
+    name: account.name,
+    currentBalance: Number(account.current_balance),
+  }))
+}
+
+export async function postCashBankWithdrawal(payload: CashBankWithdrawalPayload): Promise<string> {
+  const { data, error } = await getSupabaseClient().rpc('post_cash_bank_withdrawal', {
+    p_client_request_id: payload.clientRequestId,
+    p_source_account_id: payload.sourceAccountId,
+    p_offset_account_id: payload.offsetAccountId,
+    p_transaction_date: payload.transactionDate,
+    p_amount: payload.amount,
+    p_description: payload.description,
+    p_reference_number: payload.referenceNumber,
+  })
+
+  if (error) throw new AppError(error.message, 'CASH_BANK_WITHDRAWAL_POST_FAILED')
+  if (typeof data !== 'string')
+    throw new AppError('Withdrawal did not return an identifier.', 'INVALID_WITHDRAWAL_ID')
   return data
 }

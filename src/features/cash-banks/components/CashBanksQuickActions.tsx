@@ -1,6 +1,12 @@
 import { ArrowDownToLine, ArrowLeftRight, ArrowUpFromLine, Landmark, Plus, ReceiptText } from 'lucide-react'
 
-export function CashBanksQuickActions({ onDeposit }: { onDeposit: () => void }) {
+export function CashBanksQuickActions({
+  onDeposit,
+  onWithdrawal,
+}: {
+  onDeposit: () => void
+  onWithdrawal: () => void
+}) {
   return (
     <article className="cash-banks-panel cash-banks-quick">
       <div className="cash-banks-panel__header">
@@ -14,7 +20,7 @@ export function CashBanksQuickActions({ onDeposit }: { onDeposit: () => void }) 
           <ArrowDownToLine />
           <span>إيداع</span>
         </button>
-        <button type="button">
+        <button type="button" onClick={onWithdrawal}>
           <ArrowUpFromLine />
           <span>سحب</span>
         </button>
