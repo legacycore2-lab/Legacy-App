@@ -66,7 +66,12 @@ export function ProjectDeleteDialog({
         )}
 
         <footer>
-          <button type="button" className="projects-secondary-action" onClick={onClose} disabled={isDeleting}>
+          <button
+            type="button"
+            className="projects-secondary-action"
+            onClick={onClose}
+            disabled={isDeleting}
+          >
             إلغاء
           </button>
           <button
@@ -75,7 +80,11 @@ export function ProjectDeleteDialog({
             onClick={onConfirm}
             disabled={!canDelete}
           >
-            {isDeleting ? <LoaderCircle className="project-create-spinner" size={17} /> : <Trash2 size={17} />}
+            {isDeleting ? (
+              <LoaderCircle className="project-create-spinner" size={17} />
+            ) : (
+              <Trash2 size={17} />
+            )}
             {isDeleting ? 'جارٍ الحذف...' : 'حذف نهائي'}
           </button>
         </footer>
