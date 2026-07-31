@@ -59,13 +59,18 @@
   font-size: 13px;
 }
 .cash-bank-dialog-grid input,
-.cash-bank-dialog-grid select {
+.cash-bank-dialog-grid select,
+.cash-bank-dialog-grid textarea {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--surface-soft);
   color: var(--text);
+}
+.cash-bank-dialog-grid textarea {
+  min-height: 90px;
+  resize: vertical;
 }
 .cash-bank-dialog-wide {
   grid-column: 1 / -1;
