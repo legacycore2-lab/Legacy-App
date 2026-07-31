@@ -13,10 +13,10 @@ export function CashBanksFlow({ points }: { points: CashFlowPoint[] }) {
       <div className="cash-banks-chart">
         <div className="cash-banks-chart__legend">
           <span>
-            <i className="income" /> إيرادات
+            <i className="cash-banks-legend-income" /> إيرادات
           </span>
           <span>
-            <i className="expense" /> مصروفات
+            <i className="cash-banks-legend-expense" /> مصروفات
           </span>
         </div>
         <svg viewBox="0 0 720 260" role="img" aria-label="التدفقات النقدية">
