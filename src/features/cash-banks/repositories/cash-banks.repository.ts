@@ -1,6 +1,15 @@
 import { AppError } from '../../../shared/errors/app-error'
 import { getSupabaseClient } from '../../../lib/supabase/client'
-import type { CashBankBalanceRow, CashBankTransactionRow } from '../types/cash-banks.types'
+import type {
+  CashBankAccountPayload,
+  CashBankAccountRow,
+  CashBankBalanceRow,
+  CashBankLedgerAccountOption,
+  CashBankTransactionRow,
+} from '../types/cash-banks.types'
+
+const ACCOUNT_FIELDS =
+  'id,ledger_account_id,name,account_kind,bank_name,account_number,iban,branch_name,opening_balance,currency_code,is_active,created_at,updated_at'
 
 const TRANSACTION_FIELDS = [
   'id',
@@ -46,4 +55,60 @@ export async function findRecentCashBankTransactions(limit = 20): Promise<CashBa
 
   if (error) throw new AppError(error.message, 'CASH_BANK_TRANSACTIONS_FETCH_FAILED')
   return (data as unknown as CashBankTransactionRow[]) ?? []
+}
+
+export async function findCashBankAccountById(id: string): Promise<CashBankAccountRow | null> {
+  const { data, error } = await getSupabaseClient()
+    .from('cash_bank_accounts')
+    .select(ACCOUNT_FIELDS)
+    .eq('id', id)
+    .maybeSingle()
+
+  if (error) throw new AppError(error.message, 'CASH_BANK_ACCOUNT_FETCH_FAILED')
+  return data as CashBankAccountRow | null
+}
+
+export async function findAvailableLedgerAccounts(): Promise<CashBankLedgerAccountOption[]> {
+  const { data, error } = await getSupabaseClient()
+    .from('accounts')
+    .select('id,code,name_ar')
+    .eq('account_type', 'asset')
+    .eq('is_postable', true)
+    .eq('is_active', true)
+    .order('code')
+
+  if (error) throw new AppError(error.message, 'CASH_BANK_LEDGER_ACCOUNTS_FETCH_FAILED')
+  return (data ?? []).map((account) => ({ id: account.id, code: account.code, name: account.name_ar }))
+}
+
+export async function checkDuplicateAccountName(name: string, excludeId?: string): Promise<boolean> {
+  let query = getSupabaseClient()
+    .from('cash_bank_accounts')
+    .select('id', { count: 'exact', head: true })
+    .ilike('name', name)
+
+  if (excludeId) query = query.neq('id', excludeId)
+  const { count, error } = await query
+
+  if (error) throw new AppError(error.message, 'CASH_BANK_ACCOUNT_DUPLICATE_CHECK_FAILED')
+  return (count ?? 0) > 0
+}
+
+export async function createCashBankAccount(payload: CashBankAccountPayload): Promise<void> {
+  const { error } = await getSupabaseClient().from('cash_bank_accounts').insert(payload)
+  if (error) throw new AppError(error.message, 'CASH_BANK_ACCOUNT_CREATE_FAILED')
+}
+
+export async function updateCashBankAccount(id: string, payload: CashBankAccountPayload): Promise<void> {
+  const { error } = await getSupabaseClient().from('cash_bank_accounts').update(payload).eq('id', id)
+  if (error) throw new AppError(error.message, 'CASH_BANK_ACCOUNT_UPDATE_FAILED')
+}
+
+export async function deactivateCashBankAccount(id: string): Promise<void> {
+  const { error } = await getSupabaseClient()
+    .from('cash_bank_accounts')
+    .update({ is_active: false })
+    .eq('id', id)
+
+  if (error) throw new AppError(error.message, 'CASH_BANK_ACCOUNT_DEACTIVATE_FAILED')
 }

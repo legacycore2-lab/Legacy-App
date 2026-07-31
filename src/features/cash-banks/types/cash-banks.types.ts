@@ -57,6 +57,7 @@ export interface CashBankTransactionRow {
 // ─── Domain models ─────────────────────────────────────────────────────────────
 export interface CashBankAccount {
   id: string
+  ledgerAccountId: string
   name: string
   kind: CashBankAccountKind
   bankName: string | null
@@ -67,6 +68,55 @@ export interface CashBankAccount {
   currentBalance: number
   currencyCode: string
   isActive: boolean
+}
+
+export interface CashBankLedgerAccountOption {
+  id: string
+  code: string
+  name: string
+}
+
+export interface CashBankAccountInput {
+  ledgerAccountId: string
+  name: string
+  kind: CashBankAccountKind
+  bankName: string
+  accountNumber: string
+  iban: string
+  branchName: string
+  openingBalance: string
+  currencyCode: string
+  isActive: boolean
+}
+
+export interface CashBankAccountPayload {
+  ledger_account_id: string
+  name: string
+  account_kind: CashBankAccountKind
+  bank_name: string | null
+  account_number: string | null
+  iban: string | null
+  branch_name: string | null
+  opening_balance: number
+  currency_code: 'EGP'
+  is_active: boolean
+}
+
+export interface CashBankAccountFormState {
+  isOpen: boolean
+  isEditing: boolean
+  value: CashBankAccountInput
+  ledgerAccounts: CashBankLedgerAccountOption[]
+  update: <K extends keyof CashBankAccountInput>(key: K, value: CashBankAccountInput[K]) => void
+  openCreate: () => void
+  openEdit: (id: string) => Promise<void>
+  close: () => void
+  submit: () => Promise<void>
+  deactivate: () => Promise<void>
+  errors: string[]
+  submitted: boolean
+  isSaving: boolean
+  saveError: string
 }
 
 export interface CashBankTransaction {
