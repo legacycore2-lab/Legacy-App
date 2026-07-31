@@ -110,6 +110,7 @@ export function ProjectDetailsPage() {
   const navigate = useNavigate()
   const { viewModel, isLoading, error } = useProjectDetails(id ?? null)
   const projectCreate = useProjectCreateForm()
+  const projectDelete = useProjectDelete(viewModel?.project.id ?? null, viewModel?.project.name ?? '')
   const [actionsOpen, setActionsOpen] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const [activeTab, setActiveTab] = useState<WorkspaceTabId>('overview')
@@ -120,7 +121,6 @@ export function ProjectDetailsPage() {
 
   const { project, summary, analytics, progress, remaining, profitMargin, donutSegments, donutGradient } =
     viewModel
-  const projectDelete = useProjectDelete(project.id, project.name)
   const projectQuery = `projectId=${encodeURIComponent(project.id)}`
 
   const selectTab = (tabId: WorkspaceTabId) => {
