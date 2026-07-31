@@ -1,4 +1,6 @@
 import { CashBanksAccounts } from '../components/CashBanksAccounts'
+import { CashBankAccountDialog } from '../components/CashBankAccountDialog'
+import { CashBankDepositDialog } from '../components/CashBankDepositDialog'
 import { CashBanksFlow } from '../components/CashBanksFlow'
 import { CashBanksHeader } from '../components/CashBanksHeader'
 import { CashBanksMetrics } from '../components/CashBanksMetrics'
@@ -6,11 +8,13 @@ import { CashBanksMovements } from '../components/CashBanksMovements'
 import { CashBanksQuickActions } from '../components/CashBanksQuickActions'
 import { useCashBanks } from '../hooks/useCashBanks'
 import { useCashBankAccountForm } from '../hooks/useCashBankAccountForm'
+import { useCashBankDepositForm } from '../hooks/useCashBankDepositForm'
 import '../styles/cash-banks.css'
 
 export function CashBanksPage() {
   const { data, isLoading, error } = useCashBanks()
   const accountForm = useCashBankAccountForm()
+  const depositForm = useCashBankDepositForm()
 
   if (isLoading) return <section className="cash-banks-state">جاري تحميل الخزنة والبنوك...</section>
   if (error) return <section className="cash-banks-state">{error}</section>
@@ -25,11 +29,11 @@ export function CashBanksPage() {
         <CashBanksAccounts accounts={data.accounts} onEdit={(id) => void accountForm.openEdit(id)} />
       </div>
       <CashBankAccountDialog form={accountForm} />
+      <CashBankDepositDialog form={depositForm} />
       <div className="cash-banks-bottom-grid">
         <CashBanksMovements movements={data.movements} />
-        <CashBanksQuickActions />
+        <CashBanksQuickActions onDeposit={depositForm.open} />
       </div>
     </section>
   )
 }
-import { CashBankAccountDialog } from '../components/CashBankAccountDialog'

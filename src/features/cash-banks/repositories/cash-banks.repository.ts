@@ -5,7 +5,10 @@ import type {
   CashBankAccountRow,
   CashBankAccountUpdatePayload,
   CashBankBalanceRow,
+  CashBankDepositAccountOption,
+  CashBankDepositPayload,
   CashBankLedgerAccountOption,
+  CashBankOffsetAccountOption,
   CashBankTransactionRow,
 } from '../types/cash-banks.types'
 
@@ -115,4 +118,48 @@ export async function deactivateCashBankAccount(id: string): Promise<void> {
     .eq('id', id)
 
   if (error) throw new AppError(error.message, 'CASH_BANK_ACCOUNT_DEACTIVATE_FAILED')
+}
+
+export async function findDepositDestinationAccounts(): Promise<CashBankDepositAccountOption[]> {
+  const { data, error } = await getSupabaseClient()
+    .from('cash_bank_accounts')
+    .select('id,ledger_account_id,name')
+    .eq('is_active', true)
+    .order('name')
+
+  if (error) throw new AppError(error.message, 'CASH_BANK_DEPOSIT_ACCOUNTS_FETCH_FAILED')
+  return (data ?? []).map((account) => ({
+    id: account.id,
+    ledgerAccountId: account.ledger_account_id,
+    name: account.name,
+  }))
+}
+
+export async function findDepositOffsetAccounts(): Promise<CashBankOffsetAccountOption[]> {
+  const { data, error } = await getSupabaseClient()
+    .from('accounts')
+    .select('id,code,name_ar')
+    .eq('is_active', true)
+    .eq('is_postable', true)
+    .order('code')
+
+  if (error) throw new AppError(error.message, 'CASH_BANK_OFFSET_ACCOUNTS_FETCH_FAILED')
+  return (data ?? []).map((account) => ({ id: account.id, code: account.code, name: account.name_ar }))
+}
+
+export async function postCashBankDeposit(payload: CashBankDepositPayload): Promise<string> {
+  const { data, error } = await getSupabaseClient().rpc('post_cash_bank_deposit', {
+    p_client_request_id: payload.clientRequestId,
+    p_destination_account_id: payload.destinationAccountId,
+    p_offset_account_id: payload.offsetAccountId,
+    p_transaction_date: payload.transactionDate,
+    p_amount: payload.amount,
+    p_description: payload.description,
+    p_reference_number: payload.referenceNumber,
+  })
+
+  if (error) throw new AppError(error.message, 'CASH_BANK_DEPOSIT_POST_FAILED')
+  if (typeof data !== 'string')
+    throw new AppError('Deposit did not return an identifier.', 'INVALID_DEPOSIT_ID')
+  return data
 }

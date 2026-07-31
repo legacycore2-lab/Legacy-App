@@ -4,9 +4,12 @@ import {
   createCashBankAccount,
   deactivateCashBankAccount,
   findAvailableLedgerAccounts,
+  findDepositDestinationAccounts,
+  findDepositOffsetAccounts,
   findCashBankAccountById,
   findCashBankBalances,
   findRecentCashBankTransactions,
+  postCashBankDeposit,
   updateCashBankAccount,
 } from '../repositories/cash-banks.repository'
 import type {
@@ -17,6 +20,8 @@ import type {
   CashBankAccountUpdatePayload,
   CashBankAccountSummary,
   CashBankBalanceRow,
+  CashBankDepositInput,
+  CashBankDepositPayload,
   CashBankMetric,
   CashBankMetricTone,
   CashBankMovement,
@@ -121,6 +126,54 @@ export async function saveCashBankAccount(input: CashBankAccountInput, id?: stri
 export async function disableCashBankAccount(id: string): Promise<void> {
   if (!id) throw new DataValidationError('معرّف الحساب مطلوب.')
   await deactivateCashBankAccount(id)
+}
+
+export function validateCashBankDepositInput(
+  input: CashBankDepositInput,
+  destinationLedgerAccountId?: string,
+): string[] {
+  const errors: string[] = []
+  const amount = Number(input.amount)
+
+  if (!input.destinationAccountId) errors.push('حساب الإيداع مطلوب.')
+  if (!input.offsetAccountId) errors.push('الحساب المقابل مطلوب.')
+  if (!input.transactionDate) errors.push('تاريخ الإيداع مطلوب.')
+  if (!Number.isFinite(amount) || amount <= 0) errors.push('مبلغ الإيداع يجب أن يكون أكبر من صفر.')
+  if (!clean(input.description)) errors.push('وصف الإيداع مطلوب.')
+  if (destinationLedgerAccountId && destinationLedgerAccountId === input.offsetAccountId) {
+    errors.push('الحساب المقابل يجب أن يختلف عن حساب أستاذ الخزنة أو البنك.')
+  }
+
+  return errors
+}
+
+export async function getCashBankDepositOptions() {
+  const [destinationAccounts, offsetAccounts] = await Promise.all([
+    findDepositDestinationAccounts(),
+    findDepositOffsetAccounts(),
+  ])
+  return { destinationAccounts, offsetAccounts }
+}
+
+export async function createCashBankDeposit(
+  input: CashBankDepositInput,
+  clientRequestId: string,
+  destinationLedgerAccountId?: string,
+): Promise<string> {
+  const errors = validateCashBankDepositInput(input, destinationLedgerAccountId)
+  if (errors.length > 0) throw new DataValidationError(errors[0])
+  if (!clientRequestId) throw new DataValidationError('معرّف طلب الإيداع مطلوب.')
+
+  const payload: CashBankDepositPayload = {
+    clientRequestId,
+    destinationAccountId: input.destinationAccountId,
+    offsetAccountId: input.offsetAccountId,
+    transactionDate: input.transactionDate,
+    amount: Math.round(Number(input.amount) * 100) / 100,
+    description: clean(input.description),
+    referenceNumber: clean(input.referenceNumber) || null,
+  }
+  return postCashBankDeposit(payload)
 }
 
 // ─── Formatters ───────────────────────────────────────────────────────────────
