@@ -76,7 +76,9 @@ const workspaceTabs = [
 
 type WorkspaceTabId = (typeof workspaceTabs)[number]['id']
 
-const internalSectionCopy: Partial<Record<WorkspaceTabId, { title: string; description: string }>> = {
+const internalSectionCopy: Partial<
+  Record<WorkspaceTabId, { title: string; description: string }>
+> = {
   contractors: {
     title: 'مقاولو المشروع',
     description: 'سيتم عرض وربط مقاولي المشروع هنا عند اكتمال وحدة المقاولين.',
@@ -110,17 +112,32 @@ export function ProjectDetailsPage() {
   const navigate = useNavigate()
   const { viewModel, isLoading, error } = useProjectDetails(id ?? null)
   const projectCreate = useProjectCreateForm()
-  const projectDelete = useProjectDelete(viewModel?.project.id ?? null, viewModel?.project.name ?? '')
+  const projectDelete = useProjectDelete(
+    viewModel?.project.id ?? null,
+    viewModel?.project.name ?? '',
+  )
   const [actionsOpen, setActionsOpen] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const [activeTab, setActiveTab] = useState<WorkspaceTabId>('overview')
 
-  if (isLoading) return <div className="project-command__state">جارٍ تحميل مساحة المشروع...</div>
-  if (error) return <div className="project-command__state project-command__state--error">{error}</div>
+  if (isLoading) {
+    return <div className="project-command__state">جارٍ تحميل مساحة المشروع...</div>
+  }
+  if (error) {
+    return <div className="project-command__state project-command__state--error">{error}</div>
+  }
   if (!viewModel) return <div className="project-command__state">المشروع غير موجود.</div>
 
-  const { project, summary, analytics, progress, remaining, profitMargin, donutSegments, donutGradient } =
-    viewModel
+  const {
+    project,
+    summary,
+    analytics,
+    progress,
+    remaining,
+    profitMargin,
+    donutSegments,
+    donutGradient,
+  } = viewModel
   const projectQuery = `projectId=${encodeURIComponent(project.id)}`
 
   const selectTab = (tabId: WorkspaceTabId) => {
@@ -158,7 +175,11 @@ export function ProjectDetailsPage() {
     <section className="project-command project-workspace erp-viewport-page">
       <header className="project-workspace__hero erp-page-static">
         <div className="project-workspace__topline">
-          <button type="button" className="project-command__back" onClick={() => navigate('/projects')}>
+          <button
+            type="button"
+            className="project-command__back"
+            onClick={() => navigate('/projects')}
+          >
             <ArrowRight size={17} />
           </button>
           <span>المشاريع</span>
@@ -197,7 +218,8 @@ export function ProjectDetailsPage() {
                   <UsersRound size={14} /> {project.manager || 'المدير غير محدد'}
                 </span>
                 <span>
-                  <CalendarDays size={14} /> {formatDate(project.startDate)} — {formatDate(project.endDate)}
+                  <CalendarDays size={14} /> {formatDate(project.startDate)} —{' '}
+                  {formatDate(project.endDate)}
                 </span>
               </div>
             </div>
@@ -266,7 +288,12 @@ export function ProjectDetailsPage() {
                     </button>
                   ))}
                   <div className="project-workspace__dropdown-separator" />
-                  <button type="button" className="is-warning" disabled title="الأرشفة تحتاج دورة تشغيل مستقلة">
+                  <button
+                    type="button"
+                    className="is-warning"
+                    disabled
+                    title="الأرشفة تحتاج دورة تشغيل مستقلة"
+                  >
                     <FolderArchive size={16} /> أرشفة المشروع
                   </button>
                   <button
@@ -328,31 +355,41 @@ export function ProjectDetailsPage() {
               <article className="is-contract">
                 <CircleDollarSign />
                 <span>قيمة العقد</span>
-                <strong><Currency value={project.contractValue} /></strong>
+                <strong>
+                  <Currency value={project.contractValue} />
+                </strong>
                 <small>القيمة الإجمالية</small>
               </article>
               <article className="is-income">
                 <TrendingUp />
                 <span>إجمالي الإيرادات</span>
-                <strong><Currency value={summary.totalIncome} /></strong>
+                <strong>
+                  <Currency value={summary.totalIncome} />
+                </strong>
                 <small>المقبوضات المسجلة</small>
               </article>
               <article className="is-expense">
                 <TrendingDown />
                 <span>إجمالي المصروفات</span>
-                <strong><Currency value={summary.totalExpense} /></strong>
+                <strong>
+                  <Currency value={summary.totalExpense} />
+                </strong>
                 <small>تكلفة المشروع</small>
               </article>
               <article className="is-profit">
                 <Wallet />
                 <span>صافي الربح</span>
-                <strong><Currency value={summary.balance} /></strong>
+                <strong>
+                  <Currency value={summary.balance} />
+                </strong>
                 <small>{profitMargin}% هامش الربح</small>
               </article>
               <article className="is-bank">
                 <Landmark />
                 <span>المتبقي من العقد</span>
-                <strong><Currency value={remaining} /></strong>
+                <strong>
+                  <Currency value={remaining} />
+                </strong>
                 <small>بعد المصروفات</small>
               </article>
               <article className="is-count">
@@ -378,7 +415,10 @@ export function ProjectDetailsPage() {
             <div className="project-workspace__dashboard-grid">
               <article className="project-command__panel project-workspace__cashflow">
                 <div className="project-command__panel-heading">
-                  <div><span>الحركة المالية</span><h2>الإيرادات والمصروفات</h2></div>
+                  <div>
+                    <span>الحركة المالية</span>
+                    <h2>الإيرادات والمصروفات</h2>
+                  </div>
                   <strong>{new Date().getFullYear()}</strong>
                 </div>
                 <div className="project-workspace__chart-legend">
@@ -399,11 +439,16 @@ export function ProjectDetailsPage() {
 
               <article className="project-command__panel project-workspace__distribution">
                 <div className="project-command__panel-heading">
-                  <div><span>التحليل</span><h2>توزيع المصروفات</h2></div>
+                  <div>
+                    <span>التحليل</span>
+                    <h2>توزيع المصروفات</h2>
+                  </div>
                   <BarChart3 size={20} />
                 </div>
                 <div className="project-workspace__donut" style={{ background: donutGradient }}>
-                  <span><Currency value={summary.totalExpense} /></span>
+                  <span>
+                    <Currency value={summary.totalExpense} />
+                  </span>
                 </div>
                 <div className="project-workspace__legend-list">
                   {donutSegments.length === 0 ? (
@@ -422,22 +467,48 @@ export function ProjectDetailsPage() {
 
               <article className="project-command__panel project-workspace__facts">
                 <div className="project-command__panel-heading">
-                  <div><span>البيانات الأساسية</span><h2>معلومات المشروع</h2></div>
+                  <div>
+                    <span>البيانات الأساسية</span>
+                    <h2>معلومات المشروع</h2>
+                  </div>
                   <Building2 size={20} />
                 </div>
                 <dl>
-                  <div><dt>اسم المشروع</dt><dd>{project.name}</dd></div>
-                  <div><dt>كود المشروع</dt><dd>{project.code || '—'}</dd></div>
-                  <div><dt>العميل</dt><dd>{project.client || '—'}</dd></div>
-                  <div><dt>الموقع</dt><dd>{project.location || '—'}</dd></div>
-                  <div><dt>مدير المشروع</dt><dd>{project.manager || '—'}</dd></div>
-                  <div><dt>قيمة العقد</dt><dd><Currency value={project.contractValue} /></dd></div>
+                  <div>
+                    <dt>اسم المشروع</dt>
+                    <dd>{project.name}</dd>
+                  </div>
+                  <div>
+                    <dt>كود المشروع</dt>
+                    <dd>{project.code || '—'}</dd>
+                  </div>
+                  <div>
+                    <dt>العميل</dt>
+                    <dd>{project.client || '—'}</dd>
+                  </div>
+                  <div>
+                    <dt>الموقع</dt>
+                    <dd>{project.location || '—'}</dd>
+                  </div>
+                  <div>
+                    <dt>مدير المشروع</dt>
+                    <dd>{project.manager || '—'}</dd>
+                  </div>
+                  <div>
+                    <dt>قيمة العقد</dt>
+                    <dd>
+                      <Currency value={project.contractValue} />
+                    </dd>
+                  </div>
                 </dl>
               </article>
 
               <article className="project-command__panel project-workspace__entries">
                 <div className="project-command__panel-heading">
-                  <div><span>الحركة المالية</span><h2>آخر القيود اليومية</h2></div>
+                  <div>
+                    <span>الحركة المالية</span>
+                    <h2>آخر القيود اليومية</h2>
+                  </div>
                   <button type="button" onClick={() => navigate(`/journal?${projectQuery}`)}>
                     عرض جميع القيود <ChevronLeft size={16} />
                   </button>
@@ -464,11 +535,15 @@ export function ProjectDetailsPage() {
                             <td>{formatDate(entry.entryDate)}</td>
                             <td>{entry.description || '—'}</td>
                             <td>
-                              <span className={`project-command__entry-type project-command__entry-type--${entry.type}`}>
+                              <span
+                                className={`project-command__entry-type project-command__entry-type--${entry.type}`}
+                              >
                                 {entry.type === 'income' ? 'إيراد' : 'مصروف'}
                               </span>
                             </td>
-                            <td><Currency value={entry.amount} /></td>
+                            <td>
+                              <Currency value={entry.amount} />
+                            </td>
                             <td>{entry.paymentMethod || '—'}</td>
                           </tr>
                         ))}
@@ -480,7 +555,10 @@ export function ProjectDetailsPage() {
 
               <article className="project-command__panel project-workspace__attachments">
                 <div className="project-command__panel-heading">
-                  <div><span>الملفات</span><h2>أحدث المرفقات</h2></div>
+                  <div>
+                    <span>الملفات</span>
+                    <h2>أحدث المرفقات</h2>
+                  </div>
                   <Paperclip size={20} />
                 </div>
                 <div className="project-workspace__empty-files">
