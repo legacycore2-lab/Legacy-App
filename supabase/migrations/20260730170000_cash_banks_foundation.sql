@@ -2,6 +2,41 @@
 -- REVIEW ONLY: this migration is intentionally committed for review and must not be applied
 -- to any Supabase environment without explicit approval.
 
+-- ─── Pre-flight guard ─────────────────────────────────────────────────────────
+-- Ensures public.set_accounting_updated_at() exists before this migration runs.
+-- If journal_engine_foundation was never applied, this block aborts cleanly.
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public'
+      and p.proname = 'set_accounting_updated_at'
+  ) then
+    raise exception
+      'Migration aborted: public.set_accounting_updated_at() is not defined. '
+      'Apply 20260721070000_journal_engine_foundation.sql first.'
+      using errcode = 'P0001';
+  end if;
+end;
+$$;
+
+-- ─── Rollback reference (manual — Supabase does not run down migrations) ──────
+-- To reverse this migration manually, execute in this order:
+--
+--   drop trigger if exists protect_posted_cash_bank_transaction on public.cash_bank_transactions;
+--   drop function if exists public.prevent_posted_cash_bank_transaction_mutation();
+--   drop trigger if exists cash_bank_transactions_set_updated_at on public.cash_bank_transactions;
+--   drop trigger if exists cash_bank_accounts_set_updated_at on public.cash_bank_accounts;
+--   drop view if exists public.cash_bank_account_balances;
+--   drop table if exists public.cash_bank_transactions;
+--   drop table if exists public.cash_bank_accounts;
+--   drop sequence if exists public.cash_bank_transaction_number_seq;
+--
+-- WARNING: dropping cash_bank_transactions deletes all movement history.
+-- Only roll back if no posted transactions exist.
+
 -- ─── Sequence ────────────────────────────────────────────────────────────────
 create sequence if not exists public.cash_bank_transaction_number_seq start 20001;
 
