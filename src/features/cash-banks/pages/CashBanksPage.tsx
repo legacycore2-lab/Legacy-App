@@ -3,6 +3,7 @@ import { CashBankAccountDialog } from '../components/CashBankAccountDialog'
 import { CashBankDepositDialog } from '../components/CashBankDepositDialog'
 import { CashBankWithdrawalDialog } from '../components/CashBankWithdrawalDialog'
 import { CashBankTransferDialog } from '../components/CashBankTransferDialog'
+import { CashBankReversalDialog } from '../components/CashBankReversalDialog'
 import { CashBanksFlow } from '../components/CashBanksFlow'
 import { CashBanksHeader } from '../components/CashBanksHeader'
 import { CashBanksMetrics } from '../components/CashBanksMetrics'
@@ -13,6 +14,7 @@ import { useCashBankAccountForm } from '../hooks/useCashBankAccountForm'
 import { useCashBankDepositForm } from '../hooks/useCashBankDepositForm'
 import { useCashBankWithdrawalForm } from '../hooks/useCashBankWithdrawalForm'
 import { useCashBankTransferForm } from '../hooks/useCashBankTransferForm'
+import { useCashBankReversalForm } from '../hooks/useCashBankReversalForm'
 import '../styles/cash-banks.css'
 
 export function CashBanksPage() {
@@ -21,6 +23,7 @@ export function CashBanksPage() {
   const depositForm = useCashBankDepositForm()
   const withdrawalForm = useCashBankWithdrawalForm()
   const transferForm = useCashBankTransferForm()
+  const reversalForm = useCashBankReversalForm()
 
   if (isLoading) return <section className="cash-banks-state">جاري تحميل الخزنة والبنوك...</section>
   if (error) return <section className="cash-banks-state">{error}</section>
@@ -38,8 +41,9 @@ export function CashBanksPage() {
       <CashBankDepositDialog form={depositForm} />
       <CashBankWithdrawalDialog form={withdrawalForm} />
       <CashBankTransferDialog form={transferForm} />
+      <CashBankReversalDialog form={reversalForm} />
       <div className="cash-banks-bottom-grid">
-        <CashBanksMovements movements={data.movements} />
+        <CashBanksMovements movements={data.movements} onReverse={reversalForm.open} />
         <CashBanksQuickActions
           onDeposit={depositForm.open}
           onWithdrawal={withdrawalForm.open}
