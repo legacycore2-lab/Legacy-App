@@ -2,6 +2,7 @@ import { CashBanksAccounts } from '../components/CashBanksAccounts'
 import { CashBankAccountDialog } from '../components/CashBankAccountDialog'
 import { CashBankDepositDialog } from '../components/CashBankDepositDialog'
 import { CashBankWithdrawalDialog } from '../components/CashBankWithdrawalDialog'
+import { CashBankTransferDialog } from '../components/CashBankTransferDialog'
 import { CashBanksFlow } from '../components/CashBanksFlow'
 import { CashBanksHeader } from '../components/CashBanksHeader'
 import { CashBanksMetrics } from '../components/CashBanksMetrics'
@@ -11,6 +12,7 @@ import { useCashBanks } from '../hooks/useCashBanks'
 import { useCashBankAccountForm } from '../hooks/useCashBankAccountForm'
 import { useCashBankDepositForm } from '../hooks/useCashBankDepositForm'
 import { useCashBankWithdrawalForm } from '../hooks/useCashBankWithdrawalForm'
+import { useCashBankTransferForm } from '../hooks/useCashBankTransferForm'
 import '../styles/cash-banks.css'
 
 export function CashBanksPage() {
@@ -18,6 +20,7 @@ export function CashBanksPage() {
   const accountForm = useCashBankAccountForm()
   const depositForm = useCashBankDepositForm()
   const withdrawalForm = useCashBankWithdrawalForm()
+  const transferForm = useCashBankTransferForm()
 
   if (isLoading) return <section className="cash-banks-state">جاري تحميل الخزنة والبنوك...</section>
   if (error) return <section className="cash-banks-state">{error}</section>
@@ -34,9 +37,14 @@ export function CashBanksPage() {
       <CashBankAccountDialog form={accountForm} />
       <CashBankDepositDialog form={depositForm} />
       <CashBankWithdrawalDialog form={withdrawalForm} />
+      <CashBankTransferDialog form={transferForm} />
       <div className="cash-banks-bottom-grid">
         <CashBanksMovements movements={data.movements} />
-        <CashBanksQuickActions onDeposit={depositForm.open} onWithdrawal={withdrawalForm.open} />
+        <CashBanksQuickActions
+          onDeposit={depositForm.open}
+          onWithdrawal={withdrawalForm.open}
+          onTransfer={transferForm.open}
+        />
       </div>
     </section>
   )
