@@ -32,12 +32,15 @@ export function ProjectDeleteDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby="project-delete-title"
+        aria-describedby="project-delete-description"
       >
         <header>
           <div>
             <span>إجراء نهائي</span>
             <h2 id="project-delete-title">حذف المشروع</h2>
-            <p>لن يُحذف المشروع إذا كان مرتبطًا بقيود أو حركات مالية. اكتب اسم المشروع للتأكيد.</p>
+            <p id="project-delete-description">
+              لن يُحذف المشروع إذا كان مرتبطًا بقيود أو حركات مالية. اكتب اسم المشروع للتأكيد.
+            </p>
           </div>
           <button type="button" onClick={onClose} aria-label="إغلاق" disabled={isDeleting}>
             <X size={18} />
