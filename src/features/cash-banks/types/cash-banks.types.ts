@@ -102,6 +102,11 @@ export interface CashBankAccountPayload {
   is_active: boolean
 }
 
+export type CashBankAccountUpdatePayload = Omit<
+  CashBankAccountPayload,
+  'ledger_account_id' | 'opening_balance'
+>
+
 export interface CashBankAccountFormState {
   isOpen: boolean
   isEditing: boolean
@@ -115,6 +120,7 @@ export interface CashBankAccountFormState {
   deactivate: () => Promise<void>
   errors: string[]
   submitted: boolean
+  isLoading: boolean
   isSaving: boolean
   saveError: string
 }

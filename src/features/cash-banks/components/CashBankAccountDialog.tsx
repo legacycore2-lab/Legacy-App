@@ -49,6 +49,7 @@ export function CashBankAccountDialog({ form }: { form: CashBankAccountFormState
               <select
                 value={form.value.ledgerAccountId}
                 onChange={(e) => form.update('ledgerAccountId', e.target.value)}
+                disabled={form.isEditing || form.isLoading}
               >
                 <option value="">اختر حسابًا</option>
                 {form.ledgerAccounts.map((account) => (
@@ -99,6 +100,7 @@ export function CashBankAccountDialog({ form }: { form: CashBankAccountFormState
                 step="0.01"
                 value={form.value.openingBalance}
                 onChange={(e) => form.update('openingBalance', e.target.value)}
+                disabled={form.isEditing || form.isLoading}
               />
             </label>
             <label>
@@ -139,7 +141,7 @@ export function CashBankAccountDialog({ form }: { form: CashBankAccountFormState
             <button type="button" className="cash-bank-secondary" onClick={form.close}>
               إلغاء
             </button>
-            <button type="submit" className="cash-banks-primary" disabled={form.isSaving}>
+            <button type="submit" className="cash-banks-primary" disabled={form.isSaving || form.isLoading}>
               {form.isSaving ? <LoaderCircle className="cash-bank-spinner" size={17} /> : <Save size={17} />}
               {form.isSaving ? 'جارٍ الحفظ...' : 'حفظ الحساب'}
             </button>

@@ -50,9 +50,27 @@ export function useCashBankAccountForm(): CashBankAccountFormState {
     mutationFn: (id: string) => disableCashBankAccount(id),
     onSuccess: finish,
   })
+  const loadMutation = useMutation({
+    mutationFn: getCashBankAccount,
+    onSuccess: (account) => {
+      setValue({
+        ledgerAccountId: account.ledgerAccountId,
+        name: account.name,
+        kind: account.kind,
+        bankName: account.bankName ?? '',
+        accountNumber: account.accountNumber ?? '',
+        iban: account.iban ?? '',
+        branchName: account.branchName ?? '',
+        openingBalance: String(account.openingBalance),
+        currencyCode: account.currencyCode,
+        isActive: account.isActive,
+      })
+    },
+  })
   const reset = () => {
     saveMutation.reset()
     deactivateMutation.reset()
+    loadMutation.reset()
   }
 
   return {
@@ -62,11 +80,12 @@ export function useCashBankAccountForm(): CashBankAccountFormState {
     ledgerAccounts: ledgerQuery.data ?? [],
     errors,
     submitted,
-    isSaving: saveMutation.isPending || deactivateMutation.isPending,
+    isLoading: loadMutation.isPending,
+    isSaving: saveMutation.isPending || deactivateMutation.isPending || loadMutation.isPending,
     saveError:
-      saveMutation.error || deactivateMutation.error || ledgerQuery.error
+      saveMutation.error || deactivateMutation.error || loadMutation.error || ledgerQuery.error
         ? toErrorMessage(
-            saveMutation.error || deactivateMutation.error || ledgerQuery.error,
+            saveMutation.error || deactivateMutation.error || loadMutation.error || ledgerQuery.error,
             'تعذر حفظ حساب الخزنة أو البنك.',
           )
         : '',
@@ -83,22 +102,11 @@ export function useCashBankAccountForm(): CashBankAccountFormState {
     },
     openEdit: async (id) => {
       reset()
-      const account = await getCashBankAccount(id)
       setEditingId(id)
       setSubmitted(false)
-      setValue({
-        ledgerAccountId: account.ledgerAccountId,
-        name: account.name,
-        kind: account.kind,
-        bankName: account.bankName ?? '',
-        accountNumber: account.accountNumber ?? '',
-        iban: account.iban ?? '',
-        branchName: account.branchName ?? '',
-        openingBalance: String(account.openingBalance),
-        currencyCode: account.currencyCode,
-        isActive: account.isActive,
-      })
+      setValue(initialValue())
       setIsOpen(true)
+      await loadMutation.mutateAsync(id).catch(() => undefined)
     },
     close: () => {
       if (saveMutation.isPending || deactivateMutation.isPending) return

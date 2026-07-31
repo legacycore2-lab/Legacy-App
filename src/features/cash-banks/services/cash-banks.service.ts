@@ -14,6 +14,7 @@ import type {
   CashBankAccountInput,
   CashBankAccountPayload,
   CashBankAccountRow,
+  CashBankAccountUpdatePayload,
   CashBankAccountSummary,
   CashBankBalanceRow,
   CashBankMetric,
@@ -67,6 +68,19 @@ function buildAccountPayload(input: CashBankAccountInput): CashBankAccountPayloa
   }
 }
 
+function buildAccountUpdatePayload(payload: CashBankAccountPayload): CashBankAccountUpdatePayload {
+  return {
+    name: payload.name,
+    account_kind: payload.account_kind,
+    bank_name: payload.bank_name,
+    account_number: payload.account_number,
+    iban: payload.iban,
+    branch_name: payload.branch_name,
+    currency_code: payload.currency_code,
+    is_active: payload.is_active,
+  }
+}
+
 function mapAccount(row: CashBankAccountRow): CashBankAccount {
   return {
     id: row.id,
@@ -100,7 +114,7 @@ export async function saveCashBankAccount(input: CashBankAccountInput, id?: stri
     throw new DataValidationError('يوجد حساب خزنة أو بنك بنفس الاسم.')
   }
 
-  if (id) await updateCashBankAccount(id, payload)
+  if (id) await updateCashBankAccount(id, buildAccountUpdatePayload(payload))
   else await createCashBankAccount(payload)
 }
 

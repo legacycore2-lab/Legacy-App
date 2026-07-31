@@ -3,6 +3,7 @@ import { getSupabaseClient } from '../../../lib/supabase/client'
 import type {
   CashBankAccountPayload,
   CashBankAccountRow,
+  CashBankAccountUpdatePayload,
   CashBankBalanceRow,
   CashBankLedgerAccountOption,
   CashBankTransactionRow,
@@ -99,7 +100,10 @@ export async function createCashBankAccount(payload: CashBankAccountPayload): Pr
   if (error) throw new AppError(error.message, 'CASH_BANK_ACCOUNT_CREATE_FAILED')
 }
 
-export async function updateCashBankAccount(id: string, payload: CashBankAccountPayload): Promise<void> {
+export async function updateCashBankAccount(
+  id: string,
+  payload: CashBankAccountUpdatePayload,
+): Promise<void> {
   const { error } = await getSupabaseClient().from('cash_bank_accounts').update(payload).eq('id', id)
   if (error) throw new AppError(error.message, 'CASH_BANK_ACCOUNT_UPDATE_FAILED')
 }
