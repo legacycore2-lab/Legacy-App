@@ -76,9 +76,7 @@ const workspaceTabs = [
 
 type WorkspaceTabId = (typeof workspaceTabs)[number]['id']
 
-const internalSectionCopy: Partial<
-  Record<WorkspaceTabId, { title: string; description: string }>
-> = {
+const internalSectionCopy: Partial<Record<WorkspaceTabId, { title: string; description: string }>> = {
   contractors: {
     title: 'مقاولو المشروع',
     description: 'سيتم عرض وربط مقاولي المشروع هنا عند اكتمال وحدة المقاولين.',
@@ -112,10 +110,7 @@ export function ProjectDetailsPage() {
   const navigate = useNavigate()
   const { viewModel, isLoading, error } = useProjectDetails(id ?? null)
   const projectCreate = useProjectCreateForm()
-  const projectDelete = useProjectDelete(
-    viewModel?.project.id ?? null,
-    viewModel?.project.name ?? '',
-  )
+  const projectDelete = useProjectDelete(viewModel?.project.id ?? null, viewModel?.project.name ?? '')
   const [actionsOpen, setActionsOpen] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const [activeTab, setActiveTab] = useState<WorkspaceTabId>('overview')
@@ -128,16 +123,8 @@ export function ProjectDetailsPage() {
   }
   if (!viewModel) return <div className="project-command__state">المشروع غير موجود.</div>
 
-  const {
-    project,
-    summary,
-    analytics,
-    progress,
-    remaining,
-    profitMargin,
-    donutSegments,
-    donutGradient,
-  } = viewModel
+  const { project, summary, analytics, progress, remaining, profitMargin, donutSegments, donutGradient } =
+    viewModel
   const projectQuery = `projectId=${encodeURIComponent(project.id)}`
 
   const selectTab = (tabId: WorkspaceTabId) => {
@@ -175,11 +162,7 @@ export function ProjectDetailsPage() {
     <section className="project-command project-workspace erp-viewport-page">
       <header className="project-workspace__hero erp-page-static">
         <div className="project-workspace__topline">
-          <button
-            type="button"
-            className="project-command__back"
-            onClick={() => navigate('/projects')}
-          >
+          <button type="button" className="project-command__back" onClick={() => navigate('/projects')}>
             <ArrowRight size={17} />
           </button>
           <span>المشاريع</span>
@@ -218,8 +201,7 @@ export function ProjectDetailsPage() {
                   <UsersRound size={14} /> {project.manager || 'المدير غير محدد'}
                 </span>
                 <span>
-                  <CalendarDays size={14} /> {formatDate(project.startDate)} —{' '}
-                  {formatDate(project.endDate)}
+                  <CalendarDays size={14} /> {formatDate(project.startDate)} — {formatDate(project.endDate)}
                 </span>
               </div>
             </div>

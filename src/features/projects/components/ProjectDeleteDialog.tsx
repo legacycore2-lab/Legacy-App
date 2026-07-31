@@ -37,9 +37,7 @@ export function ProjectDeleteDialog({
           <div>
             <span>إجراء نهائي</span>
             <h2 id="project-delete-title">حذف المشروع</h2>
-            <p>
-              لن يُحذف المشروع إذا كان مرتبطًا بقيود أو حركات مالية. اكتب اسم المشروع للتأكيد.
-            </p>
+            <p>لن يُحذف المشروع إذا كان مرتبطًا بقيود أو حركات مالية. اكتب اسم المشروع للتأكيد.</p>
           </div>
           <button type="button" onClick={onClose} aria-label="إغلاق" disabled={isDeleting}>
             <X size={18} />
@@ -66,20 +64,10 @@ export function ProjectDeleteDialog({
         )}
 
         <footer>
-          <button
-            type="button"
-            className="projects-secondary-action"
-            onClick={onClose}
-            disabled={isDeleting}
-          >
+          <button type="button" className="projects-secondary-action" onClick={onClose} disabled={isDeleting}>
             إلغاء
           </button>
-          <button
-            type="button"
-            className="projects-primary-action"
-            onClick={onConfirm}
-            disabled={!canDelete}
-          >
+          <button type="button" className="projects-primary-action" onClick={onConfirm} disabled={!canDelete}>
             {isDeleting ? (
               <LoaderCircle className="project-create-spinner" size={17} />
             ) : (
