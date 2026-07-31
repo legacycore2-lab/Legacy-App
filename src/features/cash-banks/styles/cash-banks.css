@@ -271,10 +271,10 @@
   height: 3px;
   border-radius: 3px;
 }
-.income {
+.cash-banks-chart__legend .cash-banks-legend-income {
   background: var(--green);
 }
-.expense {
+.cash-banks-chart__legend .cash-banks-legend-expense {
   background: #ef5350;
 }
 .cash-banks-chart svg {
