@@ -1,138 +1,49 @@
-import type { CashBanksViewModel } from '../types/cash-banks.types'
+import { AppError } from '../../../shared/errors/app-error'
+import { getSupabaseClient } from '../../../lib/supabase/client'
+import type { CashBankBalanceRow, CashBankTransactionRow } from '../types/cash-banks.types'
 
-const cashBanksSnapshot: CashBanksViewModel = {
-  asOfDate: '30 يوليو 2026',
-  metrics: [
-    {
-      id: 'liquidity',
-      label: 'إجمالي السيولة',
-      value: '2,450,750 ج.م',
-      change: '+12.5% من الشهر الماضي',
-      tone: 'green',
-    },
-    {
-      id: 'banks',
-      label: 'إجمالي البنوك',
-      value: '1,850,250 ج.م',
-      change: '+8.3% من الشهر الماضي',
-      tone: 'blue',
-    },
-    {
-      id: 'cash',
-      label: 'إجمالي الخزنة',
-      value: '600,500 ج.م',
-      change: '+14.7% من الشهر الماضي',
-      tone: 'gold',
-    },
-    {
-      id: 'accounts',
-      label: 'عدد الحسابات',
-      value: '12',
-      change: '+2 عن الشهر الماضي',
-      tone: 'purple',
-    },
-  ],
-  accounts: [
-    {
-      id: 'cash-main',
-      name: 'خزنة رئيسية',
-      kind: 'cash',
-      balance: '350,000 ج.م',
-      progress: 100,
-      tone: 'green',
-    },
-    {
-      id: 'alahli-egypt',
-      name: 'البنك الأهلي المصري - جاري',
-      kind: 'bank',
-      balance: '1,050,500 ج.م',
-      progress: 100,
-      tone: 'green',
-    },
-    {
-      id: 'banque-misr',
-      name: 'بنك مصر - جاري',
-      kind: 'bank',
-      balance: '550,000 ج.م',
-      progress: 84,
-      tone: 'blue',
-    },
-    {
-      id: 'new-capital-site',
-      name: 'خزنة فرعية - موقع العاصمة الإدارية',
-      kind: 'cash',
-      balance: '100,250 ج.م',
-      progress: 62,
-      tone: 'gold',
-    },
-  ],
-  movements: [
-    {
-      id: 'm1',
-      number: '20,001',
-      date: '30/07/2026',
-      time: '10:30 ص',
-      account: 'خزنة رئيسية',
-      kind: 'deposit',
-      amount: '+30,000 ج.م',
-      balanceAfter: '350,000 ج.م',
-      status: 'completed',
-    },
-    {
-      id: 'm2',
-      number: '20,000',
-      date: '29/07/2026',
-      time: '04:15 م',
-      account: 'البنك الأهلي المصري - جاري',
-      kind: 'transfer',
-      amount: '-15,000 ج.م',
-      balanceAfter: '1,050,500 ج.م',
-      status: 'completed',
-    },
-    {
-      id: 'm3',
-      number: '19,999',
-      date: '29/07/2026',
-      time: '11:45 ص',
-      account: 'بنك مصر - جاري',
-      kind: 'withdrawal',
-      amount: '-5,000 ج.م',
-      balanceAfter: '550,000 ج.م',
-      status: 'completed',
-    },
-    {
-      id: 'm4',
-      number: '19,998',
-      date: '28/07/2026',
-      time: '02:20 م',
-      account: 'خزنة فرعية - موقع العاصمة الإدارية',
-      kind: 'deposit',
-      amount: '+20,000 ج.م',
-      balanceAfter: '100,250 ج.م',
-      status: 'completed',
-    },
-    {
-      id: 'm5',
-      number: '19,997',
-      date: '28/07/2026',
-      time: '09:10 ص',
-      account: 'خزنة رئيسية',
-      kind: 'expense',
-      amount: '-2,000 ج.م',
-      balanceAfter: '320,000 ج.م',
-      status: 'pending',
-    },
-  ],
-  cashFlow: [
-    { month: 'فبراير', income: 500, expense: 210 },
-    { month: 'مارس', income: 1000, expense: 410 },
-    { month: 'أبريل', income: 1220, expense: 520 },
-    { month: 'مايو', income: 1040, expense: 540 },
-    { month: 'يونيو', income: 1260, expense: 510 },
-    { month: 'يوليو', income: 1810, expense: 810 },
-  ],
+const TRANSACTION_FIELDS = [
+  'id',
+  'transaction_number',
+  'transaction_date',
+  'transaction_type',
+  'source_account_id',
+  'destination_account_id',
+  'amount',
+  'description',
+  'reference_number',
+  'status',
+  'journal_id',
+  'posted_at',
+  'voided_at',
+  'created_at',
+  'updated_at',
+] as const
+
+export async function findCashBankBalances(): Promise<CashBankBalanceRow[]> {
+  const supabase = getSupabaseClient()
+
+  const { data, error } = await supabase
+    .from('cash_bank_account_balances')
+    .select('*')
+    .eq('is_active', true)
+    .order('account_kind')
+    .order('name')
+
+  if (error) throw new AppError(error.message, 'CASH_BANK_BALANCES_FETCH_FAILED')
+  return data ?? []
 }
 
-export async function findCashBanksSnapshot(): Promise<CashBanksViewModel> {
-  return structuredClone(cashBanksSnapshot)
+export async function findRecentCashBankTransactions(limit = 20): Promise<CashBankTransactionRow[]> {
+  const supabase = getSupabaseClient()
+
+  const { data, error } = await supabase
+    .from('cash_bank_transactions')
+    .select(TRANSACTION_FIELDS.join(', '))
+    .order('transaction_date', { ascending: false })
+    .order('transaction_number', { ascending: false })
+    .limit(limit)
+
+  if (error) throw new AppError(error.message, 'CASH_BANK_TRANSACTIONS_FETCH_FAILED')
+  return (data as unknown as CashBankTransactionRow[]) ?? []
 }
