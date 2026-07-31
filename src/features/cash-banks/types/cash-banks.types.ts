@@ -163,6 +163,46 @@ export interface CashBankWithdrawalFormState {
   saveError: string
 }
 
+export interface CashBankTransferAccountOption {
+  id: string
+  ledgerAccountId: string
+  name: string
+  currentBalance: number
+}
+
+export interface CashBankTransferInput {
+  sourceAccountId: string
+  destinationAccountId: string
+  transactionDate: string
+  amount: string
+  description: string
+  referenceNumber: string
+}
+
+export interface CashBankTransferPayload {
+  clientRequestId: string
+  sourceAccountId: string
+  destinationAccountId: string
+  transactionDate: string
+  amount: number
+  description: string
+  referenceNumber: string | null
+}
+
+export interface CashBankTransferFormState {
+  isOpen: boolean
+  value: CashBankTransferInput
+  accounts: CashBankTransferAccountOption[]
+  update: <K extends keyof CashBankTransferInput>(key: K, value: CashBankTransferInput[K]) => void
+  open: () => void
+  close: () => void
+  submit: () => Promise<void>
+  errors: string[]
+  submitted: boolean
+  isSaving: boolean
+  saveError: string
+}
+
 export interface CashBankAccountInput {
   ledgerAccountId: string
   name: string

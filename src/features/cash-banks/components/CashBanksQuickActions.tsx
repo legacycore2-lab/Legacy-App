@@ -3,9 +3,11 @@ import { ArrowDownToLine, ArrowLeftRight, ArrowUpFromLine, Landmark, Plus, Recei
 export function CashBanksQuickActions({
   onDeposit,
   onWithdrawal,
+  onTransfer,
 }: {
   onDeposit: () => void
   onWithdrawal: () => void
+  onTransfer: () => void
 }) {
   return (
     <article className="cash-banks-panel cash-banks-quick">
@@ -24,7 +26,7 @@ export function CashBanksQuickActions({
           <ArrowUpFromLine />
           <span>سحب</span>
         </button>
-        <button type="button">
+        <button type="button" onClick={onTransfer}>
           <ArrowLeftRight />
           <span>تحويل بين حسابات</span>
         </button>

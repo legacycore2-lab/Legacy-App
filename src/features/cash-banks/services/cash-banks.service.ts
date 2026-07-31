@@ -12,6 +12,8 @@ import {
   postCashBankDeposit,
   findWithdrawalSourceAccounts,
   postCashBankWithdrawal,
+  findTransferAccounts,
+  postCashBankTransfer,
   updateCashBankAccount,
 } from '../repositories/cash-banks.repository'
 import type {
@@ -26,6 +28,8 @@ import type {
   CashBankDepositPayload,
   CashBankWithdrawalInput,
   CashBankWithdrawalPayload,
+  CashBankTransferInput,
+  CashBankTransferPayload,
   CashBankMetric,
   CashBankMetricTone,
   CashBankMovement,
@@ -231,6 +235,53 @@ export async function createCashBankWithdrawal(
     referenceNumber: clean(input.referenceNumber) || null,
   }
   return postCashBankWithdrawal(payload)
+}
+
+export function validateCashBankTransferInput(
+  input: CashBankTransferInput,
+  availableBalance?: number,
+): string[] {
+  const errors: string[] = []
+  const amount = Number(input.amount)
+
+  if (!input.sourceAccountId) errors.push('حساب التحويل المصدر مطلوب.')
+  if (!input.destinationAccountId) errors.push('حساب التحويل المستفيد مطلوب.')
+  if (input.sourceAccountId && input.sourceAccountId === input.destinationAccountId) {
+    errors.push('يجب أن يختلف حساب المصدر عن حساب المستفيد.')
+  }
+  if (!input.transactionDate) errors.push('تاريخ التحويل مطلوب.')
+  if (!Number.isFinite(amount) || amount <= 0) errors.push('مبلغ التحويل يجب أن يكون أكبر من صفر.')
+  if (Number.isFinite(amount) && availableBalance !== undefined && amount > availableBalance) {
+    errors.push('الرصيد المتاح لا يكفي لإتمام التحويل.')
+  }
+  if (!clean(input.description)) errors.push('وصف التحويل مطلوب.')
+
+  return errors
+}
+
+export async function getCashBankTransferOptions() {
+  return { accounts: await findTransferAccounts() }
+}
+
+export async function createCashBankTransfer(
+  input: CashBankTransferInput,
+  clientRequestId: string,
+  availableBalance?: number,
+): Promise<string> {
+  const errors = validateCashBankTransferInput(input, availableBalance)
+  if (errors.length > 0) throw new DataValidationError(errors[0])
+  if (!clientRequestId) throw new DataValidationError('معرّف طلب التحويل مطلوب.')
+
+  const payload: CashBankTransferPayload = {
+    clientRequestId,
+    sourceAccountId: input.sourceAccountId,
+    destinationAccountId: input.destinationAccountId,
+    transactionDate: input.transactionDate,
+    amount: Math.round(Number(input.amount) * 100) / 100,
+    description: clean(input.description),
+    referenceNumber: clean(input.referenceNumber) || null,
+  }
+  return postCashBankTransfer(payload)
 }
 
 // ─── Formatters ───────────────────────────────────────────────────────────────
