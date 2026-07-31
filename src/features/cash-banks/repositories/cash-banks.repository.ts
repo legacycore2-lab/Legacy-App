@@ -14,6 +14,7 @@ import type {
   CashBankWithdrawalPayload,
   CashBankTransferAccountOption,
   CashBankTransferPayload,
+  CashBankReversalPayload,
 } from '../types/cash-banks.types'
 
 const ACCOUNT_FIELDS =
@@ -35,6 +36,7 @@ const TRANSACTION_FIELDS = [
   'voided_at',
   'created_at',
   'updated_at',
+  'reversal_of_transaction_id',
 ] as const
 
 export async function findCashBankBalances(): Promise<CashBankBalanceRow[]> {
@@ -231,5 +233,19 @@ export async function postCashBankTransfer(payload: CashBankTransferPayload): Pr
   if (error) throw new AppError(error.message, 'CASH_BANK_TRANSFER_POST_FAILED')
   if (typeof data !== 'string')
     throw new AppError('Transfer did not return an identifier.', 'INVALID_TRANSFER_ID')
+  return data
+}
+
+export async function postCashBankReversal(payload: CashBankReversalPayload): Promise<string> {
+  const { data, error } = await getSupabaseClient().rpc('reverse_cash_bank_transaction', {
+    p_client_request_id: payload.clientRequestId,
+    p_transaction_id: payload.transactionId,
+    p_reversal_date: payload.reversalDate,
+    p_reason: payload.reason,
+  })
+
+  if (error) throw new AppError(error.message, 'CASH_BANK_REVERSAL_POST_FAILED')
+  if (typeof data !== 'string')
+    throw new AppError('Reversal did not return an identifier.', 'INVALID_REVERSAL_ID')
   return data
 }

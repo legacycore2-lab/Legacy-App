@@ -13,7 +13,13 @@ const statusLabels: Record<string, string> = {
   void: 'ملغاة',
 }
 
-export function CashBanksMovements({ movements }: { movements: CashBankMovement[] }) {
+export function CashBanksMovements({
+  movements,
+  onReverse,
+}: {
+  movements: CashBankMovement[]
+  onReverse: (movement: CashBankMovement) => void
+}) {
   return (
     <article className="cash-banks-panel cash-banks-movements">
       <div className="cash-banks-panel__header">
@@ -56,9 +62,17 @@ export function CashBanksMovements({ movements }: { movements: CashBankMovement[
                   </span>
                 </td>
                 <td>
-                  <button type="button">
-                    <MoreVertical size={16} />
-                  </button>
+                  {movement.canReverse ? (
+                    <button
+                      type="button"
+                      onClick={() => onReverse(movement)}
+                      aria-label={`عكس الحركة ${movement.number}`}
+                    >
+                      عكس
+                    </button>
+                  ) : (
+                    <MoreVertical size={16} aria-hidden="true" />
+                  )}
                 </td>
               </tr>
             ))}

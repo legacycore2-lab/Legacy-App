@@ -52,6 +52,7 @@ export interface CashBankTransactionRow {
   voided_at: string | null
   created_at: string
   updated_at: string
+  reversal_of_transaction_id: string | null
 }
 
 // ─── Domain models ─────────────────────────────────────────────────────────────
@@ -291,6 +292,36 @@ export interface CashBankMovement {
   type: CashBankTransactionType
   amount: string
   status: CashBankTransactionStatus
+  canReverse: boolean
+}
+
+export interface CashBankReversalInput {
+  transactionId: string
+  reversalDate: string
+  reason: string
+}
+
+export interface CashBankReversalPayload {
+  clientRequestId: string
+  transactionId: string
+  reversalDate: string
+  reason: string
+}
+
+export interface CashBankReversalFormState {
+  isOpen: boolean
+  movement: CashBankMovement | null
+  reversalDate: string
+  reason: string
+  updateDate: (value: string) => void
+  updateReason: (value: string) => void
+  open: (movement: CashBankMovement) => void
+  close: () => void
+  submit: () => Promise<void>
+  errors: string[]
+  submitted: boolean
+  isSaving: boolean
+  saveError: string
 }
 
 export interface CashFlowPoint {

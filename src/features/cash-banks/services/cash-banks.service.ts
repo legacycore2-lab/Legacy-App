@@ -14,6 +14,7 @@ import {
   postCashBankWithdrawal,
   findTransferAccounts,
   postCashBankTransfer,
+  postCashBankReversal,
   updateCashBankAccount,
 } from '../repositories/cash-banks.repository'
 import type {
@@ -30,6 +31,8 @@ import type {
   CashBankWithdrawalPayload,
   CashBankTransferInput,
   CashBankTransferPayload,
+  CashBankReversalInput,
+  CashBankReversalPayload,
   CashBankMetric,
   CashBankMetricTone,
   CashBankMovement,
@@ -284,6 +287,31 @@ export async function createCashBankTransfer(
   return postCashBankTransfer(payload)
 }
 
+export function validateCashBankReversalInput(input: CashBankReversalInput): string[] {
+  const errors: string[] = []
+  if (!input.transactionId) errors.push('الحركة الأصلية مطلوبة.')
+  if (!input.reversalDate) errors.push('تاريخ العكس مطلوب.')
+  if (!clean(input.reason)) errors.push('سبب العكس مطلوب.')
+  return errors
+}
+
+export async function createCashBankReversal(
+  input: CashBankReversalInput,
+  clientRequestId: string,
+): Promise<string> {
+  const errors = validateCashBankReversalInput(input)
+  if (errors.length > 0) throw new DataValidationError(errors[0])
+  if (!clientRequestId) throw new DataValidationError('معرّف طلب العكس مطلوب.')
+
+  const payload: CashBankReversalPayload = {
+    clientRequestId,
+    transactionId: input.transactionId,
+    reversalDate: input.reversalDate,
+    reason: clean(input.reason),
+  }
+  return postCashBankReversal(payload)
+}
+
 // ─── Formatters ───────────────────────────────────────────────────────────────
 const money = new Intl.NumberFormat('ar-EG', {
   style: 'currency',
@@ -371,6 +399,11 @@ function buildMovements(
   balances: CashBankBalanceRow[],
 ): CashBankMovement[] {
   const accountNameById = new Map(balances.map((b) => [b.id, b.name]))
+  const reversedTransactionIds = new Set(
+    transactions.flatMap((transaction) =>
+      transaction.reversal_of_transaction_id ? [transaction.reversal_of_transaction_id] : [],
+    ),
+  )
 
   return transactions.map((t) => {
     const accountId = t.destination_account_id ?? t.source_account_id
@@ -385,6 +418,7 @@ function buildMovements(
       type: t.transaction_type,
       amount: `${sign}${formatMoney(t.amount)}`,
       status: t.status,
+      canReverse: t.status === 'posted' && !t.reversal_of_transaction_id && !reversedTransactionIds.has(t.id),
     }
   })
 }
