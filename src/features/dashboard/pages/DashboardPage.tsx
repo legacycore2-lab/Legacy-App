@@ -21,7 +21,7 @@ export function DashboardPage() {
         <RecentProjects projects={data.projects} />
         <RecentEntries entries={data.entries} />
       </div>
-      <QuickActions actions={data.actions} />
+      <QuickActions />
     </section>
   )
 }
