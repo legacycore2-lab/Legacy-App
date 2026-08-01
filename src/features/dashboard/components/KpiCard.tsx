@@ -2,7 +2,7 @@ import type { DashboardKpi } from '../types/dashboard.types'
 
 type KpiCardProps = DashboardKpi
 
-export function KpiCard({ label, value, trend, icon: Icon, tone }: KpiCardProps) {
+export function KpiCard({ label, value, trend, icon: Icon, tone, unit }: KpiCardProps) {
   const trendClassName = trend.startsWith('-') ? 'negative' : 'positive'
 
   return (
@@ -14,7 +14,7 @@ export function KpiCard({ label, value, trend, icon: Icon, tone }: KpiCardProps)
       <div>
         <span>{label}</span>
         <strong>{value}</strong>
-        <small>ج.م</small>
+        {unit && <small>{unit}</small>}
       </div>
 
       <em className={trendClassName}>{trend}</em>

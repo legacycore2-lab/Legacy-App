@@ -16,7 +16,7 @@
   border: 1px solid var(--border);
   border-radius: 16px;
   background: var(--surface);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-card);
   transition:
     transform 160ms ease,
     border-color 160ms ease,
@@ -35,7 +35,7 @@
 .kpi-card:hover {
   transform: translateY(-2px);
   border-color: color-mix(in srgb, var(--gold) 32%, var(--border));
-  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-card);
 }
 
 .kpi-icon {

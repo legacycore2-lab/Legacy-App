@@ -6,6 +6,7 @@ export type DashboardKpi = {
   trend: string
   icon: LucideIcon
   tone: 'green' | 'gold'
+  unit?: string
 }
 
 export type DashboardHeaderSummary = {
@@ -20,7 +21,7 @@ export type DashboardProject = {
   client: string
   balance: string
   progress: number
-  status: string
+  status: 'active' | 'paused' | 'completed' | 'archived'
 }
 
 export type DashboardEntry = {
