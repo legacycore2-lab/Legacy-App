@@ -61,6 +61,21 @@ export async function updateProject(id: string, record: ProjectInsertRecord): Pr
   return data as unknown as ProjectRecord
 }
 
+export async function countProjectEntries(projectId: string): Promise<number> {
+  const { count, error } = await getSupabaseClient()
+    .from('entries')
+    .select('id', { count: 'exact', head: true })
+    .eq('project_id', projectId)
+
+  if (error) throw error
+  return count ?? 0
+}
+
+export async function deleteProjectById(projectId: string): Promise<void> {
+  const { error } = await getSupabaseClient().from('projects').delete().eq('id', projectId)
+  if (error) throw error
+}
+
 export function subscribeToProjectChanges(onChange: () => void): () => void {
   return subscribeToTableChanges('projects', ['projects'], onChange)
 }

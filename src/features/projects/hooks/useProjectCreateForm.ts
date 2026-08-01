@@ -36,8 +36,14 @@ export function useProjectCreateForm(): ProjectCreateFormState {
   const createMutation = useMutation({
     mutationFn: ({ input, projectId }: { input: ProjectCreateInput; projectId?: string }) =>
       saveProject(input, projectId),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['projects'] })
+    onSuccess: async (_project, variables) => {
+      const invalidations = [queryClient.invalidateQueries({ queryKey: ['projects'] })]
+      if (variables.projectId) {
+        invalidations.push(
+          queryClient.invalidateQueries({ queryKey: ['project-details', variables.projectId] }),
+        )
+      }
+      await Promise.all(invalidations)
       setIsOpen(false)
       setSubmitted(false)
       setEditingId(null)
