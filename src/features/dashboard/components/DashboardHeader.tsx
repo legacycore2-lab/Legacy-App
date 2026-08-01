@@ -1,4 +1,5 @@
 import { AlertTriangle, Clock3, FolderKanban, WalletCards } from 'lucide-react'
+import { useCurrentUser } from '../../../shared/hooks/useCurrentUser'
 import type { DashboardHeaderSummary } from '../types/dashboard.types'
 
 type DashboardHeaderProps = {
@@ -6,6 +7,9 @@ type DashboardHeaderProps = {
 }
 
 export function DashboardHeader({ summary }: DashboardHeaderProps) {
+  const user = useCurrentUser()
+  const greeting = user?.displayName ?? 'مرحباً'
+
   const summaryItems = [
     { label: 'مشاريع نشطة', value: summary.activeProjects, icon: FolderKanban, tone: 'green' },
     { label: 'تنبيهات تحتاج مراجعة', value: summary.alerts, icon: AlertTriangle, tone: 'gold' },
@@ -17,7 +21,7 @@ export function DashboardHeader({ summary }: DashboardHeaderProps) {
     <section className="dashboard-header" aria-labelledby="dashboard-heading">
       <div className="dashboard-header__intro">
         <span>ملخص التشغيل</span>
-        <h1 id="dashboard-heading">صباح الخير، محمود 👋</h1>
+        <h1 id="dashboard-heading">صباح الخير، {greeting} 👋</h1>
         <p>تابع أهم الأرقام والتنبيهات وحركة المشاريع من مكان واحد.</p>
       </div>
 

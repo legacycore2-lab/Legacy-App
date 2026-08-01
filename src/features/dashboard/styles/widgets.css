@@ -4,7 +4,7 @@
   border: 1px solid var(--border);
   border-radius: 17px;
   background: var(--surface);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-card);
 }
 
 .widget-header {
@@ -112,10 +112,24 @@
 .status-badge {
   padding: 5px 8px;
   border-radius: 99px;
-  color: var(--green);
-  background: var(--green-soft);
   font-size: 9px;
   white-space: nowrap;
+}
+.status-badge--active {
+  color: var(--green);
+  background: var(--green-soft);
+}
+.status-badge--paused {
+  color: var(--gold);
+  background: var(--gold-soft);
+}
+.status-badge--completed {
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+}
+.status-badge--archived {
+  color: var(--muted);
+  background: color-mix(in srgb, var(--muted) 12%, transparent);
 }
 
 .entry-row {
@@ -201,4 +215,23 @@
     grid-column: 2;
     text-align: right;
   }
+}
+
+/* Empty state */
+.widget-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 32px 16px;
+  color: var(--muted);
+  text-align: center;
+}
+.widget-empty-state svg {
+  opacity: 0.4;
+}
+.widget-empty-state p {
+  margin: 0;
+  font-size: 12px;
 }

@@ -1,6 +1,23 @@
-import type { DashboardAction } from '../types/dashboard.types'
+import { Banknote, BriefcaseBusiness, FolderPlus, ReceiptText } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
-export function QuickActions({ actions }: { actions: DashboardAction[] }) {
+type QuickActionItem = {
+  label: string
+  description: string
+  icon: typeof FolderPlus
+  route?: string
+}
+
+const quickActions: QuickActionItem[] = [
+  { label: 'إضافة مشروع', description: 'إنشاء مشروع جديد', icon: FolderPlus, route: '/projects' },
+  { label: 'إضافة قيد', description: 'دخل أو مصروف', icon: ReceiptText, route: '/journal' },
+  { label: 'تسجيل عهدة', description: 'إنشاء عهدة جديدة', icon: BriefcaseBusiness },
+  { label: 'تحويل مالي', description: 'بين الخزنة والبنوك', icon: Banknote, route: '/banks' },
+]
+
+export function QuickActions() {
+  const navigate = useNavigate()
+
   return (
     <article className="dashboard-widget quick-actions-widget">
       <header className="widget-header">
@@ -11,13 +28,21 @@ export function QuickActions({ actions }: { actions: DashboardAction[] }) {
       </header>
 
       <div className="quick-actions-grid">
-        {actions.map(({ label, description, icon: Icon }) => (
-          <button type="button" className="quick-action" key={label}>
+        {quickActions.map(({ label, description, icon: Icon, route }) => (
+          <button
+            type="button"
+            className={`quick-action${!route ? ' quick-action--disabled' : ''}`}
+            key={label}
+            onClick={route ? () => navigate(route) : undefined}
+            aria-disabled={!route}
+            title={!route ? 'قريباً' : undefined}
+          >
             <span>
               <Icon size={20} />
             </span>
             <strong>{label}</strong>
             <small>{description}</small>
+            {!route && <em className="quick-action__soon">قريباً</em>}
           </button>
         ))}
       </div>

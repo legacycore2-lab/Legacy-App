@@ -5,13 +5,6 @@ import type { DashboardData, DashboardEntryRecord, DashboardProjectRecord } from
 
 const numberFormatter = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 })
 
-const projectStatusLabels: Record<string, string> = {
-  active: 'جاري',
-  completed: 'مكتمل',
-  paused: 'متوقف',
-  archived: 'مؤرشف',
-}
-
 function toAmount(value: number | string | null): number {
   const amount = Number(value ?? 0)
   return Number.isFinite(amount) ? amount : 0
@@ -54,9 +47,13 @@ function formatEntryDate(value: string | null): string {
   return value?.trim() || 'بدون تاريخ'
 }
 
-function formatProjectStatus(project: DashboardProjectRecord): string {
-  if (project.is_archived) return projectStatusLabels.archived
-  return projectStatusLabels[project.status ?? 'active'] ?? 'غير محدد'
+function resolveProjectStatus(
+  project: DashboardProjectRecord,
+): 'active' | 'paused' | 'completed' | 'archived' {
+  if (project.is_archived) return 'archived'
+  const s = project.status ?? 'active'
+  if (s === 'active' || s === 'paused' || s === 'completed' || s === 'archived') return s
+  return 'active'
 }
 
 export async function getDashboardData(): Promise<DashboardData> {
@@ -83,7 +80,11 @@ export async function getDashboardData(): Promise<DashboardData> {
       activeProjects: String(activeProjects.length),
       alerts: String(alertCount),
       balance: formatAmount(balance),
-      lastUpdated: 'الآن',
+      lastUpdated: new Intl.DateTimeFormat('ar-EG', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+      }).format(new Date()),
     },
     kpis: [
       {
@@ -92,6 +93,7 @@ export async function getDashboardData(): Promise<DashboardData> {
         trend: `${source.entries.length} قيد`,
         icon: WalletCards,
         tone: balance >= 0 ? 'green' : 'gold',
+        unit: 'ج.م',
       },
       {
         label: 'إجمالي الإيرادات',
@@ -99,6 +101,7 @@ export async function getDashboardData(): Promise<DashboardData> {
         trend: 'من القيود الفعلية',
         icon: ArrowDownLeft,
         tone: 'green',
+        unit: 'ج.م',
       },
       {
         label: 'إجمالي المصروفات',
@@ -106,6 +109,7 @@ export async function getDashboardData(): Promise<DashboardData> {
         trend: 'من القيود الفعلية',
         icon: ArrowUpRight,
         tone: 'gold',
+        unit: 'ج.م',
       },
       {
         label: 'المشاريع النشطة',
@@ -120,7 +124,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       client: project.client_name?.trim() || 'بدون عميل',
       balance: formatAmount(projectBalances.get(project.id) ?? 0),
       progress: toProgress(project.progress),
-      status: formatProjectStatus(project),
+      status: resolveProjectStatus(project),
     })),
     entries: source.entries.slice(0, 3).map((entry) => ({
       id: entry.seq ? `#${entry.seq}` : entry.id,
