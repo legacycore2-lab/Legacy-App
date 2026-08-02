@@ -194,27 +194,42 @@ const ARABIC_MONTHS = [
 /**
  * Builds last-7-months cashflow bars from raw entries.
  * All aggregation lives here — no reduce() in Page components.
+ *
+ * Timezone safety: year and month are extracted by splitting the ISO date
+ * string directly (YYYY-MM-DD[...]) — no Date object is constructed for
+ * entry dates. new Date('YYYY-MM-DD').getMonth() is intentionally avoided
+ * because the Date constructor treats date-only strings as UTC midnight,
+ * which shifts to the previous calendar day (and month) in UTC+ timezones.
+ * The window anchor uses getUTCFullYear/getUTCMonth for the same reason.
  */
 export function buildMonthlyCashflow(
   entries: ProjectEntry[],
 ): import('../types/project.types').MonthlyCashflowBar[] {
-  // Build the 7-month window (oldest → newest)
-  const today = new Date()
+  // ── Build the 7-month window using UTC to avoid local-timezone drift ──
+  const nowUtc = new Date()
+  const todayYear = nowUtc.getUTCFullYear()
+  const todayMonth = nowUtc.getUTCMonth() // 0-based
+
   const months: { year: number; month: number }[] = []
   for (let offset = 6; offset >= 0; offset--) {
-    const d = new Date(today.getFullYear(), today.getMonth() - offset, 1)
-    months.push({ year: d.getFullYear(), month: d.getMonth() })
+    const totalMonths = todayYear * 12 + todayMonth - offset
+    months.push({ year: Math.floor(totalMonths / 12), month: totalMonths % 12 })
   }
 
-  // Aggregate entries per month
+  // ── Aggregate entries — parse YYYY-MM directly from the ISO string ──
   const incomeByMonth = new Map<string, number>()
   const expenseByMonth = new Map<string, number>()
 
   for (const entry of entries) {
     if (!entry.entryDate) continue
-    const d = new Date(entry.entryDate)
-    if (Number.isNaN(d.getTime())) continue
-    const key = `${d.getFullYear()}-${d.getMonth()}`
+    // Accept "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm:ss…" — only the date part matters
+    const datePart = entry.entryDate.slice(0, 10) // "YYYY-MM-DD"
+    const parts = datePart.split('-')
+    if (parts.length < 2) continue
+    const year = Number(parts[0])
+    const month = Number(parts[1]) - 1 // convert to 0-based
+    if (!Number.isFinite(year) || !Number.isFinite(month) || month < 0 || month > 11) continue
+    const key = `${year}-${month}`
     if (entry.type === 'income') {
       incomeByMonth.set(key, (incomeByMonth.get(key) ?? 0) + entry.amount)
     } else {
@@ -222,7 +237,7 @@ export function buildMonthlyCashflow(
     }
   }
 
-  // Build raw bars
+  // ── Build raw bars for the window ──
   const rawBars = months.map(({ year, month }) => {
     const key = `${year}-${month}`
     return {
@@ -232,7 +247,7 @@ export function buildMonthlyCashflow(
     }
   })
 
-  // Normalise heights to 0–100 relative to max value
+  // ── Normalise heights to 0–100 relative to the max value across all bars ──
   const maxValue = Math.max(1, ...rawBars.map((b) => Math.max(b.incomeAmount, b.expenseAmount)))
 
   return rawBars.map((bar) => ({

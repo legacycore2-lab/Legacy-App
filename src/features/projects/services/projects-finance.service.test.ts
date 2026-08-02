@@ -171,6 +171,29 @@ describe('buildMonthlyCashflow', () => {
     }
   })
 
+  it('first day of month (YYYY-MM-01) is not shifted to the previous month', () => {
+    // This is the classic UTC+timezone bug: new Date('2025-03-01') is parsed as
+    // UTC midnight, which in UTC+2 becomes 2025-02-28 23:00 local time →
+    // getMonth() returns 1 (February) instead of 2 (March).
+    // The fix parses the ISO string directly so the month is always correct.
+    const nowUtc = new Date()
+    const year = nowUtc.getUTCFullYear()
+    const monthNum = nowUtc.getUTCMonth() + 1 // 1-based
+    const monthStr = String(monthNum).padStart(2, '0')
+    const firstDay = `${year}-${monthStr}-01`
+
+    const entries = [makeEntry({ id: 'first', entryDate: firstDay, type: 'income', amount: 5000 })]
+    const bars = buildMonthlyCashflow(entries)
+
+    // The current month is the last bar (index 6)
+    const currentBar = bars[6]
+    expect(currentBar.incomeAmount).toBe(5000)
+
+    // The previous month bar (index 5) must be zero — entry was NOT shifted back
+    const prevBar = bars[5]
+    expect(prevBar.incomeAmount).toBe(0)
+  })
+
   it('labels are Arabic month names', () => {
     const bars = buildMonthlyCashflow([])
     const arabicMonths = [
