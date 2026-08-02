@@ -243,7 +243,9 @@ describe('buildContractors', () => {
     const records = [makeRecord({ entry_type: 'debit', amount: 5000 })]
     const result = buildContractors(records)
     expect(result[0].entries[0].entryType).toBe('unknown')
-    // Amount must NOT appear in either total
+    // Real amount is preserved in the entry for display purposes
+    expect(result[0].entries[0].amount).toBe(5000)
+    // Amount must NOT appear in either financial total
     expect(result[0].totalExpense).toBe(0)
     expect(result[0].totalIncome).toBe(0)
     // Entry is still documented in the list
@@ -254,6 +256,8 @@ describe('buildContractors', () => {
     const records = [makeRecord({ entry_type: null, amount: 3000 })]
     const result = buildContractors(records)
     expect(result[0].entries[0].entryType).toBe('unknown')
+    // Real amount is preserved in the entry for display purposes
+    expect(result[0].entries[0].amount).toBe(3000)
     expect(result[0].totalExpense).toBe(0)
     expect(result[0].totalIncome).toBe(0)
     expect(result[0].entryCount).toBe(1)

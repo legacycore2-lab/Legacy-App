@@ -113,8 +113,8 @@ export function buildContractors(records: ContractorEntryRecord[]): Contractor[]
       entryDate: record.entry_date,
       // Preserve null as 'unknown' in the UI type — never coerce to 'expense'
       entryType: entryType ?? 'unknown',
-      // Zero-out amount for unknown types so they never pollute totals
-      amount: entryType !== null ? amount : 0,
+      // Show the real amount in the details panel — just don't aggregate it
+      amount,
       description: record.description?.trim() ?? '',
       seq: record.entry_number,
       projectId: record.project_id,
