@@ -23,6 +23,10 @@ const PROJECT_FIELDS = [
   'created_by',
 ].join(', ')
 
+/**
+ * Fetches all projects ordered by name.
+ * Returns raw project records — no financial aggregation here.
+ */
 export async function findProjects(): Promise<ProjectRecord[]> {
   const { data, error } = await getSupabaseClient()
     .from('projects')
@@ -30,8 +34,57 @@ export async function findProjects(): Promise<ProjectRecord[]> {
     .order('name', { ascending: true })
 
   if (error) throw error
-
   return (data ?? []) as unknown as ProjectRecord[]
+}
+
+export type FinancialEntryRow = {
+  project_id: string
+  entry_type: string | null
+  amount: number | string | null
+  /**
+   * Included solely to provide a stable ORDER BY for pagination.
+   * entry_number is a sequential surrogate key on the entries table and
+   * guarantees consistent page boundaries across range() calls.
+   * It is NOT used in any financial calculation.
+   */
+  entry_number: number | null
+}
+
+const FINANCIAL_ENTRIES_PAGE_SIZE = 1000
+
+/**
+ * Fetches ALL entries that have a project_id, using range-based pagination
+ * to avoid Supabase's default 1000-row cap.
+ *
+ * Stable ordering: .order('entry_number', { ascending: true }) ensures that
+ * row ordering is deterministic across pages. Without a stable ORDER BY,
+ * the database is free to return rows in any order, which can cause duplicate
+ * or missing rows at page boundaries.
+ *
+ * No parsing, conversion, or aggregation — raw rows only.
+ */
+export async function findAllProjectFinancialEntries(): Promise<FinancialEntryRow[]> {
+  const supabase = getSupabaseClient()
+  const rows: FinancialEntryRow[] = []
+  let from = 0
+
+  while (true) {
+    const to = from + FINANCIAL_ENTRIES_PAGE_SIZE - 1
+    const { data, error } = await supabase
+      .from('entries')
+      .select('project_id, entry_type, amount, entry_number')
+      .not('project_id', 'is', null)
+      .order('entry_number', { ascending: true })
+      .range(from, to)
+
+    if (error) throw error
+    const page = (data ?? []) as FinancialEntryRow[]
+    rows.push(...page)
+    if (page.length < FINANCIAL_ENTRIES_PAGE_SIZE) break
+    from += FINANCIAL_ENTRIES_PAGE_SIZE
+  }
+
+  return rows
 }
 
 export async function insertProject(record: ProjectInsertRecord): Promise<ProjectRecord> {

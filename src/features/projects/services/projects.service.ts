@@ -1,8 +1,10 @@
 import {
+  findAllProjectFinancialEntries,
   findProjectById,
   findProjectEntries,
   findProjects,
   subscribeToProjectChanges,
+  type FinancialEntryRow,
   type ProjectEntryRecord,
 } from '../repositories/projects.repository'
 import type {
@@ -19,21 +21,98 @@ import type {
 } from '../types/project.types'
 import { mapProject } from './project.mapper'
 
-export async function getProjects(): Promise<Project[]> {
-  const records = await findProjects()
+// ─── Financial totals helpers ─────────────────────────────────────────────────
 
-  return records.reduce<Project[]>((projects, record) => {
-    try {
-      projects.push(mapProject(record))
-    } catch (error) {
-      console.warn('Skipping invalid project record.', {
-        recordId: record.id,
-        error,
-      })
+/**
+ * Normalises raw DB entry_type to 'income' | 'expense' | null.
+ * Supports shorthand 'i' / 'e'. Unknown / null → null.
+ */
+export function normalizeFinancialEntryType(raw: string | null | undefined): 'income' | 'expense' | null {
+  if (!raw) return null
+  switch (raw.trim().toLowerCase()) {
+    case 'income':
+    case 'i':
+      return 'income'
+    case 'expense':
+    case 'e':
+      return 'expense'
+    default:
+      return null
+  }
+}
+
+/**
+ * Parses a raw DB amount to a non-negative finite number.
+ * Invalid, non-finite, or negative values → 0.
+ */
+export function parseFinancialAmount(raw: number | string | null | undefined): number {
+  const n = Number(raw)
+  if (!Number.isFinite(n) || n < 0) return 0
+  return n
+}
+
+export type ProjectFinancialTotals = {
+  received: number // income total from entries
+  spent: number // expense total from entries
+}
+
+/**
+ * Aggregates income and expense totals per project_id from raw entry rows.
+ * Unknown entry types and invalid amounts are silently ignored.
+ * Does not mutate input.
+ */
+export function buildProjectFinancialTotals(rows: FinancialEntryRow[]): Map<string, ProjectFinancialTotals> {
+  const totals = new Map<string, ProjectFinancialTotals>()
+
+  for (const row of rows) {
+    if (!row.project_id) continue
+    const type = normalizeFinancialEntryType(row.entry_type)
+    if (!type) continue // unknown → ignored entirely
+    const amount = parseFinancialAmount(row.amount)
+    if (amount === 0) continue // invalid / negative → ignored
+
+    const existing = totals.get(row.project_id) ?? { received: 0, spent: 0 }
+    if (type === 'income') {
+      totals.set(row.project_id, { ...existing, received: existing.received + amount })
+    } else {
+      totals.set(row.project_id, { ...existing, spent: existing.spent + amount })
     }
+  }
 
-    return projects
+  return totals
+}
+
+/**
+ * Returns a new array of projects with received/spent overridden from
+ * the computed financial totals map.
+ * Projects with no entries get received = 0, spent = 0.
+ * Never falls back to the static DB columns — they may be stale.
+ * Does not mutate input.
+ */
+export function mergeProjectsWithFinancialTotals(
+  projects: Project[],
+  totals: Map<string, ProjectFinancialTotals>,
+): Project[] {
+  return projects.map((project) => {
+    const t = totals.get(project.id) ?? { received: 0, spent: 0 }
+    return { ...project, received: t.received, spent: t.spent }
+  })
+}
+
+export async function getProjects(): Promise<Project[]> {
+  const [records, financialEntries] = await Promise.all([findProjects(), findAllProjectFinancialEntries()])
+
+  const projects = records.reduce<Project[]>((acc, record) => {
+    try {
+      acc.push(mapProject(record))
+    } catch (error) {
+      console.warn('Skipping invalid project record.', { recordId: record.id, error })
+    }
+    return acc
   }, [])
+
+  const totals = buildProjectFinancialTotals(financialEntries)
+  return mergeProjectsWithFinancialTotals(projects, totals)
 }
 
 export function summarizeProjects(projects: Project[]): ProjectsSummary {
