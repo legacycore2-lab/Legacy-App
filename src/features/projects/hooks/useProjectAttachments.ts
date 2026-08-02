@@ -4,6 +4,7 @@ import {
   deleteAttachment,
   getAttachmentSignedUrl,
   listProjectAttachments,
+  retryStorageCleanup,
   uploadAttachment,
 } from '../services/project-attachments.service'
 import type {
@@ -11,6 +12,7 @@ import type {
   AttachmentCleanupWarning,
   AttachmentUploadInput,
   DeleteAttachmentResult,
+  RetryCleanupResult,
 } from '../types/project-attachment.types'
 
 function attachmentsKey(projectId: string) {
@@ -95,5 +97,20 @@ export function useAttachmentSignedUrl() {
     getUrl: mutation.mutateAsync,
     isLoading: mutation.isPending,
     error: mutation.error ? toErrorMessage(mutation.error, 'تعذر فتح الملف.') : '',
+  }
+}
+
+// ─── Retry cleanup ────────────────────────────────────────────────────────────
+
+export function useRetryCleanup() {
+  const mutation = useMutation({
+    mutationFn: (storagePath: string) => retryStorageCleanup(storagePath),
+  })
+
+  return {
+    retry: mutation.mutateAsync,
+    isRetrying: mutation.isPending,
+    result: mutation.data as RetryCleanupResult | undefined,
+    reset: mutation.reset,
   }
 }

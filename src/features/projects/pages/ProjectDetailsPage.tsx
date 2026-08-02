@@ -334,7 +334,7 @@ export function ProjectDetailsPage() {
         ) : activeTab === 'attachments' ? (
           <WorkspaceAttachmentsTab
             projectId={project.id}
-            entryId={viewModel.analytics.recentEntries[0]?.id ?? null}
+            entries={journalViewModel?.entries ?? viewModel.analytics.recentEntries}
           />
         ) : activeTab === 'journal' && journalViewModel ? (
           <WorkspaceJournalTab journalViewModel={journalViewModel} onAddEntry={openProjectJournal} />

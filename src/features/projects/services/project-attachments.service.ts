@@ -163,3 +163,21 @@ export async function deleteAttachment(attachmentId: string): Promise<DeleteAtta
 export async function getAttachmentSignedUrl(storagePath: string, expiresInSeconds = 60): Promise<string> {
   return createSignedUrl(storagePath, expiresInSeconds)
 }
+
+/**
+ * Retries removing an orphaned Storage file after a previous cleanup failure.
+ * Call this when the user taps "إعادة المحاولة" on a CleanupWarning.
+ */
+export async function retryStorageCleanup(
+  storagePath: string,
+): Promise<import('../types/project-attachment.types').RetryCleanupResult> {
+  try {
+    await removeFileFromStorage(storagePath)
+    return { kind: 'success' }
+  } catch (err) {
+    return {
+      kind: 'failed',
+      reason: err instanceof Error ? err.message : 'Storage removal failed.',
+    }
+  }
+}
