@@ -15,6 +15,7 @@ function row(overrides: Partial<FinancialEntryRow>): FinancialEntryRow {
     project_id: 'proj-1',
     entry_type: 'expense',
     amount: 1000,
+    entry_number: 1,
     ...overrides,
   }
 }
@@ -38,6 +39,22 @@ function project(id: string, overrides: Partial<Project> = {}): Project {
     ...overrides,
   }
 }
+
+// ─── Repository pagination contract ──────────────────────────────────────────
+// findAllProjectFinancialEntries() uses .order('entry_number', { ascending: true })
+// before .range(from, to). This guarantees stable, deterministic ordering across
+// all pages — without it, the DB may return rows in arbitrary order, causing
+// duplicates or missing rows at page boundaries.
+//
+// entry_number is a sequential surrogate key (bigint sequence) on the entries
+// table and is the correct stable key for pagination. It is fetched in
+// FinancialEntryRow but is intentionally excluded from all financial calculations
+// (buildProjectFinancialTotals does not read it).
+//
+// Integration test of the pagination loop itself requires a live Supabase
+// connection and is out of scope for unit tests. The pure aggregation logic
+// (buildProjectFinancialTotals, mergeProjectsWithFinancialTotals) is fully
+// covered below — it is agnostic to how many pages the repository fetched.
 
 // ─── normalizeFinancialEntryType ──────────────────────────────────────────────
 
