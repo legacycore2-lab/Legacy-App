@@ -10,6 +10,7 @@ import {
   Upload,
 } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { toErrorMessage } from '../../../shared/errors/app-error'
 import type { ProjectEntry } from '../types/project.types'
 import {
   useAttachmentSignedUrl,
@@ -36,8 +37,10 @@ const dateFormatter = new Intl.DateTimeFormat('ar-EG', {
 })
 
 function formatDate(value: string) {
-  const d = new Date(value)
-  return Number.isNaN(d.getTime()) ? value : dateFormatter.format(d)
+  const datePart = value.slice(0, 10)
+  const [year, month, day] = datePart.split('-').map(Number)
+  if (!year || !month || !day) return value
+  return dateFormatter.format(new Date(Date.UTC(year, month - 1, day)))
 }
 
 function formatBytes(bytes: number): string {
@@ -155,7 +158,7 @@ function AttachmentRow({
   projectId: string
   onCleanupWarning: (w: AttachmentCleanupWarning) => void
 }) {
-  const { getUrl, isLoading: urlLoading, error: urlError } = useAttachmentSignedUrl()
+  const { getUrl, isLoading: urlLoading } = useAttachmentSignedUrl()
   const { remove, isDeleting, deleteError } = useDeleteAttachment(projectId, onCleanupWarning)
   const [showConfirm, setShowConfirm] = useState(false)
   const [openError, setOpenError] = useState('')
@@ -165,14 +168,19 @@ function AttachmentRow({
     try {
       const url = await getUrl({ storagePath: attachment.storagePath })
       window.open(url, '_blank', 'noopener,noreferrer')
-    } catch {
-      setOpenError(urlError || 'تعذر فتح الملف.')
+    } catch (err) {
+      // Use the caught error directly — never read stale hook state inside catch
+      setOpenError(toErrorMessage(err, 'تعذر فتح الملف.'))
     }
   }
 
   async function handleConfirmDelete() {
-    await remove(attachment.id)
-    setShowConfirm(false)
+    try {
+      await remove(attachment.id)
+      setShowConfirm(false)
+    } catch {
+      // deleteError is surfaced via the hook and displayed inside ConfirmDeleteDialog
+    }
   }
 
   return (
