@@ -33,13 +33,15 @@ import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ProjectCreateDialog } from '../components/ProjectCreateDialog'
 import { ProjectDeleteDialog } from '../components/ProjectDeleteDialog'
+import { WorkspaceFinanceTab } from '../components/WorkspaceFinanceTab'
+import { WorkspaceJournalTab } from '../components/WorkspaceJournalTab'
+import { WorkspaceOverviewTab } from '../components/WorkspaceOverviewTab'
 import { useProjectCreateForm } from '../hooks/useProjectCreateForm'
 import { useProjectDelete } from '../hooks/useProjectDelete'
 import { useProjectDetails } from '../hooks/useProjectDetails'
-import { WorkspaceFinanceTab } from '../components/WorkspaceFinanceTab'
-import { WorkspaceOverviewTab } from '../components/WorkspaceOverviewTab'
 import '../styles/project-create.css'
 import '../styles/project-details.css'
+import '../styles/project-journal-tab.css'
 import '../styles/project-workspace.css'
 
 const money = new Intl.NumberFormat('en-US', {
@@ -109,7 +111,7 @@ function Currency({ value }: { value: number }) {
 export function ProjectDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { viewModel, financeViewModel, isLoading, error } = useProjectDetails(id ?? null)
+  const { viewModel, financeViewModel, journalViewModel, isLoading, error } = useProjectDetails(id ?? null)
   const projectCreate = useProjectCreateForm()
   const projectDelete = useProjectDelete(viewModel?.project.id ?? null, viewModel?.project.name ?? '')
   const [actionsOpen, setActionsOpen] = useState(false)
@@ -129,7 +131,6 @@ export function ProjectDetailsPage() {
 
   const selectTab = (tabId: WorkspaceTabId) => {
     const routeByTab: Partial<Record<WorkspaceTabId, string>> = {
-      journal: `/journal?${projectQuery}`,
       banks: `/banks?${projectQuery}`,
       advances: `/advances?${projectQuery}`,
       reports: `/reports?${projectQuery}`,
@@ -157,6 +158,7 @@ export function ProjectDetailsPage() {
   ]
 
   const internalSection = internalSectionCopy[activeTab]
+  const openProjectJournal = () => navigate(`/journal?${projectQuery}`)
 
   return (
     <section className="project-command project-workspace erp-viewport-page">
@@ -218,7 +220,7 @@ export function ProjectDetailsPage() {
             <button
               type="button"
               className="project-workspace__quick-button is-primary"
-              onClick={() => navigate(`/journal?${projectQuery}`)}
+              onClick={openProjectJournal}
             >
               <Plus size={17} /> إضافة قيد
             </button>
@@ -331,6 +333,8 @@ export function ProjectDetailsPage() {
             </div>
             <div className="project-command__empty">{internalSection.description}</div>
           </article>
+        ) : activeTab === 'journal' && journalViewModel ? (
+          <WorkspaceJournalTab journalViewModel={journalViewModel} onAddEntry={openProjectJournal} />
         ) : activeTab === 'finance' && financeViewModel ? (
           <WorkspaceFinanceTab financeViewModel={financeViewModel} />
         ) : (

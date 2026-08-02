@@ -164,3 +164,12 @@ export type ProjectFinanceViewModel = {
   /** 0–100 share of total (income + expense) for expense bar */
   expenseSharePercentage: number
 }
+
+// ─── Journal Tab ──────────────────────────────────────────────────────────────
+
+export type ProjectJournalViewModel = {
+  /** Entries sorted newest-first by date, then sequence number. */
+  entries: ProjectEntry[]
+  summary: ProjectFinancialSummary
+  hasEntries: boolean
+}

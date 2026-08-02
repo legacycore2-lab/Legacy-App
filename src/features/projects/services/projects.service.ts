@@ -13,6 +13,7 @@ import type {
   ProjectDetailsViewModel,
   ProjectEntry,
   ProjectFinancialSummary,
+  ProjectJournalViewModel,
   ProjectRow,
   ProjectsSummary,
 } from '../types/project.types'
@@ -205,10 +206,9 @@ const ARABIC_MONTHS = [
 export function buildMonthlyCashflow(
   entries: ProjectEntry[],
 ): import('../types/project.types').MonthlyCashflowBar[] {
-  // ── Build the 7-month window using UTC to avoid local-timezone drift ──
   const nowUtc = new Date()
   const todayYear = nowUtc.getUTCFullYear()
-  const todayMonth = nowUtc.getUTCMonth() // 0-based
+  const todayMonth = nowUtc.getUTCMonth()
 
   const months: { year: number; month: number }[] = []
   for (let offset = 6; offset >= 0; offset--) {
@@ -216,18 +216,16 @@ export function buildMonthlyCashflow(
     months.push({ year: Math.floor(totalMonths / 12), month: totalMonths % 12 })
   }
 
-  // ── Aggregate entries — parse YYYY-MM directly from the ISO string ──
   const incomeByMonth = new Map<string, number>()
   const expenseByMonth = new Map<string, number>()
 
   for (const entry of entries) {
     if (!entry.entryDate) continue
-    // Accept "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm:ss…" — only the date part matters
-    const datePart = entry.entryDate.slice(0, 10) // "YYYY-MM-DD"
+    const datePart = entry.entryDate.slice(0, 10)
     const parts = datePart.split('-')
     if (parts.length < 2) continue
     const year = Number(parts[0])
-    const month = Number(parts[1]) - 1 // convert to 0-based
+    const month = Number(parts[1]) - 1
     if (!Number.isFinite(year) || !Number.isFinite(month) || month < 0 || month > 11) continue
     const key = `${year}-${month}`
     if (entry.type === 'income') {
@@ -237,7 +235,6 @@ export function buildMonthlyCashflow(
     }
   }
 
-  // ── Build raw bars for the window ──
   const rawBars = months.map(({ year, month }) => {
     const key = `${year}-${month}`
     return {
@@ -247,8 +244,7 @@ export function buildMonthlyCashflow(
     }
   })
 
-  // ── Normalise heights to 0–100 relative to the max value across all bars ──
-  const maxValue = Math.max(1, ...rawBars.map((b) => Math.max(b.incomeAmount, b.expenseAmount)))
+  const maxValue = Math.max(1, ...rawBars.map((bar) => Math.max(bar.incomeAmount, bar.expenseAmount)))
 
   return rawBars.map((bar) => ({
     ...bar,
@@ -276,14 +272,14 @@ export function buildFinanceViewModel(
     donutSegments.length > 0
       ? `conic-gradient(${donutSegments
           .map((seg, index) => {
-            const before = donutSegments.slice(0, index).reduce((sum, s) => sum + s.percentage, 0)
+            const before = donutSegments.slice(0, index).reduce((sum, segment) => sum + segment.percentage, 0)
             return `${seg.cssVar} ${before}% ${before + seg.percentage}%`
           })
           .join(', ')})`
       : 'var(--surface-soft)'
 
   const monthlyCashflow = buildMonthlyCashflow(entries)
-  const hasActivity = monthlyCashflow.some((b) => b.incomeAmount > 0 || b.expenseAmount > 0)
+  const hasActivity = monthlyCashflow.some((bar) => bar.incomeAmount > 0 || bar.expenseAmount > 0)
   const totalFlow = summary.totalIncome + summary.totalExpense
   const incomeSharePercentage = totalFlow > 0 ? Math.round((summary.totalIncome / totalFlow) * 100) : 0
   const expenseSharePercentage = totalFlow > 0 ? 100 - incomeSharePercentage : 0
@@ -299,5 +295,21 @@ export function buildFinanceViewModel(
     hasActivity,
     incomeSharePercentage,
     expenseSharePercentage,
+  }
+}
+
+// ─── Journal Tab helpers ──────────────────────────────────────────────────────
+
+export function buildProjectJournalViewModel(details: ProjectDetails): ProjectJournalViewModel {
+  const entries = [...details.entries].sort((left, right) => {
+    const dateOrder = right.entryDate.localeCompare(left.entryDate)
+    if (dateOrder !== 0) return dateOrder
+    return (right.seq ?? 0) - (left.seq ?? 0)
+  })
+
+  return {
+    entries,
+    summary: details.summary,
+    hasEntries: entries.length > 0,
   }
 }
