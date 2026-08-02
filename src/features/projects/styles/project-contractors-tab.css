@@ -1,0 +1,287 @@
+/* ─── Project Contractors Tab ────────────────────────────────────────────────── */
+
+.workspace-contractors {
+  display: grid;
+  gap: 16px;
+}
+
+/* ── Header ── */
+.workspace-contractors__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.workspace-contractors__header span {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+
+.workspace-contractors__header h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.workspace-contractors__note {
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+  align-self: flex-end;
+}
+
+/* ── States ── */
+.workspace-contractors__loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 32px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.workspace-contractors__empty,
+.workspace-contractors__permission {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 48px 24px;
+  color: var(--muted);
+  text-align: center;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.workspace-contractors__empty svg,
+.workspace-contractors__permission svg {
+  opacity: 0.35;
+}
+.workspace-contractors__permission svg {
+  color: var(--danger, #e53e3e);
+}
+.workspace-contractors__empty strong,
+.workspace-contractors__permission strong {
+  font-size: 14px;
+  color: var(--text);
+}
+.workspace-contractors__empty span,
+.workspace-contractors__permission span {
+  font-size: 12px;
+}
+
+.workspace-contractors__error {
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--danger, #e53e3e) 10%, transparent);
+  color: var(--danger, #e53e3e);
+  border: 1px solid color-mix(in srgb, var(--danger, #e53e3e) 24%, transparent);
+  font-size: 13px;
+}
+
+/* ── KPIs ── */
+.workspace-contractors__kpis {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.workspace-contractors__kpi {
+  flex: 1 1 120px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+
+.workspace-contractors__kpi small {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+
+.workspace-contractors__kpi strong {
+  font-size: 15px;
+}
+.workspace-contractors__kpi strong.is-income {
+  color: var(--green);
+}
+.workspace-contractors__kpi strong.is-expense {
+  color: var(--danger, #e53e3e);
+}
+
+/* ── List ── */
+.workspace-contractors__list {
+  display: grid;
+  gap: 10px;
+}
+
+/* ── Contractor card ── */
+.project-contractor-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  overflow: clip;
+}
+
+.project-contractor-card__header {
+  display: grid;
+  grid-template-columns: 34px 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  width: 100%;
+  text-align: start;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background 130ms;
+}
+
+.project-contractor-card__header:hover {
+  background: var(--surface-soft);
+}
+
+.project-contractor-card__icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  flex-shrink: 0;
+}
+
+.project-contractor-card__name strong {
+  display: block;
+  font-size: 13px;
+}
+.project-contractor-card__name small {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.project-contractor-card__totals {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.project-contractor-card__totals span {
+  font-size: 13px;
+  font-weight: 600;
+}
+.project-contractor-card__totals .is-income {
+  color: var(--green);
+}
+.project-contractor-card__totals .is-expense {
+  color: var(--danger, #e53e3e);
+}
+
+.project-contractor-card__chevron {
+  color: var(--muted);
+}
+
+/* ── Entries table ── */
+.project-contractor-card__entries {
+  border-top: 1px solid var(--border);
+  overflow-x: auto;
+}
+
+.project-contractor-entries-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.project-contractor-entries-table thead th {
+  padding: 8px 12px;
+  text-align: right;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--surface-soft);
+  border-bottom: 1px solid var(--border);
+}
+
+.project-contractor-entries-table tbody td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.project-contractor-entries-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── Entry type badge ── */
+.entry-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.entry-type-badge--income {
+  color: var(--green);
+  background: var(--green-soft);
+}
+
+.entry-type-badge--expense {
+  color: var(--danger, #e53e3e);
+  background: color-mix(in srgb, var(--danger, #e53e3e) 10%, transparent);
+}
+
+.entry-type-badge--unknown {
+  color: var(--muted);
+  background: var(--surface-soft);
+}
+
+/* ── Amount colours ── */
+.is-income {
+  color: var(--green);
+}
+.is-expense {
+  color: var(--danger, #e53e3e);
+}
+
+/* ── Spinner ── */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .project-contractor-entries-table thead {
+    display: none;
+  }
+  .project-contractor-entries-table tbody td {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 12px;
+    border-bottom: none;
+  }
+  .project-contractor-entries-table tbody td::before {
+    content: attr(data-label);
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .project-contractor-entries-table tbody tr {
+    border-bottom: 1px solid var(--border);
+  }
+}

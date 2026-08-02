@@ -36,6 +36,7 @@ import { ProjectCreateDialog } from '../components/ProjectCreateDialog'
 import { ProjectDeleteDialog } from '../components/ProjectDeleteDialog'
 import { WorkspaceFinanceTab } from '../components/WorkspaceFinanceTab'
 import { WorkspaceActivityTab } from '../components/WorkspaceActivityTab'
+import { WorkspaceContractorsTab } from '../components/WorkspaceContractorsTab'
 import { WorkspaceAttachmentsTab } from '../components/WorkspaceAttachmentsTab'
 import { WorkspaceJournalTab } from '../components/WorkspaceJournalTab'
 import { WorkspaceOverviewTab } from '../components/WorkspaceOverviewTab'
@@ -45,6 +46,7 @@ import { useProjectDetails } from '../hooks/useProjectDetails'
 import '../styles/project-create.css'
 import '../styles/project-details.css'
 import '../styles/project-activity.css'
+import '../styles/project-contractors-tab.css'
 import '../styles/project-attachments.css'
 import '../styles/project-journal-tab.css'
 import '../styles/project-workspace.css'
@@ -86,10 +88,6 @@ const workspaceTabs = [
 type WorkspaceTabId = (typeof workspaceTabs)[number]['id']
 
 const internalSectionCopy: Partial<Record<WorkspaceTabId, { title: string; description: string }>> = {
-  contractors: {
-    title: 'مقاولو المشروع',
-    description: 'سيتم عرض وربط مقاولي المشروع هنا عند اكتمال وحدة المقاولين.',
-  },
   suppliers: {
     title: 'موردو المشروع',
     description: 'سيتم عرض وربط موردي المشروع هنا عند اكتمال وحدة الموردين.',
@@ -337,6 +335,8 @@ export function ProjectDetailsPage() {
           </article>
         ) : activeTab === 'activity' ? (
           <WorkspaceActivityTab projectId={project.id} />
+        ) : activeTab === 'contractors' ? (
+          <WorkspaceContractorsTab projectId={project.id} />
         ) : activeTab === 'attachments' ? (
           <WorkspaceAttachmentsTab
             projectId={project.id}
