@@ -24,50 +24,53 @@ const PROJECT_FIELDS = [
 ].join(', ')
 
 /**
- * Fetches all projects with their real financial totals aggregated from
- * the entries table. The static `received`/`spent` columns on the projects
- * table are not automatically updated when entries are added, so we compute
- * income and expense totals on the fly by joining entries.
- *
- * Pattern: fetch projects + entries in two parallel queries, then merge
- * in the service layer — no new SQL / RLS / migrations required.
+ * Fetches all projects ordered by name.
+ * Returns raw project records — no financial aggregation here.
  */
 export async function findProjects(): Promise<ProjectRecord[]> {
+  const { data, error } = await getSupabaseClient()
+    .from('projects')
+    .select(PROJECT_FIELDS)
+    .order('name', { ascending: true })
+
+  if (error) throw error
+  return (data ?? []) as unknown as ProjectRecord[]
+}
+
+export type FinancialEntryRow = {
+  project_id: string
+  entry_type: string | null
+  amount: number | string | null
+}
+
+const FINANCIAL_ENTRIES_PAGE_SIZE = 1000
+
+/**
+ * Fetches ALL entries that have a project_id, using range-based pagination
+ * to avoid Supabase's default 1000-row cap.
+ * No parsing, conversion, or aggregation — raw rows only.
+ */
+export async function findAllProjectFinancialEntries(): Promise<FinancialEntryRow[]> {
   const supabase = getSupabaseClient()
+  const rows: FinancialEntryRow[] = []
+  let from = 0
 
-  const [projectsResult, entriesResult] = await Promise.all([
-    supabase.from('projects').select(PROJECT_FIELDS).order('name', { ascending: true }),
-    supabase.from('entries').select('project_id, entry_type, amount').not('project_id', 'is', null),
-  ])
+  while (true) {
+    const to = from + FINANCIAL_ENTRIES_PAGE_SIZE - 1
+    const { data, error } = await supabase
+      .from('entries')
+      .select('project_id, entry_type, amount')
+      .not('project_id', 'is', null)
+      .range(from, to)
 
-  if (projectsResult.error) throw projectsResult.error
-  if (entriesResult.error) throw entriesResult.error
-
-  // Aggregate income + expense per project from entries
-  const incomeByProject = new Map<string, number>()
-  const expenseByProject = new Map<string, number>()
-
-  for (const entry of entriesResult.data ?? []) {
-    if (!entry.project_id) continue
-    const amount = Number(entry.amount)
-    if (!Number.isFinite(amount) || amount < 0) continue
-
-    if (entry.entry_type === 'income' || entry.entry_type === 'i') {
-      incomeByProject.set(entry.project_id, (incomeByProject.get(entry.project_id) ?? 0) + amount)
-    } else if (entry.entry_type === 'expense' || entry.entry_type === 'e') {
-      expenseByProject.set(entry.project_id, (expenseByProject.get(entry.project_id) ?? 0) + amount)
-    }
+    if (error) throw error
+    const page = (data ?? []) as FinancialEntryRow[]
+    rows.push(...page)
+    if (page.length < FINANCIAL_ENTRIES_PAGE_SIZE) break
+    from += FINANCIAL_ENTRIES_PAGE_SIZE
   }
 
-  // Merge computed totals into each project record, overriding static columns
-  return (projectsResult.data ?? []).map((raw) => {
-    const project = raw as unknown as ProjectRecord
-    return {
-      ...project,
-      received: incomeByProject.get(project.id) ?? project.received ?? 0,
-      spent: expenseByProject.get(project.id) ?? project.spent ?? 0,
-    }
-  })
+  return rows
 }
 
 export async function insertProject(record: ProjectInsertRecord): Promise<ProjectRecord> {
