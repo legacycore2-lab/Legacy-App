@@ -132,3 +132,29 @@ export type ProjectDetailsViewModel = {
   /** conic-gradient() string ready for inline style */
   donutGradient: string
 }
+
+// ─── Finance Tab ──────────────────────────────────────────────────────────────
+
+export type MonthlyCashflowBar = {
+  /** Arabic short month label e.g. "يناير" */
+  label: string
+  /** 0–100 normalised height for income bar */
+  incomeHeight: number
+  /** 0–100 normalised height for expense bar */
+  expenseHeight: number
+  /** raw income total for tooltip / aria */
+  incomeAmount: number
+  /** raw expense total for tooltip / aria */
+  expenseAmount: number
+}
+
+export type ProjectFinanceViewModel = {
+  summary: ProjectFinancialSummary
+  /** last 7 calendar months newest → oldest, reversed for display left→right */
+  monthlyCashflow: MonthlyCashflowBar[]
+  donutSegments: DonutSegment[]
+  donutGradient: string
+  profitMargin: number
+  remaining: number
+  contractValue: number
+}

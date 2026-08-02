@@ -173,3 +173,107 @@ export function buildProjectDetailsViewModel(details: ProjectDetails): ProjectDe
     donutGradient,
   }
 }
+
+// ─── Finance Tab helpers ──────────────────────────────────────────────────────
+
+const ARABIC_MONTHS = [
+  'يناير',
+  'فبراير',
+  'مارس',
+  'أبريل',
+  'مايو',
+  'يونيو',
+  'يوليو',
+  'أغسطس',
+  'سبتمبر',
+  'أكتوبر',
+  'نوفمبر',
+  'ديسمبر',
+]
+
+/**
+ * Builds last-7-months cashflow bars from raw entries.
+ * All aggregation lives here — no reduce() in Page components.
+ */
+export function buildMonthlyCashflow(
+  entries: ProjectEntry[],
+): import('../types/project.types').MonthlyCashflowBar[] {
+  // Build the 7-month window (oldest → newest)
+  const today = new Date()
+  const months: { year: number; month: number }[] = []
+  for (let offset = 6; offset >= 0; offset--) {
+    const d = new Date(today.getFullYear(), today.getMonth() - offset, 1)
+    months.push({ year: d.getFullYear(), month: d.getMonth() })
+  }
+
+  // Aggregate entries per month
+  const incomeByMonth = new Map<string, number>()
+  const expenseByMonth = new Map<string, number>()
+
+  for (const entry of entries) {
+    if (!entry.entryDate) continue
+    const d = new Date(entry.entryDate)
+    if (Number.isNaN(d.getTime())) continue
+    const key = `${d.getFullYear()}-${d.getMonth()}`
+    if (entry.type === 'income') {
+      incomeByMonth.set(key, (incomeByMonth.get(key) ?? 0) + entry.amount)
+    } else {
+      expenseByMonth.set(key, (expenseByMonth.get(key) ?? 0) + entry.amount)
+    }
+  }
+
+  // Build raw bars
+  const rawBars = months.map(({ year, month }) => {
+    const key = `${year}-${month}`
+    return {
+      label: ARABIC_MONTHS[month] ?? '',
+      incomeAmount: incomeByMonth.get(key) ?? 0,
+      expenseAmount: expenseByMonth.get(key) ?? 0,
+    }
+  })
+
+  // Normalise heights to 0–100 relative to max value
+  const maxValue = Math.max(1, ...rawBars.map((b) => Math.max(b.incomeAmount, b.expenseAmount)))
+
+  return rawBars.map((bar) => ({
+    ...bar,
+    incomeHeight: Math.round((bar.incomeAmount / maxValue) * 100),
+    expenseHeight: Math.round((bar.expenseAmount / maxValue) * 100),
+  }))
+}
+
+export function buildFinanceViewModel(
+  details: ProjectDetails,
+): import('../types/project.types').ProjectFinanceViewModel {
+  const { project, entries, summary, analytics } = details
+
+  const profitMargin = summary.totalIncome > 0 ? Math.round((summary.balance / summary.totalIncome) * 100) : 0
+
+  const donutSegments: import('../types/project.types').DonutSegment[] = analytics.expenseCategories
+    .slice(0, 5)
+    .map((item, index) => ({
+      label: item.label,
+      percentage: item.percentage,
+      cssVar: `var(--workspace-chart-${index + 1})`,
+    }))
+
+  const donutGradient =
+    donutSegments.length > 0
+      ? `conic-gradient(${donutSegments
+          .map((seg, index) => {
+            const before = donutSegments.slice(0, index).reduce((sum, s) => sum + s.percentage, 0)
+            return `${seg.cssVar} ${before}% ${before + seg.percentage}%`
+          })
+          .join(', ')})`
+      : 'var(--surface-soft)'
+
+  return {
+    summary,
+    monthlyCashflow: buildMonthlyCashflow(entries),
+    donutSegments,
+    donutGradient,
+    profitMargin,
+    remaining: project.contractValue - summary.totalExpense,
+    contractValue: project.contractValue,
+  }
+}
