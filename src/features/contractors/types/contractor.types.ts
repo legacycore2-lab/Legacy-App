@@ -5,7 +5,9 @@ export type ContractorEntryRecord = {
   contractor_name: string | null
   project_id: string | null
   entry_date: string
-  entry_type: 'income' | 'expense'
+  /** Raw DB value — may be 'income'|'expense'|'i'|'e' or anything else.
+   *  Normalised to 'income'|'expense'|null in the service layer. */
+  entry_type: string | null
   amount: number | string
   description: string | null
   entry_number: number | null

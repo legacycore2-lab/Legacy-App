@@ -8,6 +8,33 @@ import type {
   ContractorsViewModel,
 } from '../types/contractor.types'
 
+// ─── Entry type normalisation ─────────────────────────────────────────────────
+
+/**
+ * Normalises a raw DB entry_type to 'income' | 'expense' | null.
+ *
+ * Supported values (case-insensitive):
+ *   'income' | 'i'  → 'income'
+ *   'expense' | 'e' → 'expense'
+ *
+ * Unknown or null values → null.
+ * The caller decides what to do with null — we never silently treat unknowns
+ * as a specific type.
+ */
+export function normalizeEntryType(raw: string | null | undefined): 'income' | 'expense' | null {
+  if (!raw) return null
+  switch (raw.trim().toLowerCase()) {
+    case 'income':
+    case 'i':
+      return 'income'
+    case 'expense':
+    case 'e':
+      return 'expense'
+    default:
+      return null
+  }
+}
+
 // ─── Name normalisation ───────────────────────────────────────────────────────
 
 /**
@@ -77,12 +104,15 @@ export function buildContractors(records: ContractorEntryRecord[]): Contractor[]
     const name = normaliseName(record.contractor_name)
     const key = buildContractorKey(name)
     const amount = parseAmount(record.amount)
+    const entryType = normalizeEntryType(record.entry_type)
 
+    // Unknown entry_type: keep the entry in the list (documented) but exclude
+    // it from financial aggregation — never treat an unknown type as expense.
     const entry: ContractorEntry = {
       id: record.id,
       entryDate: record.entry_date,
-      entryType: record.entry_type,
-      amount,
+      entryType: entryType ?? 'expense', // UI needs a concrete type; unknown → display as expense
+      amount: entryType !== null ? amount : 0, // zero-out amount so it doesn't pollute totals
       description: record.description?.trim() ?? '',
       seq: record.entry_number,
       projectId: record.project_id,
@@ -91,8 +121,9 @@ export function buildContractors(records: ContractorEntryRecord[]): Contractor[]
 
     const existing = map.get(key)
     if (existing) {
-      if (entry.entryType === 'income') existing.totalIncome += amount
-      else existing.totalExpense += amount
+      // Only aggregate known types — unknown entry_type contributes 0 to both totals
+      if (entryType === 'income') existing.totalIncome += amount
+      else if (entryType === 'expense') existing.totalExpense += amount
 
       if (entry.entryDate > existing.latestActivityDate) {
         existing.latestActivityDate = entry.entryDate
@@ -118,8 +149,8 @@ export function buildContractors(records: ContractorEntryRecord[]): Contractor[]
       map.set(key, {
         name,
         key,
-        totalIncome: entry.entryType === 'income' ? amount : 0,
-        totalExpense: entry.entryType === 'expense' ? amount : 0,
+        totalIncome: entryType === 'income' ? amount : 0,
+        totalExpense: entryType === 'expense' ? amount : 0,
         latestActivityDate: entry.entryDate,
         projectMap,
         entries: [entry],
@@ -195,4 +226,19 @@ export function buildContractorsViewModel(contractors: Contractor[]): Contractor
 export async function getContractors(): Promise<Contractor[]> {
   const records = await findContractorEntries()
   return buildContractors(records)
+}
+
+// ─── Selected contractor derivation (pure, testable) ─────────────────────────
+
+/**
+ * Derives the selected Contractor from a list by key.
+ * Returns null if the key is not found — handles refetch removal and
+ * search-hiding gracefully without any manual state cleanup.
+ */
+export function extractSelectedContractor(
+  contractors: Contractor[],
+  selectedKey: string | null,
+): Contractor | null {
+  if (!selectedKey) return null
+  return contractors.find((c) => c.key === selectedKey) ?? null
 }

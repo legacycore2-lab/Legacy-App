@@ -3,7 +3,9 @@ import {
   buildContractorKey,
   buildContractors,
   buildContractorsViewModel,
+  extractSelectedContractor,
   normaliseName,
+  normalizeEntryType,
   parseAmount,
   searchContractors,
   sortContractors,
@@ -95,6 +97,47 @@ describe('parseAmount', () => {
   })
 })
 
+// ─── normalizeEntryType ──────────────────────────────────────────────────────
+
+describe('normalizeEntryType', () => {
+  it('returns income for "income"', () => {
+    expect(normalizeEntryType('income')).toBe('income')
+  })
+
+  it('returns income for "i" (shorthand)', () => {
+    expect(normalizeEntryType('i')).toBe('income')
+  })
+
+  it('returns expense for "expense"', () => {
+    expect(normalizeEntryType('expense')).toBe('expense')
+  })
+
+  it('returns expense for "e" (shorthand)', () => {
+    expect(normalizeEntryType('e')).toBe('expense')
+  })
+
+  it('returns null for unknown value — never silently treated as expense', () => {
+    expect(normalizeEntryType('unknown')).toBeNull()
+    expect(normalizeEntryType('debit')).toBeNull()
+    expect(normalizeEntryType('credit')).toBeNull()
+  })
+
+  it('returns null for null', () => {
+    expect(normalizeEntryType(null)).toBeNull()
+  })
+
+  it('returns null for empty string', () => {
+    expect(normalizeEntryType('')).toBeNull()
+  })
+
+  it('is case-insensitive', () => {
+    expect(normalizeEntryType('INCOME')).toBe('income')
+    expect(normalizeEntryType('EXPENSE')).toBe('expense')
+    expect(normalizeEntryType('I')).toBe('income')
+    expect(normalizeEntryType('E')).toBe('expense')
+  })
+})
+
 // ─── buildContractors ─────────────────────────────────────────────────────────
 
 describe('buildContractors', () => {
@@ -177,6 +220,37 @@ describe('buildContractors', () => {
     const records = [makeRecord({ amount: 'bad' as unknown as number })]
     const result = buildContractors(records)
     expect(result[0].totalExpense).toBe(0)
+    expect(result[0].entryCount).toBe(1)
+  })
+
+  it('"i" entry_type is counted as income', () => {
+    const records = [makeRecord({ entry_type: 'i', amount: 1000 })]
+    const result = buildContractors(records)
+    expect(result[0].totalIncome).toBe(1000)
+    expect(result[0].totalExpense).toBe(0)
+  })
+
+  it('"e" entry_type is counted as expense', () => {
+    const records = [makeRecord({ entry_type: 'e', amount: 800 })]
+    const result = buildContractors(records)
+    expect(result[0].totalExpense).toBe(800)
+    expect(result[0].totalIncome).toBe(0)
+  })
+
+  it('unknown entry_type is NOT counted as expense — amount excluded from totals', () => {
+    const records = [makeRecord({ entry_type: 'debit', amount: 5000 })]
+    const result = buildContractors(records)
+    expect(result[0].totalExpense).toBe(0)
+    expect(result[0].totalIncome).toBe(0)
+    // The entry is still included in the list (documented) but with zeroed amount
+    expect(result[0].entryCount).toBe(1)
+  })
+
+  it('null entry_type is NOT counted in any total', () => {
+    const records = [makeRecord({ entry_type: null, amount: 3000 })]
+    const result = buildContractors(records)
+    expect(result[0].totalExpense).toBe(0)
+    expect(result[0].totalIncome).toBe(0)
     expect(result[0].entryCount).toBe(1)
   })
 
@@ -282,5 +356,39 @@ describe('buildContractorsViewModel', () => {
     ])
     // Two contractors both linked to the same project → 1 unique project
     expect(buildContractorsViewModel(contractors).totalProjects).toBe(1)
+  })
+})
+// ─── extractSelectedContractor ───────────────────────────────────────────────
+
+describe('extractSelectedContractor', () => {
+  const contractors = buildContractors([
+    makeRecord({ id: 'e1', contractor_name: 'Ahmed Ali' }),
+    makeRecord({ id: 'e2', contractor_name: 'محمد حسن' }),
+  ])
+
+  it('returns the matching contractor by key', () => {
+    const result = extractSelectedContractor(contractors, 'ahmed ali')
+    expect(result).not.toBeNull()
+    expect(result?.name).toBe('Ahmed Ali')
+  })
+
+  it('returns null when key is not found (e.g. after refetch or search change)', () => {
+    expect(extractSelectedContractor(contractors, 'non-existent-key')).toBeNull()
+  })
+
+  it('returns null when selectedKey is null', () => {
+    expect(extractSelectedContractor(contractors, null)).toBeNull()
+  })
+
+  it('returns null when contractors list is empty', () => {
+    expect(extractSelectedContractor([], 'ahmed ali')).toBeNull()
+  })
+
+  it('auto-hides panel when search query filters out the selected contractor', () => {
+    // Simulate: user selected Ahmed Ali, then searches for "محمد"
+    const filteredAfterSearch = searchContractors(contractors, 'محمد')
+    // Ahmed Ali is no longer in the filtered list
+    const result = extractSelectedContractor(filteredAfterSearch, 'ahmed ali')
+    expect(result).toBeNull()
   })
 })
