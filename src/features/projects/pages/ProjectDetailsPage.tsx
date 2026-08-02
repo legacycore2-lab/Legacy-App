@@ -34,6 +34,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ProjectCreateDialog } from '../components/ProjectCreateDialog'
 import { ProjectDeleteDialog } from '../components/ProjectDeleteDialog'
 import { WorkspaceFinanceTab } from '../components/WorkspaceFinanceTab'
+import { WorkspaceAttachmentsTab } from '../components/WorkspaceAttachmentsTab'
 import { WorkspaceJournalTab } from '../components/WorkspaceJournalTab'
 import { WorkspaceOverviewTab } from '../components/WorkspaceOverviewTab'
 import { useProjectCreateForm } from '../hooks/useProjectCreateForm'
@@ -41,6 +42,7 @@ import { useProjectDelete } from '../hooks/useProjectDelete'
 import { useProjectDetails } from '../hooks/useProjectDetails'
 import '../styles/project-create.css'
 import '../styles/project-details.css'
+import '../styles/project-attachments.css'
 import '../styles/project-journal-tab.css'
 import '../styles/project-workspace.css'
 
@@ -87,10 +89,6 @@ const internalSectionCopy: Partial<Record<WorkspaceTabId, { title: string; descr
   suppliers: {
     title: 'موردو المشروع',
     description: 'سيتم عرض وربط موردي المشروع هنا عند اكتمال وحدة الموردين.',
-  },
-  attachments: {
-    title: 'مرفقات المشروع',
-    description: 'رفع الملفات وربطها بالمشروع يحتاج وحدة مستندات مستقلة وصلاحيات Storage.',
   },
 }
 
@@ -333,6 +331,11 @@ export function ProjectDetailsPage() {
             </div>
             <div className="project-command__empty">{internalSection.description}</div>
           </article>
+        ) : activeTab === 'attachments' ? (
+          <WorkspaceAttachmentsTab
+            projectId={project.id}
+            entries={journalViewModel?.entries ?? viewModel.analytics.recentEntries}
+          />
         ) : activeTab === 'journal' && journalViewModel ? (
           <WorkspaceJournalTab journalViewModel={journalViewModel} onAddEntry={openProjectJournal} />
         ) : activeTab === 'finance' && financeViewModel ? (
