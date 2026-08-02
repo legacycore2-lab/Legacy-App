@@ -729,3 +729,156 @@
     flex: 1;
   }
 }
+
+/* ─── Finance Tab ──────────────────────────────────────────────────────────── */
+.project-workspace__finance-tab {
+  display: grid;
+  gap: 16px;
+}
+
+.project-workspace__finance-kpis {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.project-workspace__finance-kpi {
+  flex: 1 1 160px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+
+.project-workspace__finance-kpi__icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  flex: 0 0 auto;
+}
+
+.project-workspace__finance-kpi.is-contract .project-workspace__finance-kpi__icon {
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+}
+.project-workspace__finance-kpi.is-income .project-workspace__finance-kpi__icon {
+  color: var(--green);
+  background: var(--green-soft);
+}
+.project-workspace__finance-kpi.is-expense .project-workspace__finance-kpi__icon {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+.project-workspace__finance-kpi.is-balance .project-workspace__finance-kpi__icon {
+  color: var(--workspace-blue);
+  background: color-mix(in srgb, var(--workspace-blue) 12%, transparent);
+}
+.project-workspace__finance-kpi.is-remaining .project-workspace__finance-kpi__icon {
+  color: var(--gold);
+  background: var(--gold-soft);
+}
+
+.project-workspace__finance-kpi small {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+
+.project-workspace__finance-kpi strong {
+  display: block;
+  font-size: 15px;
+}
+
+.project-workspace__finance-kpi em {
+  display: block;
+  font-style: normal;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.project-workspace__finance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.project-workspace__finance-flow {
+  grid-column: 1 / -1;
+}
+
+/* ── Flow bars ── */
+.project-workspace__finance-flow-bars {
+  display: grid;
+  gap: 14px;
+  padding: 16px 18px;
+}
+
+.project-workspace__finance-flow-row {
+  display: grid;
+  grid-template-columns: 90px 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.project-workspace__finance-flow-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.project-workspace__finance-flow-track {
+  height: 10px;
+  border-radius: 99px;
+  background: var(--surface-soft);
+  overflow: clip;
+}
+
+.project-workspace__finance-flow-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 400ms ease;
+}
+
+.project-workspace__finance-flow-fill.is-income {
+  background: var(--green);
+}
+
+.project-workspace__finance-flow-fill.is-expense {
+  background: var(--danger, #e53e3e);
+}
+
+.project-workspace__finance-flow-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 18px 14px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.project-workspace__finance-flow-footer strong {
+  color: var(--text);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .project-workspace__finance-grid {
+    grid-template-columns: 1fr;
+  }
+  .project-workspace__finance-flow {
+    grid-column: auto;
+  }
+  .project-workspace__finance-flow-row {
+    grid-template-columns: 80px 1fr auto;
+  }
+}
