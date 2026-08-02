@@ -10,6 +10,7 @@ import { CashBanksPage } from '../features/cash-banks/pages/CashBanksPage'
 import { DashboardPage } from '../features/dashboard/pages/DashboardPage'
 import { JournalPage } from '../features/journal/pages/JournalPage'
 import { ProjectDetailsPage } from '../features/projects/pages/ProjectDetailsPage'
+import { ContractorsPage } from '../features/contractors/pages/ContractorsPage'
 import { ProjectsPage } from '../features/projects/pages/ProjectsPage'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
 import { AppLayoutRoute } from './AppLayoutRoute'
@@ -40,6 +41,7 @@ export function AppRoutes() {
               <PlaceholderPage title="العهد" description="متابعة العهد المفتوحة والمصروف والمتبقي." />,
             )}
           />
+          <Route path="/contractors" element={secured('/contractors', <ContractorsPage />)} />
           <Route
             path="/reports"
             element={secured(

@@ -5,6 +5,7 @@ import {
   FileBarChart,
   Gauge,
   HandCoins,
+  HardHat,
   Settings,
   Users,
   type LucideIcon,
@@ -69,6 +70,14 @@ export const navigationItems: NavigationItem[] = [
     icon: HandCoins,
     section: 'finance',
     keywords: ['عهدة', 'سلف', 'advances'],
+  },
+  {
+    label: 'المقاولون',
+    eyebrow: 'إدارة المقاولين',
+    path: '/contractors',
+    icon: HardHat,
+    section: 'management',
+    keywords: ['مقاول', 'مقاولين', 'contractor', 'contractors'],
   },
   {
     label: 'التقارير',
