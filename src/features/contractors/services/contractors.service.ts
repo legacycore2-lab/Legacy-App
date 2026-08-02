@@ -8,72 +8,21 @@ import type {
   ContractorsViewModel,
 } from '../types/contractor.types'
 
-// ─── Entry type normalisation ─────────────────────────────────────────────────
+// ─── Re-export shared helpers for consumers that import from this module ─────
 
-/**
- * Normalises a raw DB entry_type to 'income' | 'expense' | null.
- *
- * Supported values (case-insensitive):
- *   'income' | 'i'  → 'income'
- *   'expense' | 'e' → 'expense'
- *
- * Unknown or null values → null.
- * The caller decides what to do with null — we never silently treat unknowns
- * as a specific type.
- */
-export function normalizeEntryType(raw: string | null | undefined): 'income' | 'expense' | null {
-  if (!raw) return null
-  switch (raw.trim().toLowerCase()) {
-    case 'income':
-    case 'i':
-      return 'income'
-    case 'expense':
-    case 'e':
-      return 'expense'
-    default:
-      return null
-  }
-}
+export {
+  buildContractorKey,
+  normaliseName,
+  normalizeEntryType,
+  parseAmount,
+} from '../../../shared/contractors-helpers'
 
-// ─── Name normalisation ───────────────────────────────────────────────────────
-
-/**
- * Normalises a raw contractor_name string:
- * - trim leading/trailing whitespace
- * - collapse repeated internal spaces to one
- */
-export function normaliseName(raw: string): string {
-  return raw.trim().replace(/\s+/g, ' ')
-}
-
-/**
- * Builds the deduplication key for a normalised name:
- * - Latin characters are lowercased (case-insensitive merge for English names)
- * - Arabic (and other non-Latin) characters are kept as-is
- *   (two different Arabic names must never be merged)
- *
- * Examples:
- *   "Mohamed Ali" → "mohamed ali"
- *   "محمد علي"    → "محمد علي"  (unchanged)
- *   "ABC Corp"    → "abc corp"
- */
-export function buildContractorKey(normalisedName: string): string {
-  // Replace only ASCII letters with their lowercase — leaves Arabic untouched
-  return normalisedName.replace(/[A-Za-z]/g, (c) => c.toLowerCase())
-}
-
-// ─── Amount parsing ───────────────────────────────────────────────────────────
-
-/**
- * Converts a raw DB amount (number | string) to a non-negative finite number.
- * Non-parseable or negative values are treated as 0 — consistent with how the
- * rest of the codebase handles amounts (see project entry mappers).
- */
-export function parseAmount(raw: number | string | null | undefined): number {
-  const n = Number(raw)
-  if (!Number.isFinite(n) || n < 0) return 0
-  return n
-}
+import {
+  buildContractorKey,
+  normaliseName,
+  normalizeEntryType,
+  parseAmount,
+} from '../../../shared/contractors-helpers'
 
 // ─── Aggregation ──────────────────────────────────────────────────────────────
 
