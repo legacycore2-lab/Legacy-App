@@ -1,0 +1,261 @@
+/* ─── Activity Tab ────────────────────────────────────────────────────────────── */
+
+.workspace-activity {
+  display: grid;
+  gap: 16px;
+}
+
+/* ── Header ── */
+.workspace-activity__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.workspace-activity__header span {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+
+.workspace-activity__header h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+/* ── Filters ── */
+.workspace-activity__filters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.workspace-activity__filter-btn {
+  padding: 5px 12px;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 11px;
+  cursor: pointer;
+  transition:
+    background 140ms,
+    color 140ms,
+    border-color 140ms;
+}
+
+.workspace-activity__filter-btn.is-active,
+.workspace-activity__filter-btn:hover {
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* ── States ── */
+.workspace-activity__loading,
+.workspace-activity__empty,
+.workspace-activity__permission {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 48px 24px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.workspace-activity__loading {
+  flex-direction: row;
+  justify-content: center;
+  padding: 32px;
+}
+
+.workspace-activity__empty svg,
+.workspace-activity__permission svg {
+  opacity: 0.35;
+}
+
+.workspace-activity__empty strong,
+.workspace-activity__permission strong {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.workspace-activity__empty span,
+.workspace-activity__permission span {
+  font-size: 12px;
+}
+
+.workspace-activity__permission svg {
+  color: var(--danger, #e53e3e);
+}
+
+.workspace-activity__error {
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--danger, #e53e3e) 10%, transparent);
+  color: var(--danger, #e53e3e);
+  border: 1px solid color-mix(in srgb, var(--danger, #e53e3e) 24%, transparent);
+  font-size: 13px;
+}
+
+/* ── Timeline ── */
+.workspace-activity__timeline {
+  display: grid;
+  gap: 24px;
+}
+
+/* ── Group ── */
+.activity-group__label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.activity-group__events {
+  display: grid;
+  gap: 8px;
+  padding-inline-start: 8px;
+  border-inline-start: 2px solid var(--border);
+}
+
+/* ── Event card ── */
+.activity-event {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  position: relative;
+  transition: background 140ms;
+}
+
+.activity-event:hover {
+  background: var(--surface-soft);
+}
+
+/* connector dot */
+.activity-event::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: -9px;
+  top: 14px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  border: 2px solid var(--surface);
+}
+
+.activity-event--project::before {
+  background: var(--primary);
+}
+.activity-event--income::before {
+  background: var(--green);
+}
+.activity-event--expense::before {
+  background: var(--danger, #e53e3e);
+}
+.activity-event--attachment::before {
+  background: var(--gold);
+}
+
+/* ── Event icon ── */
+.activity-event__icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.activity-event--project .activity-event__icon {
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+}
+.activity-event--entry.activity-event--income .activity-event__icon {
+  color: var(--green);
+  background: var(--green-soft);
+}
+.activity-event--entry.activity-event--expense .activity-event__icon {
+  color: var(--danger, #e53e3e);
+  background: color-mix(in srgb, var(--danger, #e53e3e) 10%, transparent);
+}
+.activity-event--attachment .activity-event__icon {
+  color: var(--gold);
+  background: var(--gold-soft);
+}
+
+/* ── Event body ── */
+.activity-event__body {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.activity-event__body p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.activity-event__time,
+.activity-event__accounting-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.activity-event__error {
+  font-size: 10px;
+  color: var(--danger, #e53e3e);
+}
+
+.activity-event__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.activity-event__link:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+/* ── Spinner ── */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .workspace-activity__header {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
