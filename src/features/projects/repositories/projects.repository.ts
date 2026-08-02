@@ -23,15 +23,51 @@ const PROJECT_FIELDS = [
   'created_by',
 ].join(', ')
 
+/**
+ * Fetches all projects with their real financial totals aggregated from
+ * the entries table. The static `received`/`spent` columns on the projects
+ * table are not automatically updated when entries are added, so we compute
+ * income and expense totals on the fly by joining entries.
+ *
+ * Pattern: fetch projects + entries in two parallel queries, then merge
+ * in the service layer — no new SQL / RLS / migrations required.
+ */
 export async function findProjects(): Promise<ProjectRecord[]> {
-  const { data, error } = await getSupabaseClient()
-    .from('projects')
-    .select(PROJECT_FIELDS)
-    .order('name', { ascending: true })
+  const supabase = getSupabaseClient()
 
-  if (error) throw error
+  const [projectsResult, entriesResult] = await Promise.all([
+    supabase.from('projects').select(PROJECT_FIELDS).order('name', { ascending: true }),
+    supabase.from('entries').select('project_id, entry_type, amount').not('project_id', 'is', null),
+  ])
 
-  return (data ?? []) as unknown as ProjectRecord[]
+  if (projectsResult.error) throw projectsResult.error
+  if (entriesResult.error) throw entriesResult.error
+
+  // Aggregate income + expense per project from entries
+  const incomeByProject = new Map<string, number>()
+  const expenseByProject = new Map<string, number>()
+
+  for (const entry of entriesResult.data ?? []) {
+    if (!entry.project_id) continue
+    const amount = Number(entry.amount)
+    if (!Number.isFinite(amount) || amount < 0) continue
+
+    if (entry.entry_type === 'income' || entry.entry_type === 'i') {
+      incomeByProject.set(entry.project_id, (incomeByProject.get(entry.project_id) ?? 0) + amount)
+    } else if (entry.entry_type === 'expense' || entry.entry_type === 'e') {
+      expenseByProject.set(entry.project_id, (expenseByProject.get(entry.project_id) ?? 0) + amount)
+    }
+  }
+
+  // Merge computed totals into each project record, overriding static columns
+  return (projectsResult.data ?? []).map((raw) => {
+    const project = raw as unknown as ProjectRecord
+    return {
+      ...project,
+      received: incomeByProject.get(project.id) ?? project.received ?? 0,
+      spent: expenseByProject.get(project.id) ?? project.spent ?? 0,
+    }
+  })
 }
 
 export async function insertProject(record: ProjectInsertRecord): Promise<ProjectRecord> {
