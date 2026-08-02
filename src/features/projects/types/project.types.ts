@@ -150,11 +150,17 @@ export type MonthlyCashflowBar = {
 
 export type ProjectFinanceViewModel = {
   summary: ProjectFinancialSummary
-  /** last 7 calendar months newest → oldest, reversed for display left→right */
+  /** last 7 calendar months oldest → newest, ready for left→right display */
   monthlyCashflow: MonthlyCashflowBar[]
   donutSegments: DonutSegment[]
   donutGradient: string
   profitMargin: number
   remaining: number
   contractValue: number
+  /** true when at least one bar has income or expense > 0 */
+  hasActivity: boolean
+  /** 0–100 share of total (income + expense) for income bar */
+  incomeSharePercentage: number
+  /** 0–100 share of total (income + expense) for expense bar */
+  expenseSharePercentage: number
 }

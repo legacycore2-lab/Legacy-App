@@ -267,13 +267,22 @@ export function buildFinanceViewModel(
           .join(', ')})`
       : 'var(--surface-soft)'
 
+  const monthlyCashflow = buildMonthlyCashflow(entries)
+  const hasActivity = monthlyCashflow.some((b) => b.incomeAmount > 0 || b.expenseAmount > 0)
+  const totalFlow = summary.totalIncome + summary.totalExpense
+  const incomeSharePercentage = totalFlow > 0 ? Math.round((summary.totalIncome / totalFlow) * 100) : 0
+  const expenseSharePercentage = totalFlow > 0 ? 100 - incomeSharePercentage : 0
+
   return {
     summary,
-    monthlyCashflow: buildMonthlyCashflow(entries),
+    monthlyCashflow,
     donutSegments,
     donutGradient,
     profitMargin,
     remaining: project.contractValue - summary.totalExpense,
     contractValue: project.contractValue,
+    hasActivity,
+    incomeSharePercentage,
+    expenseSharePercentage,
   }
 }

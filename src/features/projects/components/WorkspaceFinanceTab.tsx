@@ -30,10 +30,18 @@ function Currency({ value }: { value: number }) {
 }
 
 export function WorkspaceFinanceTab({ financeViewModel }: Props) {
-  const { summary, monthlyCashflow, donutSegments, donutGradient, profitMargin, remaining, contractValue } =
-    financeViewModel
-
-  const hasActivity = monthlyCashflow.some((b) => b.incomeAmount > 0 || b.expenseAmount > 0)
+  const {
+    summary,
+    monthlyCashflow,
+    donutSegments,
+    donutGradient,
+    profitMargin,
+    remaining,
+    contractValue,
+    hasActivity,
+    incomeSharePercentage,
+    expenseSharePercentage,
+  } = financeViewModel
 
   return (
     <div className="project-workspace__finance-tab">
@@ -184,12 +192,7 @@ export function WorkspaceFinanceTab({ financeViewModel }: Props) {
               <div className="project-workspace__finance-flow-track">
                 <div
                   className="project-workspace__finance-flow-fill is-income"
-                  style={{
-                    width:
-                      summary.totalIncome + summary.totalExpense > 0
-                        ? `${(summary.totalIncome / (summary.totalIncome + summary.totalExpense)) * 100}%`
-                        : '0%',
-                  }}
+                  style={{ width: `${incomeSharePercentage}%` }}
                 />
               </div>
               <strong>
@@ -203,12 +206,7 @@ export function WorkspaceFinanceTab({ financeViewModel }: Props) {
               <div className="project-workspace__finance-flow-track">
                 <div
                   className="project-workspace__finance-flow-fill is-expense"
-                  style={{
-                    width:
-                      summary.totalIncome + summary.totalExpense > 0
-                        ? `${(summary.totalExpense / (summary.totalIncome + summary.totalExpense)) * 100}%`
-                        : '0%',
-                  }}
+                  style={{ width: `${expenseSharePercentage}%` }}
                 />
               </div>
               <strong>
