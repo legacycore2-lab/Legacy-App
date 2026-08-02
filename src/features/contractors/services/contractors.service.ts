@@ -111,8 +111,10 @@ export function buildContractors(records: ContractorEntryRecord[]): Contractor[]
     const entry: ContractorEntry = {
       id: record.id,
       entryDate: record.entry_date,
-      entryType: entryType ?? 'expense', // UI needs a concrete type; unknown → display as expense
-      amount: entryType !== null ? amount : 0, // zero-out amount so it doesn't pollute totals
+      // Preserve null as 'unknown' in the UI type — never coerce to 'expense'
+      entryType: entryType ?? 'unknown',
+      // Zero-out amount for unknown types so they never pollute totals
+      amount: entryType !== null ? amount : 0,
       description: record.description?.trim() ?? '',
       seq: record.entry_number,
       projectId: record.project_id,

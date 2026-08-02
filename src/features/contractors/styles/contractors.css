@@ -398,6 +398,11 @@
   color: var(--danger, #e53e3e);
   background: color-mix(in srgb, var(--danger, #e53e3e) 10%, transparent);
 }
+/* Neutral style for entries with unrecognised entry_type — no income/expense colour */
+.contractor-panel__entry.is-unknown .contractor-panel__entry-icon {
+  color: var(--muted);
+  background: var(--surface-soft);
+}
 
 .contractor-panel__entry-body {
   flex: 1;

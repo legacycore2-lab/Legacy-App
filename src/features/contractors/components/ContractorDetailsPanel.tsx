@@ -1,4 +1,4 @@
-import { ArrowDownLeft, ArrowUpRight, ExternalLink, X } from 'lucide-react'
+import { AlertCircle, ArrowDownLeft, ArrowUpRight, ExternalLink, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import type { Contractor } from '../types/contractor.types'
 
@@ -94,7 +94,13 @@ export function ContractorDetailsPanel({ contractor, onClose }: Props) {
           {contractor.entries.map((entry) => (
             <div key={entry.id} className={`contractor-panel__entry is-${entry.entryType}`}>
               <span className="contractor-panel__entry-icon">
-                {entry.entryType === 'income' ? <ArrowDownLeft size={14} /> : <ArrowUpRight size={14} />}
+                {entry.entryType === 'income' ? (
+                  <ArrowDownLeft size={14} />
+                ) : entry.entryType === 'expense' ? (
+                  <ArrowUpRight size={14} />
+                ) : (
+                  <AlertCircle size={14} aria-label="نوع القيد غير معروف" />
+                )}
               </span>
               <div className="contractor-panel__entry-body">
                 <span>{entry.description || '—'}</span>

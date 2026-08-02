@@ -24,7 +24,8 @@ export type ContractorProject = {
 export type ContractorEntry = {
   id: string
   entryDate: string
-  entryType: 'income' | 'expense'
+  /** 'unknown' when the raw DB entry_type could not be normalised */
+  entryType: 'income' | 'expense' | 'unknown'
   amount: number
   description: string
   seq: number | null

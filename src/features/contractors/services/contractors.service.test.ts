@@ -223,32 +223,37 @@ describe('buildContractors', () => {
     expect(result[0].entryCount).toBe(1)
   })
 
-  it('"i" entry_type is counted as income', () => {
+  it('"i" entry_type is normalised to income and counted correctly', () => {
     const records = [makeRecord({ entry_type: 'i', amount: 1000 })]
     const result = buildContractors(records)
+    expect(result[0].entries[0].entryType).toBe('income')
     expect(result[0].totalIncome).toBe(1000)
     expect(result[0].totalExpense).toBe(0)
   })
 
-  it('"e" entry_type is counted as expense', () => {
+  it('"e" entry_type is normalised to expense and counted correctly', () => {
     const records = [makeRecord({ entry_type: 'e', amount: 800 })]
     const result = buildContractors(records)
+    expect(result[0].entries[0].entryType).toBe('expense')
     expect(result[0].totalExpense).toBe(800)
     expect(result[0].totalIncome).toBe(0)
   })
 
-  it('unknown entry_type is NOT counted as expense — amount excluded from totals', () => {
+  it('unknown entry_type shows as "unknown" — NOT as "expense"', () => {
     const records = [makeRecord({ entry_type: 'debit', amount: 5000 })]
     const result = buildContractors(records)
+    expect(result[0].entries[0].entryType).toBe('unknown')
+    // Amount must NOT appear in either total
     expect(result[0].totalExpense).toBe(0)
     expect(result[0].totalIncome).toBe(0)
-    // The entry is still included in the list (documented) but with zeroed amount
+    // Entry is still documented in the list
     expect(result[0].entryCount).toBe(1)
   })
 
-  it('null entry_type is NOT counted in any total', () => {
+  it('null entry_type shows as "unknown" — NOT as "expense"', () => {
     const records = [makeRecord({ entry_type: null, amount: 3000 })]
     const result = buildContractors(records)
+    expect(result[0].entries[0].entryType).toBe('unknown')
     expect(result[0].totalExpense).toBe(0)
     expect(result[0].totalIncome).toBe(0)
     expect(result[0].entryCount).toBe(1)
