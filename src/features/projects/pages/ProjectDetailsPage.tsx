@@ -1,4 +1,5 @@
 import {
+  Activity,
   ArrowRight,
   BarChart3,
   Building2,
@@ -34,6 +35,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ProjectCreateDialog } from '../components/ProjectCreateDialog'
 import { ProjectDeleteDialog } from '../components/ProjectDeleteDialog'
 import { WorkspaceFinanceTab } from '../components/WorkspaceFinanceTab'
+import { WorkspaceActivityTab } from '../components/WorkspaceActivityTab'
 import { WorkspaceAttachmentsTab } from '../components/WorkspaceAttachmentsTab'
 import { WorkspaceJournalTab } from '../components/WorkspaceJournalTab'
 import { WorkspaceOverviewTab } from '../components/WorkspaceOverviewTab'
@@ -42,6 +44,7 @@ import { useProjectDelete } from '../hooks/useProjectDelete'
 import { useProjectDetails } from '../hooks/useProjectDetails'
 import '../styles/project-create.css'
 import '../styles/project-details.css'
+import '../styles/project-activity.css'
 import '../styles/project-attachments.css'
 import '../styles/project-journal-tab.css'
 import '../styles/project-workspace.css'
@@ -76,6 +79,7 @@ const workspaceTabs = [
   { id: 'suppliers', label: 'الموردون', icon: Truck },
   { id: 'attachments', label: 'المرفقات', icon: Paperclip },
   { id: 'reports', label: 'التقارير', icon: FileBarChart },
+  { id: 'activity', label: 'النشاط', icon: Activity },
   { id: 'settings', label: 'الإعدادات', icon: Settings },
 ] as const
 
@@ -331,6 +335,8 @@ export function ProjectDetailsPage() {
             </div>
             <div className="project-command__empty">{internalSection.description}</div>
           </article>
+        ) : activeTab === 'activity' ? (
+          <WorkspaceActivityTab projectId={project.id} />
         ) : activeTab === 'attachments' ? (
           <WorkspaceAttachmentsTab
             projectId={project.id}
