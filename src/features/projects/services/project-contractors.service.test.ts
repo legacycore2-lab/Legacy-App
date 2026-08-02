@@ -101,17 +101,20 @@ describe('buildProjectContractors', () => {
     expect(buildProjectContractors(records)[0].latestActivityDate).toBe('2025-05-20')
   })
 
-  it('entries are stored in the order received (repository sorts newest-first)', () => {
+  it('sorts entries newest-first by entryDate, then seq descending on tie', () => {
     const records = [
-      makeRecord({ id: 'e1', entry_date: '2025-03-10', entry_number: 2 }),
-      makeRecord({ id: 'e2', entry_date: '2025-01-05', entry_number: 1 }),
+      makeRecord({ id: 'e-old', entry_date: '2025-01-05', entry_number: 1 }),
+      makeRecord({ id: 'e-new', entry_date: '2025-03-10', entry_number: 3 }),
+      makeRecord({ id: 'e-tie1', entry_date: '2025-03-10', entry_number: 2 }),
     ]
     const result = buildProjectContractors(records)
-    expect(result[0].entries[0].id).toBe('e1')
-    expect(result[0].entries[1].id).toBe('e2')
+    const ids = result[0].entries.map((e) => e.id)
+    // newest date first: 2025-03-10 before 2025-01-05
+    // tie on date: seq 3 before seq 2
+    expect(ids).toEqual(['e-new', 'e-tie1', 'e-old'])
   })
 
-  it('does not mutate the input array', () => {
+  it('does not mutate the input records array or internal entries during sort', () => {
     const records = [makeRecord({})]
     const original = [...records]
     buildProjectContractors(records)

@@ -83,7 +83,13 @@ export function buildProjectContractors(records: ProjectContractorRecord[]): Pro
     totalExpense: acc.totalExpense,
     netMovement: acc.totalIncome - acc.totalExpense,
     latestActivityDate: acc.latestActivityDate,
-    entries: acc.entries,
+    // Sort entries: newest entryDate first; ties broken by seq descending.
+    // Slice creates a new array — input entries array is not mutated.
+    entries: acc.entries.slice().sort((a, b) => {
+      const dateCmp = b.entryDate.localeCompare(a.entryDate)
+      if (dateCmp !== 0) return dateCmp
+      return (b.seq ?? 0) - (a.seq ?? 0)
+    }),
   }))
 }
 
