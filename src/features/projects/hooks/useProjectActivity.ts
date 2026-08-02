@@ -12,11 +12,21 @@ function activityKey(projectId: string) {
   return ['project-activity', projectId] as const
 }
 
-function todayUtcKey(): string {
+/**
+ * Returns today's date as "YYYY-MM-DD" using the *local* calendar date.
+ *
+ * Rationale: "اليوم" / "أمس" labels should reflect the user's wall-clock day,
+ * not the UTC day. A user at UTC+3 at 01:00 local time is still "today" for
+ * them even though UTC is the previous day.
+ *
+ * Entry dates (entry_date) are still parsed without timezone shift in the
+ * service layer — that logic is independent and unaffected by this change.
+ */
+function todayLocalKey(): string {
   const now = new Date()
-  const y = now.getUTCFullYear()
-  const m = String(now.getUTCMonth() + 1).padStart(2, '0')
-  const d = String(now.getUTCDate()).padStart(2, '0')
+  const y = now.getFullYear()
+  const m = String(now.getMonth() + 1).padStart(2, '0')
+  const d = String(now.getDate()).padStart(2, '0')
   return `${y}-${m}-${d}`
 }
 
@@ -43,7 +53,7 @@ export function useProjectActivity(projectId: string | null): {
           data.entryRecords,
           data.attachmentRecords,
           filter,
-          todayUtcKey(),
+          todayLocalKey(),
         )
       : { groups: [], totalCount: 0, hasActivity: false }
     : null

@@ -6,6 +6,7 @@ import {
   buildGroupLabel,
   extractDateKey,
   groupActivityEvents,
+  isValidDateKey,
 } from './project-activity.service'
 import type { ActivityEvent } from '../types/project-activity.types'
 
@@ -249,5 +250,61 @@ describe('buildActivityViewModel', () => {
     const vm = buildActivityViewModel(PROJECT, [ENTRY_INCOME], [], 'attachments', '2025-06-15')
     expect(vm.hasActivity).toBe(true) // overall activity exists
     expect(vm.totalCount).toBe(0) // but filtered view is empty
+  })
+})
+// ─── isValidDateKey ───────────────────────────────────────────────────────────
+
+describe('isValidDateKey', () => {
+  it('accepts a normal valid date', () => {
+    expect(isValidDateKey('2025-03-15')).toBe(true)
+  })
+
+  it('rejects impossible date 2026-02-31 (February has ≤28 days in non-leap year)', () => {
+    expect(isValidDateKey('2026-02-31')).toBe(false)
+  })
+
+  it('accepts 2028-02-29 (2028 is a leap year)', () => {
+    expect(isValidDateKey('2028-02-29')).toBe(true)
+  })
+
+  it('rejects 2027-02-29 (2027 is not a leap year)', () => {
+    expect(isValidDateKey('2027-02-29')).toBe(false)
+  })
+
+  it('rejects non-numeric string like "not-a-date"', () => {
+    expect(isValidDateKey('not-a-date')).toBe(false)
+  })
+
+  it('rejects empty string', () => {
+    expect(isValidDateKey('')).toBe(false)
+  })
+
+  it('rejects date with wrong format (no leading zeros)', () => {
+    expect(isValidDateKey('2025-3-5')).toBe(false)
+  })
+
+  it('rejects month 13', () => {
+    expect(isValidDateKey('2025-13-01')).toBe(false)
+  })
+})
+
+// ─── todayLocalKey behaviour near midnight ────────────────────────────────────
+
+describe('buildGroupLabel local vs UTC', () => {
+  it('uses the provided todayKey for "اليوم" comparison — not internal UTC logic', () => {
+    // Simulate UTC+3 scenario: UTC date is 2025-06-14 but local date is 2025-06-15
+    // The hook passes the LOCAL date as todayKey, so events on 2025-06-15 show "اليوم"
+    const localToday = '2025-06-15'
+    expect(buildGroupLabel('2025-06-15', localToday)).toBe('اليوم')
+    // And the UTC-previous-day shows "أمس" from the local perspective
+    expect(buildGroupLabel('2025-06-14', localToday)).toBe('أمس')
+  })
+
+  it('an event timestamped on the UTC day but passed local todayKey correctly resolves', () => {
+    // At 00:30 local (UTC+3), local date = 2025-06-15 but UTC date = 2025-06-14
+    // The event's timestamp is '2025-06-15T00:30:00+03:00' → extractDateKey gives '2025-06-15'
+    // todayKey passed from hook = local '2025-06-15' → should be "اليوم"
+    const eventDateKey = extractDateKey('2025-06-15T00:30:00+03:00')
+    expect(buildGroupLabel(eventDateKey, '2025-06-15')).toBe('اليوم')
   })
 })

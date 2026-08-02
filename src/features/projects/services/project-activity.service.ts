@@ -11,7 +11,29 @@ import type {
   ProjectActivityViewModel,
 } from '../types/project-activity.types'
 
-// ─── Date helpers (no timezone shift) ────────────────────────────────────────
+// ─── Date validation ──────────────────────────────────────────────────────────
+
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+
+/**
+ * Returns true only if dateKey is a real calendar date in YYYY-MM-DD format.
+ *
+ * Two-step validation:
+ * 1. Regex ensures the string is exactly YYYY-MM-DD with digits.
+ * 2. Date.UTC round-trip: constructs a UTC date and re-serialises it — if the
+ *    OS normalises the date (e.g. Feb 31 → Mar 3), the round-trip differs from
+ *    the input, so we reject it. This catches impossible dates like 2026-02-31
+ *    while correctly accepting leap-year dates like 2028-02-29.
+ */
+export function isValidDateKey(dateKey: string): boolean {
+  if (!ISO_DATE_RE.test(dateKey)) return false
+  const parts = dateKey.split('-').map(Number)
+  const year = parts[0] ?? 0
+  const month = parts[1] ?? 0
+  const day = parts[2] ?? 0
+  const utc = new Date(Date.UTC(year, month - 1, day))
+  return utc.getUTCFullYear() === year && utc.getUTCMonth() + 1 === month && utc.getUTCDate() === day
+}
 
 /**
  * Extracts YYYY-MM-DD from an ISO timestamp without constructing a local Date.
@@ -116,14 +138,7 @@ export function buildActivityEvents(
   // ── Entry events — timestamp = entry_date (accounting date only) ──
   for (const entry of entryRecords) {
     const dateKey = extractDateKey(entry.entry_date)
-    if (!dateKey || dateKey.length < 10) continue
-    // Validate that the extracted parts are numeric — rejects strings like 'not-a-date'
-    const parts = dateKey.split('-').map(Number)
-    const year = parts[0] ?? 0
-    const month = parts[1] ?? 0
-    const day = parts[2] ?? 0
-    if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) continue
-    if (year < 1900 || month < 1 || month > 12 || day < 1 || day > 31) continue
+    if (!isValidDateKey(dateKey)) continue
     events.push({
       kind: 'entry_added',
       // Use entry_date as timestamp for grouping — no time fabricated

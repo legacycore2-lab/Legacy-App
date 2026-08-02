@@ -134,7 +134,10 @@ function EventCard({ event }: { event: ActivityEvent }) {
         </span>
         <div className="activity-event__body">
           <p>
-            تم تحديث بيانات المشروع: <strong>{event.projectName}</strong>
+            {/* projects.updated_at represents the last known update timestamp only —
+                it is NOT a full audit trail. Multiple edits between two fetches
+                appear as a single event here. */}
+            آخر تحديث لبيانات المشروع: <strong>{event.projectName}</strong>
           </p>
           {formatTime(event.timestamp) && (
             <time className="activity-event__time" dateTime={event.timestamp}>
@@ -203,7 +206,7 @@ export function WorkspaceActivityTab({ projectId }: Props) {
       {/* ── Header + filters ── */}
       <div className="workspace-activity__header">
         <div>
-          <span>سجل التغييرات</span>
+          <span>ملخص نشاط المشروع</span>
           <h2>النشاط</h2>
         </div>
         <div className="workspace-activity__filters" role="group" aria-label="فلترة النشاط">
