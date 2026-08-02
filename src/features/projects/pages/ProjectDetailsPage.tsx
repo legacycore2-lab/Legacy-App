@@ -217,7 +217,11 @@ export function ProjectDetailsPage() {
             >
               <Pencil size={16} /> تعديل
             </button>
-            <button type="button" className="project-workspace__quick-button is-primary" onClick={openProjectJournal}>
+            <button
+              type="button"
+              className="project-workspace__quick-button is-primary"
+              onClick={openProjectJournal}
+            >
               <Plus size={17} /> إضافة قيد
             </button>
             <button
