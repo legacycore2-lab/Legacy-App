@@ -40,7 +40,9 @@ export function formatAccountingDate(
   if (!isValidDateKey(key)) return value
 
   const [year, month, day] = key.split('-').map(Number)
-  return accountingDateFormatter.format(new Date(Date.UTC(year, month - 1, day)))
+  return accountingDateFormatter.format(
+    new Date(Date.UTC(year, month - 1, day)),
+  )
 }
 
 export function formatTimestamp(
@@ -49,7 +51,9 @@ export function formatTimestamp(
 ): string {
   if (!value) return fallback
   const date = value instanceof Date ? value : new Date(value)
-  return Number.isNaN(date.getTime()) ? String(value) : timestampFormatter.format(date)
+  return Number.isNaN(date.getTime())
+    ? String(value)
+    : timestampFormatter.format(date)
 }
 
 export function formatLocalDateKey(date = new Date()): string {
