@@ -9,23 +9,13 @@ import {
   Paperclip,
   ShieldOff,
 } from 'lucide-react'
+import { useState } from 'react'
+import { formatAccountingDate } from '../../../shared/date-utils'
+import { formatMoneyInteger } from '../../../shared/formatters'
 import { useActivityAttachmentUrl, useProjectActivity } from '../hooks/useProjectActivity'
 import type { ActivityEvent, ActivityFilter } from '../types/project-activity.types'
 
 type Props = { projectId: string }
-
-const money = new Intl.NumberFormat('ar-EG', {
-  style: 'currency',
-  currency: 'EGP',
-  maximumFractionDigits: 0,
-})
-
-const dateFormatter = new Intl.DateTimeFormat('ar-EG', {
-  year: 'numeric',
-  month: 'short',
-  day: 'numeric',
-  timeZone: 'UTC',
-})
 
 const timeFormatter = new Intl.DateTimeFormat('ar-EG', {
   hour: '2-digit',
@@ -33,22 +23,10 @@ const timeFormatter = new Intl.DateTimeFormat('ar-EG', {
   hour12: true,
 })
 
-/** Formats a full ISO timestamp to a time string — only for events with real created_at. */
 function formatTime(isoTimestamp: string): string {
-  // A plain YYYY-MM-DD (entry_date) has no time — don't fabricate one
   if (isoTimestamp.length === 10) return ''
-  const d = new Date(isoTimestamp)
-  return Number.isNaN(d.getTime()) ? '' : timeFormatter.format(d)
-}
-
-/** Formats an accounting date (YYYY-MM-DD) — no time shown. */
-function formatAccountingDate(dateKey: string): string {
-  const parts = dateKey.split('-').map(Number)
-  const year = parts[0] ?? 0
-  const month = parts[1] ?? 1
-  const day = parts[2] ?? 1
-  if (!year) return dateKey
-  return dateFormatter.format(new Date(Date.UTC(year, month - 1, day)))
+  const date = new Date(isoTimestamp)
+  return Number.isNaN(date.getTime()) ? '' : timeFormatter.format(date)
 }
 
 const FILTER_LABELS: Record<ActivityFilter, string> = {
@@ -57,8 +35,6 @@ const FILTER_LABELS: Record<ActivityFilter, string> = {
   attachments: 'المرفقات',
   project: 'المشروع',
 }
-
-// ─── Single event card ────────────────────────────────────────────────────────
 
 function AttachmentEventCard({ event }: { event: Extract<ActivityEvent, { kind: 'attachment_uploaded' }> }) {
   const { getUrl, isLoading } = useActivityAttachmentUrl()
@@ -103,8 +79,6 @@ function AttachmentEventCard({ event }: { event: Extract<ActivityEvent, { kind: 
   )
 }
 
-import { useState } from 'react'
-
 function EventCard({ event }: { event: ActivityEvent }) {
   if (event.kind === 'project_created') {
     return (
@@ -134,9 +108,6 @@ function EventCard({ event }: { event: ActivityEvent }) {
         </span>
         <div className="activity-event__body">
           <p>
-            {/* projects.updated_at represents the last known update timestamp only —
-                it is NOT a full audit trail. Multiple edits between two fetches
-                appear as a single event here. */}
             آخر تحديث لبيانات المشروع: <strong>{event.projectName}</strong>
           </p>
           {formatTime(event.timestamp) && (
@@ -159,10 +130,9 @@ function EventCard({ event }: { event: ActivityEvent }) {
         <div className="activity-event__body">
           <p>
             {isIncome ? 'إيراد' : 'مصروف'}
-            {event.seq != null && <> رقم #{event.seq}</>}: <strong>{money.format(event.amount)}</strong>
+            {event.seq != null && <> رقم #{event.seq}</>}: <strong>{formatMoneyInteger(event.amount)}</strong>
             {event.description && <> — {event.description}</>}
           </p>
-          {/* Show only the accounting date — never fabricate a time for entries */}
           <span className="activity-event__accounting-date">
             <FileText size={11} /> تاريخ القيد المحاسبي: {formatAccountingDate(event.entryDate)}
           </span>
@@ -178,12 +148,11 @@ function EventCard({ event }: { event: ActivityEvent }) {
   return null
 }
 
-// ─── Main Tab ─────────────────────────────────────────────────────────────────
-
 export function WorkspaceActivityTab({ projectId }: Props) {
-  const { viewModel, filter, setFilter, isLoading, error } = useProjectActivity(projectId)
+  const { viewModel, filter, setFilter, isLoading, error, isPermissionDenied } =
+    useProjectActivity(projectId)
 
-  if (error && (error.includes('permission') || error.includes('RLS') || error.includes('policy'))) {
+  if (isPermissionDenied) {
     return (
       <div className="workspace-activity__permission">
         <ShieldOff size={36} />
@@ -203,28 +172,26 @@ export function WorkspaceActivityTab({ projectId }: Props) {
 
   return (
     <div className="workspace-activity">
-      {/* ── Header + filters ── */}
       <div className="workspace-activity__header">
         <div>
           <span>ملخص نشاط المشروع</span>
           <h2>النشاط</h2>
         </div>
         <div className="workspace-activity__filters" role="group" aria-label="فلترة النشاط">
-          {(Object.keys(FILTER_LABELS) as ActivityFilter[]).map((f) => (
+          {(Object.keys(FILTER_LABELS) as ActivityFilter[]).map((filterValue) => (
             <button
-              key={f}
+              key={filterValue}
               type="button"
-              className={`workspace-activity__filter-btn${filter === f ? ' is-active' : ''}`}
-              onClick={() => setFilter(f)}
-              aria-pressed={filter === f}
+              className={`workspace-activity__filter-btn${filter === filterValue ? ' is-active' : ''}`}
+              onClick={() => setFilter(filterValue)}
+              aria-pressed={filter === filterValue}
             >
-              {FILTER_LABELS[f]}
+              {FILTER_LABELS[filterValue]}
             </button>
           ))}
         </div>
       </div>
 
-      {/* ── Loading ── */}
       {isLoading && (
         <div className="workspace-activity__loading">
           <Loader2 size={24} className="spin" />
@@ -232,7 +199,6 @@ export function WorkspaceActivityTab({ projectId }: Props) {
         </div>
       )}
 
-      {/* ── Empty ── */}
       {!isLoading && viewModel && !viewModel.hasActivity && (
         <div className="workspace-activity__empty">
           <Clock size={34} />
@@ -241,7 +207,6 @@ export function WorkspaceActivityTab({ projectId }: Props) {
         </div>
       )}
 
-      {/* ── Filtered empty ── */}
       {!isLoading && viewModel?.hasActivity && viewModel.groups.length === 0 && (
         <div className="workspace-activity__empty">
           <Clock size={34} />
@@ -249,15 +214,14 @@ export function WorkspaceActivityTab({ projectId }: Props) {
         </div>
       )}
 
-      {/* ── Timeline ── */}
       {!isLoading && viewModel && viewModel.groups.length > 0 && (
         <div className="workspace-activity__timeline">
           {viewModel.groups.map((group) => (
             <section key={group.dateKey} className="activity-group">
               <h3 className="activity-group__label">{group.label}</h3>
               <div className="activity-group__events">
-                {group.events.map((event, idx) => (
-                  <EventCard key={`${event.kind}-${event.timestamp}-${idx}`} event={event} />
+                {group.events.map((event, index) => (
+                  <EventCard key={`${event.kind}-${event.timestamp}-${index}`} event={event} />
                 ))}
               </div>
             </section>
