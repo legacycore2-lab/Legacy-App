@@ -63,8 +63,6 @@ export type AttachmentUploadedEvent = {
 export type ActivityEvent =
   ProjectCreatedEvent | ProjectUpdatedEvent | EntryAddedEvent | AttachmentUploadedEvent
 
-export type ActivityEventKind = ActivityEvent['kind']
-
 // ─── ViewModel ────────────────────────────────────────────────────────────────
 
 export type ActivityGroup = {
