@@ -8,6 +8,64 @@
   --workspace-blue: #2f80c8;
 }
 
+.project-report {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.project-report__header,
+.project-report__facts,
+.project-report__metrics {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.project-report__header h2,
+.project-report__entries h3 {
+  margin: 0.25rem 0;
+}
+.project-report__header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.project-report__facts,
+.project-report__metrics {
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.project-report__facts > div,
+.project-report__metrics > div {
+  flex: 1 1 10rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  background: var(--surface-soft);
+}
+
+.project-report__facts span,
+.project-report__metrics span {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--muted);
+}
+
+@media print {
+  .project-workspace__hero,
+  .project-report__header button,
+  .sidebar,
+  .topbar {
+    display: none !important;
+  }
+  .project-report {
+    box-shadow: none;
+    border: 0;
+  }
+}
+
 /* ─── Hero header ─────────────────────────────────────────────────────────── */
 .project-workspace__hero {
   position: relative;
