@@ -5,10 +5,7 @@ import {
   buildProjectContractorsViewModel,
   getProjectContractors,
 } from '../services/project-contractors.service'
-import type {
-  ProjectContractor,
-  ProjectContractorsViewModel,
-} from '../types/project-contractor.types'
+import type { ProjectContractor, ProjectContractorsViewModel } from '../types/project-contractor.types'
 
 function projectContractorsKey(projectId: string) {
   return ['project-contractors', projectId] as const
@@ -31,9 +28,7 @@ export function useProjectContractors(projectId: string | null): {
     staleTime: 30_000,
   })
 
-  const viewModel: ProjectContractorsViewModel | null = data
-    ? buildProjectContractorsViewModel(data)
-    : null
+  const viewModel: ProjectContractorsViewModel | null = data ? buildProjectContractorsViewModel(data) : null
 
   function toggleExpanded(key: string) {
     setExpandedKey((previous) => (previous === key ? null : key))
@@ -54,7 +49,5 @@ export function deriveExpandedContractor(
   expandedKey: string | null,
 ): ProjectContractor | null {
   if (!expandedKey) return null
-  return (
-    contractors.find((contractor) => contractor.key === expandedKey) ?? null
-  )
+  return contractors.find((contractor) => contractor.key === expandedKey) ?? null
 }

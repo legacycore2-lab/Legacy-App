@@ -12,14 +12,8 @@ import {
 import { useState } from 'react'
 import { formatAccountingDate } from '../../../shared/date-utils'
 import { formatMoneyInteger } from '../../../shared/formatters'
-import {
-  useActivityAttachmentUrl,
-  useProjectActivity,
-} from '../hooks/useProjectActivity'
-import type {
-  ActivityEvent,
-  ActivityFilter,
-} from '../types/project-activity.types'
+import { useActivityAttachmentUrl, useProjectActivity } from '../hooks/useProjectActivity'
+import type { ActivityEvent, ActivityFilter } from '../types/project-activity.types'
 
 type Props = { projectId: string }
 
@@ -42,11 +36,7 @@ const FILTER_LABELS: Record<ActivityFilter, string> = {
   project: 'المشروع',
 }
 
-function AttachmentEventCard({
-  event,
-}: {
-  event: Extract<ActivityEvent, { kind: 'attachment_uploaded' }>
-}) {
+function AttachmentEventCard({ event }: { event: Extract<ActivityEvent, { kind: 'attachment_uploaded' }> }) {
   const { getUrl, isLoading } = useActivityAttachmentUrl()
   const [openError, setOpenError] = useState('')
 
@@ -74,20 +64,14 @@ function AttachmentEventCard({
             <Clock size={11} /> {formatTime(event.timestamp)}
           </time>
         )}
-        {openError && (
-          <span className="activity-event__error">{openError}</span>
-        )}
+        {openError && <span className="activity-event__error">{openError}</span>}
         <button
           type="button"
           className="activity-event__link"
           onClick={() => void handleOpen()}
           disabled={isLoading}
         >
-          {isLoading ? (
-            <Loader2 size={12} className="spin" />
-          ) : (
-            <ExternalLink size={12} />
-          )}
+          {isLoading ? <Loader2 size={12} className="spin" /> : <ExternalLink size={12} />}
           فتح الملف
         </button>
       </div>
@@ -124,8 +108,7 @@ function EventCard({ event }: { event: ActivityEvent }) {
         </span>
         <div className="activity-event__body">
           <p>
-            آخر تحديث لبيانات المشروع:{' '}
-            <strong>{event.projectName}</strong>
+            آخر تحديث لبيانات المشروع: <strong>{event.projectName}</strong>
           </p>
           {formatTime(event.timestamp) && (
             <time className="activity-event__time" dateTime={event.timestamp}>
@@ -140,26 +123,18 @@ function EventCard({ event }: { event: ActivityEvent }) {
   if (event.kind === 'entry_added') {
     const isIncome = event.entryType === 'income'
     return (
-      <div
-        className={`activity-event activity-event--entry activity-event--${event.entryType}`}
-      >
+      <div className={`activity-event activity-event--entry activity-event--${event.entryType}`}>
         <span className="activity-event__icon">
-          {isIncome ? (
-            <ArrowDownLeft size={15} />
-          ) : (
-            <ArrowUpRight size={15} />
-          )}
+          {isIncome ? <ArrowDownLeft size={15} /> : <ArrowUpRight size={15} />}
         </span>
         <div className="activity-event__body">
           <p>
             {isIncome ? 'إيراد' : 'مصروف'}
-            {event.seq != null && <> رقم #{event.seq}</>}:{' '}
-            <strong>{formatMoneyInteger(event.amount)}</strong>
+            {event.seq != null && <> رقم #{event.seq}</>}: <strong>{formatMoneyInteger(event.amount)}</strong>
             {event.description && <> — {event.description}</>}
           </p>
           <span className="activity-event__accounting-date">
-            <FileText size={11} /> تاريخ القيد المحاسبي:{' '}
-            {formatAccountingDate(event.entryDate)}
+            <FileText size={11} /> تاريخ القيد المحاسبي: {formatAccountingDate(event.entryDate)}
           </span>
         </div>
       </div>
@@ -174,14 +149,7 @@ function EventCard({ event }: { event: ActivityEvent }) {
 }
 
 export function WorkspaceActivityTab({ projectId }: Props) {
-  const {
-    viewModel,
-    filter,
-    setFilter,
-    isLoading,
-    error,
-    isPermissionDenied,
-  } = useProjectActivity(projectId)
+  const { viewModel, filter, setFilter, isLoading, error, isPermissionDenied } = useProjectActivity(projectId)
 
   if (isPermissionDenied) {
     return (
@@ -208,24 +176,18 @@ export function WorkspaceActivityTab({ projectId }: Props) {
           <span>ملخص نشاط المشروع</span>
           <h2>النشاط</h2>
         </div>
-        <div
-          className="workspace-activity__filters"
-          role="group"
-          aria-label="فلترة النشاط"
-        >
-          {(Object.keys(FILTER_LABELS) as ActivityFilter[]).map(
-            (filterValue) => (
-              <button
-                key={filterValue}
-                type="button"
-                className={`workspace-activity__filter-btn${filter === filterValue ? ' is-active' : ''}`}
-                onClick={() => setFilter(filterValue)}
-                aria-pressed={filter === filterValue}
-              >
-                {FILTER_LABELS[filterValue]}
-              </button>
-            ),
-          )}
+        <div className="workspace-activity__filters" role="group" aria-label="فلترة النشاط">
+          {(Object.keys(FILTER_LABELS) as ActivityFilter[]).map((filterValue) => (
+            <button
+              key={filterValue}
+              type="button"
+              className={`workspace-activity__filter-btn${filter === filterValue ? ' is-active' : ''}`}
+              onClick={() => setFilter(filterValue)}
+              aria-pressed={filter === filterValue}
+            >
+              {FILTER_LABELS[filterValue]}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -244,14 +206,12 @@ export function WorkspaceActivityTab({ projectId }: Props) {
         </div>
       )}
 
-      {!isLoading &&
-        viewModel?.hasActivity &&
-        viewModel.groups.length === 0 && (
-          <div className="workspace-activity__empty">
-            <Clock size={34} />
-            <strong>لا توجد نتائج لهذا الفلتر</strong>
-          </div>
-        )}
+      {!isLoading && viewModel?.hasActivity && viewModel.groups.length === 0 && (
+        <div className="workspace-activity__empty">
+          <Clock size={34} />
+          <strong>لا توجد نتائج لهذا الفلتر</strong>
+        </div>
+      )}
 
       {!isLoading && viewModel && viewModel.groups.length > 0 && (
         <div className="workspace-activity__timeline">
@@ -260,10 +220,7 @@ export function WorkspaceActivityTab({ projectId }: Props) {
               <h3 className="activity-group__label">{group.label}</h3>
               <div className="activity-group__events">
                 {group.events.map((event, index) => (
-                  <EventCard
-                    key={`${event.kind}-${event.timestamp}-${index}`}
-                    event={event}
-                  />
+                  <EventCard key={`${event.kind}-${event.timestamp}-${index}`} event={event} />
                 ))}
               </div>
             </section>
