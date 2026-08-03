@@ -122,6 +122,14 @@ for (const file of files) {
       }
     }
   }
+
+  if (path.startsWith('shared/')) {
+    for (const { value, targetPath } of resolvedImports) {
+      if (targetPath.startsWith('features/')) {
+        report(`${path}: shared code must not depend on feature internals (${value})`)
+      }
+    }
+  }
 }
 
 if (violations.size) {

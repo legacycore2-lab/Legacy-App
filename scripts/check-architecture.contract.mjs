@@ -76,6 +76,13 @@ const forbiddenCases = [
     },
     message: 'cross-feature internal import',
   },
+  {
+    name: 'shared code importing feature internals',
+    files: {
+      'shared/hooks/useCurrentUser.ts': "import '../../features/auth/context/AuthContext'",
+    },
+    message: 'shared code must not depend on feature internals',
+  },
 ]
 
 for (const scenario of forbiddenCases) {

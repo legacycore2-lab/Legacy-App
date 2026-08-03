@@ -1,10 +1,10 @@
 import { useContext } from 'react'
-import { AuthContext } from '../../features/auth/context/AuthContext'
+import { CurrentUserContext } from '../context/CurrentUserContext'
 
 /**
- * Lightweight shared hook — returns the current user from AuthContext.
+ * Lightweight shared hook — returns the user projection exposed to shared consumers.
  * Features can use this without creating cross-feature imports.
  */
 export function useCurrentUser() {
-  return useContext(AuthContext)?.user ?? null
+  return useContext(CurrentUserContext)
 }
