@@ -115,6 +115,19 @@ export async function deleteProjectById(projectId: string): Promise<void> {
   if (error) throw error
 }
 
+export async function archiveProjectById(projectId: string): Promise<ProjectRecord> {
+  const { data, error } = await getSupabaseClient()
+    .from('projects')
+    .update({ is_archived: true, status: 'archived' })
+    .eq('id', projectId)
+    .select(PROJECT_FIELDS)
+    .single()
+
+  if (error) throw error
+  if (!data) throw new Error('Supabase did not return the archived project.')
+  return data as unknown as ProjectRecord
+}
+
 export function subscribeToProjectChanges(onChange: () => void): () => void {
   return subscribeToTableChanges('projects', ['projects'], onChange)
 }

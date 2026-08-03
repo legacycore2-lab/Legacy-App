@@ -35,6 +35,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { formatAccountingDate } from '../../../shared/date-utils'
 import { formatMoneyInteger } from '../../../shared/formatters'
 import { ProjectCreateDialog } from '../components/ProjectCreateDialog'
+import { ProjectArchiveDialog } from '../components/ProjectArchiveDialog'
 import { ProjectDeleteDialog } from '../components/ProjectDeleteDialog'
 import { WorkspaceFinanceTab } from '../components/WorkspaceFinanceTab'
 import { WorkspaceActivityTab } from '../components/WorkspaceActivityTab'
@@ -43,6 +44,7 @@ import { WorkspaceAttachmentsTab } from '../components/WorkspaceAttachmentsTab'
 import { WorkspaceJournalTab } from '../components/WorkspaceJournalTab'
 import { WorkspaceOverviewTab } from '../components/WorkspaceOverviewTab'
 import { useProjectCreateForm } from '../hooks/useProjectCreateForm'
+import { useProjectArchive } from '../hooks/useProjectArchive'
 import { useProjectDelete } from '../hooks/useProjectDelete'
 import { useProjectDetails } from '../hooks/useProjectDetails'
 import '../styles/project-create.css'
@@ -97,6 +99,7 @@ export function ProjectDetailsPage() {
   const { viewModel, financeViewModel, journalViewModel, isLoading, error } = useProjectDetails(id ?? null)
   const projectCreate = useProjectCreateForm()
   const projectDelete = useProjectDelete(viewModel?.project.id ?? null, viewModel?.project.name ?? '')
+  const projectArchive = useProjectArchive(viewModel?.project.id ?? null)
   const [actionsOpen, setActionsOpen] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const [activeTab, setActiveTab] = useState<WorkspaceTabId>('overview')
@@ -259,10 +262,14 @@ export function ProjectDetailsPage() {
                   <button
                     type="button"
                     className="is-warning"
-                    disabled
-                    title="الأرشفة تحتاج دورة تشغيل مستقلة"
+                    disabled={project.status === 'archived'}
+                    onClick={() => {
+                      projectArchive.open()
+                      setActionsOpen(false)
+                    }}
                   >
-                    <FolderArchive size={16} /> أرشفة المشروع
+                    <FolderArchive size={16} />{' '}
+                    {project.status === 'archived' ? 'المشروع مؤرشف' : 'أرشفة المشروع'}
                   </button>
                   <button
                     type="button"
@@ -403,6 +410,18 @@ export function ProjectDetailsPage() {
       </div>
 
       <ProjectCreateDialog {...projectCreate} />
+      <ProjectArchiveDialog
+        open={projectArchive.isOpen}
+        projectName={project.name}
+        isArchiving={projectArchive.isArchiving}
+        error={projectArchive.error}
+        onClose={projectArchive.close}
+        onConfirm={() => {
+          void projectArchive.submit().then((archived) => {
+            if (archived) navigate('/projects')
+          })
+        }}
+      />
       <ProjectDeleteDialog
         open={projectDelete.isOpen}
         projectName={project.name}
