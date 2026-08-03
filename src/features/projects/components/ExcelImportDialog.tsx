@@ -1,16 +1,19 @@
 import { FileSpreadsheet, Upload, X } from 'lucide-react'
+import { useDialogAccessibility } from '../../../shared/hooks/useDialogAccessibility'
 import { useExcelImport } from '../hooks/useExcelImport'
 type Props = { open: boolean; onClose: () => void }
 
 export function ExcelImportDialog({ open, onClose }: Props) {
   const { fileName, sheetName, rows, columns, error, isReading, resetAndClose, readFile } =
     useExcelImport(onClose)
+  const dialogRef = useDialogAccessibility<HTMLElement>(open, resetAndClose, !isReading)
 
   if (!open) return null
 
   return (
     <div className="excel-dialog-backdrop" role="presentation" onMouseDown={resetAndClose}>
       <section
+        ref={dialogRef}
         className="excel-dialog"
         role="dialog"
         aria-modal="true"

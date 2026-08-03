@@ -1,4 +1,5 @@
 import { LoaderCircle, Save, X } from 'lucide-react'
+import { useDialogAccessibility } from '../../../shared/hooks/useDialogAccessibility'
 import type { ProjectCreateFormState } from '../types/project-create.types'
 
 export function ProjectCreateDialog({
@@ -14,11 +15,14 @@ export function ProjectCreateDialog({
   saveError,
   submit,
 }: ProjectCreateFormState) {
+  const dialogRef = useDialogAccessibility<HTMLElement>(isOpen, close, !isSaving)
+
   if (!isOpen) return null
 
   return (
     <div className="project-create-backdrop" role="presentation">
       <section
+        ref={dialogRef}
         className="project-create-dialog"
         role="dialog"
         aria-modal="true"

@@ -1,12 +1,16 @@
 import { LoaderCircle, Save, Trash2, X } from 'lucide-react'
+import { useDialogAccessibility } from '../../../shared/hooks/useDialogAccessibility'
 import type { CashBankAccountFormState } from '../types/cash-banks.types'
 
 export function CashBankAccountDialog({ form }: { form: CashBankAccountFormState }) {
+  const dialogRef = useDialogAccessibility<HTMLElement>(form.isOpen, form.close, !form.isSaving)
+
   if (!form.isOpen) return null
 
   return (
     <div className="cash-bank-dialog-backdrop" role="presentation">
       <section
+        ref={dialogRef}
         className="cash-bank-dialog"
         role="dialog"
         aria-modal="true"

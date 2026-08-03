@@ -1,5 +1,6 @@
 import { AlertTriangle, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
+import { useDialogAccessibility } from '../../../shared/hooks/useDialogAccessibility'
 import { useJournalActions } from '../hooks/useJournalActions'
 import { useJournalDetails } from '../hooks/useJournalDetails'
 
@@ -21,6 +22,7 @@ export function JournalDetailsDialog({ entryId, onClose, isAdmin = false }: Prop
   const [confirmText, setConfirmText] = useState('')
 
   const canDelete = confirmText === 'DELETE' && reason.trim().length >= 5 && !isForceDeleting
+  const dialogRef = useDialogAccessibility<HTMLElement>(entryId !== null, onClose, !isForceDeleting)
 
   const handleForceDelete = async () => {
     if (!entryId || !canDelete) return
@@ -42,7 +44,13 @@ export function JournalDetailsDialog({ entryId, onClose, isAdmin = false }: Prop
 
   return (
     <div className="journal-details-backdrop" role="presentation">
-      <section className="journal-details-dialog" role="dialog" aria-modal="true" aria-label="تفاصيل القيد">
+      <section
+        ref={dialogRef}
+        className="journal-details-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-label="تفاصيل القيد"
+      >
         <header>
           <div>
             <span>تفاصيل الحركة المحاسبية</span>
