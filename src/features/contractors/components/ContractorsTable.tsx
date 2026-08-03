@@ -1,3 +1,5 @@
+import { formatAccountingDate } from '../../../shared/date-utils'
+import { formatMoneyInteger } from '../../../shared/formatters'
 import type { Contractor, ContractorSort } from '../types/contractor.types'
 
 type Props = {
@@ -6,28 +8,6 @@ type Props = {
   onSort: (s: ContractorSort) => void
   onSelect: (c: Contractor) => void
   selectedKey: string | null
-}
-
-const money = new Intl.NumberFormat('ar-EG', {
-  style: 'currency',
-  currency: 'EGP',
-  maximumFractionDigits: 0,
-})
-
-const dateFormatter = new Intl.DateTimeFormat('ar-EG', {
-  year: 'numeric',
-  month: 'short',
-  day: 'numeric',
-  timeZone: 'UTC',
-})
-
-function formatDate(dateKey: string): string {
-  const parts = dateKey.slice(0, 10).split('-').map(Number)
-  const y = parts[0] ?? 0
-  const m = parts[1] ?? 1
-  const d = parts[2] ?? 1
-  if (!y) return dateKey
-  return dateFormatter.format(new Date(Date.UTC(y, m - 1, d)))
 }
 
 const SORT_COLS: { key: ContractorSort; label: string }[] = [
@@ -72,10 +52,10 @@ export function ContractorsTable({ contractors, sort, onSort, onSelect, selected
                 <strong>{c.name}</strong>
               </td>
               <td data-label="إجمالي المصروفات" className="is-expense">
-                {money.format(c.totalExpense)}
+                {formatMoneyInteger(c.totalExpense)}
               </td>
               <td data-label="عدد القيود">{c.entryCount}</td>
-              <td data-label="آخر حركة">{formatDate(c.latestActivityDate)}</td>
+              <td data-label="آخر حركة">{formatAccountingDate(c.latestActivityDate)}</td>
               <td data-label="المشاريع">{c.projectCount}</td>
             </tr>
           ))}
