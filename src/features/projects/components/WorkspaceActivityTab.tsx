@@ -36,7 +36,11 @@ const FILTER_LABELS: Record<ActivityFilter, string> = {
   project: 'المشروع',
 }
 
-function AttachmentEventCard({ event }: { event: Extract<ActivityEvent, { kind: 'attachment_uploaded' }> }) {
+function AttachmentEventCard({
+  event,
+}: {
+  event: Extract<ActivityEvent, { kind: 'attachment_uploaded' }>
+}) {
   const { getUrl, isLoading } = useActivityAttachmentUrl()
   const [openError, setOpenError] = useState('')
 
@@ -130,7 +134,8 @@ function EventCard({ event }: { event: ActivityEvent }) {
         <div className="activity-event__body">
           <p>
             {isIncome ? 'إيراد' : 'مصروف'}
-            {event.seq != null && <> رقم #{event.seq}</>}: <strong>{formatMoneyInteger(event.amount)}</strong>
+            {event.seq != null && <> رقم #{event.seq}</>}:{' '}
+            <strong>{formatMoneyInteger(event.amount)}</strong>
             {event.description && <> — {event.description}</>}
           </p>
           <span className="activity-event__accounting-date">
