@@ -139,7 +139,7 @@ export function watchProjects(onChange: () => void): () => void {
   return subscribeToProjectChanges(onChange)
 }
 
-function mapProjectEntry(record: ProjectEntryRecord): ProjectEntry {
+export function mapProjectEntry(record: ProjectEntryRecord): ProjectEntry {
   const amount = Number(record.amount)
   const normalised = normalizeEntryType(record.entry_type)
 
@@ -157,7 +157,7 @@ function mapProjectEntry(record: ProjectEntryRecord): ProjectEntry {
   }
 }
 
-function summarizeEntries(entries: ProjectEntry[]): ProjectFinancialSummary {
+export function summarizeEntries(entries: ProjectEntry[]): ProjectFinancialSummary {
   return entries.reduce<ProjectFinancialSummary>(
     (summary, entry) => ({
       totalIncome: summary.totalIncome + (entry.type === 'income' ? entry.amount : 0),

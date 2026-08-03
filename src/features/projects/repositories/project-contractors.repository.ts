@@ -1,3 +1,4 @@
+import { getSupabaseClient } from '../../../lib/supabase/client'
 import { fetchAllWithPagination } from '../../../shared/pagination-helpers'
 import type { ProjectContractorRecord } from '../types/project-contractor.types'
 
@@ -19,8 +20,8 @@ const FIELDS = [
  * No normalisation or aggregation — raw rows only.
  */
 export async function findProjectContractorEntries(projectId: string): Promise<ProjectContractorRecord[]> {
-  return fetchAllWithPagination<ProjectContractorRecord>((client, from, to) =>
-    client
+  return fetchAllWithPagination<ProjectContractorRecord>((from, to) =>
+    getSupabaseClient()
       .from('entries')
       .select(FIELDS)
       .not('contractor_name', 'is', null)

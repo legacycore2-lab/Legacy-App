@@ -30,7 +30,8 @@ export type DashboardEntry = {
   description: string
   date: string
   amount: string
-  type: 'income' | 'expense'
+  /** 'unknown' when DB entry_type could not be normalised — shown neutrally, excluded from totals */
+  type: 'income' | 'expense' | 'unknown'
 }
 
 export type DashboardAction = { label: string; description: string; icon: LucideIcon }

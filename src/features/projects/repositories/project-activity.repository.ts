@@ -21,11 +21,12 @@ export async function findActivityProject(projectId: string): Promise<ActivityPr
 
 /**
  * Fetches all entries for a project, paginated with stable ordering.
- * entry_number ASC ensures consistent pages; oldest-first for timeline display.
+ * Stable order: entry_number ASC ensures consistent pagination page boundaries.
+ * The service layer (buildActivityEvents) re-sorts events newest-first for display.
  */
 export async function findActivityEntries(projectId: string): Promise<ActivityEntryRecord[]> {
-  return fetchAllWithPagination<ActivityEntryRecord>((client, from, to) =>
-    client
+  return fetchAllWithPagination<ActivityEntryRecord>((from, to) =>
+    getSupabaseClient()
       .from('entries')
       .select('id, entry_number, entry_type, amount, description, entry_date, project_id')
       .eq('project_id', projectId)

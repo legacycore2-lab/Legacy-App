@@ -33,8 +33,8 @@ async function findProjects(): Promise<DashboardProjectRecord[]> {
 async function findEntries(): Promise<DashboardEntryRecord[]> {
   // Paginated to avoid Supabase 1000-row default cap.
   // Stable order: entry_number ASC (unique surrogate key) for consistent pages.
-  return fetchAllWithPagination<DashboardEntryRecord>((client, from, to) =>
-    client
+  return fetchAllWithPagination<DashboardEntryRecord>((from, to) =>
+    getSupabaseClient()
       .from('entries')
       .select(DASHBOARD_ENTRY_FIELDS)
       .order('entry_number', { ascending: true })

@@ -30,7 +30,7 @@ function isActiveProject(project: DashboardProjectRecord): boolean {
  * Builds a signed balance per project from entries.
  * unknown entry_type → skipped (not treated as expense).
  */
-function buildProjectBalances(entries: DashboardEntryRecord[]): Map<string, number> {
+export function buildProjectBalances(entries: DashboardEntryRecord[]): Map<string, number> {
   const balances = new Map<string, number>()
   for (const entry of entries) {
     if (!entry.project_id) continue
@@ -41,6 +41,22 @@ function buildProjectBalances(entries: DashboardEntryRecord[]): Map<string, numb
     balances.set(entry.project_id, (balances.get(entry.project_id) ?? 0) + signedAmount)
   }
   return balances
+}
+
+export function buildDashboardTotals(entries: DashboardEntryRecord[]): {
+  totalIncome: number
+  totalExpense: number
+} {
+  let totalIncome = 0
+  let totalExpense = 0
+  for (const entry of entries) {
+    const type = normalizeEntryType(entry.type)
+    if (!type) continue
+    const amount = toAmount(entry.amount)
+    if (type === 'income') totalIncome += amount
+    else totalExpense += amount
+  }
+  return { totalIncome, totalExpense }
 }
 
 function buildProjectNameMap(projects: DashboardProjectRecord[]): Map<string, string> {
@@ -66,15 +82,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   const projectNames = buildProjectNameMap(source.projects)
 
   // Totals: unknown entry_type is excluded — never treated as expense
-  let totalIncome = 0
-  let totalExpense = 0
-  for (const entry of source.entries) {
-    const type = normalizeEntryType(entry.type)
-    if (!type) continue
-    const amount = toAmount(entry.amount)
-    if (type === 'income') totalIncome += amount
-    else totalExpense += amount
-  }
+  const { totalIncome, totalExpense } = buildDashboardTotals(source.entries)
 
   const balance = totalIncome - totalExpense
   const activeProjects = source.projects.filter(isActiveProject)
@@ -139,8 +147,8 @@ export async function getDashboardData(): Promise<DashboardData> {
         description: entry.description?.trim() || 'بدون بيان',
         date: formatEntryDate(entry.entry_date),
         amount: formatAmount(toAmount(entry.amount)),
-        // unknown entry_type shown as 'expense' for display only (visual neutral)
-        type: type ?? 'expense',
+        // unknown entry_type → shown as 'unknown', not coerced to expense
+        type: type ?? 'unknown',
       }
     }),
     actions: dashboardActions,

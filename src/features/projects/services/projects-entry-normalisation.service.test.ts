@@ -1,123 +1,104 @@
 import { describe, expect, it } from 'vitest'
-import { normalizeEntryType } from '../../../shared/contractors-helpers'
+import type { ProjectEntryRecord } from '../repositories/projects.repository'
+import { mapProjectEntry, summarizeEntries } from './projects.service'
 
-// ─── helpers that mirror mapProjectEntry + summarizeEntries ───────────────────
-
-type EntryInput = {
-  entry_type: string | null
-  amount: number | string
-}
-
-type MappedEntry = {
-  type: 'income' | 'expense' | 'unknown'
-  amount: number
-}
-
-function mapEntry(record: EntryInput): MappedEntry {
-  const amount = Number(record.amount)
-  const normalised = normalizeEntryType(record.entry_type)
+function makeRecord(overrides: Partial<ProjectEntryRecord>): ProjectEntryRecord {
   return {
-    type: normalised ?? 'unknown',
-    amount: Number.isFinite(amount) ? amount : 0,
+    id: 'e1',
+    seq: 1,
+    entry_date: '2025-03-10',
+    entry_type: 'expense',
+    category: 'عمالة',
+    description: 'أعمال بناء',
+    contractor_name: null,
+    payment_method: 'cash',
+    amount: 1000,
+    ...overrides,
   }
 }
 
-function summarise(entries: MappedEntry[]) {
-  let totalIncome = 0
-  let totalExpense = 0
-  let balance = 0
-  for (const e of entries) {
-    totalIncome += e.type === 'income' ? e.amount : 0
-    totalExpense += e.type === 'expense' ? e.amount : 0
-    balance += e.type === 'income' ? e.amount : e.type === 'expense' ? -e.amount : 0
-  }
-  return { totalIncome, totalExpense, balance, entryCount: entries.length }
-}
-
-describe('Project entry normalisation (mapProjectEntry + summarizeEntries behaviour)', () => {
-  it('income entry adds to totalIncome and balance', () => {
-    const entries = [mapEntry({ entry_type: 'income', amount: 5000 })]
-    const s = summarise(entries)
-    expect(s.totalIncome).toBe(5000)
-    expect(s.balance).toBe(5000)
-    expect(s.totalExpense).toBe(0)
+describe('mapProjectEntry', () => {
+  it('income entry maps to type "income"', () => {
+    expect(mapProjectEntry(makeRecord({ entry_type: 'income' })).type).toBe('income')
   })
 
-  it('expense entry adds to totalExpense and subtracts from balance', () => {
-    const entries = [mapEntry({ entry_type: 'expense', amount: 3000 })]
-    const s = summarise(entries)
-    expect(s.totalExpense).toBe(3000)
-    expect(s.balance).toBe(-3000)
-    expect(s.totalIncome).toBe(0)
+  it('expense entry maps to type "expense"', () => {
+    expect(mapProjectEntry(makeRecord({ entry_type: 'expense' })).type).toBe('expense')
   })
 
-  it('تاج سلطان: 15000 + 1000 expense = 16000 totalExpense, balance = -16000', () => {
+  it('"i" shorthand maps to "income"', () => {
+    expect(mapProjectEntry(makeRecord({ entry_type: 'i' })).type).toBe('income')
+  })
+
+  it('"e" shorthand maps to "expense"', () => {
+    expect(mapProjectEntry(makeRecord({ entry_type: 'e' })).type).toBe('expense')
+  })
+
+  it('unknown entry_type maps to "unknown" — NOT "expense"', () => {
+    expect(mapProjectEntry(makeRecord({ entry_type: 'debit' })).type).toBe('unknown')
+  })
+
+  it('null entry_type maps to "unknown"', () => {
+    expect(mapProjectEntry(makeRecord({ entry_type: null })).type).toBe('unknown')
+  })
+
+  it('unknown entry preserves real amount', () => {
+    expect(mapProjectEntry(makeRecord({ entry_type: 'debit', amount: 4567 })).amount).toBe(4567)
+  })
+})
+
+describe('summarizeEntries', () => {
+  it('تاج سلطان: 15000 + 1000 expense = totalExpense 16000', () => {
     const entries = [
-      mapEntry({ entry_type: 'expense', amount: 15000 }),
-      mapEntry({ entry_type: 'expense', amount: 1000 }),
+      mapProjectEntry(makeRecord({ entry_type: 'expense', amount: 15000, id: 'e1' })),
+      mapProjectEntry(makeRecord({ entry_type: 'expense', amount: 1000, id: 'e2' })),
     ]
-    const s = summarise(entries)
+    const s = summarizeEntries(entries)
     expect(s.totalExpense).toBe(16000)
+    expect(s.totalIncome).toBe(0)
     expect(s.balance).toBe(-16000)
   })
 
   it('income + expense gives correct balance', () => {
     const entries = [
-      mapEntry({ entry_type: 'income', amount: 20000 }),
-      mapEntry({ entry_type: 'expense', amount: 8000 }),
+      mapProjectEntry(makeRecord({ entry_type: 'income', amount: 20000, id: 'e1' })),
+      mapProjectEntry(makeRecord({ entry_type: 'expense', amount: 8000, id: 'e2' })),
     ]
-    const s = summarise(entries)
+    const s = summarizeEntries(entries)
     expect(s.balance).toBe(12000)
     expect(s.totalIncome).toBe(20000)
     expect(s.totalExpense).toBe(8000)
   })
 
-  it('unknown entry_type maps to "unknown" — does NOT enter income/expense/balance', () => {
-    const entry = mapEntry({ entry_type: 'debit', amount: 9999 })
-    expect(entry.type).toBe('unknown')
-    const s = summarise([entry])
+  it('unknown entry does NOT enter income, expense, or balance', () => {
+    const entries = [mapProjectEntry(makeRecord({ entry_type: 'debit', amount: 9999 }))]
+    const s = summarizeEntries(entries)
     expect(s.totalIncome).toBe(0)
     expect(s.totalExpense).toBe(0)
     expect(s.balance).toBe(0)
   })
 
-  it('unknown entry preserves real amount for display', () => {
-    const entry = mapEntry({ entry_type: 'debit', amount: 4567 })
-    expect(entry.amount).toBe(4567)
-  })
-
-  it('null entry_type maps to "unknown" — excluded from totals', () => {
-    const entry = mapEntry({ entry_type: null, amount: 3000 })
-    expect(entry.type).toBe('unknown')
-    const s = summarise([entry])
-    expect(s.balance).toBe(0)
-  })
-
-  it('unknown does not shift balance', () => {
+  it('unknown does not shift balance when mixed with known entries', () => {
     const entries = [
-      mapEntry({ entry_type: 'income', amount: 10000 }),
-      mapEntry({ entry_type: 'debit', amount: 5000 }),
-      mapEntry({ entry_type: 'expense', amount: 2000 }),
+      mapProjectEntry(makeRecord({ entry_type: 'income', amount: 10000, id: 'e1' })),
+      mapProjectEntry(makeRecord({ entry_type: 'debit', amount: 5000, id: 'e2' })),
+      mapProjectEntry(makeRecord({ entry_type: 'expense', amount: 2000, id: 'e3' })),
     ]
-    const s = summarise(entries)
-    expect(s.balance).toBe(8000) // 10000 - 2000, debit excluded
+    expect(summarizeEntries(entries).balance).toBe(8000)
   })
 
   it('entryCount includes unknown entries', () => {
     const entries = [
-      mapEntry({ entry_type: 'income', amount: 100 }),
-      mapEntry({ entry_type: 'debit', amount: 200 }),
+      mapProjectEntry(makeRecord({ entry_type: 'income', id: 'e1' })),
+      mapProjectEntry(makeRecord({ entry_type: 'debit', id: 'e2' })),
     ]
-    expect(summarise(entries).entryCount).toBe(2)
+    expect(summarizeEntries(entries).entryCount).toBe(2)
   })
 
-  it('does not mutate input', () => {
-    const entries = [
-      mapEntry({ entry_type: 'income', amount: 1000 }),
-      mapEntry({ entry_type: 'expense', amount: 500 }),
-    ]
+  it('does not mutate input array', () => {
+    const entries = [mapProjectEntry(makeRecord({ entry_type: 'income', amount: 1000 }))]
     const original = JSON.stringify(entries)
-    summarise(entries)
+    summarizeEntries(entries)
     expect(JSON.stringify(entries)).toBe(original)
   })
 })

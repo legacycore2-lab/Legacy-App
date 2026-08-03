@@ -1,33 +1,27 @@
-import { getSupabaseClient } from '../lib/supabase/client'
-
 export const ENTRIES_PAGE_SIZE = 1000
 
 /**
- * Generic range-based pagination helper for Supabase queries on the entries table.
- * Fetches all rows using sequential range() calls with a stable ORDER BY.
+ * Pure pagination loop — no Supabase dependency.
+ *
+ * Callers (Repositories) supply `fetchPage(from, to)` which internally uses
+ * getSupabaseClient(). This keeps all Supabase access inside Repository/
+ * Infrastructure and makes shared/ genuinely portable.
  *
  * Rules:
- * - page size = 1000 (Supabase default cap)
- * - stable ordering is REQUIRED before range() to avoid duplicate/missing rows
+ * - pageSize = 1000 (Supabase default cap)
+ * - stable ORDER BY is the caller's responsibility before passing the fetcher
  * - continues until page.length < pageSize
  * - throws on any page error — never returns partial data silently
- *
- * @param buildQuery Function that receives (client, from, to) and returns an
- *   awaitable with { data, error }. The query MUST include .order() for stable results.
  */
 export async function fetchAllWithPagination<T>(
-  buildQuery: (
-    client: ReturnType<typeof getSupabaseClient>,
-    from: number,
-    to: number,
-  ) => PromiseLike<{ data: unknown[] | null; error: unknown }>,
+  fetchPage: (from: number, to: number) => PromiseLike<{ data: unknown[] | null; error: unknown }>,
 ): Promise<T[]> {
   const rows: T[] = []
   let from = 0
 
   while (true) {
     const to = from + ENTRIES_PAGE_SIZE - 1
-    const { data, error } = await buildQuery(getSupabaseClient(), from, to)
+    const { data, error } = await fetchPage(from, to)
 
     if (error) throw error
 

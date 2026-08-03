@@ -1,4 +1,4 @@
-import { ArrowDownLeft, ArrowUpRight, ReceiptText } from 'lucide-react'
+import { AlertCircle, ArrowDownLeft, ArrowUpRight, ReceiptText } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import type { DashboardEntry } from '../types/dashboard.types'
 
@@ -26,11 +26,13 @@ export function RecentEntries({ entries }: { entries: DashboardEntry[] }) {
         ) : (
           entries.map((entry) => {
             const income = entry.type === 'income'
-            const Icon = income ? ArrowDownLeft : ArrowUpRight
+            const expense = entry.type === 'expense'
+            const Icon = income ? ArrowDownLeft : expense ? ArrowUpRight : AlertCircle
+            const colorClass = income ? 'income' : expense ? 'expense' : 'unknown'
             return (
               <div className="entry-row" key={entry.id}>
-                <span className={`entry-icon ${income ? 'income' : 'expense'}`}>
-                  <Icon size={17} />
+                <span className={`entry-icon ${colorClass}`}>
+                  <Icon size={17} aria-label={income ? 'إيراد' : expense ? 'مصروف' : 'نوع غير معروف'} />
                 </span>
                 <div className="entry-copy">
                   <strong>{entry.description}</strong>
@@ -38,9 +40,9 @@ export function RecentEntries({ entries }: { entries: DashboardEntry[] }) {
                     {entry.project} · {entry.date}
                   </small>
                 </div>
-                <div className={`entry-amount ${income ? 'income' : 'expense'}`}>
+                <div className={`entry-amount ${colorClass}`}>
                   <strong>
-                    {income ? '+' : '-'} {entry.amount}
+                    {income ? '+' : expense ? '-' : ''} {entry.amount}
                   </strong>
                   <small>{entry.id}</small>
                 </div>
