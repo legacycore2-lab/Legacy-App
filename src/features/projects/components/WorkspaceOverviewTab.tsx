@@ -1,4 +1,6 @@
 import { BarChart3, Building2, ChevronLeft, FileText, Paperclip } from 'lucide-react'
+import { formatAccountingDate } from '../../../shared/date-utils'
+import { formatMoneyInteger } from '../../../shared/formatters'
 import type { MonthlyCashflowBar, ProjectDetailsViewModel } from '../types/project.types'
 
 type Props = {
@@ -8,31 +10,12 @@ type Props = {
   onNavigate: (path: string) => void
 }
 
-const money = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'EGP',
-  currencyDisplay: 'code',
-  maximumFractionDigits: 0,
-})
-
-const dateFormatter = new Intl.DateTimeFormat('ar-EG', {
-  year: 'numeric',
-  month: 'short',
-  day: 'numeric',
-})
-
 function Currency({ value }: { value: number }) {
   return (
     <bdi dir="ltr" className="project-command__currency">
-      {money.format(value)}
+      {formatMoneyInteger(value)}
     </bdi>
   )
-}
-
-function formatDate(value: string) {
-  if (!value) return 'غير محدد'
-  const parsed = new Date(value)
-  return Number.isNaN(parsed.getTime()) ? value : dateFormatter.format(parsed)
 }
 
 export function WorkspaceOverviewTab({ viewModel, monthlyCashflow, projectQuery, onNavigate }: Props) {
@@ -40,7 +23,6 @@ export function WorkspaceOverviewTab({ viewModel, monthlyCashflow, projectQuery,
 
   return (
     <div className="project-workspace__dashboard-grid">
-      {/* ── Cashflow chart ── */}
       <article className="project-command__panel project-workspace__cashflow">
         <div className="project-command__panel-heading">
           <div>
@@ -60,7 +42,7 @@ export function WorkspaceOverviewTab({ viewModel, monthlyCashflow, projectQuery,
             {monthlyCashflow.map((bar) => (
               <div
                 key={bar.label}
-                title={`${bar.label}: إيرادات ${money.format(bar.incomeAmount)} — مصروفات ${money.format(bar.expenseAmount)}`}
+                title={`${bar.label}: إيرادات ${formatMoneyInteger(bar.incomeAmount)} — مصروفات ${formatMoneyInteger(bar.expenseAmount)}`}
               >
                 <i style={{ height: `${Math.max(4, bar.incomeHeight)}%` }} aria-hidden="true" />
                 <b style={{ height: `${Math.max(4, bar.expenseHeight)}%` }} aria-hidden="true" />
@@ -71,7 +53,6 @@ export function WorkspaceOverviewTab({ viewModel, monthlyCashflow, projectQuery,
         )}
       </article>
 
-      {/* ── Donut distribution ── */}
       <article className="project-command__panel project-workspace__distribution">
         <div className="project-command__panel-heading">
           <div>
@@ -100,7 +81,6 @@ export function WorkspaceOverviewTab({ viewModel, monthlyCashflow, projectQuery,
         </div>
       </article>
 
-      {/* ── Project facts ── */}
       <article className="project-command__panel project-workspace__facts">
         <div className="project-command__panel-heading">
           <div>
@@ -130,16 +110,15 @@ export function WorkspaceOverviewTab({ viewModel, monthlyCashflow, projectQuery,
           </div>
           <div>
             <dt>تاريخ البداية</dt>
-            <dd>{formatDate(project.startDate)}</dd>
+            <dd>{formatAccountingDate(project.startDate)}</dd>
           </div>
           <div>
             <dt>تاريخ الانتهاء</dt>
-            <dd>{formatDate(project.endDate)}</dd>
+            <dd>{formatAccountingDate(project.endDate)}</dd>
           </div>
         </dl>
       </article>
 
-      {/* ── Recent entries ── */}
       <article className="project-command__panel project-workspace__entries">
         <div className="project-command__panel-heading">
           <div>
@@ -169,7 +148,7 @@ export function WorkspaceOverviewTab({ viewModel, monthlyCashflow, projectQuery,
                 {analytics.recentEntries.map((entry) => (
                   <tr key={entry.id}>
                     <td>#{entry.seq ?? '—'}</td>
-                    <td>{formatDate(entry.entryDate)}</td>
+                    <td>{formatAccountingDate(entry.entryDate)}</td>
                     <td>{entry.description || '—'}</td>
                     <td>
                       <span
@@ -190,7 +169,6 @@ export function WorkspaceOverviewTab({ viewModel, monthlyCashflow, projectQuery,
         )}
       </article>
 
-      {/* ── Attachments placeholder ── */}
       <article className="project-command__panel project-workspace__attachments">
         <div className="project-command__panel-heading">
           <div>
