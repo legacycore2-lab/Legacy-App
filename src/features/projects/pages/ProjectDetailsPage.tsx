@@ -43,6 +43,7 @@ import { WorkspaceContractorsTab } from '../components/WorkspaceContractorsTab'
 import { WorkspaceAttachmentsTab } from '../components/WorkspaceAttachmentsTab'
 import { WorkspaceJournalTab } from '../components/WorkspaceJournalTab'
 import { WorkspaceOverviewTab } from '../components/WorkspaceOverviewTab'
+import { WorkspaceReportsTab } from '../components/WorkspaceReportsTab'
 import { useProjectCreateForm } from '../hooks/useProjectCreateForm'
 import { useProjectArchive } from '../hooks/useProjectArchive'
 import { useProjectDelete } from '../hooks/useProjectDelete'
@@ -119,7 +120,6 @@ export function ProjectDetailsPage() {
     const routeByTab: Partial<Record<WorkspaceTabId, string>> = {
       banks: `/banks?${projectQuery}`,
       advances: `/advances?${projectQuery}`,
-      reports: `/reports?${projectQuery}`,
       settings: `/settings?${projectQuery}`,
     }
     const route = routeByTab[tabId]
@@ -337,6 +337,8 @@ export function ProjectDetailsPage() {
           <WorkspaceJournalTab journalViewModel={journalViewModel} onAddEntry={openProjectJournal} />
         ) : activeTab === 'finance' && financeViewModel ? (
           <WorkspaceFinanceTab financeViewModel={financeViewModel} />
+        ) : activeTab === 'reports' ? (
+          <WorkspaceReportsTab viewModel={viewModel} journalViewModel={journalViewModel} />
         ) : (
           <>
             <div className="project-workspace__kpis">
