@@ -12,6 +12,7 @@ import {
 import { useRef, useState } from 'react'
 import { formatAccountingDate } from '../../../shared/date-utils'
 import { toErrorMessage } from '../../../shared/errors/app-error'
+import { useDialogAccessibility } from '../../../shared/hooks/useDialogAccessibility'
 import type { ProjectEntry } from '../types/project.types'
 import {
   useAttachmentSignedUrl,
@@ -56,8 +57,16 @@ function ConfirmDeleteDialog({
   isDeleting: boolean
   deleteError: string
 }) {
+  const dialogRef = useDialogAccessibility<HTMLDivElement>(true, onCancel, !isDeleting)
+
   return (
-    <div className="attachment-confirm-overlay" role="dialog" aria-modal="true" aria-label="تأكيد الحذف">
+    <div
+      ref={dialogRef}
+      className="attachment-confirm-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="تأكيد الحذف"
+    >
       <div className="attachment-confirm">
         <AlertTriangle size={28} className="attachment-confirm__icon" />
         <h3>حذف المرفق</h3>

@@ -1,12 +1,21 @@
 import { ArrowDownToLine, LoaderCircle, X } from 'lucide-react'
+import { useDialogAccessibility } from '../../../shared/hooks/useDialogAccessibility'
 import type { CashBankDepositFormState } from '../types/cash-banks.types'
 
 export function CashBankDepositDialog({ form }: { form: CashBankDepositFormState }) {
+  const dialogRef = useDialogAccessibility<HTMLElement>(form.isOpen, form.close, !form.isSaving)
+
   if (!form.isOpen) return null
 
   return (
     <div className="cash-bank-dialog-backdrop" role="presentation">
-      <section className="cash-bank-dialog" role="dialog" aria-modal="true" aria-labelledby="deposit-title">
+      <section
+        ref={dialogRef}
+        className="cash-bank-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="deposit-title"
+      >
         <header>
           <div>
             <span>حركة مالية</span>

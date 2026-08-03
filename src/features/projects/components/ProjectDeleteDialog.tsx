@@ -1,4 +1,5 @@
 import { LoaderCircle, Trash2, X } from 'lucide-react'
+import { useDialogAccessibility } from '../../../shared/hooks/useDialogAccessibility'
 
 type ProjectDeleteDialogProps = {
   open: boolean
@@ -23,11 +24,14 @@ export function ProjectDeleteDialog({
   onClose,
   onConfirm,
 }: ProjectDeleteDialogProps) {
+  const dialogRef = useDialogAccessibility<HTMLElement>(open, onClose, !isDeleting)
+
   if (!open) return null
 
   return (
     <div className="project-create-backdrop" role="presentation">
       <section
+        ref={dialogRef}
         className="project-create-dialog"
         role="dialog"
         aria-modal="true"
