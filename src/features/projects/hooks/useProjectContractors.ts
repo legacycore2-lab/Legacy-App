@@ -54,5 +54,7 @@ export function deriveExpandedContractor(
   expandedKey: string | null,
 ): ProjectContractor | null {
   if (!expandedKey) return null
-  return contractors.find((contractor) => contractor.key === expandedKey) ?? null
+  return (
+    contractors.find((contractor) => contractor.key === expandedKey) ?? null
+  )
 }
