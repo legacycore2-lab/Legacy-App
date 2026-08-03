@@ -1,32 +1,14 @@
 import { ArrowDownLeft, ArrowUpRight, ClipboardList, Plus, Scale } from 'lucide-react'
+import { formatAccountingDate } from '../../../shared/date-utils'
+import { formatMoneyInteger } from '../../../shared/formatters'
 import type { ProjectJournalViewModel } from '../types/project.types'
-
-const money = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'EGP',
-  currencyDisplay: 'code',
-  maximumFractionDigits: 0,
-})
-
-const dateFormatter = new Intl.DateTimeFormat('ar-EG', {
-  year: 'numeric',
-  month: 'short',
-  day: 'numeric',
-})
 
 function Currency({ value }: { value: number }) {
   return (
     <bdi dir="ltr" className="project-command__currency">
-      {money.format(value)}
+      {formatMoneyInteger(value)}
     </bdi>
   )
-}
-
-function formatDate(value: string) {
-  const datePart = value.slice(0, 10)
-  const [year, month, day] = datePart.split('-').map(Number)
-  if (!year || !month || !day) return value || 'غير محدد'
-  return dateFormatter.format(new Date(Date.UTC(year, month - 1, day)))
 }
 
 type Props = {
@@ -116,7 +98,7 @@ export function WorkspaceJournalTab({ journalViewModel, onAddEntry }: Props) {
                 {entries.map((entry) => (
                   <tr key={entry.id}>
                     <td data-label="رقم القيد">{entry.seq ?? '—'}</td>
-                    <td data-label="التاريخ">{formatDate(entry.entryDate)}</td>
+                    <td data-label="التاريخ">{formatAccountingDate(entry.entryDate)}</td>
                     <td data-label="النوع">
                       <span className={`project-journal-tab__type is-${entry.type}`}>
                         {entry.type === 'income' ? 'إيراد' : entry.type === 'expense' ? 'مصروف' : 'غير معروف'}

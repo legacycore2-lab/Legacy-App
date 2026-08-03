@@ -1,32 +1,12 @@
 import { AlertCircle, ArrowDownLeft, ArrowUpRight, ExternalLink, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { formatAccountingDate } from '../../../shared/date-utils'
+import { formatMoneyInteger } from '../../../shared/formatters'
 import type { Contractor } from '../types/contractor.types'
 
 type Props = {
   contractor: Contractor
   onClose: () => void
-}
-
-const money = new Intl.NumberFormat('ar-EG', {
-  style: 'currency',
-  currency: 'EGP',
-  maximumFractionDigits: 0,
-})
-
-const dateFormatter = new Intl.DateTimeFormat('ar-EG', {
-  year: 'numeric',
-  month: 'short',
-  day: 'numeric',
-  timeZone: 'UTC',
-})
-
-function formatDate(dateKey: string): string {
-  const parts = dateKey.slice(0, 10).split('-').map(Number)
-  const y = parts[0] ?? 0
-  const m = parts[1] ?? 1
-  const d = parts[2] ?? 1
-  if (!y) return dateKey
-  return dateFormatter.format(new Date(Date.UTC(y, m - 1, d)))
 }
 
 export function ContractorDetailsPanel({ contractor, onClose }: Props) {
@@ -48,16 +28,16 @@ export function ContractorDetailsPanel({ contractor, onClose }: Props) {
       <div className="contractor-panel__kpis">
         <div className="contractor-panel__kpi">
           <small>إجمالي الإيرادات</small>
-          <strong className="is-income">{money.format(contractor.totalIncome)}</strong>
+          <strong className="is-income">{formatMoneyInteger(contractor.totalIncome)}</strong>
         </div>
         <div className="contractor-panel__kpi">
           <small>إجمالي المصروفات</small>
-          <strong className="is-expense">{money.format(contractor.totalExpense)}</strong>
+          <strong className="is-expense">{formatMoneyInteger(contractor.totalExpense)}</strong>
         </div>
         <div className="contractor-panel__kpi">
           <small>صافي الحركة</small>
           <strong className={contractor.netMovement >= 0 ? 'is-income' : 'is-expense'}>
-            {money.format(contractor.netMovement)}
+            {formatMoneyInteger(contractor.netMovement)}
           </strong>
         </div>
         <div className="contractor-panel__kpi">
@@ -107,8 +87,8 @@ export function ContractorDetailsPanel({ contractor, onClose }: Props) {
                 {entry.projectName && <small>{entry.projectName}</small>}
               </div>
               <div className="contractor-panel__entry-meta">
-                <strong>{money.format(entry.amount)}</strong>
-                <small>{formatDate(entry.entryDate)}</small>
+                <strong>{formatMoneyInteger(entry.amount)}</strong>
+                <small>{formatAccountingDate(entry.entryDate)}</small>
               </div>
             </div>
           ))}
