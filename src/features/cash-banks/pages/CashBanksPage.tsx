@@ -48,6 +48,7 @@ export function CashBanksPage() {
           onDeposit={depositForm.open}
           onWithdrawal={withdrawalForm.open}
           onTransfer={transferForm.open}
+          onCreateAccount={accountForm.openCreate}
         />
       </div>
     </section>

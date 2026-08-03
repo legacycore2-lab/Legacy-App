@@ -116,14 +116,13 @@ export function Sidebar({ open, onClose, userName, roleLabel, canAccess, onLogou
         </nav>
 
         <div className="lc-sidebar__footer">
-          <button className="lc-sidebar__profile" type="button">
+          <div className="lc-sidebar__profile">
             <span className="avatar">{avatarLetter}</span>
             <span className="lc-sidebar__profile-copy">
               <strong>{userName}</strong>
               <small>{roleLabel}</small>
             </span>
-            <ChevronLeft size={16} aria-hidden="true" />
-          </button>
+          </div>
 
           <button className="lc-sidebar__logout" type="button" onClick={onLogout}>
             <LogOut size={17} aria-hidden="true" />

@@ -1,4 +1,4 @@
-import { ChevronDown, LogOut, Settings, UserRound } from 'lucide-react'
+import { ChevronDown, LogOut, Settings } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 type Props = {
@@ -34,10 +34,6 @@ export function ProfileMenu({ open, onToggle, userName, roleLabel, canManageSyst
       </button>
       {open && (
         <div className="topbar-popover profile-popover" role="menu">
-          <button type="button" role="menuitem">
-            <UserRound size={17} />
-            <span>الملف الشخصي</span>
-          </button>
           {canManageSystem && (
             <button type="button" role="menuitem" onClick={() => navigate('/settings')}>
               <Settings size={17} />

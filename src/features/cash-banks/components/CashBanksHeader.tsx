@@ -9,10 +9,10 @@ export function CashBanksHeader({ asOfDate, onCreate }: { asOfDate: string; onCr
         <p>مركز موحد لمراقبة السيولة والحسابات والحركات اليومية.</p>
       </div>
       <div className="cash-banks-hero__actions">
-        <button className="cash-banks-date" type="button">
+        <span className="cash-banks-date">
           <CalendarDays size={17} />
           {asOfDate}
-        </button>
+        </span>
         <button className="cash-banks-primary" type="button" onClick={onCreate}>
           <Plus size={18} />
           حساب جديد
