@@ -1,4 +1,5 @@
 import { getSupabaseClient } from '../../../lib/supabase/client'
+import { fetchAllWithPagination } from '../../../shared/pagination-helpers'
 import { createSignedUrl } from './project-attachments.repository'
 import type {
   ActivityAttachmentRecord,
@@ -18,17 +19,19 @@ export async function findActivityProject(projectId: string): Promise<ActivityPr
   return data as ActivityProjectRecord | null
 }
 
-/** Fetches all entries for a project, oldest-first for timeline building. */
+/**
+ * Fetches all entries for a project, paginated with stable ordering.
+ * entry_number ASC ensures consistent pages; oldest-first for timeline display.
+ */
 export async function findActivityEntries(projectId: string): Promise<ActivityEntryRecord[]> {
-  const { data, error } = await getSupabaseClient()
-    .from('entries')
-    .select('id, entry_number, entry_type, amount, description, entry_date, project_id')
-    .eq('project_id', projectId)
-    .order('entry_date', { ascending: true })
-    .order('entry_number', { ascending: true })
-
-  if (error) throw error
-  return (data ?? []) as ActivityEntryRecord[]
+  return fetchAllWithPagination<ActivityEntryRecord>((client, from, to) =>
+    client
+      .from('entries')
+      .select('id, entry_number, entry_type, amount, description, entry_date, project_id')
+      .eq('project_id', projectId)
+      .order('entry_number', { ascending: true })
+      .range(from, to),
+  )
 }
 
 /** Fetches all attachments for a project via entries FK chain. */

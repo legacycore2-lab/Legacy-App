@@ -1,4 +1,5 @@
 import { getSupabaseClient } from '../../../lib/supabase/client'
+import { fetchAllWithPagination } from '../../../shared/pagination-helpers'
 import { subscribeToTableChanges } from '../../../lib/supabase/realtime'
 import type {
   DashboardEntryRecord,
@@ -30,15 +31,15 @@ async function findProjects(): Promise<DashboardProjectRecord[]> {
 }
 
 async function findEntries(): Promise<DashboardEntryRecord[]> {
-  const { data, error } = await getSupabaseClient()
-    .from('entries')
-    .select(DASHBOARD_ENTRY_FIELDS)
-    .order('entry_date', { ascending: false })
-    .order('entry_number', { ascending: false })
-
-  if (error) throw error
-
-  return (data ?? []) as unknown as DashboardEntryRecord[]
+  // Paginated to avoid Supabase 1000-row default cap.
+  // Stable order: entry_number ASC (unique surrogate key) for consistent pages.
+  return fetchAllWithPagination<DashboardEntryRecord>((client, from, to) =>
+    client
+      .from('entries')
+      .select(DASHBOARD_ENTRY_FIELDS)
+      .order('entry_number', { ascending: true })
+      .range(from, to),
+  )
 }
 
 export async function findDashboardData(): Promise<DashboardSourceData> {

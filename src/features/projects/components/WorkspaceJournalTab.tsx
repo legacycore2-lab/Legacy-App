@@ -119,7 +119,7 @@ export function WorkspaceJournalTab({ journalViewModel, onAddEntry }: Props) {
                     <td data-label="التاريخ">{formatDate(entry.entryDate)}</td>
                     <td data-label="النوع">
                       <span className={`project-journal-tab__type is-${entry.type}`}>
-                        {entry.type === 'income' ? 'إيراد' : 'مصروف'}
+                        {entry.type === 'income' ? 'إيراد' : entry.type === 'expense' ? 'مصروف' : 'غير معروف'}
                       </span>
                     </td>
                     <td data-label="البند">{entry.category || 'غير مصنف'}</td>

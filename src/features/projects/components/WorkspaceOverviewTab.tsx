@@ -175,7 +175,7 @@ export function WorkspaceOverviewTab({ viewModel, monthlyCashflow, projectQuery,
                       <span
                         className={`project-command__entry-type project-command__entry-type--${entry.type}`}
                       >
-                        {entry.type === 'income' ? 'إيراد' : 'مصروف'}
+                        {entry.type === 'income' ? 'إيراد' : entry.type === 'expense' ? 'مصروف' : 'غير معروف'}
                       </span>
                     </td>
                     <td>

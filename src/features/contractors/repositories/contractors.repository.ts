@@ -1,4 +1,4 @@
-import { getSupabaseClient } from '../../../lib/supabase/client'
+import { fetchAllWithPagination } from '../../../shared/pagination-helpers'
 import type { ContractorEntryRecord } from '../types/contractor.types'
 
 const FIELDS = [
@@ -15,16 +15,16 @@ const FIELDS = [
 
 /**
  * Fetches all entries that have a non-null contractor_name.
+ * Paginated to avoid Supabase 1000-row cap. Stable order: entry_number ASC.
  * No normalisation or aggregation — raw rows only.
  */
 export async function findContractorEntries(): Promise<ContractorEntryRecord[]> {
-  const { data, error } = await getSupabaseClient()
-    .from('entries')
-    .select(FIELDS)
-    .not('contractor_name', 'is', null)
-    .order('entry_date', { ascending: false })
-    .order('entry_number', { ascending: false })
-
-  if (error) throw error
-  return (data ?? []) as unknown as ContractorEntryRecord[]
+  return fetchAllWithPagination<ContractorEntryRecord>((client, from, to) =>
+    client
+      .from('entries')
+      .select(FIELDS)
+      .not('contractor_name', 'is', null)
+      .order('entry_number', { ascending: true })
+      .range(from, to),
+  )
 }

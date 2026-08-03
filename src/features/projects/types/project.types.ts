@@ -78,7 +78,8 @@ export type ProjectEntry = {
   id: string
   seq: number | null
   entryDate: string
-  type: 'income' | 'expense'
+  /** 'unknown' when the raw DB entry_type could not be normalised */
+  type: 'income' | 'expense' | 'unknown'
   category: string
   description: string
   contractor: string

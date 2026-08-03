@@ -1,4 +1,5 @@
 import { getSupabaseClient } from '../../../lib/supabase/client'
+import { fetchAllWithPagination } from '../../../shared/pagination-helpers'
 import { subscribeToTableChanges } from '../../../lib/supabase/realtime'
 import type { ProjectInsertRecord, ProjectRecord } from '../types/project.types'
 
@@ -156,16 +157,19 @@ export async function findProjectById(id: string): Promise<ProjectRecord | null>
   return data as unknown as ProjectRecord | null
 }
 
+/**
+ * Fetches all entries for a project, paginated with stable ordering.
+ * entry_number ASC for consistent pages; service layer sorts for display.
+ */
 export async function findProjectEntries(projectId: string): Promise<ProjectEntryRecord[]> {
-  const { data, error } = await getSupabaseClient()
-    .from('entries')
-    .select(
-      'id, seq:entry_number, entry_date, entry_type, category, description, contractor_name, payment_method, amount',
-    )
-    .eq('project_id', projectId)
-    .order('entry_date', { ascending: false })
-    .order('entry_number', { ascending: false })
-
-  if (error) throw error
-  return (data ?? []) as unknown as ProjectEntryRecord[]
+  return fetchAllWithPagination<ProjectEntryRecord>((client, from, to) =>
+    client
+      .from('entries')
+      .select(
+        'id, seq:entry_number, entry_date, entry_type, category, description, contractor_name, payment_method, amount',
+      )
+      .eq('project_id', projectId)
+      .order('entry_number', { ascending: true })
+      .range(from, to),
+  )
 }

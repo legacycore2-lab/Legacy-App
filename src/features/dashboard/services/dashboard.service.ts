@@ -1,4 +1,5 @@
 import { ArrowDownLeft, ArrowUpRight, BriefcaseBusiness, WalletCards } from 'lucide-react'
+import { normalizeEntryType } from '../../../shared/contractors-helpers'
 import { dashboardActions } from '../data/dashboard.data'
 import { findDashboardData, subscribeToDashboardChanges } from '../repositories/dashboard.repository'
 import type { DashboardData, DashboardEntryRecord, DashboardProjectRecord } from '../types/dashboard.types'
@@ -7,7 +8,7 @@ const numberFormatter = new Intl.NumberFormat('en-US', { maximumFractionDigits: 
 
 function toAmount(value: number | string | null): number {
   const amount = Number(value ?? 0)
-  return Number.isFinite(amount) ? amount : 0
+  return Number.isFinite(amount) && amount >= 0 ? amount : 0
 }
 
 function toProgress(value: number | string | null): number {
@@ -20,23 +21,26 @@ function formatAmount(value: number): string {
   return numberFormatter.format(value)
 }
 
-function normalizeEntryType(type: string | null): 'income' | 'expense' {
-  return type === 'i' || type === 'income' ? 'income' : 'expense'
-}
-
 function isActiveProject(project: DashboardProjectRecord): boolean {
   if (project.is_archived) return false
   return !project.status || project.status === 'active'
 }
 
+/**
+ * Builds a signed balance per project from entries.
+ * unknown entry_type → skipped (not treated as expense).
+ */
 function buildProjectBalances(entries: DashboardEntryRecord[]): Map<string, number> {
-  return entries.reduce((balances, entry) => {
-    if (!entry.project_id) return balances
+  const balances = new Map<string, number>()
+  for (const entry of entries) {
+    if (!entry.project_id) continue
+    const type = normalizeEntryType(entry.type)
+    if (!type) continue // unknown → skip entirely
     const amount = toAmount(entry.amount)
-    const signedAmount = normalizeEntryType(entry.type) === 'income' ? amount : -amount
+    const signedAmount = type === 'income' ? amount : -amount
     balances.set(entry.project_id, (balances.get(entry.project_id) ?? 0) + signedAmount)
-    return balances
-  }, new Map<string, number>())
+  }
+  return balances
 }
 
 function buildProjectNameMap(projects: DashboardProjectRecord[]): Map<string, string> {
@@ -61,17 +65,18 @@ export async function getDashboardData(): Promise<DashboardData> {
   const projectBalances = buildProjectBalances(source.entries)
   const projectNames = buildProjectNameMap(source.projects)
 
-  const totals = source.entries.reduce(
-    (summary, entry) => {
-      const amount = toAmount(entry.amount)
-      if (normalizeEntryType(entry.type) === 'income') summary.income += amount
-      else summary.expense += amount
-      return summary
-    },
-    { income: 0, expense: 0 },
-  )
+  // Totals: unknown entry_type is excluded — never treated as expense
+  let totalIncome = 0
+  let totalExpense = 0
+  for (const entry of source.entries) {
+    const type = normalizeEntryType(entry.type)
+    if (!type) continue
+    const amount = toAmount(entry.amount)
+    if (type === 'income') totalIncome += amount
+    else totalExpense += amount
+  }
 
-  const balance = totals.income - totals.expense
+  const balance = totalIncome - totalExpense
   const activeProjects = source.projects.filter(isActiveProject)
   const alertCount = activeProjects.filter((project) => (projectBalances.get(project.id) ?? 0) < 0).length
 
@@ -97,7 +102,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       },
       {
         label: 'إجمالي الإيرادات',
-        value: formatAmount(totals.income),
+        value: formatAmount(totalIncome),
         trend: 'من القيود الفعلية',
         icon: ArrowDownLeft,
         tone: 'green',
@@ -105,7 +110,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       },
       {
         label: 'إجمالي المصروفات',
-        value: formatAmount(totals.expense),
+        value: formatAmount(totalExpense),
         trend: 'من القيود الفعلية',
         icon: ArrowUpRight,
         tone: 'gold',
@@ -126,14 +131,18 @@ export async function getDashboardData(): Promise<DashboardData> {
       progress: toProgress(project.progress),
       status: resolveProjectStatus(project),
     })),
-    entries: source.entries.slice(0, 3).map((entry) => ({
-      id: entry.seq ? `#${entry.seq}` : entry.id,
-      project: entry.project_id ? (projectNames.get(entry.project_id) ?? 'مشروع غير معروف') : 'بدون مشروع',
-      description: entry.description?.trim() || 'بدون بيان',
-      date: formatEntryDate(entry.entry_date),
-      amount: formatAmount(toAmount(entry.amount)),
-      type: normalizeEntryType(entry.type),
-    })),
+    entries: source.entries.slice(0, 3).map((entry) => {
+      const type = normalizeEntryType(entry.type)
+      return {
+        id: entry.seq ? `#${entry.seq}` : entry.id,
+        project: entry.project_id ? (projectNames.get(entry.project_id) ?? 'مشروع غير معروف') : 'بدون مشروع',
+        description: entry.description?.trim() || 'بدون بيان',
+        date: formatEntryDate(entry.entry_date),
+        amount: formatAmount(toAmount(entry.amount)),
+        // unknown entry_type shown as 'expense' for display only (visual neutral)
+        type: type ?? 'expense',
+      }
+    }),
     actions: dashboardActions,
   }
 }
