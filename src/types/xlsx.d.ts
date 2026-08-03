@@ -1,6 +1,5 @@
 // Legacy Core ERP
-// Stub type declarations for xlsx — package loaded at runtime via CDN
-// Vitest excludes xlsx-dependent tests; build uses rollupOptions.external
+// Minimal declarations for the lazily loaded xlsx package APIs used by the app.
 
 declare module 'xlsx' {
   export interface WorkSheet {

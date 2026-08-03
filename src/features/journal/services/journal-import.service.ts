@@ -1,4 +1,4 @@
-import * as XLSX from 'xlsx'
+import type { WorkSheet } from 'xlsx'
 import { findJournalPostingOptions } from '../repositories/journal.repository'
 import type { JournalPostingOptions } from '../types/journal-entry.types'
 import type {
@@ -30,6 +30,14 @@ const allHeaders = [
 ] as const
 
 type RawImportRow = Record<string, unknown>
+type XlsxModule = typeof import('xlsx')
+
+let xlsxModulePromise: Promise<XlsxModule> | null = null
+
+function loadXlsx(): Promise<XlsxModule> {
+  xlsxModulePromise ??= import('xlsx')
+  return xlsxModulePromise
+}
 
 function normalizeText(value: unknown): string {
   return String(value ?? '')
@@ -63,8 +71,8 @@ function parseAmount(value: unknown): number | null {
   return Number.isFinite(amount) && amount > 0 ? amount : null
 }
 
-function excelSerialToIsoDate(value: number): string | null {
-  const parsed = XLSX.SSF.parse_date_code(value)
+function excelSerialToIsoDate(value: number, xlsx: XlsxModule): string | null {
+  const parsed = xlsx.SSF.parse_date_code(value)
   if (!parsed) return null
 
   const year = String(parsed.y).padStart(4, '0')
@@ -73,8 +81,8 @@ function excelSerialToIsoDate(value: number): string | null {
   return `${year}-${month}-${day}`
 }
 
-function parseDate(value: unknown): string | null {
-  if (typeof value === 'number') return excelSerialToIsoDate(value)
+function parseDate(value: unknown, xlsx: XlsxModule): string | null {
+  if (typeof value === 'number') return excelSerialToIsoDate(value, xlsx)
 
   const text = normalizeText(value)
   if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return null
@@ -127,8 +135,8 @@ function buildDuplicateKey(row: JournalImportRow): string {
   ].join('|')
 }
 
-function validateHeaders(sheet: XLSX.WorkSheet): void {
-  const rows = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, blankrows: false })
+function validateHeaders(sheet: WorkSheet, xlsx: XlsxModule): void {
+  const rows = xlsx.utils.sheet_to_json<unknown[]>(sheet, { header: 1, blankrows: false })
   const headers = (rows[0] ?? []).map(normalizeText)
   const missing = requiredHeaders.filter((header) => !headers.includes(header))
 
@@ -137,9 +145,14 @@ function validateHeaders(sheet: XLSX.WorkSheet): void {
   }
 }
 
-function mapRow(raw: RawImportRow, excelRow: number, options: JournalPostingOptions): JournalImportRow {
+function mapRow(
+  raw: RawImportRow,
+  excelRow: number,
+  options: JournalPostingOptions,
+  xlsx: XlsxModule,
+): JournalImportRow {
   const projectName = normalizeText(raw.Project)
-  const date = parseDate(raw.Date)
+  const date = parseDate(raw.Date, xlsx)
   const type = parseType(normalizeText(raw.Type))
   const category = normalizeText(raw.Category)
   const description = normalizeText(raw.Description)
@@ -210,13 +223,17 @@ export async function parseJournalImportFile(file: File): Promise<JournalImportP
   if (!/\.(xlsx|xls)$/i.test(file.name)) throw new Error('اختر ملف Excel بصيغة XLSX أو XLS فقط.')
   if (file.size > journalImportLimits.maxFileSizeBytes) throw new Error('حجم الملف يتجاوز الحد الأقصى 5 MB.')
 
-  const [buffer, options] = await Promise.all([file.arrayBuffer(), findJournalPostingOptions()])
-  const workbook = XLSX.read(buffer, { type: 'array', cellDates: false })
+  const [buffer, options, xlsx] = await Promise.all([
+    file.arrayBuffer(),
+    findJournalPostingOptions(),
+    loadXlsx(),
+  ])
+  const workbook = xlsx.read(buffer, { type: 'array', cellDates: false })
   const sheet = workbook.Sheets[SHEET_NAME]
   if (!sheet) throw new Error(`يجب أن يحتوي الملف على Sheet باسم ${SHEET_NAME}.`)
 
-  validateHeaders(sheet)
-  const rawRows = XLSX.utils.sheet_to_json<RawImportRow>(sheet, { defval: '', raw: true })
+  validateHeaders(sheet, xlsx)
+  const rawRows = xlsx.utils.sheet_to_json<RawImportRow>(sheet, { defval: '', raw: true })
   const nonEmptyRows = rawRows.filter((row) => allHeaders.some((header) => normalizeText(row[header])))
 
   if (nonEmptyRows.length === 0) throw new Error('لا توجد صفوف بيانات داخل الملف.')
@@ -224,7 +241,7 @@ export async function parseJournalImportFile(file: File): Promise<JournalImportP
     throw new Error(`عدد الصفوف يتجاوز الحد الأقصى ${journalImportLimits.maxRows} صف.`)
   }
 
-  const rows = markDuplicates(nonEmptyRows.map((row, index) => mapRow(row, index + 2, options)))
+  const rows = markDuplicates(nonEmptyRows.map((row, index) => mapRow(row, index + 2, options, xlsx)))
   const validRows = rows.filter((row) => row.status === 'valid').length
   const invalidRows = rows.length - validRows
 
@@ -239,13 +256,13 @@ export async function parseJournalImportFile(file: File): Promise<JournalImportP
 }
 
 export async function downloadJournalImportTemplate(): Promise<void> {
-  const options = await findJournalPostingOptions()
-  const workbook = XLSX.utils.book_new()
+  const [options, xlsx] = await Promise.all([findJournalPostingOptions(), loadXlsx()])
+  const workbook = xlsx.utils.book_new()
   const exampleProject = options.projects[0]?.name ?? 'اسم مشروع موجود بالنظام'
   const expenseAccount = options.accounts.find((account) => account.accountType === 'expense')
   const paymentAccount = options.accounts.find((account) => account.accountType === 'asset')
 
-  const journalSheet = XLSX.utils.aoa_to_sheet([
+  const journalSheet = xlsx.utils.aoa_to_sheet([
     [...allHeaders],
     [
       exampleProject,
@@ -274,7 +291,7 @@ export async function downloadJournalImportTemplate(): Promise<void> {
   journalSheet['!autofilter'] = { ref: `A1:I${journalImportLimits.maxRows + 1}` }
   journalSheet['!freeze'] = { xSplit: 0, ySplit: 1 }
 
-  const instructionsSheet = XLSX.utils.aoa_to_sheet([
+  const instructionsSheet = xlsx.utils.aoa_to_sheet([
     ['تعليمات استيراد القيود اليومية'],
     ['Project', 'استخدم اسم مشروع من Sheet المراجع.'],
     ['Date', 'التاريخ بصيغة YYYY-MM-DD.'],
@@ -308,15 +325,15 @@ export async function downloadJournalImportTemplate(): Promise<void> {
     revenueAccounts[index]?.[0] ?? '',
     paymentAccounts[index]?.[0] ?? '',
   ])
-  const referencesSheet = XLSX.utils.aoa_to_sheet([
+  const referencesSheet = xlsx.utils.aoa_to_sheet([
     ['المشاريع', 'حسابات المصروفات', 'حسابات الإيرادات', 'حسابات الدفع'],
     ...references,
   ])
   referencesSheet['!cols'] = [{ wch: 28 }, { wch: 34 }, { wch: 34 }, { wch: 34 }]
   referencesSheet['!freeze'] = { xSplit: 0, ySplit: 1 }
 
-  XLSX.utils.book_append_sheet(workbook, journalSheet, SHEET_NAME)
-  XLSX.utils.book_append_sheet(workbook, instructionsSheet, 'Instructions')
-  XLSX.utils.book_append_sheet(workbook, referencesSheet, 'References')
-  XLSX.writeFile(workbook, TEMPLATE_FILE_NAME)
+  xlsx.utils.book_append_sheet(workbook, journalSheet, SHEET_NAME)
+  xlsx.utils.book_append_sheet(workbook, instructionsSheet, 'Instructions')
+  xlsx.utils.book_append_sheet(workbook, referencesSheet, 'References')
+  xlsx.writeFile(workbook, TEMPLATE_FILE_NAME)
 }
