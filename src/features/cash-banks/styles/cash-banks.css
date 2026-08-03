@@ -253,9 +253,6 @@
   margin: 3px 0 0;
   font-size: 17px;
 }
-.cash-banks-panel__header button {
-  color: var(--primary);
-}
 .cash-banks-chart {
   min-height: 270px;
 }
@@ -390,7 +387,7 @@
 }
 .cash-banks-quick__grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
 }
 .cash-banks-quick__grid button {

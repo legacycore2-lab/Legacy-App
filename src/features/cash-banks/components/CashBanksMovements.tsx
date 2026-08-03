@@ -27,7 +27,6 @@ export function CashBanksMovements({
           <span>مراقبة فورية</span>
           <h2>آخر الحركات</h2>
         </div>
-        <button type="button">عرض الكل</button>
       </div>
       <div className="cash-banks-table-wrap">
         <table>

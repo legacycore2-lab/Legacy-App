@@ -15,7 +15,6 @@ export function CashBanksAccounts({
           <span>الحسابات النشطة</span>
           <h2>الحسابات الرئيسية</h2>
         </div>
-        <button type="button">عرض الكل</button>
       </div>
       <div className="cash-banks-account-grid">
         {accounts.map((account) => (

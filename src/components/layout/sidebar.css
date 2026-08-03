@@ -245,7 +245,6 @@
   border-top: 1px solid rgba(209, 170, 96, 0.14);
 }
 
-.lc-sidebar__profile,
 .lc-sidebar__logout {
   width: 100%;
   border: 0;
@@ -263,10 +262,6 @@
   color: #f6f3e9;
   background: rgba(255, 255, 255, 0.035);
   text-align: right;
-}
-
-.lc-sidebar__profile:hover {
-  background: rgba(255, 255, 255, 0.055);
 }
 
 .lc-sidebar__profile-copy {
