@@ -8,6 +8,7 @@ export default defineConfig({
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
+      '**/e2e/**',
       'src/features/projects/services/excel-parser.service.test.ts',
     ],
   },
