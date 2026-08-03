@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
-import { toErrorMessage } from '../../../shared/errors/app-error'
+import { isPermissionError, toErrorMessage } from '../../../shared/errors/app-error'
 import {
   buildProjectContractorsViewModel,
   getProjectContractors,
@@ -17,6 +17,7 @@ export function useProjectContractors(projectId: string | null): {
   toggleExpanded: (key: string) => void
   isLoading: boolean
   error: string
+  isPermissionDenied: boolean
 } {
   const [expandedKey, setExpandedKey] = useState<string | null>(null)
 
@@ -27,10 +28,12 @@ export function useProjectContractors(projectId: string | null): {
     staleTime: 30_000,
   })
 
-  const viewModel: ProjectContractorsViewModel | null = data ? buildProjectContractorsViewModel(data) : null
+  const viewModel: ProjectContractorsViewModel | null = data
+    ? buildProjectContractorsViewModel(data)
+    : null
 
   function toggleExpanded(key: string) {
-    setExpandedKey((prev) => (prev === key ? null : key))
+    setExpandedKey((previous) => (previous === key ? null : key))
   }
 
   return {
@@ -39,14 +42,14 @@ export function useProjectContractors(projectId: string | null): {
     toggleExpanded,
     isLoading,
     error: error ? toErrorMessage(error, 'تعذر تحميل بيانات المقاولين.') : '',
+    isPermissionDenied: isPermissionError(error),
   }
 }
 
-// Exported for testing — pure derivation without hook machinery
 export function deriveExpandedContractor(
   contractors: ProjectContractor[],
   expandedKey: string | null,
 ): ProjectContractor | null {
   if (!expandedKey) return null
-  return contractors.find((c) => c.key === expandedKey) ?? null
+  return contractors.find((contractor) => contractor.key === expandedKey) ?? null
 }
