@@ -27,6 +27,7 @@ export function useCashBankWithdrawalForm(): CashBankWithdrawalFormState {
     queryKey: ['cash-banks', 'withdrawal-options'],
     queryFn: getCashBankWithdrawalOptions,
     staleTime: 60_000,
+    enabled: isOpen,
   })
   const selectedSource = optionsQuery.data?.sourceAccounts.find(
     (account) => account.id === value.sourceAccountId,

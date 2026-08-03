@@ -27,6 +27,7 @@ export function useCashBankDepositForm(): CashBankDepositFormState {
     queryKey: ['cash-banks', 'deposit-options'],
     queryFn: getCashBankDepositOptions,
     staleTime: 60_000,
+    enabled: isOpen,
   })
   const selectedDestination = optionsQuery.data?.destinationAccounts.find(
     (account) => account.id === value.destinationAccountId,

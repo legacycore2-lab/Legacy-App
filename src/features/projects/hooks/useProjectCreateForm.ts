@@ -37,7 +37,10 @@ export function useProjectCreateForm(): ProjectCreateFormState {
     mutationFn: ({ input, projectId }: { input: ProjectCreateInput; projectId?: string }) =>
       saveProject(input, projectId),
     onSuccess: async (_project, variables) => {
-      const invalidations = [queryClient.invalidateQueries({ queryKey: ['projects'] })]
+      const invalidations = [
+        queryClient.invalidateQueries({ queryKey: ['projects'] }),
+        queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+      ]
       if (variables.projectId) {
         invalidations.push(
           queryClient.invalidateQueries({ queryKey: ['project-details', variables.projectId] }),

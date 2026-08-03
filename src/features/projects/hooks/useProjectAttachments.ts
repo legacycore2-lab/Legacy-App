@@ -50,7 +50,10 @@ export function useUploadAttachment(projectId: string) {
   const mutation = useMutation({
     mutationFn: (input: AttachmentUploadInput) => uploadAttachment(input),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: attachmentsKey(projectId) })
+      void Promise.all([
+        queryClient.invalidateQueries({ queryKey: attachmentsKey(projectId) }),
+        queryClient.invalidateQueries({ queryKey: ['project-activity', projectId] }),
+      ])
     },
   })
 
@@ -73,7 +76,10 @@ export function useDeleteAttachment(
   const mutation = useMutation({
     mutationFn: (attachmentId: string) => deleteAttachment(attachmentId),
     onSuccess: (result: DeleteAttachmentResult) => {
-      void queryClient.invalidateQueries({ queryKey: attachmentsKey(projectId) })
+      void Promise.all([
+        queryClient.invalidateQueries({ queryKey: attachmentsKey(projectId) }),
+        queryClient.invalidateQueries({ queryKey: ['project-activity', projectId] }),
+      ])
       if (result.kind === 'cleanup_warning' && onCleanupWarning) {
         onCleanupWarning(result)
       }

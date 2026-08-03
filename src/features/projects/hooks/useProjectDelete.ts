@@ -16,7 +16,11 @@ export function useProjectDelete(projectId: string | null, projectName: string) 
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['projects'] }),
+        queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
         queryClient.removeQueries({ queryKey: ['project-details', projectId] }),
+        queryClient.removeQueries({ queryKey: ['project-activity', projectId] }),
+        queryClient.removeQueries({ queryKey: ['project-attachments', projectId] }),
+        queryClient.removeQueries({ queryKey: ['project-contractors', projectId] }),
       ])
     },
   })

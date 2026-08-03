@@ -27,6 +27,7 @@ export function useCashBankTransferForm(): CashBankTransferFormState {
     queryKey: ['cash-banks', 'transfer-options'],
     queryFn: getCashBankTransferOptions,
     staleTime: 60_000,
+    enabled: isOpen,
   })
   const selectedSource = optionsQuery.data?.accounts.find((account) => account.id === value.sourceAccountId)
   const errors = useMemo(
