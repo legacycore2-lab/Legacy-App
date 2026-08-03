@@ -60,7 +60,15 @@ export function useJournalImport() {
     try {
       const importedCount = await commitJournalImport(preview)
       setSuccess(`تم استيراد ${importedCount} قيد بنجاح.`)
-      await queryClient.invalidateQueries({ queryKey: ['journal'] })
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['journal'] }),
+        queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+        queryClient.invalidateQueries({ queryKey: ['projects'] }),
+        queryClient.invalidateQueries({ queryKey: ['contractors'] }),
+        queryClient.invalidateQueries({ queryKey: ['project-details'] }),
+        queryClient.invalidateQueries({ queryKey: ['project-activity'] }),
+        queryClient.invalidateQueries({ queryKey: ['project-contractors'] }),
+      ])
     } catch (caughtError) {
       setError(toErrorMessage(caughtError, 'تعذر اعتماد الاستيراد. لم يتم حفظ أي قيد.'))
     } finally {

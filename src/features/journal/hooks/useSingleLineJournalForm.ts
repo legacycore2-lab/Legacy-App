@@ -50,11 +50,21 @@ export function useSingleLineJournalForm() {
   const preview = useMemo(() => buildJournalPreview(value), [value])
   const mutation = useMutation({
     mutationFn: submitSingleLineEntry,
-    onSuccess: async () => {
-      await Promise.all([
+    onSuccess: async (_result, input) => {
+      const invalidations = [
         queryClient.invalidateQueries({ queryKey: ['journal'] }),
         queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
-      ])
+        queryClient.invalidateQueries({ queryKey: ['projects'] }),
+        queryClient.invalidateQueries({ queryKey: ['contractors'] }),
+      ]
+      if (input.projectId) {
+        invalidations.push(
+          queryClient.invalidateQueries({ queryKey: ['project-details', input.projectId] }),
+          queryClient.invalidateQueries({ queryKey: ['project-activity', input.projectId] }),
+          queryClient.invalidateQueries({ queryKey: ['project-contractors', input.projectId] }),
+        )
+      }
+      await Promise.all(invalidations)
     },
   })
 

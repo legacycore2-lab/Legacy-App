@@ -34,6 +34,7 @@ export function useCashBankAccountForm(): CashBankAccountFormState {
     queryKey: ['cash-banks', 'ledger-accounts'],
     queryFn: getCashBankLedgerAccounts,
     staleTime: 60_000,
+    enabled: isOpen,
   })
   const finish = async () => {
     await queryClient.invalidateQueries({ queryKey: ['cash-banks'] })

@@ -9,6 +9,11 @@ export function useJournalActions() {
     Promise.all([
       queryClient.invalidateQueries({ queryKey: ['journal'] }),
       queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+      queryClient.invalidateQueries({ queryKey: ['projects'] }),
+      queryClient.invalidateQueries({ queryKey: ['contractors'] }),
+      queryClient.invalidateQueries({ queryKey: ['project-details'] }),
+      queryClient.invalidateQueries({ queryKey: ['project-activity'] }),
+      queryClient.invalidateQueries({ queryKey: ['project-contractors'] }),
     ])
 
   const forceDeleteMutation = useMutation({
