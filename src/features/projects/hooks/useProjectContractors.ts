@@ -5,7 +5,7 @@ import {
   buildProjectContractorsViewModel,
   getProjectContractors,
 } from '../services/project-contractors.service'
-import type { ProjectContractor, ProjectContractorsViewModel } from '../types/project-contractor.types'
+import type { ProjectContractorsViewModel } from '../types/project-contractor.types'
 
 function projectContractorsKey(projectId: string) {
   return ['project-contractors', projectId] as const
@@ -42,12 +42,4 @@ export function useProjectContractors(projectId: string | null): {
     error: error ? toErrorMessage(error, 'تعذر تحميل بيانات المقاولين.') : '',
     isPermissionDenied: isPermissionError(error),
   }
-}
-
-export function deriveExpandedContractor(
-  contractors: ProjectContractor[],
-  expandedKey: string | null,
-): ProjectContractor | null {
-  if (!expandedKey) return null
-  return contractors.find((contractor) => contractor.key === expandedKey) ?? null
 }

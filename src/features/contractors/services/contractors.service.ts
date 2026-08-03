@@ -8,15 +8,6 @@ import type {
   ContractorsViewModel,
 } from '../types/contractor.types'
 
-// ─── Re-export shared helpers for consumers that import from this module ─────
-
-export {
-  buildContractorKey,
-  normaliseName,
-  normalizeEntryType,
-  parseAmount,
-} from '../../../shared/contractors-helpers'
-
 import {
   buildContractorKey,
   normaliseName,

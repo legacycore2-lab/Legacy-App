@@ -253,19 +253,6 @@ export interface CashBankAccountFormState {
   saveError: string
 }
 
-export interface CashBankTransaction {
-  id: string
-  number: number
-  date: string
-  type: CashBankTransactionType
-  sourceAccountId: string | null
-  destinationAccountId: string | null
-  amount: number
-  description: string
-  referenceNumber: string | null
-  status: CashBankTransactionStatus
-}
-
 // ─── View models (UI layer input) ─────────────────────────────────────────────
 export interface CashBankMetric {
   id: string
@@ -336,10 +323,4 @@ export interface CashBanksViewModel {
   accounts: CashBankAccountSummary[]
   movements: CashBankMovement[]
   cashFlow: CashFlowPoint[]
-}
-
-// ─── Repository snapshot ───────────────────────────────────────────────────────
-export interface CashBanksSnapshot {
-  balances: CashBankBalanceRow[]
-  transactions: CashBankTransactionRow[]
 }

@@ -1,15 +1,17 @@
 import { describe, expect, it } from 'vitest'
 import {
-  buildContractorKey,
   buildContractors,
   buildContractorsViewModel,
   extractSelectedContractor,
-  normaliseName,
-  normalizeEntryType,
-  parseAmount,
   searchContractors,
   sortContractors,
 } from './contractors.service'
+import {
+  buildContractorKey,
+  normaliseName,
+  normalizeEntryType,
+  parseAmount,
+} from '../../../shared/contractors-helpers'
 import type { ContractorEntryRecord } from '../types/contractor.types'
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
