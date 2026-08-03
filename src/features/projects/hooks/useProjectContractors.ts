@@ -5,7 +5,10 @@ import {
   buildProjectContractorsViewModel,
   getProjectContractors,
 } from '../services/project-contractors.service'
-import type { ProjectContractor, ProjectContractorsViewModel } from '../types/project-contractor.types'
+import type {
+  ProjectContractor,
+  ProjectContractorsViewModel,
+} from '../types/project-contractor.types'
 
 function projectContractorsKey(projectId: string) {
   return ['project-contractors', projectId] as const
