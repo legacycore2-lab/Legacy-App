@@ -31,7 +31,10 @@ export function isValidDateKey(value: string): boolean {
   )
 }
 
-export function formatAccountingDate(value: string | null | undefined, fallback = 'غير محدد'): string {
+export function formatAccountingDate(
+  value: string | null | undefined,
+  fallback = 'غير محدد',
+): string {
   if (!value) return fallback
   const key = value.slice(0, 10)
   if (!isValidDateKey(key)) return value
@@ -40,7 +43,10 @@ export function formatAccountingDate(value: string | null | undefined, fallback 
   return accountingDateFormatter.format(new Date(Date.UTC(year, month - 1, day)))
 }
 
-export function formatTimestamp(value: string | Date | null | undefined, fallback = 'غير محدد'): string {
+export function formatTimestamp(
+  value: string | Date | null | undefined,
+  fallback = 'غير محدد',
+): string {
   if (!value) return fallback
   const date = value instanceof Date ? value : new Date(value)
   return Number.isNaN(date.getTime()) ? String(value) : timestampFormatter.format(date)
