@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { toErrorMessage } from '../../../shared/errors/app-error'
+import { isPermissionError, toErrorMessage } from '../../../shared/errors/app-error'
 import {
   deleteAttachment,
   getAttachmentSignedUrl,
@@ -25,6 +25,7 @@ export function useProjectAttachments(projectId: string | null): {
   attachments: Attachment[]
   isLoading: boolean
   error: string
+  isPermissionDenied: boolean
 } {
   const { data, isLoading, error } = useQuery({
     queryKey: attachmentsKey(projectId ?? ''),
@@ -37,6 +38,7 @@ export function useProjectAttachments(projectId: string | null): {
     attachments: data ?? [],
     isLoading,
     error: error ? toErrorMessage(error, 'تعذر تحميل المرفقات.') : '',
+    isPermissionDenied: isPermissionError(error),
   }
 }
 

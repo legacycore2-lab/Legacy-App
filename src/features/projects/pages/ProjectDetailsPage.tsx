@@ -32,6 +32,8 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { formatAccountingDate } from '../../../shared/date-utils'
+import { formatMoneyInteger } from '../../../shared/formatters'
 import { ProjectCreateDialog } from '../components/ProjectCreateDialog'
 import { ProjectDeleteDialog } from '../components/ProjectDeleteDialog'
 import { WorkspaceFinanceTab } from '../components/WorkspaceFinanceTab'
@@ -50,19 +52,6 @@ import '../styles/project-contractors-tab.css'
 import '../styles/project-attachments.css'
 import '../styles/project-journal-tab.css'
 import '../styles/project-workspace.css'
-
-const money = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'EGP',
-  currencyDisplay: 'code',
-  maximumFractionDigits: 0,
-})
-
-const date = new Intl.DateTimeFormat('ar-EG', {
-  year: 'numeric',
-  month: 'short',
-  day: 'numeric',
-})
 
 const statusLabel = {
   active: 'جاري التنفيذ',
@@ -94,16 +83,10 @@ const internalSectionCopy: Partial<Record<WorkspaceTabId, { title: string; descr
   },
 }
 
-function formatDate(value: string) {
-  if (!value) return 'غير محدد'
-  const parsed = new Date(value)
-  return Number.isNaN(parsed.getTime()) ? value : date.format(parsed)
-}
-
 function Currency({ value }: { value: number }) {
   return (
     <bdi dir="ltr" className="project-command__currency">
-      {money.format(value)}
+      {formatMoneyInteger(value)}
     </bdi>
   )
 }
@@ -203,7 +186,8 @@ export function ProjectDetailsPage() {
                   <UsersRound size={14} /> {project.manager || 'المدير غير محدد'}
                 </span>
                 <span>
-                  <CalendarDays size={14} /> {formatDate(project.startDate)} — {formatDate(project.endDate)}
+                  <CalendarDays size={14} /> {formatAccountingDate(project.startDate)} —{' '}
+                  {formatAccountingDate(project.endDate)}
                 </span>
               </div>
             </div>

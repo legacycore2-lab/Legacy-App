@@ -1,15 +1,10 @@
 import { HardHat, Loader2, Search, ShieldOff, UsersRound } from 'lucide-react'
+import { formatMoneyInteger } from '../../../shared/formatters'
 import { ContractorDetailsPanel } from '../components/ContractorDetailsPanel'
 import { ContractorsTable } from '../components/ContractorsTable'
 import { useContractors } from '../hooks/useContractors'
 import type { ContractorSort } from '../types/contractor.types'
 import '../styles/contractors.css'
-
-const money = new Intl.NumberFormat('ar-EG', {
-  style: 'currency',
-  currency: 'EGP',
-  maximumFractionDigits: 0,
-})
 
 const SORT_OPTIONS: { value: ContractorSort; label: string }[] = [
   { value: 'expense', label: 'الأعلى مصروفات' },
@@ -29,10 +24,10 @@ export function ContractorsPage() {
     setSort,
     isLoading,
     error,
+    isPermissionDenied,
   } = useContractors()
 
-  // ── Permission error ──
-  if (error && (error.includes('permission') || error.includes('RLS') || error.includes('policy'))) {
+  if (isPermissionDenied) {
     return (
       <div className="contractors-page__permission">
         <ShieldOff size={40} />
@@ -45,7 +40,6 @@ export function ContractorsPage() {
   return (
     <div className={`contractors-page erp-page${selectedContractor ? ' has-panel' : ''}`}>
       <div className="contractors-page__main">
-        {/* ── Page header ── */}
         <header className="contractors-page__header">
           <div className="contractors-page__title">
             <HardHat size={28} />
@@ -56,7 +50,6 @@ export function ContractorsPage() {
           </div>
         </header>
 
-        {/* ── KPIs ── */}
         {viewModel && (
           <div className="contractors-page__kpis">
             <article className="contractors-kpi">
@@ -74,7 +67,7 @@ export function ContractorsPage() {
               </span>
               <div>
                 <small>إجمالي المصروفات</small>
-                <strong>{money.format(viewModel.totalExpense)}</strong>
+                <strong>{formatMoneyInteger(viewModel.totalExpense)}</strong>
               </div>
             </article>
             <article className="contractors-kpi">
@@ -92,7 +85,6 @@ export function ContractorsPage() {
           </div>
         )}
 
-        {/* ── Toolbar ── */}
         <div className="contractors-page__toolbar">
           <div className="contractors-page__search">
             <Search size={15} />
@@ -100,7 +92,7 @@ export function ContractorsPage() {
               type="search"
               placeholder="ابحث باسم المقاول…"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(event) => setQuery(event.target.value)}
               aria-label="البحث في المقاولين"
             />
           </div>
@@ -109,7 +101,7 @@ export function ContractorsPage() {
             <select
               id="contractors-sort"
               value={sort}
-              onChange={(e) => setSort(e.target.value as ContractorSort)}
+              onChange={(event) => setSort(event.target.value as ContractorSort)}
             >
               {SORT_OPTIONS.map(({ value, label }) => (
                 <option key={value} value={value}>
@@ -120,7 +112,6 @@ export function ContractorsPage() {
           </div>
         </div>
 
-        {/* ── States ── */}
         {isLoading && (
           <div className="contractors-page__loading">
             <Loader2 size={24} className="spin" />
@@ -157,7 +148,6 @@ export function ContractorsPage() {
         )}
       </div>
 
-      {/* ── Details panel ── */}
       {selectedContractor && (
         <ContractorDetailsPanel contractor={selectedContractor} onClose={() => selectContractor(null)} />
       )}

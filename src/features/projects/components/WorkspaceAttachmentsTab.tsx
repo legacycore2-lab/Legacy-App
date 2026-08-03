@@ -10,6 +10,7 @@ import {
   Upload,
 } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { formatAccountingDate } from '../../../shared/date-utils'
 import { toErrorMessage } from '../../../shared/errors/app-error'
 import type { ProjectEntry } from '../types/project.types'
 import {
@@ -29,19 +30,6 @@ type Props = {
 }
 
 const ACCEPT = ALLOWED_MIME_TYPES.join(',')
-
-const dateFormatter = new Intl.DateTimeFormat('ar-EG', {
-  year: 'numeric',
-  month: 'short',
-  day: 'numeric',
-})
-
-function formatDate(value: string) {
-  const datePart = value.slice(0, 10)
-  const [year, month, day] = datePart.split('-').map(Number)
-  if (!year || !month || !day) return value
-  return dateFormatter.format(new Date(Date.UTC(year, month - 1, day)))
-}
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
@@ -236,7 +224,7 @@ function AttachmentRow({
 // ─── Main Tab ─────────────────────────────────────────────────────────────────
 
 export function WorkspaceAttachmentsTab({ projectId, entries }: Props) {
-  const { attachments, isLoading, error } = useProjectAttachments(projectId)
+  const { attachments, isLoading, error, isPermissionDenied } = useProjectAttachments(projectId)
   const { upload, isUploading, uploadError, reset } = useUploadAttachment(projectId)
   const [selectedEntryId, setSelectedEntryId] = useState<string>('')
   const [cleanupWarnings, setCleanupWarnings] = useState<AttachmentCleanupWarning[]>([])
@@ -251,12 +239,20 @@ export function WorkspaceAttachmentsTab({ projectId, entries }: Props) {
   }
 
   // ── Permission error ──
-  if (error && (error.includes('permission') || error.includes('RLS') || error.includes('policy'))) {
+  if (isPermissionDenied) {
     return (
       <div className="workspace-attachments__permission">
         <ShieldOff size={36} />
         <strong>غير مصرح بعرض المرفقات</strong>
         <span>تحتاج صلاحية محاسب أو أعلى للوصول إلى هذا القسم.</span>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="workspace-attachments__error" role="alert">
+        {error}
       </div>
     )
   }
@@ -324,7 +320,8 @@ export function WorkspaceAttachmentsTab({ projectId, entries }: Props) {
             <option value="">— اختر القيد المرتبط بالملف —</option>
             {entries.map((entry) => (
               <option key={entry.id} value={entry.id}>
-                #{entry.seq ?? '—'} · {formatDate(entry.entryDate)} · {entry.description || 'بدون بيان'}
+                #{entry.seq ?? '—'} · {formatAccountingDate(entry.entryDate)} ·{' '}
+                {entry.description || 'بدون بيان'}
               </option>
             ))}
           </select>
