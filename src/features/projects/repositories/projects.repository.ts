@@ -1,4 +1,5 @@
 import { getSupabaseClient } from '../../../lib/supabase/client'
+import { fetchAllWithPagination } from '../../../shared/pagination-helpers'
 import { subscribeToTableChanges } from '../../../lib/supabase/realtime'
 import type { ProjectInsertRecord, ProjectRecord } from '../types/project.types'
 
@@ -50,8 +51,6 @@ export type FinancialEntryRow = {
   entry_number: number | null
 }
 
-const FINANCIAL_ENTRIES_PAGE_SIZE = 1000
-
 /**
  * Fetches ALL entries that have a project_id, using range-based pagination
  * to avoid Supabase's default 1000-row cap.
@@ -64,27 +63,14 @@ const FINANCIAL_ENTRIES_PAGE_SIZE = 1000
  * No parsing, conversion, or aggregation — raw rows only.
  */
 export async function findAllProjectFinancialEntries(): Promise<FinancialEntryRow[]> {
-  const supabase = getSupabaseClient()
-  const rows: FinancialEntryRow[] = []
-  let from = 0
-
-  while (true) {
-    const to = from + FINANCIAL_ENTRIES_PAGE_SIZE - 1
-    const { data, error } = await supabase
+  return fetchAllWithPagination<FinancialEntryRow>((from, to) =>
+    getSupabaseClient()
       .from('entries')
       .select('project_id, entry_type, amount, entry_number')
       .not('project_id', 'is', null)
       .order('entry_number', { ascending: true })
-      .range(from, to)
-
-    if (error) throw error
-    const page = (data ?? []) as FinancialEntryRow[]
-    rows.push(...page)
-    if (page.length < FINANCIAL_ENTRIES_PAGE_SIZE) break
-    from += FINANCIAL_ENTRIES_PAGE_SIZE
-  }
-
-  return rows
+      .range(from, to),
+  )
 }
 
 export async function insertProject(record: ProjectInsertRecord): Promise<ProjectRecord> {
@@ -137,7 +123,8 @@ export type ProjectEntryRecord = {
   id: string
   seq: number | null
   entry_date: string
-  entry_type: string
+  /** Raw DB value — may be null in edge cases; normalised in service layer */
+  entry_type: string | null
   category: string | null
   description: string | null
   contractor_name: string | null
@@ -156,16 +143,19 @@ export async function findProjectById(id: string): Promise<ProjectRecord | null>
   return data as unknown as ProjectRecord | null
 }
 
+/**
+ * Fetches all entries for a project, paginated with stable ordering.
+ * entry_number ASC for consistent pages; service layer sorts for display.
+ */
 export async function findProjectEntries(projectId: string): Promise<ProjectEntryRecord[]> {
-  const { data, error } = await getSupabaseClient()
-    .from('entries')
-    .select(
-      'id, seq:entry_number, entry_date, entry_type, category, description, contractor_name, payment_method, amount',
-    )
-    .eq('project_id', projectId)
-    .order('entry_date', { ascending: false })
-    .order('entry_number', { ascending: false })
-
-  if (error) throw error
-  return (data ?? []) as unknown as ProjectEntryRecord[]
+  return fetchAllWithPagination<ProjectEntryRecord>((from, to) =>
+    getSupabaseClient()
+      .from('entries')
+      .select(
+        'id, seq:entry_number, entry_date, entry_type, category, description, contractor_name, payment_method, amount',
+      )
+      .eq('project_id', projectId)
+      .order('entry_number', { ascending: true })
+      .range(from, to),
+  )
 }

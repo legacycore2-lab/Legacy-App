@@ -19,26 +19,18 @@ import type {
   ProjectRow,
   ProjectsSummary,
 } from '../types/project.types'
+import { normalizeEntryType } from '../../../shared/contractors-helpers'
 import { mapProject } from './project.mapper'
 
 // ─── Financial totals helpers ─────────────────────────────────────────────────
 
 /**
- * Normalises raw DB entry_type to 'income' | 'expense' | null.
- * Supports shorthand 'i' / 'e'. Unknown / null → null.
+ * Thin wrapper around shared normalizeEntryType.
+ * Kept as a named export so existing callers and tests don't break.
+ * Behaviour: income/i→income, expense/e→expense, unknown/null→null.
  */
 export function normalizeFinancialEntryType(raw: string | null | undefined): 'income' | 'expense' | null {
-  if (!raw) return null
-  switch (raw.trim().toLowerCase()) {
-    case 'income':
-    case 'i':
-      return 'income'
-    case 'expense':
-    case 'e':
-      return 'expense'
-    default:
-      return null
-  }
+  return normalizeEntryType(raw)
 }
 
 /**
@@ -147,14 +139,16 @@ export function watchProjects(onChange: () => void): () => void {
   return subscribeToProjectChanges(onChange)
 }
 
-function mapProjectEntry(record: ProjectEntryRecord): ProjectEntry {
+export function mapProjectEntry(record: ProjectEntryRecord): ProjectEntry {
   const amount = Number(record.amount)
+  const normalised = normalizeEntryType(record.entry_type)
 
   return {
     id: record.id,
     seq: record.seq,
     entryDate: record.entry_date,
-    type: record.entry_type === 'income' ? 'income' : 'expense',
+    // unknown/null entry_type → 'unknown'; never silently treated as expense
+    type: normalised ?? 'unknown',
     category: record.category?.trim() ?? '',
     description: record.description?.trim() ?? '',
     contractor: record.contractor_name?.trim() ?? '',
@@ -163,12 +157,15 @@ function mapProjectEntry(record: ProjectEntryRecord): ProjectEntry {
   }
 }
 
-function summarizeEntries(entries: ProjectEntry[]): ProjectFinancialSummary {
+export function summarizeEntries(entries: ProjectEntry[]): ProjectFinancialSummary {
   return entries.reduce<ProjectFinancialSummary>(
     (summary, entry) => ({
       totalIncome: summary.totalIncome + (entry.type === 'income' ? entry.amount : 0),
       totalExpense: summary.totalExpense + (entry.type === 'expense' ? entry.amount : 0),
-      balance: summary.balance + (entry.type === 'income' ? entry.amount : -entry.amount),
+      // unknown entry_type: excluded from balance — does not shift it in either direction
+      balance:
+        summary.balance +
+        (entry.type === 'income' ? entry.amount : entry.type === 'expense' ? -entry.amount : 0),
       entryCount: summary.entryCount + 1,
     }),
     { totalIncome: 0, totalExpense: 0, balance: 0, entryCount: 0 },
