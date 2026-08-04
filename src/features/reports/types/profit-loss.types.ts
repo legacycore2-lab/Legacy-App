@@ -1,3 +1,9 @@
+import type { ReportEntryRecord } from './report.types'
+
+export type ProfitLossEntryRecord = ReportEntryRecord & {
+  entry_date: string
+}
+
 export type ProfitLossFilters = {
   dateFrom: string
   dateTo: string
