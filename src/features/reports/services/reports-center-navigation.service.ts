@@ -8,7 +8,6 @@ const IMPLEMENTED_REPORTS = new Set<ReportKey>([
   'insights',
   'profit-loss',
   'contractor-statement',
-  'contractor-dues',
   'contractor-payments',
   'top-contractors',
 ])
