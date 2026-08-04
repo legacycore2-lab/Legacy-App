@@ -22,7 +22,11 @@ export function useReports() {
     staleTime: 30_000,
   })
 
-  const rows = filterReportRows(reportsQuery.data?.rows ?? [], query, includeArchived)
+  const rows = filterReportRows(
+    reportsQuery.data?.rows ?? [],
+    query,
+    includeArchived,
+  )
   const summary = summarizeReportRows(rows)
 
   return {
