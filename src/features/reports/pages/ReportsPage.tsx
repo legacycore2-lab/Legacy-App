@@ -5,6 +5,7 @@ import { ExecutiveKpis } from '../components/ExecutiveKpis'
 import { JournalFilters } from '../components/JournalFilters'
 import { JournalReportTable } from '../components/JournalReportTable'
 import { JournalSummaryBar } from '../components/JournalSummaryBar'
+import { ProfitLossReportPanel } from '../components/ProfitLossReportPanel'
 import { ProjectsReportTable } from '../components/ProjectsReportTable'
 import { ReportsCenter } from '../components/ReportsCenter'
 import { ReportsEmptyState } from '../components/ReportsEmptyState'
@@ -13,17 +14,20 @@ import { ReportsHeader } from '../components/ReportsHeader'
 import { SmartInsightsPanel } from '../components/SmartInsightsPanel'
 import { useExecutiveReports } from '../hooks/useExecutiveReports'
 import { useJournalReport } from '../hooks/useJournalReport'
+import { useProfitLossReport } from '../hooks/useProfitLossReport'
 import { useReportsCenter } from '../hooks/useReportsCenter'
 import type { ReportKey } from '../types/reports-center.types'
 import type { ReportsTab } from '../types/report.types'
 import '../styles/reports.css'
 import '../styles/reports-center.css'
+import '../styles/profit-loss.css'
 
 const REPORT_TITLES: Partial<Record<ReportKey, string>> = {
   executive: 'الملخص التنفيذي',
   projects: 'تقرير المشاريع',
   journal: 'تقرير القيود اليومية',
   insights: 'الرؤى والتنبيهات',
+  'profit-loss': 'الأرباح والخسائر',
 }
 
 function toDataTab(report: ReportKey | null): ReportsTab | null {
@@ -37,13 +41,19 @@ function toDataTab(report: ReportKey | null): ReportsTab | null {
 export function ReportsPage() {
   const center = useReportsCenter()
   const activeTab = toDataTab(center.selectedReport)
+  const isProfitLoss = center.selectedReport === 'profit-loss'
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
 
   const executive = useExecutiveReports(activeTab)
   const journal = useJournalReport(activeTab)
+  const profitLoss = useProfitLossReport(isProfitLoss)
 
   async function handleRefresh() {
-    const result = activeTab === 'journal' ? await journal.refresh() : await executive.refresh()
+    const result = isProfitLoss
+      ? await profitLoss.refresh()
+      : activeTab === 'journal'
+        ? await journal.refresh()
+        : await executive.refresh()
     if (!result.error) setLastUpdated(new Date())
   }
 
@@ -165,6 +175,27 @@ export function ReportsPage() {
             <ReportsErrorState error={executive.error} />
           ) : (
             <SmartInsightsPanel insights={executive.insights} isLoading={executive.isLoading} />
+          )}
+        </>
+      )}
+
+      {isProfitLoss && (
+        <>
+          {profitLoss.isPermissionDenied ? (
+            <ReportsErrorState error={profitLoss.error} isPermission />
+          ) : profitLoss.error ? (
+            <ReportsErrorState error={profitLoss.error} />
+          ) : profitLoss.data ? (
+            <ProfitLossReportPanel
+              data={profitLoss.data}
+              filters={profitLoss.filters}
+              hasActiveFilter={profitLoss.hasActiveFilter}
+              isFetching={profitLoss.isFetching}
+              onSetFilter={profitLoss.setFilter}
+              onReset={profitLoss.resetFilters}
+            />
+          ) : (
+            <ReportsEmptyState message="جاري تحميل تقرير الأرباح والخسائر..." />
           )}
         </>
       )}
