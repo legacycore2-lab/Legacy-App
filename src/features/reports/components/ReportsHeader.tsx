@@ -35,12 +35,7 @@ export function ReportsHeader({ onRefresh, lastUpdated }: Props) {
           <span>تحديث</span>
         </button>
 
-        <button
-          type="button"
-          className="rh-btn"
-          onClick={() => window.print()}
-          aria-label="طباعة"
-        >
+        <button type="button" className="rh-btn" onClick={() => window.print()} aria-label="طباعة">
           <Printer size={15} />
           <span>طباعة</span>
         </button>
