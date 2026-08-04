@@ -13,6 +13,7 @@ export type ReportProjectRecord = {
 
 export type ReportEntryRecord = {
   project_id: string
+  entry_date: string
   entry_type: string | null
   amount: number | string | null
   entry_number: number | null
