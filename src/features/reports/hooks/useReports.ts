@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
 import {
   filterReportRows,
@@ -22,11 +22,8 @@ export function useReports() {
     staleTime: 30_000,
   })
 
-  const rows = useMemo(
-    () => filterReportRows(reportsQuery.data?.rows ?? [], query, includeArchived),
-    [includeArchived, query, reportsQuery.data?.rows],
-  )
-  const summary = useMemo(() => summarizeReportRows(rows), [rows])
+  const rows = filterReportRows(reportsQuery.data?.rows ?? [], query, includeArchived)
+  const summary = summarizeReportRows(rows)
 
   return {
     rows,
