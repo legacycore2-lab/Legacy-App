@@ -1,11 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
-import {
-  filterReportRows,
-  getReportsViewModel,
-  summarizeReportRows,
-} from '../services/reports.service'
+import { filterReportRows, getReportsViewModel, summarizeReportRows } from '../services/reports.service'
 
 function resolveReportsError(error: unknown): string {
   if (!error) return ''
@@ -22,11 +18,7 @@ export function useReports() {
     staleTime: 30_000,
   })
 
-  const rows = filterReportRows(
-    reportsQuery.data?.rows ?? [],
-    query,
-    includeArchived,
-  )
+  const rows = filterReportRows(reportsQuery.data?.rows ?? [], query, includeArchived)
   const summary = summarizeReportRows(rows)
 
   return {
