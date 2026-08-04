@@ -16,7 +16,7 @@ export async function findReportEntries(): Promise<ReportEntryRecord[]> {
   return fetchAllWithPagination<ReportEntryRecord>((from, to) =>
     getSupabaseClient()
       .from('entries')
-      .select('project_id, entry_type, amount, entry_number')
+      .select('project_id, entry_date, entry_type, amount, entry_number')
       .not('project_id', 'is', null)
       .order('entry_date', { ascending: false })
       .order('entry_number', { ascending: false })
