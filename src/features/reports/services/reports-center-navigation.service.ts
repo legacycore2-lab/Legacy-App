@@ -7,6 +7,10 @@ const IMPLEMENTED_REPORTS = new Set<ReportKey>([
   'journal',
   'insights',
   'profit-loss',
+  'contractor-statement',
+  'contractor-dues',
+  'contractor-payments',
+  'top-contractors',
 ])
 
 const INSIGHTS_REPORT: ReportDefinition = {
