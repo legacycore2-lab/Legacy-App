@@ -138,13 +138,16 @@ export function ReportsPage() {
           ) : (
             <ProjectsReportTable
               rows={executive.filteredRows}
-              query={executive.query}
-              onQueryChange={executive.setQuery}
-              includeArchived={executive.includeArchived}
-              onIncludeArchivedChange={executive.setIncludeArchived}
-              statusFilter={executive.statusFilter}
-              onStatusFilterChange={executive.setStatusFilter}
+              query={executive.draftQuery}
+              onQueryChange={executive.setDraftQuery}
+              includeArchived={executive.draftIncludeArchived}
+              onIncludeArchivedChange={executive.setDraftIncludeArchived}
+              statusFilter={executive.draftStatusFilter}
+              onStatusFilterChange={executive.setDraftStatusFilter}
+              filtersDirty={executive.filtersDirty}
               isLoading={executive.isLoading}
+              onSearch={executive.commitSearch}
+              onReset={executive.resetFilters}
             />
           )}
         </>
@@ -161,10 +164,12 @@ export function ReportsPage() {
           <JournalFilters
             filters={journal.filters}
             hasActiveFilter={journal.hasActiveFilter}
+            filtersDirty={journal.filtersDirty}
             contractors={journal.contractors}
             paymentMethods={journal.paymentMethods}
             projectOptions={journal.projectOptions}
             onSetFilter={journal.setFilter}
+            onSearch={journal.commitSearch}
             onReset={journal.resetFilters}
           />
           <JournalSummaryBar summary={journal.summary} />
@@ -208,8 +213,10 @@ export function ReportsPage() {
               data={profitLoss.data}
               filters={profitLoss.filters}
               hasActiveFilter={profitLoss.hasActiveFilter}
+              filtersDirty={profitLoss.filtersDirty}
               isFetching={profitLoss.isFetching}
               onSetFilter={profitLoss.setFilter}
+              onSearch={profitLoss.commitSearch}
               onReset={profitLoss.resetFilters}
             />
           ) : (
@@ -229,12 +236,14 @@ export function ReportsPage() {
               data={contractorReports.data}
               filters={contractorReports.filters}
               hasActiveFilter={contractorReports.hasActiveFilter}
+              filtersDirty={contractorReports.filtersDirty}
               isFetching={contractorReports.isFetching}
               page={contractorReports.page}
               totalPages={contractorReports.totalPages}
               totalCount={contractorReports.totalCount}
               paginatedEntries={contractorReports.paginatedEntries}
               onSetFilter={contractorReports.setFilter}
+              onSearch={contractorReports.commitSearch}
               onReset={contractorReports.resetFilters}
               onPageChange={contractorReports.setPage}
             />

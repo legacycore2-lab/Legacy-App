@@ -4,17 +4,19 @@ import type { JournalReportFilters } from '../types/report.types'
 type Props = {
   filters: JournalReportFilters
   hasActiveFilter: boolean
+  filtersDirty: boolean
   contractors: string[]
   paymentMethods: string[]
   projectOptions: { id: string; name: string }[]
   onSetFilter: <K extends keyof JournalReportFilters>(key: K, value: JournalReportFilters[K]) => void
+  onSearch: () => void
   onReset: () => void
 }
 
 // prettier-ignore
 export function JournalFilters({
-  filters, hasActiveFilter, contractors, paymentMethods,
-  projectOptions, onSetFilter, onReset,
+  filters, hasActiveFilter, filtersDirty, contractors, paymentMethods,
+  projectOptions, onSetFilter, onSearch, onReset,
 }: Props) {
   return (
     <div className="jf-bar">
@@ -75,13 +77,18 @@ export function JournalFilters({
         </div>
       </div>
 
-      {/* Row 2: search + reset */}
+      {/* Row 2: search input + search button + reset */}
       <div className="jf-row jf-row--search">
         <label className="jf-search">
           <Search size={15} />
           <input value={filters.query} onChange={(e) => onSetFilter('query', e.target.value)}
-            placeholder="بحث في الوصف أو المقاول أو المشروع..." />
+            placeholder="بحث في الوصف أو المقاول أو المشروع..."
+            onKeyDown={(e) => { if (e.key === 'Enter') onSearch() }} />
         </label>
+        <button type="button" className="jf-search-btn" onClick={onSearch}>
+          <Search size={14} aria-hidden />
+          بحث
+        </button>
         {hasActiveFilter && (
           <button type="button" className="jf-reset" onClick={onReset}>
             <RotateCcw size={13} />
@@ -89,6 +96,13 @@ export function JournalFilters({
           </button>
         )}
       </div>
+
+      {/* Dirty indicator */}
+      {filtersDirty && (
+        <p className="jf-dirty-hint" role="status">
+          تم تعديل الفلاتر، اضغط بحث لتحديث النتائج.
+        </p>
+      )}
     </div>
   )
 }

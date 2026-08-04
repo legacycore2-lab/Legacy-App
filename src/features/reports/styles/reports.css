@@ -1307,3 +1307,39 @@
   border-radius: 20px;
   border: 1px solid var(--border);
 }
+
+/* ── Search-on-submit UX ───────────────────────── */
+.jf-search-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  height: 36px;
+  background: var(--primary);
+  color: var(--primary-foreground, #fff);
+  border: none;
+  border-radius: var(--radius, 6px);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+
+.jf-search-btn:hover {
+  opacity: 0.88;
+}
+
+.jf-search-btn:active {
+  opacity: 0.75;
+}
+
+.jf-dirty-hint {
+  margin: 0 0 4px;
+  padding: 6px 12px;
+  background: color-mix(in srgb, var(--warning, #f59e0b) 12%, transparent);
+  border-inline-start: 3px solid var(--warning, #f59e0b);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: var(--foreground);
+}
