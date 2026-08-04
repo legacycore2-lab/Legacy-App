@@ -1,0 +1,388 @@
+/* ─── Analytics 2.0 ─────────────────────────────────────────────────────── */
+
+/* Tabs */
+.an-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-card);
+}
+
+.an-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.an-tab:hover {
+  background: var(--surface-strong);
+  color: var(--text);
+}
+
+.an-tab.is-active {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* Section wrapper */
+.an-section {
+  display: grid;
+  gap: 16px;
+}
+
+.an-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .an-two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* KPI cards */
+.an-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.an-kpi-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+}
+
+.an-kpi-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.an-kpi-card.is-blue .an-kpi-card__icon {
+  background: #e0edff;
+  color: #1a6fdb;
+}
+.an-kpi-card.is-green .an-kpi-card__icon {
+  background: #e0f5e9;
+  color: #1a9945;
+}
+.an-kpi-card.is-red .an-kpi-card__icon {
+  background: #ffe0e0;
+  color: #cc2929;
+}
+.an-kpi-card.is-purple .an-kpi-card__icon {
+  background: #ede0ff;
+  color: #7a1adb;
+}
+
+.an-kpi-card__label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.an-kpi-card__value {
+  display: block;
+  font-size: 1.25rem;
+  color: var(--text);
+  margin: 2px 0;
+}
+
+.an-kpi-card__sub {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* Panel */
+.an-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+  padding: 20px;
+}
+
+.an-panel__title {
+  margin: 0 0 16px;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+/* Table */
+.an-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.an-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
+.an-table th {
+  padding: 10px 12px;
+  text-align: right;
+  background: var(--surface-strong);
+  color: var(--muted);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.an-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.an-table td strong {
+  display: block;
+}
+.an-table td small {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.an-table tr:last-child td {
+  border-bottom: none;
+}
+.an-table tr:hover td {
+  background: var(--surface-strong);
+}
+
+.is-positive {
+  color: var(--success, #1a9945);
+}
+.is-negative {
+  color: var(--danger, #cc2929);
+}
+
+/* Badge */
+.an-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.an-badge.is-active {
+  background: #e0f5e9;
+  color: #1a7a3a;
+}
+.an-badge.is-completed {
+  background: #e0edff;
+  color: #1a50a0;
+}
+.an-badge.is-paused {
+  background: #fff4e0;
+  color: #a06010;
+}
+.an-badge.is-archived {
+  background: var(--surface-strong);
+  color: var(--muted);
+}
+.an-badge.is-income {
+  background: #e0f5e9;
+  color: #1a7a3a;
+}
+.an-badge.is-expense {
+  background: #ffe0e0;
+  color: #cc2929;
+}
+.an-badge.is-unknown {
+  background: var(--surface-strong);
+  color: var(--muted);
+}
+
+/* Progress */
+.an-progress {
+  height: 6px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 3px;
+}
+
+.an-progress span {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+  border-radius: 999px;
+}
+
+/* Journal Filters */
+.an-journal-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.an-journal-filters input,
+.an-journal-filters select {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-strong);
+  color: var(--text);
+  font-size: 0.88rem;
+}
+
+.an-journal-filters__search {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-strong);
+  flex: 1;
+  min-width: 180px;
+}
+
+.an-journal-filters__search input {
+  border: none;
+  background: transparent;
+  width: 100%;
+  padding: 8px 0;
+  outline: none;
+  color: var(--text);
+}
+
+/* Totals bar */
+.an-journal-totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 12px 16px;
+  background: var(--surface-strong);
+  border-radius: 10px;
+  margin-bottom: 14px;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.an-journal-totals strong {
+  color: var(--text);
+  margin-inline-start: 4px;
+}
+
+/* Smart Insights */
+.an-insights {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.an-insight {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+}
+
+.an-insight.is-success {
+  background: #e0f5e9;
+  border-color: #b3e6c5;
+  color: #1a5a2a;
+}
+.an-insight.is-info {
+  background: #e0edff;
+  border-color: #b3c9f0;
+  color: #1a3a7a;
+}
+.an-insight.is-warning {
+  background: #fff4e0;
+  border-color: #f0d8a0;
+  color: #7a5010;
+}
+.an-insight.is-danger {
+  background: #ffe0e0;
+  border-color: #f0b3b3;
+  color: #8a1010;
+}
+
+.an-insight__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.an-insight__body strong {
+  font-size: 0.92rem;
+}
+.an-insight__body span {
+  font-size: 0.84rem;
+  opacity: 0.85;
+}
+
+.an-insight__value {
+  font-weight: 700;
+  font-size: 0.92rem;
+  white-space: nowrap;
+}
+
+/* Empty state */
+.an-empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 32px;
+  font-size: 0.9rem;
+}
+
+/* Print */
+@media print {
+  .an-tabs,
+  .an-journal-filters,
+  .reports-page__actions {
+    display: none;
+  }
+
+  .an-panel,
+  .an-kpi-card,
+  .reports-panel {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+
+  .an-table th,
+  .an-table td {
+    font-size: 0.78rem;
+  }
+}
+
+/* Dark mode — CSS variables handle it automatically via var(--surface) etc. */
