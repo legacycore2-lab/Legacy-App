@@ -31,7 +31,9 @@ export function useReports() {
     includeArchived,
     setIncludeArchived,
     isLoading: reportsQuery.isLoading,
-    error: reportsQuery.error ? toErrorMessage(reportsQuery.error, 'تعذر تحميل التقارير.') : '',
+    error: reportsQuery.error
+      ? toErrorMessage(reportsQuery.error, 'تعذر تحميل التقارير.')
+      : '',
     refresh: reportsQuery.refetch,
   }
 }
