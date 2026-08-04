@@ -8,17 +8,23 @@ const ICON_MAP: Record<InsightSeverity, React.ElementType> = {
   danger: AlertCircle,
 }
 
-type Props = {
-  insights: SmartInsight[]
-  isLoading: boolean
+const SEVERITY_LABEL: Record<InsightSeverity, string> = {
+  success: 'ممتاز',
+  info: 'معلومة',
+  warning: 'تحذير',
+  danger: 'خطر',
 }
+
+type Props = { insights: SmartInsight[]; isLoading: boolean }
 
 export function SmartInsightsPanel({ insights, isLoading }: Props) {
   if (isLoading) {
     return (
-      <section className="reports-panel">
-        <div className="reports-state">جارٍ تحليل البيانات...</div>
-      </section>
+      <div className="insights-grid">
+        {[1, 2, 3].map((n) => (
+          <div key={n} className="insight-card insight-card--skeleton" aria-hidden="true" />
+        ))}
+      </div>
     )
   }
 
@@ -31,27 +37,24 @@ export function SmartInsightsPanel({ insights, isLoading }: Props) {
   }
 
   return (
-    <section className="reports-panel reports-insights-panel">
-      <div className="reports-panel__heading">
-        <div>
-          <span className="reports-label">تحليل تلقائي</span>
-          <h2>الرؤى والتنبيهات</h2>
-        </div>
-      </div>
-      <ul className="reports-insights-list">
-        {insights.map((ins) => {
-          const Icon = ICON_MAP[ins.severity]
-          return (
-            <li key={ins.id} className={`reports-insight is-${ins.severity}`}>
-              <Icon size={18} aria-hidden="true" />
-              <div className="reports-insight__body">
-                <strong>{ins.title}</strong>
-                <span>{ins.detail}</span>
+    <div className="insights-grid">
+      {insights.map((ins) => {
+        const Icon = ICON_MAP[ins.severity]
+        return (
+          <article key={ins.id} className={`insight-card is-${ins.severity}`}>
+            <div className="insight-card__top">
+              <div className="insight-card__icon-wrap">
+                <Icon size={20} aria-hidden="true" />
               </div>
-            </li>
-          )
-        })}
-      </ul>
-    </section>
+              <span className="insight-card__severity">{SEVERITY_LABEL[ins.severity]}</span>
+            </div>
+            <div className="insight-card__body">
+              <strong className="insight-card__title">{ins.title}</strong>
+              <p className="insight-card__desc">{ins.detail}</p>
+            </div>
+          </article>
+        )
+      })}
+    </div>
   )
 }
