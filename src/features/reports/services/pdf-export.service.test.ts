@@ -112,6 +112,8 @@ afterEach(() => {
 
 describe('font registration', () => {
   it('registerArabicFont is called before any text is rendered', async () => {
+    // Reset modules so the mock is applied to a fresh import of pdf-export.service
+    vi.resetModules()
     const { renderPdf } = await import('./pdf-export.service')
 
     const payload: PdfExportPayload = {
