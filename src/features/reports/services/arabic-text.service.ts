@@ -1,6 +1,6 @@
 import { convertArabic } from 'arabic-reshaper'
 
-const ARABIC_RANGE = /[\u0600-\u06FF\u0660-\u0669\u200C\u200D\u200E\u200F]/
+const ARABIC_RANGE = /[\u0600-\u06FF\u200C-\u200F]/
 
 /**
  * Checks whether a string contains Arabic characters.
