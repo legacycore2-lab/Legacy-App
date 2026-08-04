@@ -14,7 +14,7 @@ export function buildPdfFilename({ reportKey, contextLabel, date }: PdfFilenameO
       .trim()
       .toLocaleLowerCase('ar-EG')
       .replace(/\s+/g, '-')
-      .replace(/[^\p{L}\p{N}\-]/gu, '')
+      .replace(/[^\p{L}\p{N}-]/gu, '')
       .slice(0, 40)
     if (slug) parts.push(slug)
   }
