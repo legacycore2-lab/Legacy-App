@@ -36,7 +36,11 @@ export function ReportsPage() {
           <button type="button" onClick={() => void refresh()}>
             <RefreshCw size={17} /> تحديث
           </button>
-          <button type="button" className="is-primary" onClick={() => window.print()}>
+          <button
+            type="button"
+            className="is-primary"
+            onClick={() => window.print()}
+          >
             <Printer size={17} /> طباعة
           </button>
         </div>
@@ -134,8 +138,12 @@ export function ReportsPage() {
                       </span>
                     </td>
                     <td>{formatMoneyInteger(row.contractValue)}</td>
-                    <td className="is-positive">{formatMoneyInteger(row.income)}</td>
-                    <td className="is-negative">{formatMoneyInteger(row.expense)}</td>
+                    <td className="is-positive">
+                      {formatMoneyInteger(row.income)}
+                    </td>
+                    <td className="is-negative">
+                      {formatMoneyInteger(row.expense)}
+                    </td>
                     <td className={row.net >= 0 ? 'is-positive' : 'is-negative'}>
                       {formatMoneyInteger(row.net)}
                     </td>
