@@ -9,31 +9,26 @@ export function containsArabic(text: string): boolean {
   return ARABIC_RANGE.test(text)
 }
 
-// Matches Arabic Presentation Form glyphs (after reshaping) and non-Arabic segments
-const SEGMENT_RE = /[\u0600-\u06FF\uFB50-\uFDFF\uFE70-\uFEFF]+|[^\u0600-\u06FF\uFB50-\uFDFF\uFE70-\uFEFF]+/gu
-
 /**
- * Prepares Arabic text for rendering in jsPDF (which uses a left-to-right engine).
+ * Prepares Arabic text for rendering in jsPDF.
+ *
+ * jsPDF with an embedded Arabic font (Amiri) renders reshaped Arabic glyphs
+ * correctly when text alignment is set to 'right'. No character-level or
+ * segment-level reversal is needed — the font engine handles glyph ordering.
  *
  * Steps:
  * 1. Reshape — converts isolated Unicode code points to their correct
- *    connected/contextual Presentation Form glyphs (e.g. ا + ل → ﻻ).
- * 2. Segment-level reverse — splits the reshaped string into Arabic and non-Arabic
- *    segments, then reverses the segment order. This preserves word-internal glyph
- *    order (required for correct Arabic rendering) while achieving RTL word flow.
+ *    connected Presentation Form glyphs (e.g. م + ح → ﻣﺤ).
  *
  * Non-Arabic strings are returned unchanged.
  */
 export function prepareArabicText(text: string): string {
   if (!text || !containsArabic(text)) return text
-  const reshaped = convertArabic(text)
-  const segments = reshaped.match(SEGMENT_RE) ?? []
-  return segments.reverse().join('')
+  return convertArabic(text)
 }
 
 /**
  * Alias of prepareArabicText — kept for API consistency.
- * Use for any Arabic string including multi-word phrases.
  */
 export function prepareArabicPhrase(text: string): string {
   return prepareArabicText(text)
@@ -41,7 +36,6 @@ export function prepareArabicPhrase(text: string): string {
 
 /**
  * Prepares a row of table cells for Arabic-aware rendering.
- * Returns a new array with all Arabic strings processed.
  */
 export function prepareTableRow(cells: (string | number)[]): string[] {
   return cells.map((cell) => {
