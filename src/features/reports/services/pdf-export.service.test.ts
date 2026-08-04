@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
-import { buildPdfFilename, buildFiltersLabel, downloadPdf } from './pdf-export.service'
+import { describe, expect, it, vi, afterEach } from 'vitest'
+import { buildPdfFilename, buildFiltersLabel } from './pdf-export.service'
 import type { PdfExportPayload } from '../types/pdf-export.types'
 
 // ── buildPdfFilename ──────────────────────────────────────────────────────────
@@ -26,7 +26,7 @@ describe('buildPdfFilename', () => {
       date: '2026-08-05',
     })
     expect(result).toMatch(/^contractor-report-/)
-    expect(result).toEndWith('-2026-08-05.pdf')
+    expect(result).toMatch(/-2026-08-05\.pdf$/)
     expect(result).not.toContain('(')
     expect(result).not.toContain(')')
     expect(result).not.toContain('/')
@@ -46,7 +46,7 @@ describe('buildPdfFilename', () => {
 
   it('always ends with .pdf', () => {
     const result = buildPdfFilename({ reportKey: 'any', date: '2026-01-01' })
-    expect(result).toEndWith('.pdf')
+    expect(result).toMatch(/\.pdf$/)
   })
 })
 
@@ -74,11 +74,13 @@ describe('buildFiltersLabel', () => {
 
 // ── downloadPdf — does NOT call window.print ──────────────────────────────────
 
-describe('downloadPdf', () => {
-  const mockSave = vi.fn()
+describe('downloadPdf does not call window.print', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
 
-  beforeEach(() => {
-    // Mock jsPDF so no actual PDF is created in test env
+  it('print is never invoked when exporting PDF', async () => {
+    // Mock jsPDF and autoTable so no real DOM is needed
     vi.mock('jspdf', () => ({
       default: vi.fn().mockImplementation(() => ({
         internal: { pageSize: { getWidth: () => 297, getHeight: () => 210 } },
@@ -86,20 +88,20 @@ describe('downloadPdf', () => {
         setTextColor: vi.fn(),
         text: vi.fn(),
         addPage: vi.fn(),
-        save: mockSave,
+        save: vi.fn(),
         lastAutoTable: { finalY: 50 },
       })),
     }))
     vi.mock('jspdf-autotable', () => ({ default: vi.fn() }))
-  })
 
-  afterEach(() => {
-    vi.restoreAllMocks()
-    mockSave.mockClear()
-  })
+    const printSpy = vi.fn()
+    // Override global.window.print without relying on window existing
+    const originalPrint = globalThis.window?.print
+    if (globalThis.window) {
+      globalThis.window.print = printSpy
+    }
 
-  it('does not call window.print', () => {
-    const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {})
+    const { downloadPdf: download } = await import('./pdf-export.service')
 
     const payload: PdfExportPayload = {
       reportTitle: 'تقرير المشاريع',
@@ -112,13 +114,16 @@ describe('downloadPdf', () => {
     }
 
     try {
-      downloadPdf(payload, 'projects-report-2026-08-05.pdf')
+      download(payload, 'projects-report-2026-08-05.pdf')
     } catch {
-      // jsPDF mock may throw in jsdom — we only care print was not called
+      // jsPDF mock may throw — we only assert print was not called
     }
 
     expect(printSpy).not.toHaveBeenCalled()
-    printSpy.mockRestore()
+
+    if (globalThis.window && originalPrint !== undefined) {
+      globalThis.window.print = originalPrint
+    }
   })
 })
 
@@ -204,14 +209,15 @@ describe('pdf payload header fields', () => {
       dateTo: '',
     }
 
-    const overviewPayload = buildContractorsPdfPayload(emptyData, emptyFilters, 'overview')
-    expect(overviewPayload.activeTab).toBe('contractor-overview')
-
-    const paymentsPayload = buildContractorsPdfPayload(emptyData, emptyFilters, 'payments')
-    expect(paymentsPayload.activeTab).toBe('contractor-payments')
-
-    const statementPayload = buildContractorsPdfPayload(emptyData, emptyFilters, 'statement')
-    expect(statementPayload.activeTab).toBe('contractor-statement')
+    expect(buildContractorsPdfPayload(emptyData, emptyFilters, 'overview').activeTab).toBe(
+      'contractor-overview',
+    )
+    expect(buildContractorsPdfPayload(emptyData, emptyFilters, 'payments').activeTab).toBe(
+      'contractor-payments',
+    )
+    expect(buildContractorsPdfPayload(emptyData, emptyFilters, 'statement').activeTab).toBe(
+      'contractor-statement',
+    )
   })
 
   it('journal payload does not include data from other tabs', async () => {
@@ -230,7 +236,7 @@ describe('pdf payload header fields', () => {
       42,
     )
     expect(payload.activeTab).toBe('journal')
-    expect(payload.tables).toHaveLength(0) // journal table not included (too large for PDF)
+    expect(payload.tables).toHaveLength(0)
     expect(payload.kpis[0]).toMatchObject({ label: 'عدد القيود', value: '42' })
   })
 })
