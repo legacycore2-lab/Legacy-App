@@ -4,6 +4,7 @@ import type {
   ReportEntryRecord,
   ReportProjectRecord,
   ReportProjectRow,
+  ReportsAnalytics,
   ReportsSummary,
   ReportsViewModel,
 } from '../types/report.types'
@@ -36,15 +37,43 @@ export function filterReportRows(
   rows: ReportProjectRow[],
   query: string,
   includeArchived: boolean,
+  status: string,
 ): ReportProjectRow[] {
   const normalized = query.trim().toLocaleLowerCase('ar-EG')
   return rows.filter((row) => {
     if (!includeArchived && row.isArchived) return false
+    if (status !== 'all' && row.status !== status) return false
     if (!normalized) return true
     return [row.name, row.code, row.client].some((value) =>
       value.toLocaleLowerCase('ar-EG').includes(normalized),
     )
   })
+}
+
+export function buildReportsAnalytics(rows: ReportProjectRow[]): ReportsAnalytics {
+  const statusCounts = new Map<string, number>()
+  for (const row of rows) statusCounts.set(row.status, (statusCounts.get(row.status) ?? 0) + 1)
+
+  const topProjects = [...rows]
+    .sort((left, right) => Math.max(right.income, right.expense) - Math.max(left.income, left.expense))
+    .slice(0, 6)
+    .map((row) => ({
+      projectId: row.id,
+      label: row.name,
+      income: row.income,
+      expense: row.expense,
+      net: row.net,
+      maxValue: Math.max(row.income, row.expense, 1),
+    }))
+
+  return {
+    statusOptions: [...statusCounts.entries()]
+      .map(([value, count]) => ({ value, count }))
+      .sort((left, right) => right.count - left.count),
+    topProjects,
+    profitableProjects: rows.filter((row) => row.net >= 0).length,
+    lossProjects: rows.filter((row) => row.net < 0).length,
+  }
 }
 
 export function buildReportsViewModel(
