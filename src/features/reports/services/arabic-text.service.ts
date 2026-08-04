@@ -9,34 +9,34 @@ export function containsArabic(text: string): boolean {
   return ARABIC_RANGE.test(text)
 }
 
+// Matches Arabic Presentation Form glyphs (after reshaping) and non-Arabic segments
+const SEGMENT_RE = /[؀-ۿﭐ-﷿ﹰ-﻿]+|[^؀-ۿﭐ-﷿ﹰ-﻿]+/g
+
 /**
  * Prepares Arabic text for rendering in jsPDF (which uses a left-to-right engine).
  *
  * Steps:
  * 1. Reshape — converts isolated Unicode code points to their correct
  *    connected/contextual Presentation Form glyphs (e.g. ا + ل → ﻻ).
- * 2. Reverse — jsPDF renders characters left-to-right, so we reverse the
- *    glyph order to produce correct right-to-left visual output.
+ * 2. Segment-level reverse — splits the reshaped string into Arabic and non-Arabic
+ *    segments, then reverses the segment order. This preserves word-internal glyph
+ *    order (required for correct Arabic rendering) while achieving RTL word flow.
  *
  * Non-Arabic strings are returned unchanged.
  */
 export function prepareArabicText(text: string): string {
   if (!text || !containsArabic(text)) return text
   const reshaped = convertArabic(text)
-  return reshaped.split('').reverse().join('')
+  const segments = reshaped.match(SEGMENT_RE) ?? []
+  return segments.reverse().join('')
 }
 
 /**
- * Prepares a mixed Arabic/Latin string: splits on whitespace boundaries,
- * reshapes Arabic segments, and reverses the word order so that the sentence
- * reads correctly in RTL context.
- *
- * Use this for multi-word phrases like "محمود مصباح" or "تاج سلطان".
+ * Alias of prepareArabicText — kept for API consistency.
+ * Use for any Arabic string including multi-word phrases.
  */
 export function prepareArabicPhrase(text: string): string {
-  if (!text || !containsArabic(text)) return text
-  const reshaped = convertArabic(text)
-  return reshaped.split('').reverse().join('')
+  return prepareArabicText(text)
 }
 
 /**

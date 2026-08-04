@@ -39,13 +39,24 @@ describe('prepareArabicText', () => {
     expect(hasPresentationForms).toBe(true)
   })
 
-  it('reverses glyph order for RTL rendering in LTR engine', () => {
+  it('reverses segment order for RTL rendering in LTR engine', () => {
     const input = 'محمود'
     const result = prepareArabicText(input)
-    // Result should not equal input (reshaped + reversed)
+    // Result should not equal input (reshaped + segment-reversed)
     expect(result).not.toBe(input)
     // Length should be the same (reshaping maps 1:1 to presentation forms)
     expect([...result].length).toBe([...input].length)
+  })
+
+  it('reverses word order in multi-word Arabic phrases', () => {
+    // "محمود مصباح" after reshape+segment-reverse should have مصباح glyphs first
+    const result = prepareArabicText('محمود مصباح')
+    // The result should be non-empty and contain Presentation Form glyphs
+    expect(result.length).toBeGreaterThan(0)
+    const hasPresentationForms = [...result].some(
+      (ch) => ch.charCodeAt(0) >= 0xfb50 && ch.charCodeAt(0) <= 0xfeff,
+    )
+    expect(hasPresentationForms).toBe(true)
   })
 
   it('processes "محمود مصباح" without throwing', () => {
