@@ -10,7 +10,7 @@ export function containsArabic(text: string): boolean {
 }
 
 // Matches Arabic Presentation Form glyphs (after reshaping) and non-Arabic segments
-const SEGMENT_RE = /[؀-ۿﭐ-﷿ﹰ-﻿]+|[^؀-ۿﭐ-﷿ﹰ-﻿]+/g
+const SEGMENT_RE = /[\u0600-\u06FF\uFB50-\uFDFF\uFE70-\uFEFF]+|[^\u0600-\u06FF\uFB50-\uFDFF\uFE70-\uFEFF]+/gu
 
 /**
  * Prepares Arabic text for rendering in jsPDF (which uses a left-to-right engine).
