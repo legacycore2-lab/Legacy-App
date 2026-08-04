@@ -1,11 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
-import {
-  buildSmartInsights,
-  filterReportRows,
-  loadExecutiveData,
-} from '../services/reports.service'
+import { buildSmartInsights, filterReportRows, loadExecutiveData } from '../services/reports.service'
 import type { ReportsTab } from '../types/report.types'
 
 export function useExecutiveReports(activeTab: ReportsTab) {

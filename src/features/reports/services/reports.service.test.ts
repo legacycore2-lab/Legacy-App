@@ -210,7 +210,16 @@ describe('buildTopProjects', () => {
 
   it('lossMaking excludes profitable projects', () => {
     const lossProject = [
-      { id: 'lp', name: 'خاسر', code: 'LP', client_name: null, status: 'active', progress: 10, contract_value: 1000, is_archived: false },
+      {
+        id: 'lp',
+        name: 'خاسر',
+        code: 'LP',
+        client_name: null,
+        status: 'active',
+        progress: 10,
+        contract_value: 1000,
+        is_archived: false,
+      },
     ]
     const lossEntries = [
       { project_id: 'lp', entry_type: 'expense', amount: 800, entry_number: 1 },
@@ -224,11 +233,20 @@ describe('buildTopProjects', () => {
 
   it('returns at most 5 profitable', () => {
     const manyProjects = Array.from({ length: 10 }, (_, i) => ({
-      id: `p${i}`, name: `مشروع ${i}`, code: `P-${i}`, client_name: null,
-      status: 'active', progress: 50, contract_value: 10000, is_archived: false,
+      id: `p${i}`,
+      name: `مشروع ${i}`,
+      code: `P-${i}`,
+      client_name: null,
+      status: 'active',
+      progress: 50,
+      contract_value: 10000,
+      is_archived: false,
     }))
     const manyEntries = manyProjects.map((p, i) => ({
-      project_id: p.id, entry_type: 'income', amount: (i + 1) * 100, entry_number: i,
+      project_id: p.id,
+      entry_type: 'income',
+      amount: (i + 1) * 100,
+      entry_number: i,
     }))
     const rows = buildProjectReportRows(manyProjects, manyEntries)
     const { profitable } = buildTopProjects(rows)
@@ -240,9 +258,32 @@ describe('buildTopProjects', () => {
 
 describe('buildJournalReportViewModel', () => {
   const records: ReportJournalEntryRecord[] = [
-    makeJournalRecord({ id: 'e1', entry_date: '2024-01-10', amount: 2000, entry_type: 'income', contractor_name: 'مقاول أ', payment_method: 'cash' }),
-    makeJournalRecord({ id: 'e2', entry_date: '2024-01-15', amount: 800, entry_type: 'expense', contractor_name: 'مقاول ب', payment_method: 'bank' }),
-    makeJournalRecord({ id: 'e3', entry_date: '2024-02-01', amount: 1500, entry_type: 'income', contractor_name: null, payment_method: null, project_id: null, project: null }),
+    makeJournalRecord({
+      id: 'e1',
+      entry_date: '2024-01-10',
+      amount: 2000,
+      entry_type: 'income',
+      contractor_name: 'مقاول أ',
+      payment_method: 'cash',
+    }),
+    makeJournalRecord({
+      id: 'e2',
+      entry_date: '2024-01-15',
+      amount: 800,
+      entry_type: 'expense',
+      contractor_name: 'مقاول ب',
+      payment_method: 'bank',
+    }),
+    makeJournalRecord({
+      id: 'e3',
+      entry_date: '2024-02-01',
+      amount: 1500,
+      entry_type: 'income',
+      contractor_name: null,
+      payment_method: null,
+      project_id: null,
+      project: null,
+    }),
   ]
 
   it('builds correct totals', () => {
@@ -271,14 +312,40 @@ describe('buildJournalReportViewModel', () => {
 // ─── filterJournalRows ────────────────────────────────────────────────────────
 
 const baseFilters: JournalReportFilters = {
-  query: '', dateFrom: '', dateTo: '', projectId: '',
-  entryType: 'all', contractorName: '', paymentMethod: '',
+  query: '',
+  dateFrom: '',
+  dateTo: '',
+  projectId: '',
+  entryType: 'all',
+  contractorName: '',
+  paymentMethod: '',
 }
 
 const journalVm = buildJournalReportViewModel([
-  makeJournalRecord({ id: 'e1', entry_date: '2024-01-10', entry_type: 'income', contractor_name: 'مقاول أ', payment_method: 'cash', project_id: 'p1' }),
-  makeJournalRecord({ id: 'e2', entry_date: '2024-01-20', entry_type: 'expense', contractor_name: 'مقاول ب', payment_method: 'bank', project_id: 'p2' }),
-  makeJournalRecord({ id: 'e3', entry_date: '2024-02-05', entry_type: 'income', contractor_name: 'مقاول أ', payment_method: 'cash', project_id: 'p1' }),
+  makeJournalRecord({
+    id: 'e1',
+    entry_date: '2024-01-10',
+    entry_type: 'income',
+    contractor_name: 'مقاول أ',
+    payment_method: 'cash',
+    project_id: 'p1',
+  }),
+  makeJournalRecord({
+    id: 'e2',
+    entry_date: '2024-01-20',
+    entry_type: 'expense',
+    contractor_name: 'مقاول ب',
+    payment_method: 'bank',
+    project_id: 'p2',
+  }),
+  makeJournalRecord({
+    id: 'e3',
+    entry_date: '2024-02-05',
+    entry_type: 'income',
+    contractor_name: 'مقاول أ',
+    payment_method: 'cash',
+    project_id: 'p1',
+  }),
 ])
 
 describe('filterJournalRows', () => {
@@ -289,7 +356,11 @@ describe('filterJournalRows', () => {
   })
 
   it('filters by date range', () => {
-    const rows = filterJournalRows(journalVm.allRows, { ...baseFilters, dateFrom: '2024-01-15', dateTo: '2024-01-25' })
+    const rows = filterJournalRows(journalVm.allRows, {
+      ...baseFilters,
+      dateFrom: '2024-01-15',
+      dateTo: '2024-01-25',
+    })
     expect(rows).toHaveLength(1)
     expect(rows[0].id).toBe('e2')
   })
@@ -331,7 +402,18 @@ describe('buildSmartInsights', () => {
   })
 
   it('flags budget risk only when contractValue > 0 and expense > 80%', () => {
-    const p = [{ id: 'br', name: 'خطر', code: 'BR', client_name: null, status: 'active', progress: 0, contract_value: 1000, is_archived: false }]
+    const p = [
+      {
+        id: 'br',
+        name: 'خطر',
+        code: 'BR',
+        client_name: null,
+        status: 'active',
+        progress: 0,
+        contract_value: 1000,
+        is_archived: false,
+      },
+    ]
     const e = [
       { project_id: 'br', entry_type: 'income', amount: 50, entry_number: 1 },
       { project_id: 'br', entry_type: 'expense', amount: 850, entry_number: 2 },
@@ -342,17 +424,37 @@ describe('buildSmartInsights', () => {
   })
 
   it('does NOT flag budget risk when contractValue is 0', () => {
-    const p = [{ id: 'nv', name: 'بلا عقد', code: 'NV', client_name: null, status: 'active', progress: 0, contract_value: 0, is_archived: false }]
-    const e = [
-      { project_id: 'nv', entry_type: 'expense', amount: 500, entry_number: 1 },
+    const p = [
+      {
+        id: 'nv',
+        name: 'بلا عقد',
+        code: 'NV',
+        client_name: null,
+        status: 'active',
+        progress: 0,
+        contract_value: 0,
+        is_archived: false,
+      },
     ]
+    const e = [{ project_id: 'nv', entry_type: 'expense', amount: 500, entry_number: 1 }]
     const rows = buildProjectReportRows(p, e)
     const insights = buildSmartInsights(rows)
     expect(insights.some((i) => i.id.startsWith('budget-risk-'))).toBe(false)
   })
 
   it('flags loss project when net < 0', () => {
-    const p = [{ id: 'ls', name: 'خاسر', code: 'LS', client_name: null, status: 'active', progress: 0, contract_value: 5000, is_archived: false }]
+    const p = [
+      {
+        id: 'ls',
+        name: 'خاسر',
+        code: 'LS',
+        client_name: null,
+        status: 'active',
+        progress: 0,
+        contract_value: 5000,
+        is_archived: false,
+      },
+    ]
     const e = [
       { project_id: 'ls', entry_type: 'income', amount: 100, entry_number: 1 },
       { project_id: 'ls', entry_type: 'expense', amount: 600, entry_number: 2 },

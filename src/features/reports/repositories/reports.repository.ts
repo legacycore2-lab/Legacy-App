@@ -1,10 +1,6 @@
 import { getSupabaseClient } from '../../../lib/supabase/client'
 import { fetchAllWithPagination } from '../../../shared/pagination-helpers'
-import type {
-  ReportEntryRecord,
-  ReportJournalEntryRecord,
-  ReportProjectRecord,
-} from '../types/report.types'
+import type { ReportEntryRecord, ReportJournalEntryRecord, ReportProjectRecord } from '../types/report.types'
 
 export async function findReportProjects(): Promise<ReportProjectRecord[]> {
   const { data, error } = await getSupabaseClient()
