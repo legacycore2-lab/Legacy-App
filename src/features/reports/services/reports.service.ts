@@ -18,6 +18,35 @@ function parseProgress(value: number | string | null): number {
   return Math.min(100, Math.max(0, Math.round(progress)))
 }
 
+export function summarizeReportRows(rows: ReportProjectRow[]): ReportsSummary {
+  return rows.reduce<ReportsSummary>(
+    (total, row) => ({
+      projectCount: total.projectCount + 1,
+      contractValue: total.contractValue + row.contractValue,
+      income: total.income + row.income,
+      expense: total.expense + row.expense,
+      net: total.net + row.net,
+      remaining: total.remaining + row.remaining,
+    }),
+    { projectCount: 0, contractValue: 0, income: 0, expense: 0, net: 0, remaining: 0 },
+  )
+}
+
+export function filterReportRows(
+  rows: ReportProjectRow[],
+  query: string,
+  includeArchived: boolean,
+): ReportProjectRow[] {
+  const normalized = query.trim().toLocaleLowerCase('ar-EG')
+  return rows.filter((row) => {
+    if (!includeArchived && row.isArchived) return false
+    if (!normalized) return true
+    return [row.name, row.code, row.client].some((value) =>
+      value.toLocaleLowerCase('ar-EG').includes(normalized),
+    )
+  })
+}
+
 export function buildReportsViewModel(
   projects: ReportProjectRecord[],
   entries: ReportEntryRecord[],
@@ -57,19 +86,7 @@ export function buildReportsViewModel(
     }
   })
 
-  const summary = rows.reduce<ReportsSummary>(
-    (total, row) => ({
-      projectCount: total.projectCount + 1,
-      contractValue: total.contractValue + row.contractValue,
-      income: total.income + row.income,
-      expense: total.expense + row.expense,
-      net: total.net + row.net,
-      remaining: total.remaining + row.remaining,
-    }),
-    { projectCount: 0, contractValue: 0, income: 0, expense: 0, net: 0, remaining: 0 },
-  )
-
-  return { rows, summary }
+  return { rows, summary: summarizeReportRows(rows) }
 }
 
 export async function getReportsViewModel(): Promise<ReportsViewModel> {
