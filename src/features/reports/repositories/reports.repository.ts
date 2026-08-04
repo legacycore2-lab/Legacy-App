@@ -1,6 +1,7 @@
 import { getSupabaseClient } from '../../../lib/supabase/client'
 import { fetchAllWithPagination } from '../../../shared/pagination-helpers'
-import type { ReportEntryRecord, ReportJournalEntryRecord, ReportProjectRecord } from '../types/report.types'
+import type { ProfitLossEntryRecord } from '../types/profit-loss.types'
+import type { ReportJournalEntryRecord, ReportProjectRecord } from '../types/report.types'
 
 export async function findReportProjects(): Promise<ReportProjectRecord[]> {
   const { data, error } = await getSupabaseClient()
@@ -12,11 +13,11 @@ export async function findReportProjects(): Promise<ReportProjectRecord[]> {
   return (data ?? []) as unknown as ReportProjectRecord[]
 }
 
-export async function findReportEntries(): Promise<ReportEntryRecord[]> {
-  return fetchAllWithPagination<ReportEntryRecord>((from, to) =>
+export async function findReportEntries(): Promise<ProfitLossEntryRecord[]> {
+  return fetchAllWithPagination<ProfitLossEntryRecord>((from, to) =>
     getSupabaseClient()
       .from('entries')
-      .select('project_id, entry_type, amount, entry_number')
+      .select('project_id, entry_date, entry_type, amount, entry_number')
       .not('project_id', 'is', null)
       .order('entry_date', { ascending: false })
       .order('entry_number', { ascending: false })

@@ -10,7 +10,7 @@ describe('reports center catalogue', () => {
       .filter((report) => report.availability === 'available')
       .map((report) => report.key)
 
-    expect(available).toEqual(['executive', 'projects', 'journal', 'insights'])
+    expect(available).toEqual(['executive', 'profit-loss', 'projects', 'journal', 'insights'])
   })
 
   it('keeps coming-soon reports without fake availability', () => {
@@ -46,7 +46,7 @@ describe('reports center catalogue', () => {
     expect(viewModel.sections).toHaveLength(1)
     expect(viewModel.sections[0]?.category).toBe('executive')
     expect(viewModel.totalReports).toBe(filtered.length)
-    expect(viewModel.availableReports).toBe(2)
+    expect(viewModel.availableReports).toBe(3)
   })
 
   it('does not mutate report definitions while filtering', () => {
