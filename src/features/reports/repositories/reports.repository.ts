@@ -1,5 +1,6 @@
 import { getSupabaseClient } from '../../../lib/supabase/client'
 import { fetchAllWithPagination } from '../../../shared/pagination-helpers'
+import type { ContractorReportEntryRecord } from '../types/contractor-reports.types'
 import type { ProfitLossEntryRecord } from '../types/profit-loss.types'
 import type { ReportJournalEntryRecord, ReportProjectRecord } from '../types/report.types'
 
@@ -38,6 +39,29 @@ export async function findReportJournalEntries(): Promise<ReportJournalEntryReco
          contractor_name,
          payment_method,
          description,
+         project_id,
+         project:projects(name)`,
+      )
+      .order('entry_date', { ascending: false })
+      .order('entry_number', { ascending: false })
+      .range(from, to),
+  )
+}
+
+export async function findContractorReportEntries(): Promise<ContractorReportEntryRecord[]> {
+  return fetchAllWithPagination<ContractorReportEntryRecord>((from, to) =>
+    getSupabaseClient()
+      .from('entries')
+      .select(
+        `id,
+         entry_number,
+         entry_date,
+         entry_type,
+         amount,
+         contractor_name,
+         category,
+         description,
+         payment_method,
          project_id,
          project:projects(name)`,
       )
