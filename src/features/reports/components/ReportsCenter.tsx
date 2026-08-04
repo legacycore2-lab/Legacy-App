@@ -22,7 +22,7 @@ import {
   Users,
   WalletCards,
 } from 'lucide-react'
-import type { ComponentType } from 'react'
+import type { LucideIcon } from 'lucide-react'
 import type {
   ReportCategory,
   ReportDefinition,
@@ -31,7 +31,7 @@ import type {
   ReportsCenterSection,
 } from '../types/reports-center.types'
 
-const ICONS: Record<ReportIconKey, ComponentType<{ size?: number; 'aria-hidden'?: boolean }>> = {
+const ICONS: Record<ReportIconKey, LucideIcon> = {
   chart: BarChart3,
   projects: FolderKanban,
   journal: ClipboardList,
@@ -48,7 +48,7 @@ const ICONS: Record<ReportIconKey, ComponentType<{ size?: number; 'aria-hidden'?
   audit: ShieldCheck,
 }
 
-const CATEGORY_ICONS: Record<Exclude<ReportCategory, 'all'>, ComponentType<{ size?: number }>> = {
+const CATEGORY_ICONS: Record<Exclude<ReportCategory, 'all'>, LucideIcon> = {
   executive: ChartNoAxesCombined,
   projects: Building2,
   journal: ReceiptText,
