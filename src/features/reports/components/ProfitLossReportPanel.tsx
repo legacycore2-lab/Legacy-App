@@ -7,10 +7,7 @@ type Props = {
   filters: ProfitLossFilters
   hasActiveFilter: boolean
   isFetching: boolean
-  onSetFilter: <K extends keyof ProfitLossFilters>(
-    key: K,
-    value: ProfitLossFilters[K],
-  ) => void
+  onSetFilter: <K extends keyof ProfitLossFilters>(key: K, value: ProfitLossFilters[K]) => void
   onReset: () => void
 }
 
@@ -71,12 +68,7 @@ export function ProfitLossReportPanel({
             ))}
           </select>
         </label>
-        <button
-          type="button"
-          className="pl-reset"
-          onClick={onReset}
-          disabled={!hasActiveFilter}
-        >
+        <button type="button" className="pl-reset" onClick={onReset} disabled={!hasActiveFilter}>
           <RotateCcw size={16} aria-hidden />
           إعادة الضبط
         </button>
@@ -115,16 +107,12 @@ export function ProfitLossReportPanel({
         <article>
           <span>أعلى مشروع ربحًا</span>
           <strong>{data.topProfitProject?.projectName ?? 'لا يوجد'}</strong>
-          <small>
-            {data.topProfitProject ? formatMoneyInteger(data.topProfitProject.net) : '—'}
-          </small>
+          <small>{data.topProfitProject ? formatMoneyInteger(data.topProfitProject.net) : '—'}</small>
         </article>
         <article>
           <span>أعلى مشروع خسارة</span>
           <strong>{data.topLossProject?.projectName ?? 'لا يوجد'}</strong>
-          <small>
-            {data.topLossProject ? formatMoneyInteger(data.topLossProject.net) : '—'}
-          </small>
+          <small>{data.topLossProject ? formatMoneyInteger(data.topLossProject.net) : '—'}</small>
         </article>
       </div>
 

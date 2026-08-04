@@ -31,10 +31,7 @@ export function buildProfitLossProjectRows(
   projects: ReportProjectRecord[],
   entries: ProfitLossEntryRecord[],
 ): ProfitLossProjectRow[] {
-  const totals = new Map<
-    string,
-    { income: number; expense: number; entryCount: number }
-  >()
+  const totals = new Map<string, { income: number; expense: number; entryCount: number }>()
 
   for (const entry of entries) {
     const current = totals.get(entry.project_id) ?? {
@@ -74,9 +71,7 @@ export function buildProfitLossProjectRows(
     .sort((a, b) => b.net - a.net)
 }
 
-export function buildProfitLossMonthlyRows(
-  entries: ProfitLossEntryRecord[],
-): ProfitLossMonthlyRow[] {
+export function buildProfitLossMonthlyRows(entries: ProfitLossEntryRecord[]): ProfitLossMonthlyRow[] {
   const months = new Map<string, { income: number; expense: number }>()
 
   for (const entry of entries) {
@@ -103,10 +98,7 @@ export function buildProfitLossMonthlyRows(
     }))
 }
 
-export function summarizeProfitLoss(
-  rows: ProfitLossProjectRow[],
-  entryCount: number,
-): ProfitLossSummary {
+export function summarizeProfitLoss(rows: ProfitLossProjectRow[], entryCount: number): ProfitLossSummary {
   const totals = rows.reduce(
     (acc, row) => ({
       totalIncome: acc.totalIncome + row.income,
@@ -138,8 +130,7 @@ export function buildProfitLossViewModel(
   const monthlyRows = buildProfitLossMonthlyRows(filteredEntries)
   const summary = summarizeProfitLoss(projectRows, filteredEntries.length)
   const topProfitProject = projectRows.find((row) => row.net > 0) ?? null
-  const topLossProject =
-    [...projectRows].sort((a, b) => a.net - b.net).find((row) => row.net < 0) ?? null
+  const topLossProject = [...projectRows].sort((a, b) => a.net - b.net).find((row) => row.net < 0) ?? null
 
   return {
     summary,
@@ -153,12 +144,7 @@ export function buildProfitLossViewModel(
   }
 }
 
-export async function loadProfitLossData(
-  filters: ProfitLossFilters,
-): Promise<ProfitLossViewModel> {
-  const [projects, entries] = await Promise.all([
-    findReportProjects(),
-    findReportEntries(),
-  ])
+export async function loadProfitLossData(filters: ProfitLossFilters): Promise<ProfitLossViewModel> {
+  const [projects, entries] = await Promise.all([findReportProjects(), findReportEntries()])
   return buildProfitLossViewModel(projects, entries, filters)
 }
