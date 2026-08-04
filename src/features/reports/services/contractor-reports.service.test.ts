@@ -155,12 +155,32 @@ describe('contractor reports service', () => {
     expect(rows.at(-1)?.monthKey).toBe('2026-07')
   })
 
-  it('builds payment-method distribution from real amounts', () => {
-    const transfer = buildContractorPaymentMethodRows(entries).find(
-      (row) => row.contractorName === 'محمود مصباح' && row.paymentMethod === 'تحويل',
-    )
+  it('builds payment-method distribution from expense entries only', () => {
+    const rows = buildContractorPaymentMethodRows(entries)
+
+    // محمود مصباح: 2 expense entries (1000 تحويل + 500 نقدي) — income/unknown excluded
+    const transfer = rows.find((row) => row.contractorName === 'محمود مصباح' && row.paymentMethod === 'تحويل')
+    const cash = rows.find((row) => row.contractorName === 'محمود مصباح' && row.paymentMethod === 'نقدي')
     expect(transfer).toMatchObject({ totalAmount: 1000, entryCount: 1 })
+    expect(cash).toMatchObject({ totalAmount: 500, entryCount: 1 })
+    // percentages from total expense (1500)
     expect(transfer?.percentageOfContractorMovement).toBeCloseTo(66.67)
+    expect(cash?.percentageOfContractorMovement).toBeCloseTo(33.33)
+
+    // أحمد علي: only income + unknown — no expense rows → not in payment report
+    expect(rows.find((row) => row.contractorName === 'أحمد علي')).toBeUndefined()
+  })
+
+  it('excludes income and unknown entries from payment-method rows', () => {
+    const rows = buildContractorPaymentMethodRows(entries)
+    // e3 is income (أحمد علي / تحويل) — must not appear
+    const ahmedTransfer = rows.find(
+      (row) => row.contractorName === 'أحمد علي' && row.paymentMethod === 'تحويل',
+    )
+    expect(ahmedTransfer).toBeUndefined()
+    // e4 is unknown (أحمد علي) — must not appear
+    const ahmedUnknown = rows.find((row) => row.contractorName === 'أحمد علي')
+    expect(ahmedUnknown).toBeUndefined()
   })
 
   it('reports missing fields and unknown types as quality issues', () => {

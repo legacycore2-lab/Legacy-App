@@ -215,6 +215,7 @@ export function buildContractorPaymentMethodRows(
 
   for (const entry of entries) {
     if (entry.contractorName === MISSING_CONTRACTOR) continue
+    if (entry.entryType !== 'expense') continue
     totalsByContractor.set(
       entry.contractorName,
       (totalsByContractor.get(entry.contractorName) ?? 0) + entry.amount,
