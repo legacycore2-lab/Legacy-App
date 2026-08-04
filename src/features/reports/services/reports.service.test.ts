@@ -394,10 +394,16 @@ describe('filterJournalRows', () => {
 // ─── buildSmartInsights ───────────────────────────────────────────────────────
 
 describe('buildSmartInsights', () => {
-  it('returns no-data insight when no entries exist', () => {
+  it('returns no-data insight when rows array is empty', () => {
+    const insights = buildSmartInsights([])
+    expect(insights.some((i) => i.id === 'no-data')).toBe(true)
+  })
+
+  it('returns no-activity (not no-data) when projects exist but have no entries', () => {
     const rows = buildProjectReportRows(projects, [])
     const insights = buildSmartInsights(rows)
-    expect(insights.some((i) => i.id === 'no-data')).toBe(true)
+    expect(insights.some((i) => i.id === 'no-activity')).toBe(true)
+    expect(insights.some((i) => i.id === 'no-data')).toBe(false)
   })
 
   it('flags budget risk only when contractValue > 0 and expense > 80%', () => {
