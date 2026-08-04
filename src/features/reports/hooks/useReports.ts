@@ -7,7 +7,11 @@ import {
   summarizeReportRows,
 } from '../services/reports.service'
 
-// prettier-ignore
+function resolveReportsError(error: unknown): string {
+  if (!error) return ''
+  return toErrorMessage(error, 'تعذر تحميل التقارير.')
+}
+
 export function useReports() {
   const [query, setQuery] = useState('')
   const [includeArchived, setIncludeArchived] = useState(false)
@@ -32,9 +36,7 @@ export function useReports() {
     includeArchived,
     setIncludeArchived,
     isLoading: reportsQuery.isLoading,
-    error: reportsQuery.error
-      ? toErrorMessage(reportsQuery.error, 'تعذر تحميل التقارير.')
-      : '',
+    error: resolveReportsError(reportsQuery.error),
     refresh: reportsQuery.refetch,
   }
 }
