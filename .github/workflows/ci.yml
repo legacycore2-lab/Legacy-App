@@ -35,8 +35,10 @@ jobs:
       - name: Security audit
         run: npm audit --audit-level=critical
 
-      - name: Check formatting
-        run: npm run format:check
+      - name: Print formatted reports hook
+        run: |
+          npx prettier src/features/reports/hooks/useReports.ts
+          exit 1
 
       - name: Lint source
         run: npm run lint
