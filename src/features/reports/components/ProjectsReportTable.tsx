@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react'
+import { Eye, Search } from 'lucide-react'
 import { formatMoneyInteger } from '../../../shared/formatters'
 import type { ReportProjectRow } from '../types/report.types'
 
@@ -23,14 +23,8 @@ type Props = {
 
 // prettier-ignore
 export function ProjectsReportTable({
-  rows,
-  query,
-  onQueryChange,
-  includeArchived,
-  onIncludeArchivedChange,
-  statusFilter,
-  onStatusFilterChange,
-  isLoading,
+  rows, query, onQueryChange, includeArchived,
+  onIncludeArchivedChange, statusFilter, onStatusFilterChange, isLoading,
 }: Props) {
   return (
     <section className="reports-panel">
@@ -39,22 +33,19 @@ export function ProjectsReportTable({
           <span className="reports-label">ملخص المشاريع</span>
           <h2>الأداء المالي للمشاريع</h2>
         </div>
+        <span className="proj-count">{rows.length} مشروع</span>
       </div>
 
-      <div className="reports-table-filters">
+      <div className="proj-filters">
         <label className="reports-search">
-          <Search size={16} />
+          <Search size={15} />
           <input
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
             placeholder="بحث باسم المشروع أو الكود أو العميل..."
           />
         </label>
-        <select
-          value={statusFilter}
-          onChange={(e) => onStatusFilterChange(e.target.value)}
-          className="reports-select"
-        >
+        <select value={statusFilter} onChange={(e) => onStatusFilterChange(e.target.value)} className="reports-select">
           <option value="">كل الحالات</option>
           <option value="active">نشط</option>
           <option value="completed">مكتمل</option>
@@ -62,11 +53,7 @@ export function ProjectsReportTable({
           <option value="archived">مؤرشف</option>
         </select>
         <label className="reports-checkbox-label">
-          <input
-            type="checkbox"
-            checked={includeArchived}
-            onChange={(e) => onIncludeArchivedChange(e.target.checked)}
-          />
+          <input type="checkbox" checked={includeArchived} onChange={(e) => onIncludeArchivedChange(e.target.checked)} />
           إظهار المؤرشفة
         </label>
       </div>
@@ -76,8 +63,8 @@ export function ProjectsReportTable({
       ) : rows.length === 0 ? (
         <div className="reports-state">لا توجد مشاريع مطابقة للفلاتر الحالية.</div>
       ) : (
-        <div className="reports-table-wrap">
-          <table className="reports-table">
+        <div className="proj-table-wrap">
+          <table className="proj-table">
             <thead>
               <tr>
                 <th>المشروع</th>
@@ -90,12 +77,13 @@ export function ProjectsReportTable({
                 <th>المتبقي</th>
                 <th>الإنجاز</th>
                 <th>القيود</th>
+                <th aria-label="إجراء" />
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
-                <tr key={row.id}>
-                  <td>
+              {rows.map((row, idx) => (
+                <tr key={row.id} className={idx % 2 === 1 ? 'is-alt' : ''}>
+                  <td className="proj-td-name">
                     <strong>{row.name}</strong>
                     <small>{row.code}</small>
                   </td>
@@ -119,6 +107,16 @@ export function ProjectsReportTable({
                     <small>{row.progress}%</small>
                   </td>
                   <td>{row.entryCount}</td>
+                  <td className="proj-td-action">
+                    <button
+                      type="button"
+                      className="proj-action-btn"
+                      title="عرض تفاصيل المشروع"
+                      aria-label={`عرض ${row.name}`}
+                    >
+                      <Eye size={14} />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

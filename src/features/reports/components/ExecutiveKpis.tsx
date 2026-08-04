@@ -7,60 +7,69 @@ type Props = {
   isLoading: boolean
 }
 
+// prettier-ignore
 export function ExecutiveKpis({ summary, isLoading }: Props) {
-  const items = [
-    {
-      label: 'إجمالي المشاريع',
-      value: String(summary.projectCount),
-      icon: Building2,
-      cls: '',
-    },
-    {
-      label: 'قيمة العقود',
-      value: formatMoneyInteger(summary.contractValue),
-      icon: Wallet,
-      cls: '',
-    },
-    {
-      label: 'الإيرادات',
-      value: formatMoneyInteger(summary.income),
-      icon: TrendingUp,
-      cls: 'is-positive',
-    },
-    {
-      label: 'المصروفات',
-      value: formatMoneyInteger(summary.expense),
-      icon: TrendingDown,
-      cls: 'is-negative',
-    },
-    {
-      label: 'صافي الحركة',
-      value: formatMoneyInteger(summary.net),
-      icon: summary.net >= 0 ? TrendingUp : TrendingDown,
-      cls: summary.net >= 0 ? 'is-positive' : 'is-negative',
-    },
-    {
-      label: 'المتبقي من العقود',
-      value: formatMoneyInteger(summary.remaining),
-      icon: Banknote,
-      cls: '',
-    },
-  ]
+  const v = (n: number) => (isLoading ? '...' : formatMoneyInteger(n))
+  const isProfit = summary.net >= 0
 
   return (
-    <div className="reports-kpis" aria-label="مؤشرات الأداء الرئيسية">
-      {items.map((item) => {
-        const Icon = item.icon
-        return (
-          <article key={item.label} className={`reports-kpi-card${item.cls ? ` ${item.cls}` : ''}`}>
-            <div className="reports-kpi-card__icon">
-              <Icon size={18} aria-hidden="true" />
-            </div>
-            <span className="reports-kpi-card__label">{item.label}</span>
-            <strong className="reports-kpi-card__value">{isLoading ? '...' : item.value}</strong>
-          </article>
-        )
-      })}
+    <div className="kpis-grid" aria-label="مؤشرات الأداء الرئيسية">
+      {/* ── Hero row ── */}
+      <article className="kpi-card kpi-hero kpi-income">
+        <div className="kpi-card__header">
+          <span className="kpi-card__label">الإيرادات</span>
+          <div className="kpi-card__icon"><TrendingUp size={20} aria-hidden="true" /></div>
+        </div>
+        <strong className="kpi-card__value">{v(summary.income)}</strong>
+        <div className="kpi-card__trend" aria-hidden="true" />
+      </article>
+
+      <article className="kpi-card kpi-hero kpi-expense">
+        <div className="kpi-card__header">
+          <span className="kpi-card__label">المصروفات</span>
+          <div className="kpi-card__icon"><TrendingDown size={20} aria-hidden="true" /></div>
+        </div>
+        <strong className="kpi-card__value">{v(summary.expense)}</strong>
+        <div className="kpi-card__trend" aria-hidden="true" />
+      </article>
+
+      <article className={`kpi-card kpi-hero ${isProfit ? 'kpi-profit' : 'kpi-loss'}`}>
+        <div className="kpi-card__header">
+          <span className="kpi-card__label">صافي الحركة</span>
+          <div className="kpi-card__icon">
+            {isProfit ? <TrendingUp size={20} aria-hidden="true" /> : <TrendingDown size={20} aria-hidden="true" />}
+          </div>
+        </div>
+        <strong className="kpi-card__value">{v(summary.net)}</strong>
+        <div className="kpi-card__trend" aria-hidden="true" />
+      </article>
+
+      {/* ── Secondary row ── */}
+      <article className="kpi-card kpi-secondary">
+        <div className="kpi-card__header">
+          <span className="kpi-card__label">إجمالي المشاريع</span>
+          <div className="kpi-card__icon"><Building2 size={16} aria-hidden="true" /></div>
+        </div>
+        <strong className="kpi-card__value kpi-value--sm">
+          {isLoading ? '...' : String(summary.projectCount)}
+        </strong>
+      </article>
+
+      <article className="kpi-card kpi-secondary">
+        <div className="kpi-card__header">
+          <span className="kpi-card__label">قيمة العقود</span>
+          <div className="kpi-card__icon"><Wallet size={16} aria-hidden="true" /></div>
+        </div>
+        <strong className="kpi-card__value kpi-value--sm">{v(summary.contractValue)}</strong>
+      </article>
+
+      <article className="kpi-card kpi-secondary">
+        <div className="kpi-card__header">
+          <span className="kpi-card__label">المتبقي من العقود</span>
+          <div className="kpi-card__icon"><Banknote size={16} aria-hidden="true" /></div>
+        </div>
+        <strong className="kpi-card__value kpi-value--sm">{v(summary.remaining)}</strong>
+      </article>
     </div>
   )
 }
