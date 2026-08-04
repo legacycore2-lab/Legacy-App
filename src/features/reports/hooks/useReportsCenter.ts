@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react'
 import {
-  buildReportDefinitions,
   buildReportsCenterViewModel,
   filterReportDefinitions,
 } from '../services/reports-center.service'
+import { getReportsCenterDefinitions } from '../services/reports-center-navigation.service'
 import type { ReportCategory, ReportKey } from '../types/reports-center.types'
 
 export function useReportsCenter() {
@@ -11,7 +11,7 @@ export function useReportsCenter() {
   const [selectedCategory, setSelectedCategory] = useState<ReportCategory>('all')
   const [selectedReport, setSelectedReport] = useState<ReportKey | null>(null)
 
-  const definitions = useMemo(() => buildReportDefinitions(), [])
+  const definitions = useMemo(() => getReportsCenterDefinitions(), [])
   const filteredDefinitions = useMemo(
     () => filterReportDefinitions(definitions, query, selectedCategory),
     [definitions, query, selectedCategory],
