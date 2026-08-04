@@ -4,14 +4,15 @@ import { formatTimestamp } from '../../../shared/date-utils'
 
 type Props = {
   onRefresh: () => void | Promise<void>
+  onExportPdf?: () => void
   lastUpdated?: Date | null
+  isExporting?: boolean
 }
 
-export function ReportsHeader({ onRefresh, lastUpdated }: Props) {
+export function ReportsHeader({ onRefresh, onExportPdf, lastUpdated, isExporting = false }: Props) {
   const [exportOpen, setExportOpen] = useState(false)
   const exportRef = useRef<HTMLDivElement>(null)
 
-  // Close on click-outside
   useEffect(() => {
     if (!exportOpen) return
     function handleClickOutside(e: MouseEvent) {
@@ -23,7 +24,6 @@ export function ReportsHeader({ onRefresh, lastUpdated }: Props) {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [exportOpen])
 
-  // Close on Escape
   useEffect(() => {
     if (!exportOpen) return
     function handleKeyDown(e: KeyboardEvent) {
@@ -32,6 +32,11 @@ export function ReportsHeader({ onRefresh, lastUpdated }: Props) {
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [exportOpen])
+
+  function handlePdfClick() {
+    setExportOpen(false)
+    onExportPdf?.()
+  }
 
   return (
     <header className="rh">
@@ -51,7 +56,13 @@ export function ReportsHeader({ onRefresh, lastUpdated }: Props) {
           <span>تحديث</span>
         </button>
 
-        <button type="button" className="rh-btn" onClick={() => window.print()} aria-label="طباعة">
+        <button
+          type="button"
+          className="rh-btn"
+          onClick={() => window.print()}
+          aria-label="طباعة"
+          data-action="print"
+        >
           <Printer size={15} />
           <span>طباعة</span>
         </button>
@@ -75,14 +86,13 @@ export function ReportsHeader({ onRefresh, lastUpdated }: Props) {
                 <button
                   type="button"
                   role="menuitem"
-                  onClick={() => {
-                    setExportOpen(false)
-                    window.print()
-                  }}
+                  onClick={handlePdfClick}
+                  disabled={isExporting || !onExportPdf}
                   className="rh-dropdown__item"
+                  data-action="export-pdf"
                 >
                   <FileText size={14} />
-                  PDF
+                  {isExporting ? 'جارٍ التصدير...' : 'PDF'}
                 </button>
               </li>
               <li role="none">
