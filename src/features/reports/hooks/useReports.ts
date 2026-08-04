@@ -1,7 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
-import { filterReportRows, getReportsViewModel, summarizeReportRows } from '../services/reports.service'
+import {
+  buildReportsAnalytics,
+  filterReportRows,
+  getReportsViewModel,
+  summarizeReportRows,
+} from '../services/reports.service'
 
 function resolveReportsError(error: unknown): string {
   if (!error) return ''
@@ -11,6 +16,7 @@ function resolveReportsError(error: unknown): string {
 export function useReports() {
   const [query, setQuery] = useState('')
   const [includeArchived, setIncludeArchived] = useState(false)
+  const [status, setStatus] = useState('all')
 
   const reportsQuery = useQuery({
     queryKey: ['reports', 'financial-summary'],
@@ -18,14 +24,23 @@ export function useReports() {
     staleTime: 30_000,
   })
 
-  const rows = filterReportRows(reportsQuery.data?.rows ?? [], query, includeArchived)
+  const allRows = reportsQuery.data?.rows ?? []
+  const rows = filterReportRows(allRows, query, includeArchived, status)
   const summary = summarizeReportRows(rows)
+  const analytics = buildReportsAnalytics(rows)
+  const statusOptions = buildReportsAnalytics(
+    filterReportRows(allRows, '', includeArchived, 'all'),
+  ).statusOptions
 
   return {
     rows,
     summary,
+    analytics,
+    statusOptions,
     query,
     setQuery,
+    status,
+    setStatus,
     includeArchived,
     setIncludeArchived,
     isLoading: reportsQuery.isLoading,
