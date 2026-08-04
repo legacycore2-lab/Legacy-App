@@ -6,7 +6,8 @@ import {
   filterProfitLossEntries,
   summarizeProfitLoss,
 } from './profit-loss.service'
-import type { ReportEntryRecord, ReportProjectRecord } from '../types/report.types'
+import type { ProfitLossEntryRecord } from '../types/profit-loss.types'
+import type { ReportProjectRecord } from '../types/report.types'
 
 const projects: ReportProjectRecord[] = [
   {
@@ -31,7 +32,7 @@ const projects: ReportProjectRecord[] = [
   },
 ]
 
-const entries: ReportEntryRecord[] = [
+const entries: ProfitLossEntryRecord[] = [
   { project_id: 'p1', entry_date: '2026-07-01', entry_type: 'income', amount: 200000, entry_number: 1 },
   { project_id: 'p1', entry_date: '2026-07-05', entry_type: 'expense', amount: 50000, entry_number: 2 },
   { project_id: 'p1', entry_date: '2026-08-01', entry_type: 'e', amount: 20000, entry_number: 3 },
