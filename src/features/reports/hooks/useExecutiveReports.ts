@@ -4,7 +4,7 @@ import { isPermissionError, toErrorMessage } from '../../../shared/errors/app-er
 import { buildSmartInsights, filterReportRows, loadExecutiveData } from '../services/reports.service'
 import type { ReportsTab } from '../types/report.types'
 
-export function useExecutiveReports(activeTab: ReportsTab) {
+export function useExecutiveReports(activeTab: ReportsTab | null) {
   const [query, setQuery] = useState('')
   const [includeArchived, setIncludeArchived] = useState(false)
   const [statusFilter, setStatusFilter] = useState('')
@@ -19,9 +19,7 @@ export function useExecutiveReports(activeTab: ReportsTab) {
   })
 
   const allRows = q.data?.rows ?? []
-
   const filteredRows = filterReportRows(allRows, query, includeArchived, statusFilter)
-
   const insights = q.data ? buildSmartInsights(q.data.rows) : []
 
   return {
