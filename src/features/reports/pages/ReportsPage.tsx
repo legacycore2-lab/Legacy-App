@@ -1,3 +1,4 @@
+import { ArrowRight } from 'lucide-react'
 import { useState } from 'react'
 import { ExecutiveDashboard } from '../components/ExecutiveDashboard'
 import { ExecutiveKpis } from '../components/ExecutiveKpis'
@@ -5,39 +6,79 @@ import { JournalFilters } from '../components/JournalFilters'
 import { JournalReportTable } from '../components/JournalReportTable'
 import { JournalSummaryBar } from '../components/JournalSummaryBar'
 import { ProjectsReportTable } from '../components/ProjectsReportTable'
+import { ReportsCenter } from '../components/ReportsCenter'
 import { ReportsEmptyState } from '../components/ReportsEmptyState'
 import { ReportsErrorState } from '../components/ReportsErrorState'
 import { ReportsHeader } from '../components/ReportsHeader'
-import { ReportsTabs } from '../components/ReportsTabs'
 import { SmartInsightsPanel } from '../components/SmartInsightsPanel'
 import { useExecutiveReports } from '../hooks/useExecutiveReports'
 import { useJournalReport } from '../hooks/useJournalReport'
+import { useReportsCenter } from '../hooks/useReportsCenter'
+import type { ReportKey } from '../types/reports-center.types'
 import type { ReportsTab } from '../types/report.types'
 import '../styles/reports.css'
+import '../styles/reports-center.css'
+
+const REPORT_TITLES: Partial<Record<ReportKey, string>> = {
+  executive: 'الملخص التنفيذي',
+  projects: 'تقرير المشاريع',
+  journal: 'تقرير القيود اليومية',
+  insights: 'الرؤى والتنبيهات',
+}
+
+function toDataTab(report: ReportKey | null): ReportsTab | null {
+  if (report === 'executive' || report === 'projects' || report === 'journal' || report === 'insights') {
+    return report
+  }
+  return null
+}
 
 // prettier-ignore
 export function ReportsPage() {
-  const [activeTab, setActiveTab] = useState<ReportsTab>('executive')
+  const center = useReportsCenter()
+  const activeTab = toDataTab(center.selectedReport)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
 
   const executive = useExecutiveReports(activeTab)
   const journal = useJournalReport(activeTab)
 
   async function handleRefresh() {
-    const result =
-      activeTab === 'journal' ? await journal.refresh() : await executive.refresh()
-    if (!result.error) {
-      setLastUpdated(new Date())
-    }
+    const result = activeTab === 'journal' ? await journal.refresh() : await executive.refresh()
+    if (!result.error) setLastUpdated(new Date())
+  }
+
+  if (!center.selectedReport) {
+    return (
+      <main className="reports-page reports-page--center">
+        <ReportsCenter
+          sections={center.sections}
+          query={center.query}
+          selectedCategory={center.selectedCategory}
+          categories={center.categories}
+          totalReports={center.totalReports}
+          availableReports={center.availableReports}
+          onQueryChange={center.setQuery}
+          onCategoryChange={center.setSelectedCategory}
+          onOpenReport={center.openReport}
+        />
+      </main>
+    )
   }
 
   return (
     <main className="reports-page">
+      <nav className="report-detail-nav" aria-label="مسار التقرير">
+        <button type="button" onClick={center.closeReport}>
+          <ArrowRight size={16} aria-hidden />
+          العودة لمركز التقارير
+        </button>
+        <span>التقارير</span>
+        <span aria-hidden>/</span>
+        <strong>{REPORT_TITLES[center.selectedReport] ?? 'التقرير'}</strong>
+      </nav>
+
       <ReportsHeader onRefresh={handleRefresh} lastUpdated={lastUpdated} />
 
-      <ReportsTabs activeTab={activeTab} onChange={setActiveTab} />
-
-      {/* ── Executive ── */}
       {activeTab === 'executive' && (
         <>
           {executive.isPermissionDenied ? (
@@ -60,7 +101,6 @@ export function ReportsPage() {
         </>
       )}
 
-      {/* ── Projects ── */}
       {activeTab === 'projects' && (
         <>
           {executive.isPermissionDenied ? (
@@ -82,7 +122,6 @@ export function ReportsPage() {
         </>
       )}
 
-      {/* ── Journal ── */}
       {activeTab === 'journal' && (
         <section className="reports-panel">
           <div className="reports-panel__heading">
@@ -118,11 +157,12 @@ export function ReportsPage() {
         </section>
       )}
 
-      {/* ── Insights ── */}
       {activeTab === 'insights' && (
         <>
           {executive.isPermissionDenied ? (
             <ReportsErrorState error={executive.error} isPermission />
+          ) : executive.error ? (
+            <ReportsErrorState error={executive.error} />
           ) : (
             <SmartInsightsPanel insights={executive.insights} isLoading={executive.isLoading} />
           )}
