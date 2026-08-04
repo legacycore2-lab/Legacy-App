@@ -137,10 +137,12 @@ export function filterReportRows(
   rows: ReportProjectRow[],
   query: string,
   includeArchived: boolean,
+  statusFilter = '',
 ): ReportProjectRow[] {
   const normalized = query.trim().toLocaleLowerCase('ar-EG')
   return rows.filter((row) => {
     if (!includeArchived && row.isArchived) return false
+    if (statusFilter && row.status !== statusFilter) return false
     if (!normalized) return true
     return [row.name, row.code, row.client].some((v) => v.toLocaleLowerCase('ar-EG').includes(normalized))
   })
@@ -358,4 +360,12 @@ export async function loadProjectsReportData(): Promise<ProjectsReportViewModel>
 export async function loadJournalReportData(): Promise<JournalReportViewModel> {
   const records = await findReportJournalEntries()
   return buildJournalReportViewModel(records)
+}
+
+// ─── Pagination ───────────────────────────────────────────────────────────────
+
+export function paginateRows<T>(rows: T[], page: number, pageSize: number): T[] {
+  const clampedPage = Math.max(1, page)
+  const start = (clampedPage - 1) * pageSize
+  return rows.slice(start, start + pageSize)
 }

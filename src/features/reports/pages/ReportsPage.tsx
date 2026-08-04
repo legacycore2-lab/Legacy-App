@@ -39,18 +39,18 @@ export function ReportsPage() {
       {/* ── Executive ─────────────────────────────────────────────────────── */}
       {activeTab === 'executive' && (
         <>
-          {executive.error ? (
+          {executive.isPermissionDenied ? (
+            <ReportsErrorState error={executive.error} raw={executive.isPermissionDenied} isPermission />
+          ) : executive.error ? (
             <ReportsErrorState error={executive.error} />
           ) : (
             <>
               {executive.summary ? (
                 <ExecutiveKpis summary={executive.summary} isLoading={executive.isLoading} />
               ) : null}
-
               {executive.topProjects && !executive.isLoading ? (
                 <TopProjectsPanel topProjects={executive.topProjects} />
               ) : null}
-
               {executive.summary && !executive.isLoading && executive.allRows.length === 0 ? (
                 <ReportsEmptyState message="لا توجد مشاريع حتى الآن." />
               ) : null}
@@ -62,7 +62,9 @@ export function ReportsPage() {
       {/* ── Projects ──────────────────────────────────────────────────────── */}
       {activeTab === 'projects' && (
         <>
-          {executive.error ? (
+          {executive.isPermissionDenied ? (
+            <ReportsErrorState error={executive.error} raw={executive.isPermissionDenied} isPermission />
+          ) : executive.error ? (
             <ReportsErrorState error={executive.error} />
           ) : (
             <ProjectsReportTable
@@ -101,17 +103,32 @@ export function ReportsPage() {
 
           <JournalSummaryBar summary={journal.summary} />
 
-          {journal.error ? (
+          {journal.isPermissionDenied ? (
+            <ReportsErrorState error={journal.error} raw={journal.isPermissionDenied} isPermission />
+          ) : journal.error ? (
             <ReportsErrorState error={journal.error} />
           ) : (
-            <JournalReportTable rows={journal.filteredRows} isLoading={journal.isLoading} />
+            <JournalReportTable
+              rows={journal.paginatedRows}
+              isLoading={journal.isLoading}
+              page={journal.page}
+              totalPages={journal.totalPages}
+              totalCount={journal.totalCount}
+              onPageChange={journal.setPage}
+            />
           )}
         </section>
       )}
 
       {/* ── Insights ──────────────────────────────────────────────────────── */}
       {activeTab === 'insights' && (
-        <SmartInsightsPanel insights={executive.insights} isLoading={executive.isLoading} />
+        <>
+          {executive.isPermissionDenied ? (
+            <ReportsErrorState error={executive.error} raw={executive.isPermissionDenied} isPermission />
+          ) : (
+            <SmartInsightsPanel insights={executive.insights} isLoading={executive.isLoading} />
+          )}
+        </>
       )}
     </main>
   )

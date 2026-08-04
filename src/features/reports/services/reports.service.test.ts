@@ -9,6 +9,7 @@ import {
   filterReportRows,
   mapJournalEntry,
   mapReportProject,
+  paginateRows,
   summarizeJournalRows,
   summarizeReportRows,
 } from './reports.service'
@@ -488,5 +489,150 @@ describe('buildSmartInsights', () => {
     const insights = buildSmartInsights(rows)
     const ids = insights.map((i) => i.id)
     expect(ids).toHaveLength(new Set(ids).size)
+  })
+})
+
+// ─── filterReportRows with statusFilter ───────────────────────────────────────
+
+describe('filterReportRows — status filtering', () => {
+  const rows = buildProjectReportRows(
+    [
+      {
+        id: 'a1',
+        name: 'نشط',
+        code: 'A1',
+        client_name: null,
+        status: 'active',
+        progress: 50,
+        contract_value: 1000,
+        is_archived: false,
+      },
+      {
+        id: 'a2',
+        name: 'مكتمل',
+        code: 'A2',
+        client_name: null,
+        status: 'completed',
+        progress: 100,
+        contract_value: 2000,
+        is_archived: false,
+      },
+      {
+        id: 'a3',
+        name: 'متوقف',
+        code: 'A3',
+        client_name: null,
+        status: 'paused',
+        progress: 30,
+        contract_value: 500,
+        is_archived: false,
+      },
+    ],
+    [],
+  )
+
+  it('returns all rows when statusFilter is empty string', () => {
+    expect(filterReportRows(rows, '', true, '')).toHaveLength(3)
+  })
+
+  it('filters to active only', () => {
+    const result = filterReportRows(rows, '', true, 'active')
+    expect(result).toHaveLength(1)
+    expect(result[0].status).toBe('active')
+  })
+
+  it('filters to completed only', () => {
+    const result = filterReportRows(rows, '', true, 'completed')
+    expect(result).toHaveLength(1)
+    expect(result[0].status).toBe('completed')
+  })
+
+  it('combines statusFilter with text query', () => {
+    const result = filterReportRows(rows, 'نشط', true, 'active')
+    expect(result).toHaveLength(1)
+  })
+
+  it('returns empty when statusFilter matches no rows', () => {
+    const result = filterReportRows(rows, '', true, 'unknown')
+    expect(result).toHaveLength(0)
+  })
+
+  it('does not mutate the input rows array', () => {
+    const copy = [...rows]
+    filterReportRows(rows, '', true, 'active')
+    expect(rows).toEqual(copy)
+  })
+})
+
+// ─── paginateRows ─────────────────────────────────────────────────────────────
+
+describe('paginateRows', () => {
+  const items = Array.from({ length: 120 }, (_, i) => ({ id: String(i) }))
+
+  it('returns first page correctly', () => {
+    const page = paginateRows(items, 1, 50)
+    expect(page).toHaveLength(50)
+    expect(page[0].id).toBe('0')
+    expect(page[49].id).toBe('49')
+  })
+
+  it('returns middle page correctly', () => {
+    const page = paginateRows(items, 2, 50)
+    expect(page).toHaveLength(50)
+    expect(page[0].id).toBe('50')
+  })
+
+  it('returns last page correctly (partial)', () => {
+    const page = paginateRows(items, 3, 50)
+    expect(page).toHaveLength(20)
+    expect(page[0].id).toBe('100')
+  })
+
+  it('clamps page < 1 to page 1', () => {
+    const page = paginateRows(items, 0, 50)
+    expect(page[0].id).toBe('0')
+  })
+
+  it('returns empty array when page exceeds total', () => {
+    const page = paginateRows(items, 99, 50)
+    expect(page).toHaveLength(0)
+  })
+
+  it('handles empty rows array', () => {
+    expect(paginateRows([], 1, 50)).toHaveLength(0)
+  })
+
+  it('does not mutate the input array', () => {
+    const copy = [...items]
+    paginateRows(items, 1, 50)
+    expect(items).toEqual(copy)
+  })
+})
+
+// ─── summary unaffected by pagination ────────────────────────────────────────
+
+describe('summarizeJournalRows — unaffected by pagination', () => {
+  const manyRecords: ReportJournalEntryRecord[] = Array.from({ length: 120 }, (_, i) =>
+    makeJournalRecord({
+      id: `r${i}`,
+      entry_type: i % 2 === 0 ? 'income' : 'expense',
+      amount: 100,
+    }),
+  )
+
+  it('summary reflects all filteredRows regardless of page', () => {
+    const vm = buildJournalReportViewModel(manyRecords)
+    const summary = summarizeJournalRows(vm.allRows)
+    expect(summary.entryCount).toBe(120)
+    expect(summary.totalIncome).toBe(60 * 100)
+    expect(summary.totalExpense).toBe(60 * 100)
+  })
+
+  it('paginated rows do not affect summary totals', () => {
+    const vm = buildJournalReportViewModel(manyRecords)
+    const fullSummary = summarizeJournalRows(vm.allRows)
+    const pageSummary = summarizeJournalRows(paginateRows(vm.allRows, 1, 50))
+    expect(fullSummary.entryCount).toBeGreaterThan(pageSummary.entryCount)
+    expect(fullSummary.totalIncome).toBeGreaterThan(pageSummary.totalIncome)
   })
 })
