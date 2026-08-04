@@ -61,9 +61,13 @@ export function filterContractorReportEntries(
     if (filters.dateTo && entry.entryDate > filters.dateTo) return false
     if (!query) return true
 
-    return [entry.contractorName, entry.projectName, entry.category, entry.description, entry.paymentMethod].some(
-      (value) => value.toLocaleLowerCase('ar-EG').includes(query),
-    )
+    return [
+      entry.contractorName,
+      entry.projectName,
+      entry.category,
+      entry.description,
+      entry.paymentMethod,
+    ].some((value) => value.toLocaleLowerCase('ar-EG').includes(query))
   })
 }
 
@@ -211,7 +215,10 @@ export function buildContractorPaymentMethodRows(
 
   for (const entry of entries) {
     if (entry.contractorName === MISSING_CONTRACTOR) continue
-    totalsByContractor.set(entry.contractorName, (totalsByContractor.get(entry.contractorName) ?? 0) + entry.amount)
+    totalsByContractor.set(
+      entry.contractorName,
+      (totalsByContractor.get(entry.contractorName) ?? 0) + entry.amount,
+    )
     const key = `${entry.contractorName}\u0000${entry.paymentMethod}`
     const current = groups.get(key) ?? {
       contractorName: entry.contractorName,
@@ -242,9 +249,7 @@ const QUALITY_LABELS: Record<ContractorDataQualityIssueKind, string> = {
   'unknown-entry-type': 'قيود مقاولين بنوع غير معروف',
 }
 
-export function buildContractorDataQualityRows(
-  entries: ContractorReportEntry[],
-): ContractorDataQualityRow[] {
+export function buildContractorDataQualityRows(entries: ContractorReportEntry[]): ContractorDataQualityRow[] {
   const groups = new Map<ContractorDataQualityIssueKind, { count: number; totalAmount: number }>()
   const add = (kind: ContractorDataQualityIssueKind, amount: number) => {
     const current = groups.get(kind) ?? { count: 0, totalAmount: 0 }

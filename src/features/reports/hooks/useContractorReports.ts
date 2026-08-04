@@ -36,10 +36,7 @@ export function useContractorReports(enabled: boolean) {
     [query.data?.entries, safePage],
   )
 
-  function setFilter<K extends keyof ContractorReportsFilters>(
-    key: K,
-    value: ContractorReportsFilters[K],
-  ) {
+  function setFilter<K extends keyof ContractorReportsFilters>(key: K, value: ContractorReportsFilters[K]) {
     setFilters((current) => ({ ...current, [key]: value }))
     setPage(1)
   }

@@ -10,10 +10,7 @@ import {
   filterContractorReportEntries,
   mapContractorReportEntry,
 } from './contractor-reports.service'
-import type {
-  ContractorReportEntryRecord,
-  ContractorReportsFilters,
-} from '../types/contractor-reports.types'
+import type { ContractorReportEntryRecord, ContractorReportsFilters } from '../types/contractor-reports.types'
 
 const records: ContractorReportEntryRecord[] = [
   {
@@ -110,11 +107,15 @@ describe('contractor reports service', () => {
   })
 
   it('filters by every supported dimension', () => {
-    expect(filterContractorReportEntries(entries, { ...emptyFilters, contractorName: 'محمود مصباح' })).toHaveLength(2)
+    expect(
+      filterContractorReportEntries(entries, { ...emptyFilters, contractorName: 'محمود مصباح' }),
+    ).toHaveLength(2)
     expect(filterContractorReportEntries(entries, { ...emptyFilters, projectId: 'p2' })).toHaveLength(1)
     expect(filterContractorReportEntries(entries, { ...emptyFilters, category: 'نجارة' })).toHaveLength(1)
     expect(filterContractorReportEntries(entries, { ...emptyFilters, entryType: 'unknown' })).toHaveLength(1)
-    expect(filterContractorReportEntries(entries, { ...emptyFilters, dateFrom: '2026-08-01' })).toHaveLength(3)
+    expect(filterContractorReportEntries(entries, { ...emptyFilters, dateFrom: '2026-08-01' })).toHaveLength(
+      3,
+    )
     expect(filterContractorReportEntries(entries, { ...emptyFilters, query: 'دفعة ثانية' })).toHaveLength(1)
   })
 
@@ -129,7 +130,9 @@ describe('contractor reports service', () => {
   })
 
   it('builds contractor per-project totals', () => {
-    expect(buildContractorProjectRows(entries).find((row) => row.contractorName === 'محمود مصباح')).toMatchObject({
+    expect(
+      buildContractorProjectRows(entries).find((row) => row.contractorName === 'محمود مصباح'),
+    ).toMatchObject({
       projectName: 'تاج سلطان',
       totalExpense: 1500,
       entryCount: 2,
@@ -137,7 +140,9 @@ describe('contractor reports service', () => {
   })
 
   it('builds categories with contractor-relative percentages', () => {
-    expect(buildContractorCategoryRows(entries).find((row) => row.contractorName === 'محمود مصباح')).toMatchObject({
+    expect(
+      buildContractorCategoryRows(entries).find((row) => row.contractorName === 'محمود مصباح'),
+    ).toMatchObject({
       category: 'تشطيبات',
       totalExpense: 1500,
       percentageOfContractorExpense: 100,
@@ -164,7 +169,10 @@ describe('contractor reports service', () => {
     expect(rows.find((row) => row.kind === 'missing-project')?.count).toBe(1)
     expect(rows.find((row) => row.kind === 'missing-category')?.count).toBe(1)
     expect(rows.find((row) => row.kind === 'missing-payment-method')?.count).toBe(1)
-    expect(rows.find((row) => row.kind === 'unknown-entry-type')).toMatchObject({ count: 1, totalAmount: 700 })
+    expect(rows.find((row) => row.kind === 'unknown-entry-type')).toMatchObject({
+      count: 1,
+      totalAmount: 700,
+    })
   })
 
   it('builds the complete suite from one record set', () => {
