@@ -1,168 +1,135 @@
-import { FileBarChart, Printer, RefreshCw, Search } from 'lucide-react'
-import { formatMoneyInteger } from '../../../shared/formatters'
-import { useReports } from '../hooks/useReports'
+import { useState } from 'react'
+import { ExecutiveKpis } from '../components/ExecutiveKpis'
+import { JournalFilters } from '../components/JournalFilters'
+import { JournalReportTable } from '../components/JournalReportTable'
+import { JournalSummaryBar } from '../components/JournalSummaryBar'
+import { ProjectsReportTable } from '../components/ProjectsReportTable'
+import { ReportsEmptyState } from '../components/ReportsEmptyState'
+import { ReportsErrorState } from '../components/ReportsErrorState'
+import { ReportsHeader } from '../components/ReportsHeader'
+import { ReportsTabs } from '../components/ReportsTabs'
+import { SmartInsightsPanel } from '../components/SmartInsightsPanel'
+import { TopProjectsPanel } from '../components/TopProjectsPanel'
+import { useExecutiveReports } from '../hooks/useExecutiveReports'
+import { useJournalReport } from '../hooks/useJournalReport'
+import type { ReportsTab } from '../types/report.types'
 import '../styles/reports.css'
-
-const statusLabel: Record<string, string> = {
-  active: 'نشط',
-  completed: 'مكتمل',
-  paused: 'متوقف',
-  archived: 'مؤرشف',
-  unknown: 'غير معروف',
-}
 
 // prettier-ignore
 export function ReportsPage() {
-  const {
-    rows,
-    summary,
-    query,
-    setQuery,
-    includeArchived,
-    setIncludeArchived,
-    isLoading,
-    error,
-    refresh,
-  } = useReports()
+  const [activeTab, setActiveTab] = useState<ReportsTab>('executive')
+
+  const executive = useExecutiveReports(activeTab)
+  const journal = useJournalReport(activeTab)
+
+  function handleRefresh() {
+    if (activeTab === 'journal') {
+      void journal.refresh()
+    } else {
+      void executive.refresh()
+    }
+  }
 
   return (
     <main className="reports-page">
-      <header className="reports-page__header">
-        <div>
-          <span>مركز التقارير والتحليلات</span>
-          <h1>التقارير</h1>
-          <p>ملخص مالي مباشر لجميع المشاريع من القيود المسجلة في النظام.</p>
-        </div>
-        <div className="reports-page__actions">
-          <button type="button" onClick={() => void refresh()}>
-            <RefreshCw size={17} /> تحديث
-          </button>
-          <button
-            type="button"
-            className="is-primary"
-            onClick={() => window.print()}
-          >
-            <Printer size={17} /> طباعة
-          </button>
-        </div>
-      </header>
+      <ReportsHeader onRefresh={handleRefresh} />
 
-      <section className="reports-filters" aria-label="فلاتر التقارير">
-        <label className="reports-search">
-          <Search size={18} />
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="بحث باسم المشروع أو الكود أو العميل..."
-          />
-        </label>
-        <label className="reports-archive-filter">
-          <input
-            type="checkbox"
-            checked={includeArchived}
-            onChange={(event) => setIncludeArchived(event.target.checked)}
-          />
-          إظهار المشاريع المؤرشفة
-        </label>
-      </section>
+      <ReportsTabs activeTab={activeTab} onChange={setActiveTab} />
 
-      {error ? <div className="reports-state is-error">{error}</div> : null}
+      {/* ── Executive ─────────────────────────────────────────────────────── */}
+      {activeTab === 'executive' && (
+        <>
+          {executive.isPermissionDenied ? (
+            <ReportsErrorState error={executive.error} raw={executive.isPermissionDenied} isPermission />
+          ) : executive.error ? (
+            <ReportsErrorState error={executive.error} />
+          ) : (
+            <>
+              {executive.summary ? (
+                <ExecutiveKpis summary={executive.summary} isLoading={executive.isLoading} />
+              ) : null}
+              {executive.topProjects && !executive.isLoading ? (
+                <TopProjectsPanel topProjects={executive.topProjects} />
+              ) : null}
+              {executive.summary && !executive.isLoading && executive.allRows.length === 0 ? (
+                <ReportsEmptyState message="لا توجد مشاريع حتى الآن." />
+              ) : null}
+            </>
+          )}
+        </>
+      )}
 
-      <section className="reports-kpis" aria-label="ملخص المؤشرات">
-        <article>
-          <span>إجمالي المشاريع</span>
-          <strong>{summary.projectCount}</strong>
-        </article>
-        <article>
-          <span>قيمة العقود</span>
-          <strong>{formatMoneyInteger(summary.contractValue)}</strong>
-        </article>
-        <article>
-          <span>الإيرادات</span>
-          <strong>{formatMoneyInteger(summary.income)}</strong>
-        </article>
-        <article>
-          <span>المصروفات</span>
-          <strong>{formatMoneyInteger(summary.expense)}</strong>
-        </article>
-        <article>
-          <span>صافي الحركة</span>
-          <strong>{formatMoneyInteger(summary.net)}</strong>
-        </article>
-        <article>
-          <span>المتبقي من العقود</span>
-          <strong>{formatMoneyInteger(summary.remaining)}</strong>
-        </article>
-      </section>
+      {/* ── Projects ──────────────────────────────────────────────────────── */}
+      {activeTab === 'projects' && (
+        <>
+          {executive.isPermissionDenied ? (
+            <ReportsErrorState error={executive.error} raw={executive.isPermissionDenied} isPermission />
+          ) : executive.error ? (
+            <ReportsErrorState error={executive.error} />
+          ) : (
+            <ProjectsReportTable
+              rows={executive.filteredRows}
+              query={executive.query}
+              onQueryChange={executive.setQuery}
+              includeArchived={executive.includeArchived}
+              onIncludeArchivedChange={executive.setIncludeArchived}
+              statusFilter={executive.statusFilter}
+              onStatusFilterChange={executive.setStatusFilter}
+              isLoading={executive.isLoading}
+            />
+          )}
+        </>
+      )}
 
-      <section className="reports-panel">
-        <div className="reports-panel__heading">
-          <div>
-            <span>ملخص المشاريع</span>
-            <h2>الأداء المالي للمشاريع</h2>
+      {/* ── Journal ───────────────────────────────────────────────────────── */}
+      {activeTab === 'journal' && (
+        <section className="reports-panel">
+          <div className="reports-panel__heading">
+            <div>
+              <span className="reports-label">القيود اليومية</span>
+              <h2>تقرير القيود</h2>
+            </div>
           </div>
-          <FileBarChart size={22} />
-        </div>
 
-        {isLoading ? (
-          <div className="reports-state">جارٍ تحميل بيانات التقارير...</div>
-        ) : rows.length === 0 ? (
-          <div className="reports-state">لا توجد مشاريع مطابقة للفلاتر الحالية.</div>
-        ) : (
-          <div className="reports-table-wrap">
-            <table className="reports-table">
-              <thead>
-                <tr>
-                  <th>المشروع</th>
-                  <th>العميل</th>
-                  <th>الحالة</th>
-                  <th>قيمة العقد</th>
-                  <th>الإيرادات</th>
-                  <th>المصروفات</th>
-                  <th>الصافي</th>
-                  <th>المتبقي</th>
-                  <th>الإنجاز</th>
-                  <th>القيود</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => (
-                  <tr key={row.id}>
-                    <td>
-                      <strong>{row.name}</strong>
-                      <small>{row.code}</small>
-                    </td>
-                    <td>{row.client}</td>
-                    <td>
-                      <span className={`reports-status is-${row.status}`}>
-                        {statusLabel[row.status] ?? row.status}
-                      </span>
-                    </td>
-                    <td>{formatMoneyInteger(row.contractValue)}</td>
-                    <td className="is-positive">
-                      {formatMoneyInteger(row.income)}
-                    </td>
-                    <td className="is-negative">
-                      {formatMoneyInteger(row.expense)}
-                    </td>
-                    <td className={row.net >= 0 ? 'is-positive' : 'is-negative'}>
-                      {formatMoneyInteger(row.net)}
-                    </td>
-                    <td>{formatMoneyInteger(row.remaining)}</td>
-                    <td>
-                      <div className="reports-progress">
-                        <span style={{ width: `${row.progress}%` }} />
-                      </div>
-                      <small>{row.progress}%</small>
-                    </td>
-                    <td>{row.entryCount}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+          <JournalFilters
+            filters={journal.filters}
+            hasActiveFilter={journal.hasActiveFilter}
+            contractors={journal.contractors}
+            paymentMethods={journal.paymentMethods}
+            projectOptions={journal.projectOptions}
+            onSetFilter={journal.setFilter}
+            onReset={journal.resetFilters}
+          />
+
+          <JournalSummaryBar summary={journal.summary} />
+
+          {journal.isPermissionDenied ? (
+            <ReportsErrorState error={journal.error} raw={journal.isPermissionDenied} isPermission />
+          ) : journal.error ? (
+            <ReportsErrorState error={journal.error} />
+          ) : (
+            <JournalReportTable
+              rows={journal.paginatedRows}
+              isLoading={journal.isLoading}
+              page={journal.page}
+              totalPages={journal.totalPages}
+              totalCount={journal.totalCount}
+              onPageChange={journal.setPage}
+            />
+          )}
+        </section>
+      )}
+
+      {/* ── Insights ──────────────────────────────────────────────────────── */}
+      {activeTab === 'insights' && (
+        <>
+          {executive.isPermissionDenied ? (
+            <ReportsErrorState error={executive.error} raw={executive.isPermissionDenied} isPermission />
+          ) : (
+            <SmartInsightsPanel insights={executive.insights} isLoading={executive.isLoading} />
+          )}
+        </>
+      )}
     </main>
   )
 }
