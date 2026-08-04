@@ -25,6 +25,7 @@ type Props = {
   onSearch: () => void
   onReset: () => void
   onPageChange: (page: number) => void
+  onSectionChange?: (section: ContractorReportSection) => void
 }
 
 const SECTIONS: { key: ContractorReportSection; label: string }[] = [
@@ -57,6 +58,7 @@ export function ContractorReportsPanel({
   onSearch,
   onReset,
   onPageChange,
+  onSectionChange,
 }: Props) {
   const [section, setSection] = useState<ContractorReportSection>('overview')
   const { overview } = data
@@ -201,7 +203,10 @@ export function ContractorReportsPanel({
             type="button"
             role="tab"
             aria-selected={section === item.key}
-            onClick={() => setSection(item.key)}
+            onClick={() => {
+              setSection(item.key)
+              onSectionChange?.(item.key)
+            }}
           >
             {item.label}
           </button>

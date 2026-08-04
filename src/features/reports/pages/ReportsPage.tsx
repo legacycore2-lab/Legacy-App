@@ -17,6 +17,7 @@ import { useContractorReports } from '../hooks/useContractorReports'
 import { useExecutiveReports } from '../hooks/useExecutiveReports'
 import { useJournalReport } from '../hooks/useJournalReport'
 import { useProfitLossReport } from '../hooks/useProfitLossReport'
+import { useReportExport } from '../hooks/useReportExport'
 import { useReportsCenter } from '../hooks/useReportsCenter'
 import type { ReportKey } from '../types/reports-center.types'
 import type { ReportsTab } from '../types/report.types'
@@ -58,11 +59,16 @@ export function ReportsPage() {
   const isProfitLoss = center.selectedReport === 'profit-loss'
   const isContractors = center.selectedReport ? CONTRACTOR_REPORT_KEYS.has(center.selectedReport) : false
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const [contractorSection, setContractorSection] = useState<
+    'overview' | 'statement' | 'projects' | 'categories' | 'monthly' | 'payments' | 'quality'
+  >('overview')
 
   const executive = useExecutiveReports(activeTab)
   const journal = useJournalReport(activeTab)
   const profitLoss = useProfitLossReport(isProfitLoss)
   const contractorReports = useContractorReports(isContractors)
+  const { isExporting, exportExecutivePdf, exportProjectsPdf, exportJournalPdf, exportProfitLossPdf, exportContractorsPdf } =
+    useReportExport()
 
   async function handleRefresh() {
     const result = isContractors
@@ -73,6 +79,40 @@ export function ReportsPage() {
           ? await journal.refresh()
           : await executive.refresh()
     if (!result.error) setLastUpdated(new Date())
+  }
+
+  function buildExportPdf(): (() => void) | undefined {
+    if (activeTab === 'executive' && executive.allRows.length > 0 && executive.summary) {
+      return () => exportExecutivePdf({ summary: executive.summary!, topProjects: executive.topProjects!, rows: executive.allRows })
+    }
+    if (activeTab === 'projects') {
+      return () =>
+        exportProjectsPdf(executive.filteredRows, {
+          query: executive.draftQuery,
+          statusFilter: executive.draftStatusFilter,
+          includeArchived: executive.draftIncludeArchived,
+        })
+    }
+    if (activeTab === 'journal' && journal.filteredRows.length > 0) {
+      return () => exportJournalPdf(
+        { allRows: journal.filteredRows, contractors: journal.contractors, paymentMethods: journal.paymentMethods, projectOptions: journal.projectOptions },
+        journal.filters,
+        journal.totalCount,
+      )
+    }
+    if (isProfitLoss && profitLoss.data) {
+      return () => exportProfitLossPdf(profitLoss.data!, profitLoss.filters)
+    }
+    if (isContractors && contractorReports.data) {
+      return () =>
+        exportContractorsPdf(
+          contractorReports.data!,
+          contractorReports.filters,
+          contractorSection,
+          contractorReports.filters.contractorName,
+        )
+    }
+    return undefined
   }
 
   if (!center.selectedReport) {
@@ -105,7 +145,12 @@ export function ReportsPage() {
         <strong>{REPORT_TITLES[center.selectedReport] ?? 'التقرير'}</strong>
       </nav>
 
-      <ReportsHeader onRefresh={handleRefresh} lastUpdated={lastUpdated} />
+      <ReportsHeader
+        onRefresh={handleRefresh}
+        lastUpdated={lastUpdated}
+        onExportPdf={buildExportPdf()}
+        isExporting={isExporting}
+      />
 
       {activeTab === 'executive' && (
         <>
@@ -246,6 +291,7 @@ export function ReportsPage() {
               onSearch={contractorReports.commitSearch}
               onReset={contractorReports.resetFilters}
               onPageChange={contractorReports.setPage}
+              onSectionChange={setContractorSection}
             />
           ) : (
             <ReportsEmptyState message="جاري تحميل تقارير المقاولين..." />
