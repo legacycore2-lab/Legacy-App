@@ -21,7 +21,7 @@ const EMPTY_FILTERS: JournalReportFilters = {
   paymentMethod: '',
 }
 
-export function useJournalReport(activeTab: ReportsTab) {
+export function useJournalReport(activeTab: ReportsTab | null) {
   const [filters, setFilters] = useState<JournalReportFilters>(EMPTY_FILTERS)
   const [page, setPage] = useState(1)
 
