@@ -7,7 +7,10 @@ type Props = {
   filters: ProfitLossFilters
   hasActiveFilter: boolean
   isFetching: boolean
-  onSetFilter: <K extends keyof ProfitLossFilters>(key: K, value: ProfitLossFilters[K]) => void
+  onSetFilter: <K extends keyof ProfitLossFilters>(
+    key: K,
+    value: ProfitLossFilters[K],
+  ) => void
   onReset: () => void
 }
 
@@ -56,7 +59,10 @@ export function ProfitLossReportPanel({
         </label>
         <label>
           <span>المشروع</span>
-          <select value={filters.projectId} onChange={(event) => onSetFilter('projectId', event.target.value)}>
+          <select
+            value={filters.projectId}
+            onChange={(event) => onSetFilter('projectId', event.target.value)}
+          >
             <option value="">كل المشاريع</option>
             {data.projectOptions.map((project) => (
               <option key={project.id} value={project.id}>
@@ -65,7 +71,12 @@ export function ProfitLossReportPanel({
             ))}
           </select>
         </label>
-        <button type="button" className="pl-reset" onClick={onReset} disabled={!hasActiveFilter}>
+        <button
+          type="button"
+          className="pl-reset"
+          onClick={onReset}
+          disabled={!hasActiveFilter}
+        >
           <RotateCcw size={16} aria-hidden />
           إعادة الضبط
         </button>
@@ -104,12 +115,16 @@ export function ProfitLossReportPanel({
         <article>
           <span>أعلى مشروع ربحًا</span>
           <strong>{data.topProfitProject?.projectName ?? 'لا يوجد'}</strong>
-          <small>{data.topProfitProject ? formatMoneyInteger(data.topProfitProject.net) : '—'}</small>
+          <small>
+            {data.topProfitProject ? formatMoneyInteger(data.topProfitProject.net) : '—'}
+          </small>
         </article>
         <article>
           <span>أعلى مشروع خسارة</span>
           <strong>{data.topLossProject?.projectName ?? 'لا يوجد'}</strong>
-          <small>{data.topLossProject ? formatMoneyInteger(data.topLossProject.net) : '—'}</small>
+          <small>
+            {data.topLossProject ? formatMoneyInteger(data.topLossProject.net) : '—'}
+          </small>
         </article>
       </div>
 
@@ -136,7 +151,9 @@ export function ProfitLossReportPanel({
             <tbody>
               {data.projectRows.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="pl-empty-cell">لا توجد بيانات مطابقة للفلاتر الحالية.</td>
+                  <td colSpan={7} className="pl-empty-cell">
+                    لا توجد بيانات مطابقة للفلاتر الحالية.
+                  </td>
                 </tr>
               ) : (
                 data.projectRows.map((row) => (
@@ -145,7 +162,9 @@ export function ProfitLossReportPanel({
                     <td>{formatMoneyInteger(row.contractValue)}</td>
                     <td>{formatMoneyInteger(row.income)}</td>
                     <td>{formatMoneyInteger(row.expense)}</td>
-                    <td className={row.net >= 0 ? 'is-income' : 'is-expense'}>{formatMoneyInteger(row.net)}</td>
+                    <td className={row.net >= 0 ? 'is-income' : 'is-expense'}>
+                      {formatMoneyInteger(row.net)}
+                    </td>
                     <td>{formatMargin(row.marginPercent)}</td>
                     <td>{row.entryCount}</td>
                   </tr>
@@ -176,7 +195,9 @@ export function ProfitLossReportPanel({
             <tbody>
               {data.monthlyRows.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="pl-empty-cell">لا توجد حركة شهرية للفترة المحددة.</td>
+                  <td colSpan={4} className="pl-empty-cell">
+                    لا توجد حركة شهرية للفترة المحددة.
+                  </td>
                 </tr>
               ) : (
                 data.monthlyRows.map((row) => (
@@ -184,7 +205,9 @@ export function ProfitLossReportPanel({
                     <td>{row.monthLabel}</td>
                     <td>{formatMoneyInteger(row.income)}</td>
                     <td>{formatMoneyInteger(row.expense)}</td>
-                    <td className={row.net >= 0 ? 'is-income' : 'is-expense'}>{formatMoneyInteger(row.net)}</td>
+                    <td className={row.net >= 0 ? 'is-income' : 'is-expense'}>
+                      {formatMoneyInteger(row.net)}
+                    </td>
                   </tr>
                 ))
               )}
