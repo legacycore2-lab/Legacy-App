@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { buildReportsViewModel, filterReportRows, summarizeReportRows } from './reports.service'
+import {
+  buildReportsAnalytics,
+  buildReportsViewModel,
+  filterReportRows,
+  summarizeReportRows,
+} from './reports.service'
 
 const projects = [
   {
@@ -51,16 +56,29 @@ describe('reports service', () => {
     })
   })
 
-  it('filters archived projects and supports Arabic search', () => {
+  it('filters archived projects, status, and Arabic search', () => {
     const rows = buildReportsViewModel(projects, entries).rows
-    expect(filterReportRows(rows, '', false)).toHaveLength(1)
-    expect(filterReportRows(rows, 'النور', true)).toHaveLength(1)
-    expect(filterReportRows(rows, 'P-002', true)).toHaveLength(1)
+    expect(filterReportRows(rows, '', false, 'all')).toHaveLength(1)
+    expect(filterReportRows(rows, 'النور', true, 'active')).toHaveLength(1)
+    expect(filterReportRows(rows, 'P-002', true, 'archived')).toHaveLength(1)
+    expect(filterReportRows(rows, '', true, 'active')).toHaveLength(1)
   })
 
   it('summarizes only the visible rows', () => {
-    const rows = filterReportRows(buildReportsViewModel(projects, entries).rows, '', false)
+    const rows = filterReportRows(buildReportsViewModel(projects, entries).rows, '', false, 'all')
     expect(summarizeReportRows(rows).projectCount).toBe(1)
     expect(summarizeReportRows(rows).net).toBe(2000)
+  })
+
+  it('builds analytics for visible projects', () => {
+    const rows = buildReportsViewModel(projects, entries).rows
+    const analytics = buildReportsAnalytics(rows)
+    expect(analytics.statusOptions).toEqual([
+      { value: 'active', count: 1 },
+      { value: 'archived', count: 1 },
+    ])
+    expect(analytics.topProjects[0]).toMatchObject({ projectId: 'p1', net: 2000 })
+    expect(analytics.profitableProjects).toBe(2)
+    expect(analytics.lossProjects).toBe(0)
   })
 })
