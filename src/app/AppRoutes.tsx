@@ -12,6 +12,7 @@ import { JournalPage } from '../features/journal/pages/JournalPage'
 import { ProjectDetailsPage } from '../features/projects/pages/ProjectDetailsPage'
 import { ContractorsPage } from '../features/contractors/pages/ContractorsPage'
 import { ProjectsPage } from '../features/projects/pages/ProjectsPage'
+import { ReportsPage } from '../features/reports/pages/ReportsPage'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
 import { AppLayoutRoute } from './AppLayoutRoute'
 
@@ -42,16 +43,7 @@ export function AppRoutes() {
             )}
           />
           <Route path="/contractors" element={secured('/contractors', <ContractorsPage />)} />
-          <Route
-            path="/reports"
-            element={secured(
-              '/reports',
-              <PlaceholderPage
-                title="التقارير"
-                description="التقارير المالية وتقارير المشاريع والمقاولين."
-              />,
-            )}
-          />
+          <Route path="/reports" element={secured('/reports', <ReportsPage />)} />
           <Route
             path="/users"
             element={secured(
