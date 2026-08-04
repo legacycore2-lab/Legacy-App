@@ -11,6 +11,7 @@ const statusLabel: Record<string, string> = {
   unknown: 'غير معروف',
 }
 
+// prettier-ignore
 export function ReportsPage() {
   const {
     rows,
