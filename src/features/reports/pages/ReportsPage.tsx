@@ -64,12 +64,30 @@ export function ReportsPage() {
       {error ? <div className="reports-state is-error">{error}</div> : null}
 
       <section className="reports-kpis" aria-label="ملخص المؤشرات">
-        <article><span>إجمالي المشاريع</span><strong>{summary?.projectCount ?? 0}</strong></article>
-        <article><span>قيمة العقود</span><strong>{formatMoneyInteger(summary?.contractValue ?? 0)}</strong></article>
-        <article><span>الإيرادات</span><strong>{formatMoneyInteger(summary?.income ?? 0)}</strong></article>
-        <article><span>المصروفات</span><strong>{formatMoneyInteger(summary?.expense ?? 0)}</strong></article>
-        <article><span>صافي الحركة</span><strong>{formatMoneyInteger(summary?.net ?? 0)}</strong></article>
-        <article><span>المتبقي من العقود</span><strong>{formatMoneyInteger(summary?.remaining ?? 0)}</strong></article>
+        <article>
+          <span>إجمالي المشاريع</span>
+          <strong>{summary.projectCount}</strong>
+        </article>
+        <article>
+          <span>قيمة العقود</span>
+          <strong>{formatMoneyInteger(summary.contractValue)}</strong>
+        </article>
+        <article>
+          <span>الإيرادات</span>
+          <strong>{formatMoneyInteger(summary.income)}</strong>
+        </article>
+        <article>
+          <span>المصروفات</span>
+          <strong>{formatMoneyInteger(summary.expense)}</strong>
+        </article>
+        <article>
+          <span>صافي الحركة</span>
+          <strong>{formatMoneyInteger(summary.net)}</strong>
+        </article>
+        <article>
+          <span>المتبقي من العقود</span>
+          <strong>{formatMoneyInteger(summary.remaining)}</strong>
+        </article>
       </section>
 
       <section className="reports-panel">
@@ -90,23 +108,44 @@ export function ReportsPage() {
             <table className="reports-table">
               <thead>
                 <tr>
-                  <th>المشروع</th><th>العميل</th><th>الحالة</th><th>قيمة العقد</th>
-                  <th>الإيرادات</th><th>المصروفات</th><th>الصافي</th><th>المتبقي</th>
-                  <th>الإنجاز</th><th>القيود</th>
+                  <th>المشروع</th>
+                  <th>العميل</th>
+                  <th>الحالة</th>
+                  <th>قيمة العقد</th>
+                  <th>الإيرادات</th>
+                  <th>المصروفات</th>
+                  <th>الصافي</th>
+                  <th>المتبقي</th>
+                  <th>الإنجاز</th>
+                  <th>القيود</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((row) => (
                   <tr key={row.id}>
-                    <td><strong>{row.name}</strong><small>{row.code}</small></td>
+                    <td>
+                      <strong>{row.name}</strong>
+                      <small>{row.code}</small>
+                    </td>
                     <td>{row.client}</td>
-                    <td><span className={`reports-status is-${row.status}`}>{statusLabel[row.status] ?? row.status}</span></td>
+                    <td>
+                      <span className={`reports-status is-${row.status}`}>
+                        {statusLabel[row.status] ?? row.status}
+                      </span>
+                    </td>
                     <td>{formatMoneyInteger(row.contractValue)}</td>
                     <td className="is-positive">{formatMoneyInteger(row.income)}</td>
                     <td className="is-negative">{formatMoneyInteger(row.expense)}</td>
-                    <td className={row.net >= 0 ? 'is-positive' : 'is-negative'}>{formatMoneyInteger(row.net)}</td>
+                    <td className={row.net >= 0 ? 'is-positive' : 'is-negative'}>
+                      {formatMoneyInteger(row.net)}
+                    </td>
                     <td>{formatMoneyInteger(row.remaining)}</td>
-                    <td><div className="reports-progress"><span style={{ width: `${row.progress}%` }} /></div><small>{row.progress}%</small></td>
+                    <td>
+                      <div className="reports-progress">
+                        <span style={{ width: `${row.progress}%` }} />
+                      </div>
+                      <small>{row.progress}%</small>
+                    </td>
                     <td>{row.entryCount}</td>
                   </tr>
                 ))}
