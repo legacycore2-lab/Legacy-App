@@ -1,21 +1,37 @@
-import { ChevronDown, Download, FileSpreadsheet, FileText, Printer, RefreshCw } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { ChevronDown, Download, FileText, Printer, RefreshCw } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { formatTimestamp } from '../../../shared/date-utils'
 
 type Props = {
-  onRefresh: () => void
+  onRefresh: () => void | Promise<void>
   lastUpdated?: Date | null
 }
 
 export function ReportsHeader({ onRefresh, lastUpdated }: Props) {
   const [exportOpen, setExportOpen] = useState(false)
-  const dropRef = useRef<HTMLDivElement>(null)
+  const exportRef = useRef<HTMLDivElement>(null)
 
-  function handleExport(format: 'pdf' | 'excel' | 'csv') {
-    setExportOpen(false)
-    window.print()
-    void format
-  }
+  // Close on click-outside
+  useEffect(() => {
+    if (!exportOpen) return
+    function handleClickOutside(e: MouseEvent) {
+      if (exportRef.current && !exportRef.current.contains(e.target as Node)) {
+        setExportOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [exportOpen])
+
+  // Close on Escape
+  useEffect(() => {
+    if (!exportOpen) return
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setExportOpen(false)
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [exportOpen])
 
   return (
     <header className="rh">
@@ -40,7 +56,7 @@ export function ReportsHeader({ onRefresh, lastUpdated }: Props) {
           <span>طباعة</span>
         </button>
 
-        <div className="rh-export" ref={dropRef}>
+        <div className="rh-export" ref={exportRef}>
           <button
             type="button"
             className="rh-btn is-primary"
@@ -59,7 +75,10 @@ export function ReportsHeader({ onRefresh, lastUpdated }: Props) {
                 <button
                   type="button"
                   role="menuitem"
-                  onClick={() => handleExport('pdf')}
+                  onClick={() => {
+                    setExportOpen(false)
+                    window.print()
+                  }}
                   className="rh-dropdown__item"
                 >
                   <FileText size={14} />
@@ -70,22 +89,26 @@ export function ReportsHeader({ onRefresh, lastUpdated }: Props) {
                 <button
                   type="button"
                   role="menuitem"
-                  onClick={() => handleExport('excel')}
-                  className="rh-dropdown__item"
+                  disabled
+                  className="rh-dropdown__item is-disabled"
+                  aria-disabled="true"
                 >
-                  <FileSpreadsheet size={14} />
+                  <FileText size={14} />
                   Excel
+                  <span className="rh-soon">قريباً</span>
                 </button>
               </li>
               <li role="none">
                 <button
                   type="button"
                   role="menuitem"
-                  onClick={() => handleExport('csv')}
-                  className="rh-dropdown__item"
+                  disabled
+                  className="rh-dropdown__item is-disabled"
+                  aria-disabled="true"
                 >
                   <FileText size={14} />
                   CSV
+                  <span className="rh-soon">قريباً</span>
                 </button>
               </li>
             </ul>

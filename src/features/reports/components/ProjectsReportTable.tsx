@@ -1,4 +1,4 @@
-import { Eye, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { formatMoneyInteger } from '../../../shared/formatters'
 import type { ReportProjectRow } from '../types/report.types'
 
@@ -77,7 +77,6 @@ export function ProjectsReportTable({
                 <th>المتبقي</th>
                 <th>الإنجاز</th>
                 <th>القيود</th>
-                <th aria-label="إجراء" />
               </tr>
             </thead>
             <tbody>
@@ -107,16 +106,6 @@ export function ProjectsReportTable({
                     <small>{row.progress}%</small>
                   </td>
                   <td>{row.entryCount}</td>
-                  <td className="proj-td-action">
-                    <button
-                      type="button"
-                      className="proj-action-btn"
-                      title="عرض تفاصيل المشروع"
-                      aria-label={`عرض ${row.name}`}
-                    >
-                      <Eye size={14} />
-                    </button>
-                  </td>
                 </tr>
               ))}
             </tbody>

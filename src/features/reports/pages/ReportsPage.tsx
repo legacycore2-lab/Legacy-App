@@ -23,13 +23,12 @@ export function ReportsPage() {
   const executive = useExecutiveReports(activeTab)
   const journal = useJournalReport(activeTab)
 
-  function handleRefresh() {
-    if (activeTab === 'journal') {
-      void journal.refresh()
-    } else {
-      void executive.refresh()
+  async function handleRefresh() {
+    const result =
+      activeTab === 'journal' ? await journal.refresh() : await executive.refresh()
+    if (!result.error) {
+      setLastUpdated(new Date())
     }
-    setLastUpdated(new Date())
   }
 
   return (
@@ -50,8 +49,8 @@ export function ReportsPage() {
               {executive.summary ? (
                 <ExecutiveKpis summary={executive.summary} isLoading={executive.isLoading} />
               ) : null}
-              {executive.summary && executive.topProjects && !executive.isLoading ? (
-                <ExecutiveDashboard summary={executive.summary} topProjects={executive.topProjects} />
+              {executive.topProjects && !executive.isLoading ? (
+                <ExecutiveDashboard topProjects={executive.topProjects} />
               ) : null}
               {executive.summary && !executive.isLoading && executive.allRows.length === 0 ? (
                 <ReportsEmptyState message="لا توجد مشاريع حتى الآن." />

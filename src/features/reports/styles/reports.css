@@ -1292,3 +1292,18 @@
     color: #666;
   }
 }
+
+.rh-dropdown__item.is-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.rh-soon {
+  margin-right: auto;
+  font-size: 0.7rem;
+  color: var(--muted);
+  background: var(--surface-soft);
+  padding: 2px 7px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+}
