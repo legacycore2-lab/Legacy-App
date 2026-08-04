@@ -1,7 +1,11 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { toErrorMessage } from '../../../shared/errors/app-error'
-import { getReportsViewModel } from '../services/reports.service'
+import {
+  filterReportRows,
+  getReportsViewModel,
+  summarizeReportRows,
+} from '../services/reports.service'
 
 export function useReports() {
   const [query, setQuery] = useState('')
@@ -13,20 +17,15 @@ export function useReports() {
     staleTime: 30_000,
   })
 
-  const rows = useMemo(() => {
-    const normalized = query.trim().toLocaleLowerCase('ar-EG')
-    return (reportsQuery.data?.rows ?? []).filter((row) => {
-      if (!includeArchived && row.isArchived) return false
-      if (!normalized) return true
-      return [row.name, row.code, row.client].some((value) =>
-        value.toLocaleLowerCase('ar-EG').includes(normalized),
-      )
-    })
-  }, [includeArchived, query, reportsQuery.data?.rows])
+  const rows = useMemo(
+    () => filterReportRows(reportsQuery.data?.rows ?? [], query, includeArchived),
+    [includeArchived, query, reportsQuery.data?.rows],
+  )
+  const summary = useMemo(() => summarizeReportRows(rows), [rows])
 
   return {
     rows,
-    summary: reportsQuery.data?.summary,
+    summary,
     query,
     setQuery,
     includeArchived,
