@@ -1,4 +1,4 @@
-import { RotateCcw } from 'lucide-react'
+import { RotateCcw, Search } from 'lucide-react'
 import { formatMoneyInteger } from '../../../shared/formatters'
 import type { ProfitLossFilters, ProfitLossViewModel } from '../types/profit-loss.types'
 
@@ -6,8 +6,10 @@ type Props = {
   data: ProfitLossViewModel
   filters: ProfitLossFilters
   hasActiveFilter: boolean
+  filtersDirty: boolean
   isFetching: boolean
   onSetFilter: <K extends keyof ProfitLossFilters>(key: K, value: ProfitLossFilters[K]) => void
+  onSearch: () => void
   onReset: () => void
 }
 
@@ -19,8 +21,10 @@ export function ProfitLossReportPanel({
   data,
   filters,
   hasActiveFilter,
+  filtersDirty,
   isFetching,
   onSetFilter,
+  onSearch,
   onReset,
 }: Props) {
   const { summary } = data
@@ -68,11 +72,21 @@ export function ProfitLossReportPanel({
             ))}
           </select>
         </label>
+        <button type="button" className="jf-search-btn" onClick={onSearch}>
+          <Search size={14} aria-hidden />
+          بحث
+        </button>
         <button type="button" className="pl-reset" onClick={onReset} disabled={!hasActiveFilter}>
           <RotateCcw size={16} aria-hidden />
           إعادة الضبط
         </button>
       </div>
+
+      {filtersDirty && (
+        <p className="jf-dirty-hint" role="status">
+          تم تعديل الفلاتر، اضغط بحث لتحديث النتائج.
+        </p>
+      )}
 
       <div className="pl-kpis">
         <article>

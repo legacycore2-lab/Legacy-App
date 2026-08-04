@@ -1,4 +1,4 @@
-import { RotateCcw } from 'lucide-react'
+import { RotateCcw, Search } from 'lucide-react'
 import { useState } from 'react'
 import { formatAccountingDate } from '../../../shared/date-utils'
 import { formatMoneyInteger } from '../../../shared/formatters'
@@ -20,7 +20,9 @@ type Props = {
   totalPages: number
   totalCount: number
   paginatedEntries: ContractorReportEntry[]
+  filtersDirty: boolean
   onSetFilter: <K extends keyof ContractorReportsFilters>(key: K, value: ContractorReportsFilters[K]) => void
+  onSearch: () => void
   onReset: () => void
   onPageChange: (page: number) => void
 }
@@ -50,7 +52,9 @@ export function ContractorReportsPanel({
   totalPages,
   totalCount,
   paginatedEntries,
+  filtersDirty,
   onSetFilter,
+  onSearch,
   onReset,
   onPageChange,
 }: Props) {
@@ -147,11 +151,21 @@ export function ContractorReportsPanel({
             onChange={(event) => onSetFilter('dateTo', event.target.value)}
           />
         </label>
+        <button type="button" className="jf-search-btn" onClick={onSearch}>
+          <Search size={14} aria-hidden />
+          بحث
+        </button>
         <button type="button" onClick={onReset} disabled={!hasActiveFilter}>
           <RotateCcw size={16} aria-hidden />
           إعادة الضبط
         </button>
       </div>
+
+      {filtersDirty && (
+        <p className="jf-dirty-hint" role="status">
+          تم تعديل الفلاتر، اضغط بحث لتحديث النتائج.
+        </p>
+      )}
 
       <div className="contractor-report-kpis">
         <article>

@@ -22,7 +22,11 @@ const EMPTY_FILTERS: JournalReportFilters = {
 }
 
 export function useJournalReport(activeTab: ReportsTab | null) {
-  const [filters, setFilters] = useState<JournalReportFilters>(EMPTY_FILTERS)
+  // Draft (local) filters — not yet committed
+  const [draftFilters, setDraftFilters] = useState<JournalReportFilters>(EMPTY_FILTERS)
+  // Committed filters — applied after Search press
+  const [committedFilters, setCommittedFilters] = useState<JournalReportFilters>(EMPTY_FILTERS)
+  const [filtersDirty, setFiltersDirty] = useState(false)
   const [page, setPage] = useState(1)
 
   const q = useQuery({
@@ -33,38 +37,41 @@ export function useJournalReport(activeTab: ReportsTab | null) {
   })
 
   const allRows = q.data?.allRows ?? []
-  const filteredRows = filterJournalRows(allRows, filters)
+  const filteredRows = filterJournalRows(allRows, committedFilters)
   const summary = summarizeJournalRows(filteredRows)
   const totalPages = Math.max(1, Math.ceil(filteredRows.length / JOURNAL_PAGE_SIZE))
   const clampedPage = Math.min(Math.max(1, page), totalPages)
   const paginatedRows = paginateRows(filteredRows, clampedPage, JOURNAL_PAGE_SIZE)
 
-  function setFilter<K extends keyof JournalReportFilters>(key: K, value: JournalReportFilters[K]) {
-    setFilters((prev) => ({ ...prev, [key]: value }))
+  function setDraftFilter<K extends keyof JournalReportFilters>(key: K, value: JournalReportFilters[K]) {
+    setDraftFilters((prev) => ({ ...prev, [key]: value }))
+    setFiltersDirty(true)
+  }
+
+  function commitSearch() {
+    setCommittedFilters(draftFilters)
     setPage(1)
+    setFiltersDirty(false)
   }
 
   function resetFilters() {
-    setFilters(EMPTY_FILTERS)
-    setPage(1)
+    setDraftFilters(EMPTY_FILTERS)
+    setFiltersDirty(false)
   }
 
-  const hasActiveFilter =
-    filters.query !== '' ||
-    filters.dateFrom !== '' ||
-    filters.dateTo !== '' ||
-    filters.projectId !== '' ||
-    filters.entryType !== 'all' ||
-    filters.contractorName !== '' ||
-    filters.paymentMethod !== ''
+  const hasActiveFilter = Object.entries(committedFilters).some(([key, value]) =>
+    key === 'entryType' ? value !== 'all' : Boolean(value),
+  )
 
   return {
     paginatedRows,
     filteredRows,
     summary,
-    filters,
-    setFilter,
+    filters: draftFilters,
+    setFilter: setDraftFilter,
+    commitSearch,
     resetFilters,
+    filtersDirty,
     hasActiveFilter,
     page: clampedPage,
     setPage,

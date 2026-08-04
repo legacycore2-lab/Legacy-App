@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react'
+import { RotateCcw, Search } from 'lucide-react'
 import { formatMoneyInteger } from '../../../shared/formatters'
 import type { ReportProjectRow } from '../types/report.types'
 
@@ -18,13 +18,17 @@ type Props = {
   onIncludeArchivedChange: (v: boolean) => void
   statusFilter: string
   onStatusFilterChange: (v: string) => void
+  filtersDirty: boolean
   isLoading: boolean
+  onSearch: () => void
+  onReset: () => void
 }
 
 // prettier-ignore
 export function ProjectsReportTable({
   rows, query, onQueryChange, includeArchived,
-  onIncludeArchivedChange, statusFilter, onStatusFilterChange, isLoading,
+  onIncludeArchivedChange, statusFilter, onStatusFilterChange,
+  filtersDirty, isLoading, onSearch, onReset,
 }: Props) {
   return (
     <section className="reports-panel">
@@ -43,6 +47,7 @@ export function ProjectsReportTable({
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
             placeholder="بحث باسم المشروع أو الكود أو العميل..."
+            onKeyDown={(e) => { if (e.key === 'Enter') onSearch() }}
           />
         </label>
         <select value={statusFilter} onChange={(e) => onStatusFilterChange(e.target.value)} className="reports-select">
@@ -56,7 +61,21 @@ export function ProjectsReportTable({
           <input type="checkbox" checked={includeArchived} onChange={(e) => onIncludeArchivedChange(e.target.checked)} />
           إظهار المؤرشفة
         </label>
+        <button type="button" className="jf-search-btn" onClick={onSearch}>
+          <Search size={14} aria-hidden />
+          بحث
+        </button>
+        <button type="button" className="jf-reset" onClick={onReset}>
+          <RotateCcw size={13} aria-hidden />
+          إعادة الضبط
+        </button>
       </div>
+
+      {filtersDirty && (
+        <p className="jf-dirty-hint" role="status">
+          تم تعديل الفلاتر، اضغط بحث لتحديث النتائج.
+        </p>
+      )}
 
       {isLoading ? (
         <div className="reports-state">جارٍ تحميل بيانات المشاريع...</div>

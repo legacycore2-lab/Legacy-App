@@ -18,12 +18,16 @@ const EMPTY_FILTERS: ContractorReportsFilters = {
 const PAGE_SIZE = 50
 
 export function useContractorReports(enabled: boolean) {
-  const [filters, setFilters] = useState<ContractorReportsFilters>(EMPTY_FILTERS)
+  // Draft (local) filters — not yet committed
+  const [draftFilters, setDraftFilters] = useState<ContractorReportsFilters>(EMPTY_FILTERS)
+  // Committed filters — passed to queryFn only after Search press
+  const [committedFilters, setCommittedFilters] = useState<ContractorReportsFilters>(EMPTY_FILTERS)
+  const [filtersDirty, setFiltersDirty] = useState(false)
   const [page, setPage] = useState(1)
 
   const query = useQuery({
-    queryKey: ['reports', 'contractors', filters],
-    queryFn: () => loadContractorReportsData(filters),
+    queryKey: ['reports', 'contractors', committedFilters],
+    queryFn: () => loadContractorReportsData(committedFilters),
     staleTime: 30_000,
     enabled,
   })
@@ -36,22 +40,33 @@ export function useContractorReports(enabled: boolean) {
     [query.data?.entries, safePage],
   )
 
-  function setFilter<K extends keyof ContractorReportsFilters>(key: K, value: ContractorReportsFilters[K]) {
-    setFilters((current) => ({ ...current, [key]: value }))
+  function setDraftFilter<K extends keyof ContractorReportsFilters>(
+    key: K,
+    value: ContractorReportsFilters[K],
+  ) {
+    setDraftFilters((current) => ({ ...current, [key]: value }))
+    setFiltersDirty(true)
+  }
+
+  function commitSearch() {
+    setCommittedFilters(draftFilters)
     setPage(1)
+    setFiltersDirty(false)
   }
 
   function resetFilters() {
-    setFilters(EMPTY_FILTERS)
-    setPage(1)
+    setDraftFilters(EMPTY_FILTERS)
+    setFiltersDirty(false)
   }
 
   return {
     data: query.data,
-    filters,
-    setFilter,
+    filters: draftFilters,
+    setFilter: setDraftFilter,
+    commitSearch,
     resetFilters,
-    hasActiveFilter: Object.entries(filters).some(([key, value]) =>
+    filtersDirty,
+    hasActiveFilter: Object.entries(committedFilters).some(([key, value]) =>
       key === 'entryType' ? value !== 'all' : Boolean(value),
     ),
     page: safePage,
