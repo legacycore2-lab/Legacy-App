@@ -148,7 +148,7 @@ const REPORTS: ReportDefinition[] = [
   {
     key: 'contractor-statement',
     title: 'كشف حساب المقاول',
-    description: 'حركة ومستحقات ومدفوعات كل مقاول عبر المشاريع.',
+    description: 'عرض حركة كل مقاول وقيوده المسجلة عبر المشاريع.',
     category: 'contractors',
     availability: 'coming-soon',
     icon: 'contractors',

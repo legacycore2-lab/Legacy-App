@@ -1,5 +1,6 @@
 import { ArrowRight } from 'lucide-react'
 import { useState } from 'react'
+import { ContractorReportsPanel } from '../components/ContractorReportsPanel'
 import { ExecutiveDashboard } from '../components/ExecutiveDashboard'
 import { ExecutiveKpis } from '../components/ExecutiveKpis'
 import { JournalFilters } from '../components/JournalFilters'
@@ -12,15 +13,24 @@ import { ReportsEmptyState } from '../components/ReportsEmptyState'
 import { ReportsErrorState } from '../components/ReportsErrorState'
 import { ReportsHeader } from '../components/ReportsHeader'
 import { SmartInsightsPanel } from '../components/SmartInsightsPanel'
+import { useContractorReports } from '../hooks/useContractorReports'
 import { useExecutiveReports } from '../hooks/useExecutiveReports'
 import { useJournalReport } from '../hooks/useJournalReport'
 import { useProfitLossReport } from '../hooks/useProfitLossReport'
 import { useReportsCenter } from '../hooks/useReportsCenter'
 import type { ReportKey } from '../types/reports-center.types'
 import type { ReportsTab } from '../types/report.types'
-import '../styles/reports.css'
-import '../styles/reports-center.css'
+import '../styles/contractor-reports.css'
 import '../styles/profit-loss.css'
+import '../styles/reports-center.css'
+import '../styles/reports.css'
+
+const CONTRACTOR_REPORT_KEYS = new Set<ReportKey>([
+  'contractor-statement',
+  'contractor-dues',
+  'contractor-payments',
+  'top-contractors',
+])
 
 const REPORT_TITLES: Partial<Record<ReportKey, string>> = {
   executive: 'الملخص التنفيذي',
@@ -28,6 +38,10 @@ const REPORT_TITLES: Partial<Record<ReportKey, string>> = {
   journal: 'تقرير القيود اليومية',
   insights: 'الرؤى والتنبيهات',
   'profit-loss': 'الأرباح والخسائر',
+  'contractor-statement': 'كشف حساب المقاول',
+  'contractor-dues': 'تحليلات حركة المقاولين',
+  'contractor-payments': 'مدفوعات المقاولين',
+  'top-contractors': 'أعلى المقاولين تكلفة',
 }
 
 function toDataTab(report: ReportKey | null): ReportsTab | null {
@@ -42,18 +56,22 @@ export function ReportsPage() {
   const center = useReportsCenter()
   const activeTab = toDataTab(center.selectedReport)
   const isProfitLoss = center.selectedReport === 'profit-loss'
+  const isContractors = center.selectedReport ? CONTRACTOR_REPORT_KEYS.has(center.selectedReport) : false
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
 
   const executive = useExecutiveReports(activeTab)
   const journal = useJournalReport(activeTab)
   const profitLoss = useProfitLossReport(isProfitLoss)
+  const contractorReports = useContractorReports(isContractors)
 
   async function handleRefresh() {
-    const result = isProfitLoss
-      ? await profitLoss.refresh()
-      : activeTab === 'journal'
-        ? await journal.refresh()
-        : await executive.refresh()
+    const result = isContractors
+      ? await contractorReports.refresh()
+      : isProfitLoss
+        ? await profitLoss.refresh()
+        : activeTab === 'journal'
+          ? await journal.refresh()
+          : await executive.refresh()
     if (!result.error) setLastUpdated(new Date())
   }
 
@@ -196,6 +214,32 @@ export function ReportsPage() {
             />
           ) : (
             <ReportsEmptyState message="جاري تحميل تقرير الأرباح والخسائر..." />
+          )}
+        </>
+      )}
+
+      {isContractors && (
+        <>
+          {contractorReports.isPermissionDenied ? (
+            <ReportsErrorState error={contractorReports.error} isPermission />
+          ) : contractorReports.error ? (
+            <ReportsErrorState error={contractorReports.error} />
+          ) : contractorReports.data ? (
+            <ContractorReportsPanel
+              data={contractorReports.data}
+              filters={contractorReports.filters}
+              hasActiveFilter={contractorReports.hasActiveFilter}
+              isFetching={contractorReports.isFetching}
+              page={contractorReports.page}
+              totalPages={contractorReports.totalPages}
+              totalCount={contractorReports.totalCount}
+              paginatedEntries={contractorReports.paginatedEntries}
+              onSetFilter={contractorReports.setFilter}
+              onReset={contractorReports.resetFilters}
+              onPageChange={contractorReports.setPage}
+            />
+          ) : (
+            <ReportsEmptyState message="جاري تحميل تقارير المقاولين..." />
           )}
         </>
       )}
