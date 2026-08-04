@@ -1,7 +1,8 @@
 import { normalizeEntryType, parseAmount } from '../../../shared/contractors-helpers'
 import { findReportEntries, findReportProjects } from '../repositories/reports.repository'
-import type { ReportEntryRecord, ReportProjectRecord } from '../types/report.types'
+import type { ReportProjectRecord } from '../types/report.types'
 import type {
+  ProfitLossEntryRecord,
   ProfitLossFilters,
   ProfitLossMonthlyRow,
   ProfitLossProjectRow,
@@ -15,9 +16,9 @@ function calculateMargin(income: number, net: number): number | null {
 }
 
 export function filterProfitLossEntries(
-  entries: ReportEntryRecord[],
+  entries: ProfitLossEntryRecord[],
   filters: ProfitLossFilters,
-): ReportEntryRecord[] {
+): ProfitLossEntryRecord[] {
   return entries.filter((entry) => {
     if (filters.projectId && entry.project_id !== filters.projectId) return false
     if (filters.dateFrom && entry.entry_date < filters.dateFrom) return false
@@ -28,7 +29,7 @@ export function filterProfitLossEntries(
 
 export function buildProfitLossProjectRows(
   projects: ReportProjectRecord[],
-  entries: ReportEntryRecord[],
+  entries: ProfitLossEntryRecord[],
 ): ProfitLossProjectRow[] {
   const totals = new Map<string, { income: number; expense: number; entryCount: number }>()
 
@@ -62,7 +63,7 @@ export function buildProfitLossProjectRows(
     .sort((a, b) => b.net - a.net)
 }
 
-export function buildProfitLossMonthlyRows(entries: ReportEntryRecord[]): ProfitLossMonthlyRow[] {
+export function buildProfitLossMonthlyRows(entries: ProfitLossEntryRecord[]): ProfitLossMonthlyRow[] {
   const months = new Map<string, { income: number; expense: number }>()
 
   for (const entry of entries) {
@@ -113,7 +114,7 @@ export function summarizeProfitLoss(
 
 export function buildProfitLossViewModel(
   projects: ReportProjectRecord[],
-  entries: ReportEntryRecord[],
+  entries: ProfitLossEntryRecord[],
   filters: ProfitLossFilters,
 ): ProfitLossViewModel {
   const filteredEntries = filterProfitLossEntries(entries, filters)
