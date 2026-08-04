@@ -10,12 +10,21 @@ describe('reports center catalogue', () => {
       .filter((report) => report.availability === 'available')
       .map((report) => report.key)
 
-    expect(available).toEqual(['executive', 'profit-loss', 'projects', 'journal', 'insights'])
+    expect(available).toEqual([
+      'executive',
+      'profit-loss',
+      'projects',
+      'journal',
+      'contractor-statement',
+      'contractor-payments',
+      'top-contractors',
+      'insights',
+    ])
   })
 
-  it('keeps coming-soon reports without fake availability', () => {
+  it('keeps reports without real source data unavailable', () => {
     expect(reports.find((report) => report.key === 'cash-flow')?.availability).toBe('coming-soon')
-    expect(reports.find((report) => report.key === 'contractor-statement')?.availability).toBe('coming-soon')
+    expect(reports.find((report) => report.key === 'contractor-dues')?.availability).toBe('coming-soon')
   })
 
   it('filters by title', () => {
@@ -47,6 +56,14 @@ describe('reports center catalogue', () => {
     expect(viewModel.sections[0]?.category).toBe('executive')
     expect(viewModel.totalReports).toBe(filtered.length)
     expect(viewModel.availableReports).toBe(3)
+  })
+
+  it('counts three available contractor reports and keeps dues disabled', () => {
+    const filtered = filterReportDefinitions(reports, '', 'contractors')
+    const viewModel = buildReportsCenterViewModel(filtered)
+
+    expect(viewModel.availableReports).toBe(3)
+    expect(filtered.find((report) => report.key === 'contractor-dues')?.availability).toBe('coming-soon')
   })
 
   it('does not mutate report definitions while filtering', () => {
