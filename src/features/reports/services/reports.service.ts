@@ -262,16 +262,25 @@ export function summarizeJournalRows(rows: ReportJournalRow[]): JournalSummary {
 export function buildSmartInsights(rows: ReportProjectRow[]): SmartInsight[] {
   const insights: SmartInsight[] = []
   const active = rows.filter((r) => !r.isArchived && r.entryCount > 0)
+  const noActivity = rows.filter((r) => !r.isArchived && r.entryCount === 0)
 
   if (active.length === 0) {
-    return [
-      {
+    if (noActivity.length > 0) {
+      insights.push({
+        id: 'no-activity',
+        severity: 'info',
+        title: `${noActivity.length} مشروع بدون قيود`,
+        detail: noActivity.map((r) => r.name).join(' — '),
+      })
+    } else {
+      insights.push({
         id: 'no-data',
         severity: 'info',
         title: 'لا توجد بيانات كافية',
         detail: 'لم يتم تسجيل أي قيود على المشاريع النشطة بعد.',
-      },
-    ]
+      })
+    }
+    return insights
   }
 
   // Highest profit
@@ -321,8 +330,7 @@ export function buildSmartInsights(rows: ReportProjectRow[]): SmartInsight[] {
     }
   }
 
-  // Projects without entries
-  const noActivity = rows.filter((r) => !r.isArchived && r.entryCount === 0)
+  // Projects without entries (active projects only, archived excluded)
   if (noActivity.length > 0) {
     insights.push({
       id: 'no-activity',
