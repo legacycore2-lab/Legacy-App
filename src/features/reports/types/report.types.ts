@@ -41,6 +41,27 @@ export type ReportsSummary = {
   remaining: number
 }
 
+export type ReportStatusOption = {
+  value: string
+  count: number
+}
+
+export type ReportChartItem = {
+  projectId: string
+  label: string
+  income: number
+  expense: number
+  net: number
+  maxValue: number
+}
+
+export type ReportsAnalytics = {
+  statusOptions: ReportStatusOption[]
+  topProjects: ReportChartItem[]
+  profitableProjects: number
+  lossProjects: number
+}
+
 export type ReportsViewModel = {
   rows: ReportProjectRow[]
   summary: ReportsSummary
