@@ -7,6 +7,7 @@ import {
   summarizeReportRows,
 } from '../services/reports.service'
 
+// prettier-ignore
 export function useReports() {
   const [query, setQuery] = useState('')
   const [includeArchived, setIncludeArchived] = useState(false)
