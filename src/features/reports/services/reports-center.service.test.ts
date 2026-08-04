@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  buildReportsCenterViewModel,
-  filterReportDefinitions,
-} from './reports-center.service'
+import { buildReportsCenterViewModel, filterReportDefinitions } from './reports-center.service'
 import { getReportsCenterDefinitions } from './reports-center-navigation.service'
 
 const reports = getReportsCenterDefinitions()
@@ -17,12 +14,8 @@ describe('reports center catalogue', () => {
   })
 
   it('keeps coming-soon reports without fake availability', () => {
-    expect(reports.find((report) => report.key === 'cash-flow')?.availability).toBe(
-      'coming-soon',
-    )
-    expect(reports.find((report) => report.key === 'contractor-statement')?.availability).toBe(
-      'coming-soon',
-    )
+    expect(reports.find((report) => report.key === 'cash-flow')?.availability).toBe('coming-soon')
+    expect(reports.find((report) => report.key === 'contractor-statement')?.availability).toBe('coming-soon')
   })
 
   it('filters by title', () => {

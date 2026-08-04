@@ -1,12 +1,7 @@
 import { buildReportDefinitions } from './reports-center.service'
 import type { ReportDefinition, ReportKey } from '../types/reports-center.types'
 
-const IMPLEMENTED_REPORTS = new Set<ReportKey>([
-  'executive',
-  'projects',
-  'journal',
-  'insights',
-])
+const IMPLEMENTED_REPORTS = new Set<ReportKey>(['executive', 'projects', 'journal', 'insights'])
 
 const INSIGHTS_REPORT: ReportDefinition = {
   key: 'insights',

@@ -183,11 +183,7 @@ export function ReportsCenter({
                 </div>
                 <div className="reports-center-grid">
                   {section.reports.map((report) => (
-                    <ReportCard
-                      key={report.key}
-                      report={report}
-                      onOpen={() => onOpenReport(report.key)}
-                    />
+                    <ReportCard key={report.key} report={report} onOpen={() => onOpenReport(report.key)} />
                   ))}
                 </div>
               </section>

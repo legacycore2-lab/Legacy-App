@@ -1,12 +1,5 @@
 export type ReportCategory =
-  | 'all'
-  | 'executive'
-  | 'projects'
-  | 'journal'
-  | 'contractors'
-  | 'financial'
-  | 'documents'
-  | 'system'
+  'all' | 'executive' | 'projects' | 'journal' | 'contractors' | 'financial' | 'documents' | 'system'
 
 export type ReportAvailability = 'available' | 'coming-soon'
 

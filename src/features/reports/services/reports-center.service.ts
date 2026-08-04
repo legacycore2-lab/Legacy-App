@@ -303,9 +303,7 @@ export function filterReportDefinitions(
   })
 }
 
-export function buildReportsCenterViewModel(
-  reports: ReportDefinition[],
-): ReportsCenterViewModel {
+export function buildReportsCenterViewModel(reports: ReportDefinition[]): ReportsCenterViewModel {
   const sections: ReportsCenterSection[] = Object.entries(SECTION_TITLES)
     .map(([category, title]) => ({
       category: category as Exclude<ReportCategory, 'all'>,
