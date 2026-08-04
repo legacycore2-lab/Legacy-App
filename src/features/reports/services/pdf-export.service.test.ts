@@ -40,7 +40,11 @@ describe('buildPdfFilename', () => {
   })
 
   it('omits context label when empty', () => {
-    const result = buildPdfFilename({ reportKey: 'projects-report', contextLabel: '', date: '2026-08-05' })
+    const result = buildPdfFilename({
+      reportKey: 'projects-report',
+      contextLabel: '',
+      date: '2026-08-05',
+    })
     expect(result).toBe('projects-report-2026-08-05.pdf')
   })
 
@@ -72,35 +76,66 @@ describe('buildFiltersLabel', () => {
   })
 })
 
-// ── downloadPdf — does NOT call window.print ──────────────────────────────────
+// ── Font registration verified before render ──────────────────────────────────
+// vi.hoisted ensures the mock factory variable is available at hoist time
+
+const { registerFontMock } = vi.hoisted(() => {
+  return { registerFontMock: vi.fn().mockResolvedValue(undefined) }
+})
+
+vi.mock('./pdf-font.service', () => ({
+  ARABIC_FONT_NAME: 'Amiri',
+  ARABIC_FONT_STYLE: 'normal',
+  registerArabicFont: registerFontMock,
+}))
+
+vi.mock('jspdf', () => ({
+  default: vi.fn().mockImplementation(() => ({
+    internal: { pageSize: { getWidth: () => 297, getHeight: () => 210 } },
+    setFontSize: vi.fn(),
+    setTextColor: vi.fn(),
+    setFont: vi.fn(),
+    text: vi.fn(),
+    addPage: vi.fn(),
+    addFileToVFS: vi.fn(),
+    addFont: vi.fn(),
+    save: vi.fn(),
+    lastAutoTable: { finalY: 50 },
+  })),
+}))
+
+vi.mock('jspdf-autotable', () => ({ default: vi.fn() }))
+
+afterEach(() => {
+  vi.clearAllMocks()
+})
+
+describe('font registration', () => {
+  it('registerArabicFont is called before any text is rendered', async () => {
+    const { renderPdf } = await import('./pdf-export.service')
+
+    const payload: PdfExportPayload = {
+      reportTitle: 'الملخص التنفيذي',
+      companyName: 'Legacy Core',
+      exportDate: '٥ أغسطس ٢٠٢٦',
+      activeTab: 'executive',
+      activeFilters: [],
+      kpis: [],
+      tables: [],
+    }
+
+    try {
+      await renderPdf(payload)
+    } catch {
+      // May throw in jsdom — we only assert font was registered
+    }
+
+    expect(registerFontMock).toHaveBeenCalledOnce()
+  })
+})
 
 describe('downloadPdf does not call window.print', () => {
-  afterEach(() => {
-    vi.restoreAllMocks()
-  })
-
   it('print is never invoked when exporting PDF', async () => {
-    vi.mock('jspdf', () => ({
-      default: vi.fn().mockImplementation(() => ({
-        internal: { pageSize: { getWidth: () => 297, getHeight: () => 210 } },
-        setFontSize: vi.fn(),
-        setTextColor: vi.fn(),
-        setFont: vi.fn(),
-        text: vi.fn(),
-        addPage: vi.fn(),
-        addFileToVFS: vi.fn(),
-        addFont: vi.fn(),
-        save: vi.fn(),
-        lastAutoTable: { finalY: 50 },
-      })),
-    }))
-    vi.mock('jspdf-autotable', () => ({ default: vi.fn() }))
-    vi.mock('./pdf-font.service', () => ({
-      ARABIC_FONT_NAME: 'Amiri',
-      ARABIC_FONT_STYLE: 'normal',
-      registerArabicFont: vi.fn().mockResolvedValue(undefined),
-    }))
-
     const printSpy = vi.fn()
     const originalPrint = globalThis.window?.print
     if (globalThis.window) globalThis.window.print = printSpy
@@ -126,55 +161,6 @@ describe('downloadPdf does not call window.print', () => {
     expect(printSpy).not.toHaveBeenCalled()
 
     if (globalThis.window && originalPrint !== undefined) globalThis.window.print = originalPrint
-  })
-})
-
-// ── Font registration verified before render ──────────────────────────────────
-
-describe('font registration', () => {
-  it('registerArabicFont is called before any text is rendered', async () => {
-    const registerMock = vi.fn().mockResolvedValue(undefined)
-
-    vi.mock('./pdf-font.service', () => ({
-      ARABIC_FONT_NAME: 'Amiri',
-      ARABIC_FONT_STYLE: 'normal',
-      registerArabicFont: registerMock,
-    }))
-    vi.mock('jspdf', () => ({
-      default: vi.fn().mockImplementation(() => ({
-        internal: { pageSize: { getWidth: () => 297, getHeight: () => 210 } },
-        setFontSize: vi.fn(),
-        setTextColor: vi.fn(),
-        setFont: vi.fn(),
-        text: vi.fn(),
-        addPage: vi.fn(),
-        addFileToVFS: vi.fn(),
-        addFont: vi.fn(),
-        save: vi.fn(),
-        lastAutoTable: { finalY: 50 },
-      })),
-    }))
-    vi.mock('jspdf-autotable', () => ({ default: vi.fn() }))
-
-    const { renderPdf } = await import('./pdf-export.service')
-
-    const payload: PdfExportPayload = {
-      reportTitle: 'الملخص التنفيذي',
-      companyName: 'Legacy Core',
-      exportDate: '٥ أغسطس ٢٠٢٦',
-      activeTab: 'executive',
-      activeFilters: [],
-      kpis: [],
-      tables: [],
-    }
-
-    try {
-      await renderPdf(payload)
-    } catch {
-      // May throw in jsdom
-    }
-
-    expect(registerMock).toHaveBeenCalledOnce()
   })
 })
 
