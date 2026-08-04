@@ -16,30 +16,38 @@ type ContractorSection =
 
 export function useReportExport() {
   const [isExporting, setIsExporting] = useState(false)
+  const [exportError, setExportError] = useState<string | null>(null)
 
-  function exportExecutivePdf(data: ExecutiveViewModel) {
+  async function runExport(fn: () => Promise<void>) {
     setIsExporting(true)
+    setExportError(null)
     try {
-      const payload = buildExecutivePdfPayload(data)
-      const filename = buildPdfFilename({ reportKey: 'executive-report' })
-      downloadPdf(payload, filename)
+      await fn()
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'تعذر تصدير PDF'
+      setExportError(msg)
     } finally {
       setIsExporting(false)
     }
+  }
+
+  function exportExecutivePdf(data: ExecutiveViewModel) {
+    void runExport(async () => {
+      const payload = buildExecutivePdfPayload(data)
+      const filename = buildPdfFilename({ reportKey: 'executive-report' })
+      await downloadPdf(payload, filename)
+    })
   }
 
   function exportProjectsPdf(
     rows: ExecutiveViewModel['rows'],
     filters: { query: string; statusFilter: string; includeArchived: boolean },
   ) {
-    setIsExporting(true)
-    try {
+    void runExport(async () => {
       const payload = buildProjectsPdfPayload(rows, filters)
       const filename = buildPdfFilename({ reportKey: 'projects-report' })
-      downloadPdf(payload, filename)
-    } finally {
-      setIsExporting(false)
-    }
+      await downloadPdf(payload, filename)
+    })
   }
 
   function exportJournalPdf(
@@ -47,25 +55,19 @@ export function useReportExport() {
     filters: JournalReportFilters,
     filteredCount: number,
   ) {
-    setIsExporting(true)
-    try {
+    void runExport(async () => {
       const payload = buildJournalPdfPayload(data, filters, filteredCount)
       const filename = buildPdfFilename({ reportKey: 'journal-report' })
-      downloadPdf(payload, filename)
-    } finally {
-      setIsExporting(false)
-    }
+      await downloadPdf(payload, filename)
+    })
   }
 
   function exportProfitLossPdf(data: ProfitLossViewModel, filters: ProfitLossFilters) {
-    setIsExporting(true)
-    try {
+    void runExport(async () => {
       const payload = buildProfitLossPdfPayload(data, filters)
       const filename = buildPdfFilename({ reportKey: 'profit-loss-report' })
-      downloadPdf(payload, filename)
-    } finally {
-      setIsExporting(false)
-    }
+      await downloadPdf(payload, filename)
+    })
   }
 
   function exportContractorsPdf(
@@ -74,21 +76,19 @@ export function useReportExport() {
     section: ContractorSection,
     contextLabel?: string,
   ) {
-    setIsExporting(true)
-    try {
+    void runExport(async () => {
       const payload = buildContractorsPdfPayload(data, filters, section)
       const filename = buildPdfFilename({
         reportKey: 'contractor-report',
         contextLabel: contextLabel ?? filters.contractorName,
       })
-      downloadPdf(payload, filename)
-    } finally {
-      setIsExporting(false)
-    }
+      await downloadPdf(payload, filename)
+    })
   }
 
   return {
     isExporting,
+    exportError,
     exportExecutivePdf,
     exportProjectsPdf,
     exportJournalPdf,

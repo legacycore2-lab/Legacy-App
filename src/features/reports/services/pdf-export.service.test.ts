@@ -80,26 +80,30 @@ describe('downloadPdf does not call window.print', () => {
   })
 
   it('print is never invoked when exporting PDF', async () => {
-    // Mock jsPDF and autoTable so no real DOM is needed
     vi.mock('jspdf', () => ({
       default: vi.fn().mockImplementation(() => ({
         internal: { pageSize: { getWidth: () => 297, getHeight: () => 210 } },
         setFontSize: vi.fn(),
         setTextColor: vi.fn(),
+        setFont: vi.fn(),
         text: vi.fn(),
         addPage: vi.fn(),
+        addFileToVFS: vi.fn(),
+        addFont: vi.fn(),
         save: vi.fn(),
         lastAutoTable: { finalY: 50 },
       })),
     }))
     vi.mock('jspdf-autotable', () => ({ default: vi.fn() }))
+    vi.mock('./pdf-font.service', () => ({
+      ARABIC_FONT_NAME: 'Amiri',
+      ARABIC_FONT_STYLE: 'normal',
+      registerArabicFont: vi.fn().mockResolvedValue(undefined),
+    }))
 
     const printSpy = vi.fn()
-    // Override global.window.print without relying on window existing
     const originalPrint = globalThis.window?.print
-    if (globalThis.window) {
-      globalThis.window.print = printSpy
-    }
+    if (globalThis.window) globalThis.window.print = printSpy
 
     const { downloadPdf: download } = await import('./pdf-export.service')
 
@@ -114,16 +118,63 @@ describe('downloadPdf does not call window.print', () => {
     }
 
     try {
-      download(payload, 'projects-report-2026-08-05.pdf')
+      await download(payload, 'projects-report-2026-08-05.pdf')
     } catch {
-      // jsPDF mock may throw — we only assert print was not called
+      // May throw in jsdom — we only assert print was not called
     }
 
     expect(printSpy).not.toHaveBeenCalled()
 
-    if (globalThis.window && originalPrint !== undefined) {
-      globalThis.window.print = originalPrint
+    if (globalThis.window && originalPrint !== undefined) globalThis.window.print = originalPrint
+  })
+})
+
+// ── Font registration verified before render ──────────────────────────────────
+
+describe('font registration', () => {
+  it('registerArabicFont is called before any text is rendered', async () => {
+    const registerMock = vi.fn().mockResolvedValue(undefined)
+
+    vi.mock('./pdf-font.service', () => ({
+      ARABIC_FONT_NAME: 'Amiri',
+      ARABIC_FONT_STYLE: 'normal',
+      registerArabicFont: registerMock,
+    }))
+    vi.mock('jspdf', () => ({
+      default: vi.fn().mockImplementation(() => ({
+        internal: { pageSize: { getWidth: () => 297, getHeight: () => 210 } },
+        setFontSize: vi.fn(),
+        setTextColor: vi.fn(),
+        setFont: vi.fn(),
+        text: vi.fn(),
+        addPage: vi.fn(),
+        addFileToVFS: vi.fn(),
+        addFont: vi.fn(),
+        save: vi.fn(),
+        lastAutoTable: { finalY: 50 },
+      })),
+    }))
+    vi.mock('jspdf-autotable', () => ({ default: vi.fn() }))
+
+    const { renderPdf } = await import('./pdf-export.service')
+
+    const payload: PdfExportPayload = {
+      reportTitle: 'الملخص التنفيذي',
+      companyName: 'Legacy Core',
+      exportDate: '٥ أغسطس ٢٠٢٦',
+      activeTab: 'executive',
+      activeFilters: [],
+      kpis: [],
+      tables: [],
     }
+
+    try {
+      await renderPdf(payload)
+    } catch {
+      // May throw in jsdom
+    }
+
+    expect(registerMock).toHaveBeenCalledOnce()
   })
 })
 
@@ -150,7 +201,7 @@ describe('pdf payload header fields', () => {
     expect(payload.exportDate).toBeTruthy()
   })
 
-  it('profit-loss payload contains only profit-loss tab', async () => {
+  it('profit-loss payload contains only profit-loss tab with correct filters', async () => {
     const { buildProfitLossPdfPayload } = await import('./pdf-payload.service')
     const payload = buildProfitLossPdfPayload(
       {

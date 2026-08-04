@@ -1,8 +1,8 @@
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import { ARABIC_FONT_NAME, registerArabicFont } from './pdf-font.service'
+import { prepareArabicText, prepareTableHeaders, prepareTableRow } from './arabic-text.service'
 import type { PdfExportPayload, PdfFilenameOptions } from '../types/pdf-export.types'
-
-const COMPANY_NAME = 'Legacy Core'
 
 // ── Filename builder ──────────────────────────────────────────────────────────
 
@@ -29,14 +29,14 @@ export function buildFiltersLabel(activeFilters: PdfExportPayload['activeFilters
   return activeFilters.map((f) => `${f.label}: ${f.value}`).join('  |  ')
 }
 
-// ── Core PDF renderer ─────────────────────────────────────────────────────────
+// ── Core PDF renderer (async — loads font lazily) ─────────────────────────────
 
-export function renderPdf(payload: PdfExportPayload): jsPDF {
+export async function renderPdf(payload: PdfExportPayload): Promise<jsPDF> {
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
 
-  // RTL — jsPDF doesn't natively flip text direction, but we set R-to-L manually
-  // via column alignment. Arabic glyphs render correctly with the default font
-  // when the text is set; for production, embed an Arabic font (e.g. Amiri).
+  // Load and register the Arabic font before any text rendering
+  await registerArabicFont(doc)
+
   const pageW = doc.internal.pageSize.getWidth()
   const margin = 14
   let y = 14
@@ -44,36 +44,40 @@ export function renderPdf(payload: PdfExportPayload): jsPDF {
   // ── Header ────────────────────────────────────────────────────────────────
   doc.setFontSize(10)
   doc.setTextColor(120)
-  doc.text(COMPANY_NAME, margin, y)
-  doc.text(payload.exportDate, pageW - margin, y, { align: 'right' })
+  doc.setFont(ARABIC_FONT_NAME, 'normal')
+  doc.text(payload.companyName, margin, y)
+  doc.text(prepareArabicText(payload.exportDate), pageW - margin, y, { align: 'right' })
 
-  y += 7
+  y += 8
   doc.setFontSize(16)
   doc.setTextColor(30)
-  doc.text(payload.reportTitle, pageW / 2, y, { align: 'center' })
+  doc.text(prepareArabicText(payload.reportTitle), pageW / 2, y, { align: 'center' })
 
   y += 6
   doc.setFontSize(8)
   doc.setTextColor(140)
   const filtersText = buildFiltersLabel(payload.activeFilters)
-  doc.text(filtersText, pageW / 2, y, { align: 'center', maxWidth: pageW - margin * 2 })
+  doc.text(prepareArabicText(filtersText), pageW / 2, y, {
+    align: 'center',
+    maxWidth: pageW - margin * 2,
+  })
 
-  y += 8
+  y += 10
 
   // ── KPIs row ──────────────────────────────────────────────────────────────
   if (payload.kpis.length > 0) {
     const kpiW = (pageW - margin * 2) / payload.kpis.length
-    doc.setFontSize(8)
     payload.kpis.forEach((kpi, i) => {
       const x = margin + i * kpiW + kpiW / 2
+      doc.setFontSize(8)
       doc.setTextColor(80)
-      doc.text(kpi.label, x, y, { align: 'center' })
+      doc.setFont(ARABIC_FONT_NAME, 'normal')
+      doc.text(prepareArabicText(kpi.label), x, y, { align: 'center' })
       doc.setFontSize(11)
       doc.setTextColor(30)
-      doc.text(kpi.value, x, y + 5, { align: 'center' })
-      doc.setFontSize(8)
+      doc.text(prepareArabicText(kpi.value), x, y + 6, { align: 'center' })
     })
-    y += 14
+    y += 16
   }
 
   // ── Tables ────────────────────────────────────────────────────────────────
@@ -85,21 +89,34 @@ export function renderPdf(payload: PdfExportPayload): jsPDF {
 
     doc.setFontSize(10)
     doc.setTextColor(50)
-    doc.text(table.title, margin, y)
+    doc.setFont(ARABIC_FONT_NAME, 'normal')
+    doc.text(prepareArabicText(table.title), margin, y)
     y += 4
+
+    const preparedHeaders = prepareTableHeaders(table.headers)
+    const preparedRows = table.rows.map(prepareTableRow)
 
     autoTable(doc, {
       startY: y,
-      head: [table.headers],
-      body: table.rows.map((row) => row.map(String)),
-      styles: { fontSize: 7, cellPadding: 2, halign: 'right' },
-      headStyles: { fillColor: [41, 98, 255], textColor: 255, halign: 'right' },
+      head: [preparedHeaders],
+      body: preparedRows,
+      styles: {
+        font: ARABIC_FONT_NAME,
+        fontStyle: 'normal',
+        fontSize: 7,
+        cellPadding: 2,
+        halign: 'right',
+      },
+      headStyles: {
+        fillColor: [41, 98, 255],
+        textColor: 255,
+        font: ARABIC_FONT_NAME,
+        fontStyle: 'bold',
+        halign: 'right',
+      },
       alternateRowStyles: { fillColor: [245, 247, 255] },
       margin: { left: margin, right: margin },
       tableWidth: 'auto',
-      didDrawPage: () => {
-        y = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable?.finalY ?? y
-      },
     })
 
     y = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable?.finalY ?? y
@@ -109,9 +126,9 @@ export function renderPdf(payload: PdfExportPayload): jsPDF {
   return doc
 }
 
-// ── Download trigger (side-effectful — kept here, not in component) ───────────
+// ── Download trigger ──────────────────────────────────────────────────────────
 
-export function downloadPdf(payload: PdfExportPayload, filename: string): void {
-  const doc = renderPdf(payload)
+export async function downloadPdf(payload: PdfExportPayload, filename: string): Promise<void> {
+  const doc = await renderPdf(payload)
   doc.save(filename)
 }
