@@ -19,6 +19,15 @@ Status: In progress
 - No SQL, RLS, migration, or Supabase schema changes
 - Delete only items proven unused
 
+## Audit automation added
+
+- `scripts/check-dependency-graph.mjs`
+- Scans runtime TypeScript/TSX files from `src/main.tsx`
+- Reports source files that are not reachable from the application entrypoint
+- Fails CI when a circular dependency is detected
+- Excludes tests, specs, and declaration files
+- Uses no new package dependency
+
 ## Findings
 
-Pending.
+Awaiting the dependency-graph output from CI before any deletion.
