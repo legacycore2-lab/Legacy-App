@@ -21,8 +21,7 @@ export function buildContractorStatement(
   const sourcePayments = entries
     .filter(
       (entry) =>
-        entry.contractorName === normalizedContractorName &&
-        entry.entryType === 'expense',
+        entry.contractorName === normalizedContractorName && entry.entryType === 'expense',
     )
     .slice()
     .sort(compareStatementEntries)
