@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { isPermissionError, toErrorMessage } from '../../../shared/errors/app-error'
-import { paginateRows } from '../services/reports.service'
+import { buildContractorStatement } from '../services/contractor-statement.service'
 import { loadContractorReportsData } from '../services/contractor-reports.service'
+import { paginateRows } from '../services/reports.service'
 import type { ContractorReportsFilters } from '../types/contractor-reports.types'
 
 const EMPTY_FILTERS: ContractorReportsFilters = {
@@ -18,9 +19,7 @@ const EMPTY_FILTERS: ContractorReportsFilters = {
 const PAGE_SIZE = 50
 
 export function useContractorReports(enabled: boolean) {
-  // Draft (local) filters — not yet committed
   const [draftFilters, setDraftFilters] = useState<ContractorReportsFilters>(EMPTY_FILTERS)
-  // Committed filters — passed to queryFn only after Search press
   const [committedFilters, setCommittedFilters] = useState<ContractorReportsFilters>(EMPTY_FILTERS)
   const [filtersDirty, setFiltersDirty] = useState(false)
   const [page, setPage] = useState(1)
@@ -38,6 +37,10 @@ export function useContractorReports(enabled: boolean) {
   const paginatedEntries = useMemo(
     () => paginateRows(query.data?.entries ?? [], safePage, PAGE_SIZE),
     [query.data?.entries, safePage],
+  )
+  const contractorStatement = useMemo(
+    () => buildContractorStatement(query.data?.entries ?? [], committedFilters.contractorName),
+    [query.data?.entries, committedFilters.contractorName],
   )
 
   function setDraftFilter<K extends keyof ContractorReportsFilters>(
@@ -61,7 +64,9 @@ export function useContractorReports(enabled: boolean) {
 
   return {
     data: query.data,
+    contractorStatement,
     filters: draftFilters,
+    committedFilters,
     setFilter: setDraftFilter,
     commitSearch,
     resetFilters,
