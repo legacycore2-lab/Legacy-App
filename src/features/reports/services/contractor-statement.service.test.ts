@@ -98,9 +98,7 @@ describe('buildContractorStatement', () => {
     const result = buildContractorStatement(entries, 'محمود مصباح')
 
     expect(result.payments.map((payment) => payment.runningBalance)).toEqual([
-      15000,
-      25000,
-      33000,
+      15000, 25000, 33000,
     ])
   })
 
