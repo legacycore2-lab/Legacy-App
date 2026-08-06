@@ -15,6 +15,7 @@ import autoTable from 'jspdf-autotable'
 import { ARABIC_FONT_NAME, registerArabicFont } from './pdf-font.service'
 import { prepareArabicText, prepareTableHeaders, prepareTableRow } from './arabic-text.service'
 import { BRAND, COMPANY_NAME, COMPANY_LOCATION, COMPANY_WEBSITE } from '../config/pdf-brand.config'
+import { formatPdfDate } from './pdf-formatters'
 
 // ── Re-exports so callers need only one import ────────────────────────────────
 export { COMPANY_NAME }
@@ -82,14 +83,8 @@ function ar(text: string | number): string {
   return prepareArabicText(String(text))
 }
 
-/** Returns full Arabic date string — e.g. "٦ أغسطس ٢٠٢٦" */
-function todayAr(): string {
-  return new Date().toLocaleDateString('ar-EG', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-}
+/** Returns full Arabic date string — e.g. "٦ أغسطس ٢٠٢٦" — delegates to pdf-formatters */
+const todayAr = (): string => formatPdfDate()
 
 function paymentBadgeColors(method: string): { bg: RGB; fg: RGB } {
   const m = method.trim()

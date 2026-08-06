@@ -1,10 +1,8 @@
-// Western numerals with comma separators — standard accounting format (816,000 ج.م)
-// 'ar-EG' produces Eastern Arabic-Indic digits (٨١٦٠٠٠) which are harder to scan
-const egpNumberFormatter = new Intl.NumberFormat('en-US', {
+const egpNumberFormatter = new Intl.NumberFormat('ar-EG', {
   maximumFractionDigits: 2,
 })
 
-const egpIntegerFormatter = new Intl.NumberFormat('en-US', {
+const egpIntegerFormatter = new Intl.NumberFormat('ar-EG', {
   maximumFractionDigits: 0,
 })
 
