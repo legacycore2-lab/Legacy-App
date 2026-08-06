@@ -1,9 +1,6 @@
 import { RotateCcw, Search } from 'lucide-react'
 import { ContractorStatementPanel } from './ContractorStatementPanel'
-import type {
-  ContractorReportsFilters,
-  ContractorReportsViewModel,
-} from '../types/contractor-reports.types'
+import type { ContractorReportsFilters, ContractorReportsViewModel } from '../types/contractor-reports.types'
 import type { ContractorStatementViewModel } from '../types/contractor-statement.types'
 
 type Props = {
@@ -13,10 +10,7 @@ type Props = {
   committedFilters: ContractorReportsFilters
   filtersDirty: boolean
   isFetching: boolean
-  onSetFilter: <K extends keyof ContractorReportsFilters>(
-    key: K,
-    value: ContractorReportsFilters[K],
-  ) => void
+  onSetFilter: <K extends keyof ContractorReportsFilters>(key: K, value: ContractorReportsFilters[K]) => void
   onSearch: () => void
   onReset: () => void
 }
@@ -89,12 +83,7 @@ export function ContractorStatementReport({
             onChange={(event) => onSetFilter('dateTo', event.target.value)}
           />
         </label>
-        <button
-          type="button"
-          className="jf-search-btn"
-          onClick={onSearch}
-          disabled={!filters.contractorName}
-        >
+        <button type="button" className="jf-search-btn" onClick={onSearch} disabled={!filters.contractorName}>
           <Search size={15} aria-hidden />
           بحث
         </button>

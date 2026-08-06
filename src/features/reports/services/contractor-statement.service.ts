@@ -19,10 +19,7 @@ export function buildContractorStatement(
 ): ContractorStatementViewModel {
   const normalizedContractorName = contractorName.trim()
   const sourcePayments = entries
-    .filter(
-      (entry) =>
-        entry.contractorName === normalizedContractorName && entry.entryType === 'expense',
-    )
+    .filter((entry) => entry.contractorName === normalizedContractorName && entry.entryType === 'expense')
     .slice()
     .sort(compareStatementEntries)
 

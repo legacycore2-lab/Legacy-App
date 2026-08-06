@@ -45,28 +45,12 @@ export function ContractorStatementPanel({ statement, dateFrom, dateTo }: Props)
       </header>
 
       <section className="contractor-statement__kpis" aria-label="ملخص كشف الحساب">
-        <StatementKpi
-          label="إجمالي المدفوعات"
-          value={formatMoneyInteger(summary.totalPayments)}
-        />
+        <StatementKpi label="إجمالي المدفوعات" value={formatMoneyInteger(summary.totalPayments)} />
         <StatementKpi label="عدد الدفعات" value={String(summary.paymentCount)} />
-        <StatementKpi
-          label="متوسط الدفعة"
-          value={formatMoneyInteger(summary.averagePayment)}
-        />
-        <StatementKpi
-          label="أول دفعة"
-          value={formatAccountingDate(summary.firstPaymentDate)}
-        />
-        <StatementKpi
-          label="آخر دفعة"
-          value={formatAccountingDate(summary.lastPaymentDate)}
-        />
-        <StatementKpi
-          label="الرصيد التراكمي"
-          value={formatMoneyInteger(summary.currentBalance)}
-          featured
-        />
+        <StatementKpi label="متوسط الدفعة" value={formatMoneyInteger(summary.averagePayment)} />
+        <StatementKpi label="أول دفعة" value={formatAccountingDate(summary.firstPaymentDate)} />
+        <StatementKpi label="آخر دفعة" value={formatAccountingDate(summary.lastPaymentDate)} />
+        <StatementKpi label="الرصيد التراكمي" value={formatMoneyInteger(summary.currentBalance)} featured />
       </section>
 
       <section className="contractor-statement__ledger">
@@ -130,8 +114,12 @@ export function ContractorStatementPanel({ statement, dateFrom, dateTo }: Props)
       <section className="contractor-statement__closing">
         <div className="contractor-statement__notes">
           <span>ملاحظات</span>
-          <p>............................................................................................................................</p>
-          <p>............................................................................................................................</p>
+          <p>
+            ............................................................................................................................
+          </p>
+          <p>
+            ............................................................................................................................
+          </p>
         </div>
         <dl className="contractor-statement__summary">
           <div>

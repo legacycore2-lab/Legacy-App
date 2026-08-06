@@ -97,9 +97,7 @@ describe('buildContractorStatement', () => {
   it('sorts payments oldest-first and calculates the running balance', () => {
     const result = buildContractorStatement(entries, 'محمود مصباح')
 
-    expect(result.payments.map((payment) => payment.runningBalance)).toEqual([
-      15000, 25000, 33000,
-    ])
+    expect(result.payments.map((payment) => payment.runningBalance)).toEqual([15000, 25000, 33000])
   })
 
   it('builds the approved statement summary', () => {

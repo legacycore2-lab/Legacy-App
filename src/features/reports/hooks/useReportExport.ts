@@ -8,25 +8,12 @@ import {
   buildProfitLossPdfPayload,
   buildProjectsPdfPayload,
 } from '../services/pdf-payload.service'
-import type {
-  ContractorReportsFilters,
-  ContractorReportsViewModel,
-} from '../types/contractor-reports.types'
+import type { ContractorReportsFilters, ContractorReportsViewModel } from '../types/contractor-reports.types'
 import type { ProfitLossFilters, ProfitLossViewModel } from '../types/profit-loss.types'
-import type {
-  ExecutiveViewModel,
-  JournalReportFilters,
-  JournalReportViewModel,
-} from '../types/report.types'
+import type { ExecutiveViewModel, JournalReportFilters, JournalReportViewModel } from '../types/report.types'
 
 type ContractorSection =
-  | 'overview'
-  | 'statement'
-  | 'projects'
-  | 'categories'
-  | 'monthly'
-  | 'payments'
-  | 'quality'
+  'overview' | 'statement' | 'projects' | 'categories' | 'monthly' | 'payments' | 'quality'
 
 export function useReportExport() {
   const [isExporting, setIsExporting] = useState(false)
@@ -100,10 +87,7 @@ export function useReportExport() {
     })
   }
 
-  function exportContractorStatementPdf(
-    data: ContractorReportsViewModel,
-    filters: ContractorReportsFilters,
-  ) {
+  function exportContractorStatementPdf(data: ContractorReportsViewModel, filters: ContractorReportsFilters) {
     void runExport(async () => {
       const payload = buildContractorStatementPdfPayload(data, filters)
       const filename = buildPdfFilename({
