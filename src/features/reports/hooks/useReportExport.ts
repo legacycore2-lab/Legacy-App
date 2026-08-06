@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { buildContractorStatementPdfPayload } from '../services/contractor-statement-pdf.service'
+import { buildContractorStatement } from '../services/contractor-statement.service'
+import { downloadContractorStatementPdf } from '../services/contractor-statement-renderer.service'
 import { buildPdfFilename, downloadPdf } from '../services/pdf-export.service'
 import {
   buildContractorsPdfPayload,
@@ -89,12 +90,12 @@ export function useReportExport() {
 
   function exportContractorStatementPdf(data: ContractorReportsViewModel, filters: ContractorReportsFilters) {
     void runExport(async () => {
-      const payload = buildContractorStatementPdfPayload(data, filters)
+      const statement = buildContractorStatement(data.entries, filters.contractorName)
       const filename = buildPdfFilename({
         reportKey: 'contractor-statement',
         contextLabel: filters.contractorName,
       })
-      await downloadPdf(payload, filename)
+      await downloadContractorStatementPdf(statement, filters, data.projectOptions, filename)
     })
   }
 
