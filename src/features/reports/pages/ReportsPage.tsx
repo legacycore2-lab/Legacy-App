@@ -1,6 +1,7 @@
 import { ArrowRight } from 'lucide-react'
 import { useState } from 'react'
 import { ContractorReportsPanel } from '../components/ContractorReportsPanel'
+import { ContractorStatementReport } from '../components/ContractorStatementReport'
 import { ExecutiveDashboard } from '../components/ExecutiveDashboard'
 import { ExecutiveKpis } from '../components/ExecutiveKpis'
 import { JournalFilters } from '../components/JournalFilters'
@@ -22,6 +23,7 @@ import { useReportsCenter } from '../hooks/useReportsCenter'
 import type { ReportKey } from '../types/reports-center.types'
 import type { ReportsTab } from '../types/report.types'
 import '../styles/contractor-reports.css'
+import '../styles/contractor-statement.css'
 import '../styles/profit-loss.css'
 import '../styles/reports-center.css'
 import '../styles/reports.css'
@@ -57,6 +59,7 @@ export function ReportsPage() {
   const center = useReportsCenter()
   const activeTab = toDataTab(center.selectedReport)
   const isProfitLoss = center.selectedReport === 'profit-loss'
+  const isContractorStatement = center.selectedReport === 'contractor-statement'
   const isContractors = center.selectedReport ? CONTRACTOR_REPORT_KEYS.has(center.selectedReport) : false
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [contractorSection, setContractorSection] = useState<
@@ -104,12 +107,13 @@ export function ReportsPage() {
       return () => exportProfitLossPdf(profitLoss.data!, profitLoss.filters)
     }
     if (isContractors && contractorReports.data) {
+      const exportSection = isContractorStatement ? 'statement' : contractorSection
       return () =>
         exportContractorsPdf(
           contractorReports.data!,
-          contractorReports.filters,
-          contractorSection,
-          contractorReports.filters.contractorName,
+          contractorReports.committedFilters,
+          exportSection,
+          contractorReports.committedFilters.contractorName,
         )
     }
     return undefined
@@ -277,22 +281,36 @@ export function ReportsPage() {
           ) : contractorReports.error ? (
             <ReportsErrorState error={contractorReports.error} />
           ) : contractorReports.data ? (
-            <ContractorReportsPanel
-              data={contractorReports.data}
-              filters={contractorReports.filters}
-              hasActiveFilter={contractorReports.hasActiveFilter}
-              filtersDirty={contractorReports.filtersDirty}
-              isFetching={contractorReports.isFetching}
-              page={contractorReports.page}
-              totalPages={contractorReports.totalPages}
-              totalCount={contractorReports.totalCount}
-              paginatedEntries={contractorReports.paginatedEntries}
-              onSetFilter={contractorReports.setFilter}
-              onSearch={contractorReports.commitSearch}
-              onReset={contractorReports.resetFilters}
-              onPageChange={contractorReports.setPage}
-              onSectionChange={setContractorSection}
-            />
+            isContractorStatement ? (
+              <ContractorStatementReport
+                data={contractorReports.data}
+                statement={contractorReports.contractorStatement}
+                filters={contractorReports.filters}
+                committedFilters={contractorReports.committedFilters}
+                filtersDirty={contractorReports.filtersDirty}
+                isFetching={contractorReports.isFetching}
+                onSetFilter={contractorReports.setFilter}
+                onSearch={contractorReports.commitSearch}
+                onReset={contractorReports.resetFilters}
+              />
+            ) : (
+              <ContractorReportsPanel
+                data={contractorReports.data}
+                filters={contractorReports.filters}
+                hasActiveFilter={contractorReports.hasActiveFilter}
+                filtersDirty={contractorReports.filtersDirty}
+                isFetching={contractorReports.isFetching}
+                page={contractorReports.page}
+                totalPages={contractorReports.totalPages}
+                totalCount={contractorReports.totalCount}
+                paginatedEntries={contractorReports.paginatedEntries}
+                onSetFilter={contractorReports.setFilter}
+                onSearch={contractorReports.commitSearch}
+                onReset={contractorReports.resetFilters}
+                onPageChange={contractorReports.setPage}
+                onSectionChange={setContractorSection}
+              />
+            )
           ) : (
             <ReportsEmptyState message="جاري تحميل تقارير المقاولين..." />
           )}
