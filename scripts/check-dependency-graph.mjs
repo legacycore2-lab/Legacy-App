@@ -46,13 +46,7 @@ function resolveLocalImport(fromPath, value) {
   if (!value.startsWith('.')) return null
 
   const base = normalize(relative(root, resolve(root, dirname(fromPath), value)))
-  const candidates = [
-    base,
-    `${base}.ts`,
-    `${base}.tsx`,
-    `${base}/index.ts`,
-    `${base}/index.tsx`,
-  ]
+  const candidates = [base, `${base}.ts`, `${base}.tsx`, `${base}/index.ts`, `${base}/index.tsx`]
 
   return candidates.find((candidate) => files.has(candidate)) ?? null
 }
