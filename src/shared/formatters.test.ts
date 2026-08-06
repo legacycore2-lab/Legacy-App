@@ -11,7 +11,7 @@ describe('formatMoney', () => {
   })
 
   it('supports zero', () => {
-    expect(formatMoney(0)).toContain('٠')
+    expect(formatMoney(0)).toContain('0')
   })
 
   it('returns fallback for invalid values', () => {

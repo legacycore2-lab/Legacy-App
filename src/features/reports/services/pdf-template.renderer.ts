@@ -82,16 +82,13 @@ function ar(text: string | number): string {
   return prepareArabicText(String(text))
 }
 
+/** Returns full Arabic date string — e.g. "٦ أغسطس ٢٠٢٦" */
 function todayAr(): string {
   return new Date().toLocaleDateString('ar-EG', {
     year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
+    month: 'long',
+    day: 'numeric',
   })
-}
-
-function todayTimeAr(): string {
-  return new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
 }
 
 function paymentBadgeColors(method: string): { bg: RGB; fg: RGB } {
@@ -178,7 +175,7 @@ function drawInfoBar(doc: jsPDF, W: number, ML: number, y: number, items: Templa
 // ── Section: default info bar (date/time only) ────────────────────────────────
 
 function drawDefaultInfoBar(doc: jsPDF, W: number, ML: number, y: number): number {
-  return drawInfoBar(doc, W, ML, y, [{ label: 'تاريخ التقرير', value: `${todayAr()} ${todayTimeAr()}` }])
+  return drawInfoBar(doc, W, ML, y, [{ label: 'تاريخ التقرير', value: todayAr() }])
 }
 
 // ── Section: KPI cards ────────────────────────────────────────────────────────
