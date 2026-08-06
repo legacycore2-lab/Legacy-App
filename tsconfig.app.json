@@ -20,5 +20,8 @@
     "jsx": "react-jsx"
   },
   "include": ["src"],
-  "exclude": ["src/features/projects/services/excel-parser.service.test.ts"]
+  "exclude": [
+    "src/features/projects/services/excel-parser.service.test.ts",
+    "src/features/reports/services/pdf-template.renderer.test.ts"
+  ]
 }
