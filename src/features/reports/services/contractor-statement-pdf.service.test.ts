@@ -96,8 +96,8 @@ describe('buildContractorStatementPdfPayload', () => {
     expect(paymentTable?.headers).toContain('الرصيد بعد الحركة')
     expect(paymentTable?.rows).toHaveLength(2)
     expect(paymentTable?.rows[0]).toContain('2026-08-05')
-    expect(paymentTable?.rows[0]?.at(-1)).toContain('15')
-    expect(paymentTable?.rows[1]?.at(-1)).toContain('25')
+    expect(paymentTable?.rows[0]?.at(-1)).toContain('١٥')
+    expect(paymentTable?.rows[1]?.at(-1)).toContain('٢٥')
   })
 
   it('does not export income entries as contractor payments', () => {
