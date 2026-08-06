@@ -70,8 +70,15 @@ export function ReportsPage() {
   const journal = useJournalReport(activeTab)
   const profitLoss = useProfitLossReport(isProfitLoss)
   const contractorReports = useContractorReports(isContractors)
-  const { isExporting, exportExecutivePdf, exportProjectsPdf, exportJournalPdf, exportProfitLossPdf, exportContractorsPdf } =
-    useReportExport()
+  const {
+    isExporting,
+    exportExecutivePdf,
+    exportProjectsPdf,
+    exportJournalPdf,
+    exportProfitLossPdf,
+    exportContractorsPdf,
+    exportContractorStatementPdf,
+  } = useReportExport()
 
   async function handleRefresh() {
     const result = isContractors
@@ -106,13 +113,19 @@ export function ReportsPage() {
     if (isProfitLoss && profitLoss.data) {
       return () => exportProfitLossPdf(profitLoss.data!, profitLoss.filters)
     }
+    if (isContractorStatement && contractorReports.data && contractorReports.committedFilters.contractorName) {
+      return () =>
+        exportContractorStatementPdf(
+          contractorReports.data!,
+          contractorReports.committedFilters,
+        )
+    }
     if (isContractors && contractorReports.data) {
-      const exportSection = isContractorStatement ? 'statement' : contractorSection
       return () =>
         exportContractorsPdf(
           contractorReports.data!,
           contractorReports.committedFilters,
-          exportSection,
+          contractorSection,
           contractorReports.committedFilters.contractorName,
         )
     }
