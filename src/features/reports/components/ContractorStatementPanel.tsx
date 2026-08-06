@@ -45,12 +45,28 @@ export function ContractorStatementPanel({ statement, dateFrom, dateTo }: Props)
       </header>
 
       <section className="contractor-statement__kpis" aria-label="ملخص كشف الحساب">
-        <StatementKpi label="إجمالي المدفوعات" value={formatMoneyInteger(summary.totalPayments)} />
+        <StatementKpi
+          label="إجمالي المدفوعات"
+          value={formatMoneyInteger(summary.totalPayments)}
+        />
         <StatementKpi label="عدد الدفعات" value={String(summary.paymentCount)} />
-        <StatementKpi label="متوسط الدفعة" value={formatMoneyInteger(summary.averagePayment)} />
-        <StatementKpi label="أول دفعة" value={formatAccountingDate(summary.firstPaymentDate)} />
-        <StatementKpi label="آخر دفعة" value={formatAccountingDate(summary.lastPaymentDate)} />
-        <StatementKpi label="الرصيد التراكمي" value={formatMoneyInteger(summary.currentBalance)} featured />
+        <StatementKpi
+          label="متوسط الدفعة"
+          value={formatMoneyInteger(summary.averagePayment)}
+        />
+        <StatementKpi
+          label="أول دفعة"
+          value={formatAccountingDate(summary.firstPaymentDate)}
+        />
+        <StatementKpi
+          label="آخر دفعة"
+          value={formatAccountingDate(summary.lastPaymentDate)}
+        />
+        <StatementKpi
+          label="الرصيد التراكمي"
+          value={formatMoneyInteger(summary.currentBalance)}
+          featured
+        />
       </section>
 
       <section className="contractor-statement__ledger">
@@ -118,10 +134,22 @@ export function ContractorStatementPanel({ statement, dateFrom, dateTo }: Props)
           <p>............................................................................................................................</p>
         </div>
         <dl className="contractor-statement__summary">
-          <div><dt>إجمالي المدفوعات</dt><dd>{formatMoneyInteger(summary.totalPayments)}</dd></div>
-          <div><dt>عدد الدفعات</dt><dd>{summary.paymentCount}</dd></div>
-          <div><dt>متوسط الدفعة</dt><dd>{formatMoneyInteger(summary.averagePayment)}</dd></div>
-          <div><dt>الرصيد الحالي</dt><dd>{formatMoneyInteger(summary.currentBalance)}</dd></div>
+          <div>
+            <dt>إجمالي المدفوعات</dt>
+            <dd>{formatMoneyInteger(summary.totalPayments)}</dd>
+          </div>
+          <div>
+            <dt>عدد الدفعات</dt>
+            <dd>{summary.paymentCount}</dd>
+          </div>
+          <div>
+            <dt>متوسط الدفعة</dt>
+            <dd>{formatMoneyInteger(summary.averagePayment)}</dd>
+          </div>
+          <div>
+            <dt>الرصيد الحالي</dt>
+            <dd>{formatMoneyInteger(summary.currentBalance)}</dd>
+          </div>
         </dl>
       </section>
 
@@ -134,7 +162,15 @@ export function ContractorStatementPanel({ statement, dateFrom, dateTo }: Props)
   )
 }
 
-function StatementKpi({ label, value, featured = false }: { label: string; value: string; featured?: boolean }) {
+function StatementKpi({
+  label,
+  value,
+  featured = false,
+}: {
+  label: string
+  value: string
+  featured?: boolean
+}) {
   return (
     <div className={featured ? 'is-featured' : undefined}>
       <span>{label}</span>
@@ -154,7 +190,9 @@ function Approval({ label }: { label: string }) {
 }
 
 function formatPeriod(dateFrom: string, dateTo: string): string {
-  if (dateFrom && dateTo) return `${formatAccountingDate(dateFrom)} — ${formatAccountingDate(dateTo)}`
+  if (dateFrom && dateTo) {
+    return `${formatAccountingDate(dateFrom)} — ${formatAccountingDate(dateTo)}`
+  }
   if (dateFrom) return `من ${formatAccountingDate(dateFrom)}`
   if (dateTo) return `حتى ${formatAccountingDate(dateTo)}`
   return 'كل الفترات'
