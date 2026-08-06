@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { downloadPdf, buildPdfFilename } from '../services/pdf-export.service'
+import { buildContractorStatementPdfPayload } from '../services/contractor-statement-pdf.service'
+import { buildPdfFilename, downloadPdf } from '../services/pdf-export.service'
 import {
+  buildContractorsPdfPayload,
   buildExecutivePdfPayload,
-  buildProjectsPdfPayload,
   buildJournalPdfPayload,
   buildProfitLossPdfPayload,
-  buildContractorsPdfPayload,
+  buildProjectsPdfPayload,
 } from '../services/pdf-payload.service'
 import type { ContractorReportsFilters, ContractorReportsViewModel } from '../types/contractor-reports.types'
 import type { ProfitLossFilters, ProfitLossViewModel } from '../types/profit-loss.types'
@@ -86,6 +87,20 @@ export function useReportExport() {
     })
   }
 
+  function exportContractorStatementPdf(
+    data: ContractorReportsViewModel,
+    filters: ContractorReportsFilters,
+  ) {
+    void runExport(async () => {
+      const payload = buildContractorStatementPdfPayload(data, filters)
+      const filename = buildPdfFilename({
+        reportKey: 'contractor-statement',
+        contextLabel: filters.contractorName,
+      })
+      await downloadPdf(payload, filename)
+    })
+  }
+
   return {
     isExporting,
     exportError,
@@ -94,5 +109,6 @@ export function useReportExport() {
     exportJournalPdf,
     exportProfitLossPdf,
     exportContractorsPdf,
+    exportContractorStatementPdf,
   }
 }
