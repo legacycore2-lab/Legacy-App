@@ -177,7 +177,7 @@ describe('pdf payload header fields', () => {
       rows: [],
     })
     expect(payload.reportTitle).toBe('الملخص التنفيذي')
-    expect(payload.companyName).toBe('Legacy Core')
+    expect(payload.companyName).toBe('LEGACY FINE TOUCH')
     expect(payload.activeTab).toBe('executive')
     expect(payload.exportDate).toBeTruthy()
   })

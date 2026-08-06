@@ -4,7 +4,9 @@ import type { PdfActiveFilter, PdfExportPayload, PdfExportTab } from '../types/p
 import type { ProfitLossFilters, ProfitLossViewModel } from '../types/profit-loss.types'
 import type { ExecutiveViewModel, JournalReportFilters, JournalReportViewModel } from '../types/report.types'
 
-const COMPANY = 'Legacy Core'
+import { COMPANY_NAME } from '../config/pdf-brand.config'
+
+const COMPANY = COMPANY_NAME
 
 function todayLabel(): string {
   return new Date().toLocaleDateString('ar-EG', {

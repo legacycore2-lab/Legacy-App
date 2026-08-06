@@ -1,4 +1,5 @@
 import { formatMoneyInteger } from '../../../shared/formatters'
+import { COMPANY_NAME } from '../config/pdf-brand.config'
 import { buildContractorStatement } from './contractor-statement.service'
 import type { ContractorReportsFilters, ContractorReportsViewModel } from '../types/contractor-reports.types'
 import type { PdfActiveFilter, PdfExportPayload } from '../types/pdf-export.types'
@@ -21,7 +22,7 @@ export function buildContractorStatementPdfPayload(
 
   return {
     reportTitle: 'كشف حساب المقاول',
-    companyName: 'Legacy Core',
+    companyName: COMPANY_NAME,
     exportDate: new Date().toLocaleDateString('ar-EG', {
       year: 'numeric',
       month: 'long',
