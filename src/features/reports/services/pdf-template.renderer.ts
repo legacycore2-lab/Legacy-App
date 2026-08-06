@@ -15,6 +15,7 @@ import autoTable from 'jspdf-autotable'
 import { ARABIC_FONT_NAME, registerArabicFont } from './pdf-font.service'
 import { prepareArabicText, prepareTableHeaders, prepareTableRow } from './arabic-text.service'
 import { BRAND, COMPANY_NAME, COMPANY_LOCATION, COMPANY_WEBSITE } from '../config/pdf-brand.config'
+import { formatPdfDate } from './pdf-formatters'
 
 // ── Re-exports so callers need only one import ────────────────────────────────
 export { COMPANY_NAME }
@@ -82,17 +83,8 @@ function ar(text: string | number): string {
   return prepareArabicText(String(text))
 }
 
-function todayAr(): string {
-  return new Date().toLocaleDateString('ar-EG', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  })
-}
-
-function todayTimeAr(): string {
-  return new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
-}
+/** Returns full Arabic date string — e.g. "٦ أغسطس ٢٠٢٦" — delegates to pdf-formatters */
+const todayAr = (): string => formatPdfDate()
 
 function paymentBadgeColors(method: string): { bg: RGB; fg: RGB } {
   const m = method.trim()
@@ -178,7 +170,7 @@ function drawInfoBar(doc: jsPDF, W: number, ML: number, y: number, items: Templa
 // ── Section: default info bar (date/time only) ────────────────────────────────
 
 function drawDefaultInfoBar(doc: jsPDF, W: number, ML: number, y: number): number {
-  return drawInfoBar(doc, W, ML, y, [{ label: 'تاريخ التقرير', value: `${todayAr()} ${todayTimeAr()}` }])
+  return drawInfoBar(doc, W, ML, y, [{ label: 'تاريخ التقرير', value: todayAr() }])
 }
 
 // ── Section: KPI cards ────────────────────────────────────────────────────────

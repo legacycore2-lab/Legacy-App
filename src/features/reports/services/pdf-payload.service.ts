@@ -1,4 +1,4 @@
-import { formatMoneyInteger } from '../../../shared/formatters'
+import { formatPdfMoneyInteger as formatMoneyInteger } from './pdf-formatters'
 import type { ContractorReportsFilters, ContractorReportsViewModel } from '../types/contractor-reports.types'
 import type { PdfActiveFilter, PdfExportPayload, PdfExportTab } from '../types/pdf-export.types'
 import type { ProfitLossFilters, ProfitLossViewModel } from '../types/profit-loss.types'
