@@ -307,9 +307,9 @@ describe('pdf payload header fields', () => {
     expect(payload.kpis).toEqual(
       expect.arrayContaining([
         { label: 'عدد القيود', value: '2' },
-        { label: 'إجمالي الإيرادات', value: '1,000' },
-        { label: 'إجمالي المصروفات', value: '400' },
-        { label: 'الصافي', value: '600' },
+        { label: 'إجمالي الإيرادات', value: '1,000 ج.م' },
+        { label: 'إجمالي المصروفات', value: '400 ج.م' },
+        { label: 'الصافي', value: '600 ج.م' },
       ]),
     )
   })
