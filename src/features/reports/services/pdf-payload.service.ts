@@ -135,27 +135,14 @@ export function buildJournalPdfPayload(
     tables: [
       {
         title: 'تفاصيل القيود',
-        headers: [
-          'التاريخ',
-          'المشروع',
-          'البيان',
-          'المقاول',
-          'طريقة الدفع',
-          'النوع',
-          'إيراد',
-          'مصروف',
-        ],
+        headers: ['التاريخ', 'المشروع', 'البيان', 'المقاول', 'طريقة الدفع', 'النوع', 'إيراد', 'مصروف'],
         rows: data.allRows.map((row) => [
           row.dateFormatted || row.date,
           row.projectName,
           row.description,
           row.contractorName,
           row.paymentMethod,
-          row.entryType === 'income'
-            ? 'إيراد'
-            : row.entryType === 'expense'
-              ? 'مصروف'
-              : 'غير محدد',
+          row.entryType === 'income' ? 'إيراد' : row.entryType === 'expense' ? 'مصروف' : 'غير محدد',
           row.entryType === 'income' ? formatMoneyInteger(row.amount) : '—',
           row.entryType === 'expense' ? formatMoneyInteger(row.amount) : '—',
         ]),
