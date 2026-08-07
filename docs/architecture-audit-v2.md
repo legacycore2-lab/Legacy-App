@@ -1,6 +1,6 @@
 # Architecture & Dead Code Audit v2
 
-Status: In progress
+Status: Cleanup applied — awaiting final CI confirmation
 
 ## Scope
 
@@ -28,6 +28,47 @@ Status: In progress
 - Excludes tests, specs, and declaration files
 - Uses no new package dependency
 
-## Findings
+## Baseline findings
 
-Awaiting the dependency-graph output from CI before any deletion.
+- Architecture boundaries: 202 source files passed
+- Dependency graph: 199 runtime source files scanned
+- Reachable from `src/main.tsx`: 195
+- Circular dependencies: none
+- Orphan candidates: 4
+
+Confirmed runtime orphans:
+
+1. `src/features/reports/components/ReportsTabs.tsx`
+   - Superseded by the Reports Center navigation and not imported by runtime code.
+2. `src/features/reports/components/TopProjectsPanel.tsx`
+   - Superseded by the current executive dashboard and not imported by runtime code.
+3. `src/features/reports/hooks/useReports.ts`
+   - Legacy compatibility re-export only; no runtime consumer remains.
+4. `src/features/reports/services/contractor-statement-pdf.service.ts`
+   - Superseded by `buildContractorStatement()` + `contractor-statement-renderer.service` in `useReportExport`.
+   - Its dedicated test file was removed with the dead API because it tested only that superseded service.
+
+## Cleanup applied
+
+Deleted:
+
+- `src/features/reports/components/ReportsTabs.tsx`
+- `src/features/reports/components/TopProjectsPanel.tsx`
+- `src/features/reports/hooks/useReports.ts`
+- `src/features/reports/services/contractor-statement-pdf.service.ts`
+- `src/features/reports/services/contractor-statement-pdf.service.test.ts`
+
+No business logic, UI behavior, database, SQL, RLS, or migrations were changed.
+
+## Final acceptance
+
+Pending a fresh full quality run after deletion:
+
+- Format
+- Lint
+- Architecture contract tests
+- Architecture boundaries
+- Dependency graph
+- Unit tests
+- E2E smoke tests
+- Production build
