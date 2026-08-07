@@ -9,7 +9,11 @@
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { ARABIC_FONT_NAME, registerArabicFont } from './pdf-font.service'
-import { prepareArabicText, prepareTableHeaders, prepareTableRow } from './arabic-text.service'
+import {
+  prepareArabicText,
+  prepareTableHeaders,
+  prepareTableRow,
+} from './arabic-text.service'
 import { BRAND, COMPANY_NAME } from '../config/pdf-brand.config'
 import { formatPdfDate } from './pdf-formatters'
 
@@ -79,7 +83,11 @@ function paymentBadgeColors(method: string): { bg: RGB; fg: RGB } {
   ) {
     return BRAND.badge.cheque
   }
-  if (value.includes('تحويل') || value.toLowerCase().includes('bank') || value.includes('بنك')) {
+  if (
+    value.includes('تحويل') ||
+    value.toLowerCase().includes('bank') ||
+    value.includes('بنك')
+  ) {
     return BRAND.badge.bank
   }
   return BRAND.badge.cash
@@ -120,7 +128,13 @@ function drawHeader(
   return 32
 }
 
-function drawInfoBar(doc: jsPDF, W: number, ML: number, y: number, items: TemplateInfoItem[]): number {
+function drawInfoBar(
+  doc: jsPDF,
+  W: number,
+  ML: number,
+  y: number,
+  items: TemplateInfoItem[],
+): number {
   if (items.length === 0) return y
 
   const contentW = W - ML * 2
@@ -142,17 +156,28 @@ function drawInfoBar(doc: jsPDF, W: number, ML: number, y: number, items: Templa
     doc.text(ar(item.label), cx, y + 6, { align: 'center' })
     doc.setFontSize(8.5)
     doc.setTextColor(...BRAND.textDark)
-    doc.text(ar(item.value), cx, y + 13, { align: 'center', maxWidth: cellW - 4 })
+    doc.text(ar(item.value), cx, y + 13, {
+      align: 'center',
+      maxWidth: cellW - 4,
+    })
   })
 
   return y + barH + 5
 }
 
 function drawDefaultInfoBar(doc: jsPDF, W: number, ML: number, y: number): number {
-  return drawInfoBar(doc, W, ML, y, [{ label: 'تاريخ التقرير', value: todayAr() }])
+  return drawInfoBar(doc, W, ML, y, [
+    { label: 'تاريخ التقرير', value: todayAr() },
+  ])
 }
 
-function drawKpiCards(doc: jsPDF, W: number, ML: number, y: number, kpis: TemplateKpi[]): number {
+function drawKpiCards(
+  doc: jsPDF,
+  W: number,
+  ML: number,
+  y: number,
+  kpis: TemplateKpi[],
+): number {
   if (kpis.length === 0) return y
 
   const contentW = W - ML * 2
@@ -180,7 +205,13 @@ function drawKpiCards(doc: jsPDF, W: number, ML: number, y: number, kpis: Templa
   return y + cardH + 5
 }
 
-function drawSectionTitle(doc: jsPDF, W: number, ML: number, y: number, title: string): number {
+function drawSectionTitle(
+  doc: jsPDF,
+  W: number,
+  ML: number,
+  y: number,
+  title: string,
+): number {
   if (!title) return y
   doc.setFont(ARABIC_FONT_NAME, 'normal')
   doc.setFontSize(8.5)
@@ -189,13 +220,22 @@ function drawSectionTitle(doc: jsPDF, W: number, ML: number, y: number, title: s
   return y + 7
 }
 
-function drawTable(doc: jsPDF, W: number, ML: number, y: number, table: TemplateTable): number {
+function drawTable(
+  doc: jsPDF,
+  W: number,
+  ML: number,
+  y: number,
+  table: TemplateTable,
+): number {
   const preparedHeaders = prepareTableHeaders(table.headers)
   const preparedRows = table.rows.map(prepareTableRow)
   const columnStyles: Record<number, object> = {}
 
   if (table.balanceCol !== undefined) {
-    columnStyles[table.balanceCol] = { textColor: BRAND.blue, fontStyle: 'bold' }
+    columnStyles[table.balanceCol] = {
+      textColor: BRAND.blue,
+      fontStyle: 'bold',
+    }
   }
 
   autoTable(doc, {
@@ -246,14 +286,25 @@ function drawTable(doc: jsPDF, W: number, ML: number, y: number, table: Template
       doc.setTextColor(...fg)
       doc.setFont(ARABIC_FONT_NAME, 'normal')
       doc.setFontSize(7)
-      doc.text(ar(method), x + width / 2, cellY + height / 2 + 1, { align: 'center' })
+      doc.text(ar(method), x + width / 2, cellY + height / 2 + 1, {
+        align: 'center',
+      })
     },
   })
 
-  return (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable?.finalY ?? y
+  return (
+    (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable
+      ?.finalY ?? y
+  )
 }
 
-function drawTotalBar(doc: jsPDF, W: number, ML: number, y: number, bar: TemplateTotalBar): number {
+function drawTotalBar(
+  doc: jsPDF,
+  W: number,
+  ML: number,
+  y: number,
+  bar: TemplateTotalBar,
+): number {
   const contentW = W - ML * 2
   const height = 18
 
@@ -278,7 +329,13 @@ function drawTotalBar(doc: jsPDF, W: number, ML: number, y: number, bar: Templat
   return y + height + 5
 }
 
-function drawNotes(doc: jsPDF, W: number, ML: number, y: number, notes: TemplateNotes): number {
+function drawNotes(
+  doc: jsPDF,
+  W: number,
+  ML: number,
+  y: number,
+  notes: TemplateNotes,
+): number {
   const contentW = W - ML * 2
   doc.setFont(ARABIC_FONT_NAME, 'normal')
   doc.setFontSize(7.5)
@@ -314,7 +371,8 @@ function drawSignatures(
 }
 
 function stampPageFooters(doc: jsPDF, W: number, H: number, ML: number): void {
-  const totalPages = (doc as jsPDF & { internal: { pages: unknown[] } }).internal.pages.length - 1
+  const totalPages =
+    (doc as jsPDF & { internal: { pages: unknown[] } }).internal.pages.length - 1
 
   for (let page = 1; page <= totalPages; page++) {
     doc.setPage(page)
@@ -329,7 +387,9 @@ function stampPageFooters(doc: jsPDF, W: number, H: number, ML: number): void {
     doc.setTextColor(...BRAND.textMid)
     doc.text(ar(`تاريخ الطباعة: ${todayAr()}`), ML, y)
     doc.text(ar(COMPANY_NAME), W / 2, y, { align: 'center' })
-    doc.text(ar(`صفحة ${page} من ${totalPages}`), W - ML, y, { align: 'right' })
+    doc.text(ar(`صفحة ${page} من ${totalPages}`), W - ML, y, {
+      align: 'right',
+    })
   }
 }
 
@@ -355,7 +415,13 @@ export async function renderPdfTemplate(input: PdfTemplateInput): Promise<jsPDF>
       doc.addPage()
       y = 12
     }
-    y = drawSectionTitle(doc, W, ML, y, input.tables.length > 1 ? table.title : '')
+    y = drawSectionTitle(
+      doc,
+      W,
+      ML,
+      y,
+      input.tables.length > 1 ? table.title : '',
+    )
     y = drawTable(doc, W, ML, y, table)
     y += 5
   }
@@ -396,9 +462,18 @@ export async function renderPdfTemplate(input: PdfTemplateInput): Promise<jsPDF>
   return doc
 }
 
-export async function downloadPdfTemplate(input: PdfTemplateInput, filename: string): Promise<void> {
+export async function downloadPdfTemplate(
+  input: PdfTemplateInput,
+  filename: string,
+): Promise<void> {
   const doc = await renderPdfTemplate(input)
   doc.save(filename)
 }
 
-export { drawHeader, drawInfoBar, drawKpiCards, drawSectionTitle, stampPageFooters }
+export {
+  drawHeader,
+  drawInfoBar,
+  drawKpiCards,
+  drawSectionTitle,
+  stampPageFooters,
+}
