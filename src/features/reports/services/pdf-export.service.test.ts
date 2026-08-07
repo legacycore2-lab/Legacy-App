@@ -252,10 +252,40 @@ describe('pdf payload header fields', () => {
     )
   })
 
-  it('journal payload does not include data from other tabs', async () => {
+  it('journal payload contains journal rows and financial totals', async () => {
     const { buildJournalPdfPayload } = await import('./pdf-payload.service')
     const payload = buildJournalPdfPayload(
-      { allRows: [], contractors: [], paymentMethods: [], projectOptions: [] },
+      {
+        allRows: [
+          {
+            id: 'income-1',
+            date: '2026-08-01',
+            dateFormatted: '01/08/2026',
+            entryType: 'income',
+            amount: 1_000,
+            contractorName: '—',
+            paymentMethod: 'تحويل بنكي',
+            projectId: 'project-1',
+            projectName: 'مشروع 1',
+            description: 'دفعة عميل',
+          },
+          {
+            id: 'expense-1',
+            date: '2026-08-02',
+            dateFormatted: '02/08/2026',
+            entryType: 'expense',
+            amount: 400,
+            contractorName: 'مقاول 1',
+            paymentMethod: 'نقدي',
+            projectId: 'project-1',
+            projectName: 'مشروع 1',
+            description: 'مصروف موقع',
+          },
+        ],
+        contractors: ['مقاول 1'],
+        paymentMethods: ['تحويل بنكي', 'نقدي'],
+        projectOptions: [{ id: 'project-1', name: 'مشروع 1' }],
+      },
       {
         query: 'test',
         dateFrom: '',
@@ -265,10 +295,22 @@ describe('pdf payload header fields', () => {
         contractorName: '',
         paymentMethod: '',
       },
-      42,
+      2,
     )
+
     expect(payload.activeTab).toBe('journal')
-    expect(payload.tables).toHaveLength(0)
-    expect(payload.kpis[0]).toMatchObject({ label: 'عدد القيود', value: '42' })
+    expect(payload.tables).toHaveLength(1)
+    expect(payload.tables[0].title).toBe('تفاصيل القيود')
+    expect(payload.tables[0].rows).toHaveLength(2)
+    expect(payload.tables[0].rows[0]).toContain('دفعة عميل')
+    expect(payload.tables[0].rows[1]).toContain('مصروف موقع')
+    expect(payload.kpis).toEqual(
+      expect.arrayContaining([
+        { label: 'عدد القيود', value: '2' },
+        { label: 'إجمالي الإيرادات', value: '1,000 ج.م' },
+        { label: 'إجمالي المصروفات', value: '400 ج.م' },
+        { label: 'الصافي', value: '600 ج.م' },
+      ]),
+    )
   })
 })

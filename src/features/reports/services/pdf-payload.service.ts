@@ -110,14 +110,44 @@ export function buildJournalPdfPayload(
   if (filters.entryType !== 'all') activeFilters.push({ label: 'النوع', value: filters.entryType })
   if (filters.query) activeFilters.push({ label: 'بحث', value: filters.query })
 
+  const totalIncome = data.allRows.reduce(
+    (sum, row) => sum + (row.entryType === 'income' ? row.amount : 0),
+    0,
+  )
+  const totalExpense = data.allRows.reduce(
+    (sum, row) => sum + (row.entryType === 'expense' ? row.amount : 0),
+    0,
+  )
+  const net = totalIncome - totalExpense
+
   return {
     reportTitle: 'تقرير القيود اليومية',
     companyName: COMPANY,
     exportDate: todayLabel(),
     activeTab: 'journal',
     activeFilters,
-    kpis: [{ label: 'عدد القيود', value: String(filteredCount) }],
-    tables: [],
+    kpis: [
+      { label: 'عدد القيود', value: String(filteredCount) },
+      { label: 'إجمالي الإيرادات', value: formatMoneyInteger(totalIncome) },
+      { label: 'إجمالي المصروفات', value: formatMoneyInteger(totalExpense) },
+      { label: 'الصافي', value: formatMoneyInteger(net) },
+    ],
+    tables: [
+      {
+        title: 'تفاصيل القيود',
+        headers: ['التاريخ', 'المشروع', 'البيان', 'المقاول', 'طريقة الدفع', 'النوع', 'إيراد', 'مصروف'],
+        rows: data.allRows.map((row) => [
+          row.dateFormatted || row.date,
+          row.projectName,
+          row.description,
+          row.contractorName,
+          row.paymentMethod,
+          row.entryType === 'income' ? 'إيراد' : row.entryType === 'expense' ? 'مصروف' : 'غير محدد',
+          row.entryType === 'income' ? formatMoneyInteger(row.amount) : '—',
+          row.entryType === 'expense' ? formatMoneyInteger(row.amount) : '—',
+        ]),
+      },
+    ],
   }
 }
 
