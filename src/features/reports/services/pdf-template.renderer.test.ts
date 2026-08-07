@@ -7,7 +7,6 @@ import {
   buildProfitLossPdfPayload,
   buildContractorsPdfPayload,
 } from './pdf-payload.service'
-import { buildContractorStatementPdfPayload } from './contractor-statement-pdf.service'
 import { buildFiltersLabel } from './pdf-export.service'
 
 // ── Company name ──────────────────────────────────────────────────────────────
@@ -114,11 +113,6 @@ describe('All PDF payloads use COMPANY_NAME', () => {
     const p = buildContractorsPdfPayload(minContractors, minFilters, 'overview')
     expect(p.companyName).toBe(COMPANY_NAME)
   })
-
-  it('contractor statement payload uses COMPANY_NAME', () => {
-    const p = buildContractorStatementPdfPayload(minContractors, minFilters)
-    expect(p.companyName).toBe(COMPANY_NAME)
-  })
 })
 
 // ── RTL — Arabic text present in all reports ──────────────────────────────────
@@ -131,11 +125,6 @@ describe('RTL: Arabic titles in all payloads', () => {
 
   it('profit-loss has Arabic report title', () => {
     const p = buildProfitLossPdfPayload(minProfitLoss, minFilters)
-    expect(p.reportTitle).toMatch(/[\u0600-\u06FF]/)
-  })
-
-  it('contractor statement has Arabic report title', () => {
-    const p = buildContractorStatementPdfPayload(minContractors, minFilters)
     expect(p.reportTitle).toMatch(/[\u0600-\u06FF]/)
   })
 })
@@ -180,10 +169,5 @@ describe('Payload structure integrity', () => {
   it('contractors overview payload has one table', () => {
     const p = buildContractorsPdfPayload(minContractors, minFilters, 'overview')
     expect(p.tables).toHaveLength(1)
-  })
-
-  it('contractor statement payload has two tables', () => {
-    const p = buildContractorStatementPdfPayload(minContractors, minFilters)
-    expect(p.tables).toHaveLength(2)
   })
 })

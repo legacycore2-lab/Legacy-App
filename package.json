@@ -16,7 +16,7 @@
     "lint": "eslint . --max-warnings 0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "architecture:check": "node scripts/check-architecture.mjs",
+    "architecture:check": "node scripts/check-architecture.mjs && node scripts/check-dependency-graph.mjs",
     "architecture:test": "node --test scripts/check-architecture.contract.mjs",
     "quality": "npm run format:check && npm run lint && npm run architecture:test && npm run architecture:check && npm test && npm run build"
   },
