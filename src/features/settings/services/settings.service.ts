@@ -1,4 +1,9 @@
-import { findSystemSettings, updateSystemSettings } from '../repositories/settings.repository'
+import {
+  findSettingsAudit,
+  findSystemSettings,
+  updateSystemSettings,
+  uploadCompanyLogo,
+} from '../repositories/settings.repository'
 import type { SystemSettings } from '../types/settings.types'
 
 export const defaultSettings: SystemSettings = {
@@ -64,4 +69,12 @@ export async function saveSystemSettings(settings: SystemSettings): Promise<void
   void _
   void __
   await updateSystemSettings(payload)
+}
+
+export const getSettingsAudit = findSettingsAudit
+export async function saveCompanyLogo(file: File): Promise<string> {
+  if (!['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'].includes(file.type))
+    throw new Error('صيغة الشعار غير مدعومة.')
+  if (file.size > 2 * 1024 * 1024) throw new Error('حجم الشعار يجب ألا يتجاوز 2 ميجابايت.')
+  return uploadCompanyLogo(file)
 }

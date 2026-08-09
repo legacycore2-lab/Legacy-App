@@ -9,7 +9,7 @@ import type {
 } from '../types/advances.types'
 
 const ADVANCE_FIELDS =
-  'id,advance_number,holder_name,holder_title,project_names,issue_date,due_date,purpose,amount,spent_amount,returned_amount'
+  'id,advance_number,advance_code,holder_name,holder_title,project_names,issue_date,due_date,purpose,amount,spent_amount,returned_amount'
 
 export async function findAdvances(): Promise<AdvanceRow[]> {
   const { data, error } = await getSupabaseClient()

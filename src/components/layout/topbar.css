@@ -255,6 +255,18 @@
 .popover-heading small {
   color: var(--gold);
 }
+.notification-item {
+  display: grid;
+  gap: 4px;
+  padding: 11px 9px;
+  border-bottom: 1px solid var(--border);
+}
+.notification-item:last-child {
+  border-bottom: 0;
+}
+.notification-item small {
+  color: var(--muted);
+}
 .topbar-popover button {
   width: 100%;
   display: flex;

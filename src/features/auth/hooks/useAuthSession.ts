@@ -48,5 +48,31 @@ export function useAuthSession(): AuthContextValue {
     setUser(null)
   }, [])
 
+  useEffect(() => {
+    if (!user) return
+
+    let timer: number | undefined
+    let active = true
+
+    const reset = () => {
+      if (timer) window.clearTimeout(timer)
+
+      void authService.getSessionTimeoutMinutes().then((minutes) => {
+        if (!active) return
+        timer = window.setTimeout(() => void signOut(), minutes * 60_000)
+      })
+    }
+
+    const events = ['click', 'keydown', 'pointermove'] as const
+    events.forEach((event) => window.addEventListener(event, reset, { passive: true }))
+    reset()
+
+    return () => {
+      active = false
+      if (timer) window.clearTimeout(timer)
+      events.forEach((event) => window.removeEventListener(event, reset))
+    }
+  }, [signOut, user])
+
   return useMemo(() => ({ user, isLoading, signIn, signOut }), [isLoading, signIn, signOut, user])
 }

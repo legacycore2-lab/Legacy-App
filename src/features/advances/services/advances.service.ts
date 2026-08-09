@@ -28,7 +28,7 @@ export function mapAdvance(row: AdvanceRow, today = new Date()): Advance {
 
   return {
     id: row.id,
-    number: `ADV-${String(row.advance_number).padStart(4, '0')}`,
+    number: row.advance_code,
     holderName: row.holder_name,
     holderTitle: row.holder_title ?? 'موظف',
     projectNames: row.project_names?.length ? row.project_names : ['بدون مشروع'],

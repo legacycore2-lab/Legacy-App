@@ -1,23 +1,33 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toErrorMessage } from '../../../shared/errors/app-error'
-import { getSystemSettings, saveSystemSettings } from '../services/settings.service'
+import {
+  getSettingsAudit,
+  getSystemSettings,
+  saveCompanyLogo,
+  saveSystemSettings,
+} from '../services/settings.service'
 
 export function useSettings() {
   const client = useQueryClient()
   const query = useQuery({ queryKey: ['system-settings'], queryFn: getSystemSettings })
-  const mutation = useMutation({
+  const audit = useQuery({ queryKey: ['settings-audit'], queryFn: getSettingsAudit })
+  const saveMutation = useMutation({
     mutationFn: saveSystemSettings,
-    onSuccess: () => client.invalidateQueries({ queryKey: ['system-settings'] }),
+    onSuccess: () =>
+      Promise.all([
+        client.invalidateQueries({ queryKey: ['system-settings'] }),
+        client.invalidateQueries({ queryKey: ['settings-audit'] }),
+      ]),
   })
+  const logoMutation = useMutation({ mutationFn: saveCompanyLogo })
+  const failure = query.error ?? saveMutation.error ?? logoMutation.error
   return {
     settings: query.data,
+    audit: audit.data ?? [],
     isLoading: query.isLoading,
-    error: query.error
-      ? toErrorMessage(query.error, 'تعذر تحميل الإعدادات.')
-      : mutation.error
-        ? toErrorMessage(mutation.error, 'تعذر حفظ الإعدادات.')
-        : '',
-    isSaving: mutation.isPending,
-    save: mutation.mutateAsync,
+    error: failure ? toErrorMessage(failure, 'تعذر تنفيذ العملية.') : '',
+    isSaving: saveMutation.isPending || logoMutation.isPending,
+    save: saveMutation.mutateAsync,
+    uploadLogo: logoMutation.mutateAsync,
   }
 }

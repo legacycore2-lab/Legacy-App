@@ -1,4 +1,4 @@
-export type SettingsTab = 'general' | 'financial' | 'documents' | 'notifications' | 'security'
+export type SettingsTab = 'general' | 'financial' | 'documents' | 'notifications' | 'security' | 'audit'
 
 export interface SystemSettings {
   companyLegalName: string
@@ -38,4 +38,10 @@ export interface SystemSettingsRow {
   settings: Omit<SystemSettings, 'updatedAt' | 'updatedByName'>
   updated_at: string
   updated_by_name: string | null
+}
+export interface SettingsAuditEntry {
+  id: string
+  actorName: string
+  changedKeys: string[]
+  createdAt: string
 }

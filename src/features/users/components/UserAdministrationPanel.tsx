@@ -28,7 +28,7 @@ export function UserAdministrationPanel(props: Props) {
   const [tab, setTab] = useState<Tab>('information')
 
   async function changePassword() {
-    const password = window.prompt('أدخل كلمة مرور مؤقتة جديدة (8 أحرف على الأقل)')
+    const password = window.prompt('أدخل كلمة مرور مؤقتة جديدة (10 أحرف تشمل حرفًا ورقمًا ورمزًا)')
     if (password) await props.onPasswordChange(password)
   }
 

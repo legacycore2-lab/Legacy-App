@@ -1,5 +1,15 @@
 import { useState } from 'react'
-import { Bell, Building2, Calculator, FileText, Globe2, Save, ShieldCheck } from 'lucide-react'
+import {
+  Bell,
+  Building2,
+  Calculator,
+  FileClock,
+  FileText,
+  Globe2,
+  Save,
+  ShieldCheck,
+  Upload,
+} from 'lucide-react'
 import { useSettings } from '../hooks/useSettings'
 import type { SettingsTab, SystemSettings } from '../types/settings.types'
 import '../styles/settings.css'
@@ -10,6 +20,7 @@ const tabs: Array<{ id: SettingsTab; label: string; icon: typeof Building2 }> = 
   { id: 'documents', label: 'المستندات', icon: FileText },
   { id: 'notifications', label: 'الإشعارات', icon: Bell },
   { id: 'security', label: 'الأمان', icon: ShieldCheck },
+  { id: 'audit', label: 'سجل التغييرات', icon: FileClock },
 ]
 const Field = ({
   label,
@@ -44,7 +55,7 @@ export function SettingsPage() {
   const [tab, setTab] = useState<SettingsTab>('general')
   const [draft, setDraft] = useState<SystemSettings | null>(null)
   const [saved, setSaved] = useState(false)
-  const { settings, isLoading, error, isSaving, save } = useSettings()
+  const { settings, audit, isLoading, error, isSaving, save, uploadLogo } = useSettings()
   const form = draft ?? settings
   const change = <K extends keyof SystemSettings>(key: K, value: SystemSettings[K]) => {
     setDraft((current) => ({ ...(current ?? settings!), [key]: value }))
@@ -147,16 +158,20 @@ export function SettingsPage() {
                 <section className="settings-panel">
                   <h2>هوية النظام</h2>
                   <div className="settings-logo">
-                    <Building2 size={44} />
+                    {form.logoUrl ? <img src={form.logoUrl} alt="شعار الشركة" /> : <Building2 size={44} />}
                     <span>شعار الشركة</span>
                   </div>
-                  <Field label="رابط الشعار">
+                  <label className="settings-upload">
+                    <Upload size={16} /> رفع شعار من الجهاز
                     <input
-                      dir="ltr"
-                      value={form.logoUrl}
-                      onChange={(e) => change('logoUrl', e.target.value)}
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0]
+                        if (file) change('logoUrl', await uploadLogo(file))
+                      }}
                     />
-                  </Field>
+                  </label>
                   <Field label="اسم النظام (عربي)">
                     <input
                       value={form.systemNameAr}
@@ -332,6 +347,30 @@ export function SettingsPage() {
                 </div>
               </div>
               <p className="settings-note">إدارة المستخدمين والصلاحيات التفصيلية متاحة من صفحة المستخدمين.</p>
+            </section>
+          )}
+          {tab === 'audit' && (
+            <section className="settings-panel settings-tab-panel">
+              <h2>
+                <FileClock /> سجل التغييرات
+              </h2>
+              <div className="settings-audit">
+                {audit.length === 0 ? (
+                  <p className="settings-note">لا توجد تغييرات مسجلة بعد.</p>
+                ) : (
+                  audit.map((entry) => (
+                    <article key={entry.id}>
+                      <div>
+                        <strong>{entry.actorName}</strong>
+                        <span>{new Date(entry.createdAt).toLocaleString('ar-EG')}</span>
+                      </div>
+                      <p>
+                        تم تعديل {entry.changedKeys.length} إعداد: {entry.changedKeys.join('، ')}
+                      </p>
+                    </article>
+                  ))
+                )}
+              </div>
             </section>
           )}
           <footer className="settings-savebar">
