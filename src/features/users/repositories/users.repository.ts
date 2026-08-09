@@ -1,5 +1,11 @@
 import { getSupabaseClient } from '../../../lib/supabase/client'
-import type { CreateUserInput, ManagedUser, UpdateUserInput, UserStatus } from '../types/users.types'
+import type {
+  CreateUserInput,
+  ManagedUser,
+  UpdateUserInput,
+  UserAdministrationDetails,
+  UserStatus,
+} from '../types/users.types'
 
 const serverMessages: Record<string, string> = {
   'Administrator access required': 'تحتاج إلى صلاحية مدير لتنفيذ هذا الإجراء.',
@@ -45,4 +51,16 @@ export function updateUser(input: UpdateUserInput): Promise<{ ok: true }> {
 
 export function updateUserStatus(id: string, status: UserStatus): Promise<{ ok: true }> {
   return invoke('PATCH', { id, status })
+}
+
+export function findUserAdministrationDetails(id: string): Promise<UserAdministrationDetails> {
+  return invoke('POST', { action: 'details', id })
+}
+
+export function saveUserProjects(id: string, projectIds: string[]): Promise<{ ok: true }> {
+  return invoke('PATCH', { action: 'projects', id, projectIds })
+}
+
+export function setTemporaryPassword(id: string, password: string): Promise<{ ok: true }> {
+  return invoke('POST', { action: 'reset_password', id, password })
 }

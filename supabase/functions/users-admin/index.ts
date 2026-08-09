@@ -43,6 +43,16 @@ Deno.serve(async (request) => {
 
   const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } })
 
+  async function audit(targetUserId: string, action: string, details: Record<string, unknown> = {}) {
+    const { error } = await admin.from('user_admin_audit').insert({
+      actor_id: caller.id,
+      target_user_id: targetUserId,
+      action,
+      details,
+    })
+    if (error) throw error
+  }
+
   try {
     if (request.method === 'GET') {
       const { data, error } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 })
@@ -63,6 +73,41 @@ Deno.serve(async (request) => {
     }
 
     const payload = await request.json()
+    if (request.method === 'POST' && payload.action === 'details' && payload.id) {
+      const [projectsResult, accessResult, activityResult] = await Promise.all([
+        admin.from('projects').select('id,name').order('name'),
+        admin.from('user_project_access').select('project_id').eq('user_id', payload.id),
+        admin
+          .from('user_admin_audit')
+          .select('id,action,details,created_at')
+          .eq('target_user_id', payload.id)
+          .order('created_at', { ascending: false })
+          .limit(50),
+      ])
+      if (projectsResult.error) throw projectsResult.error
+      if (accessResult.error) throw accessResult.error
+      if (activityResult.error) throw activityResult.error
+      return json({
+        projects: projectsResult.data.map((project) => ({
+          ...project,
+          assigned: accessResult.data.some((access) => access.project_id === project.id),
+        })),
+        activity: activityResult.data,
+      })
+    }
+
+    if (request.method === 'POST' && payload.action === 'reset_password' && payload.id) {
+      if (typeof payload.password !== 'string' || payload.password.length < 8) {
+        return json({ error: 'Password must contain at least 8 characters' }, 400)
+      }
+      const { error } = await admin.auth.admin.updateUserById(payload.id, {
+        password: payload.password,
+      })
+      if (error) throw error
+      await audit(payload.id, 'password_reset')
+      return json({ ok: true })
+    }
+
     if (request.method === 'POST') {
       if (!payload.email || !payload.password || !payload.displayName || !isRole(payload.role)) {
         return json({ error: 'Invalid user data' }, 400)
@@ -78,6 +123,16 @@ Deno.serve(async (request) => {
         user_metadata: { full_name: String(payload.displayName).trim(), phone: payload.phone || null },
       })
       if (error) throw error
+      const { error: scopeError } = await admin.from('user_project_access_scope').insert({
+        user_id: data.user.id,
+        restricted: true,
+        updated_by: caller.id,
+      })
+      if (scopeError) {
+        await admin.auth.admin.deleteUser(data.user.id)
+        throw scopeError
+      }
+      await audit(data.user.id, 'user_created', { role: payload.role })
       return json({ id: data.user.id }, 201)
     }
 
@@ -88,6 +143,35 @@ Deno.serve(async (request) => {
         return json({ error: 'Only a super administrator can modify this account' }, 403)
       }
       const attributes: Record<string, unknown> = {}
+      if (payload.action === 'projects') {
+        const projectIds = Array.isArray(payload.projectIds)
+          ? payload.projectIds.filter((id): id is string => typeof id === 'string')
+          : []
+        const { error: deleteError } = await admin
+          .from('user_project_access')
+          .delete()
+          .eq('user_id', payload.id)
+        if (deleteError) throw deleteError
+        if (projectIds.length) {
+          const { error: insertError } = await admin.from('user_project_access').insert(
+            projectIds.map((projectId) => ({
+              user_id: payload.id,
+              project_id: projectId,
+              granted_by: caller.id,
+            })),
+          )
+          if (insertError) throw insertError
+        }
+        const { error: scopeError } = await admin.from('user_project_access_scope').upsert({
+          user_id: payload.id,
+          restricted: true,
+          updated_by: caller.id,
+          updated_at: new Date().toISOString(),
+        })
+        if (scopeError) throw scopeError
+        await audit(payload.id, 'projects_updated', { projectIds })
+        return json({ ok: true })
+      }
       if (payload.displayName !== undefined || payload.phone !== undefined) {
         attributes.user_metadata = {
           full_name: String(payload.displayName ?? '').trim(),
@@ -114,6 +198,10 @@ Deno.serve(async (request) => {
       }
       const { error } = await admin.auth.admin.updateUserById(payload.id, attributes)
       if (error) throw error
+      await audit(payload.id, payload.status !== undefined ? 'status_changed' : 'user_updated', {
+        role: payload.role,
+        status: payload.status,
+      })
       return json({ ok: true })
     }
 

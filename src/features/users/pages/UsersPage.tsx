@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { useUsers } from '../hooks/useUsers'
 import { UserFormDialog } from '../components/UserFormDialog'
+import { UserAdministrationPanel } from '../components/UserAdministrationPanel'
 import type { UserRole } from '../types/users.types'
 import { useState } from 'react'
 import { useCurrentUser } from '../../../shared/hooks/useCurrentUser'
@@ -42,6 +43,11 @@ export function UsersPage() {
     changeUserStatus,
     isSaving,
     mutationError,
+    administrationDetails,
+    effectivePermissions,
+    saveProjects,
+    changePassword,
+    isDetailsLoading,
   } = useUsers()
   const formUser =
     formUserId && formUserId !== 'new' ? users.find((user) => user.id === formUserId) : undefined
@@ -207,38 +213,17 @@ export function UsersPage() {
                 ×
               </button>
             </div>
-            <div className="users-drawer__tabs">
-              <button className="is-active">المعلومات</button>
-              <button disabled>الصلاحيات</button>
-              <button disabled>المشاريع</button>
-              <button disabled>النشاط</button>
-            </div>
-            <div className="users-detail-card">
-              <h3>المعلومات الأساسية</h3>
-              <Detail label="الاسم الكامل" value={selectedUser.displayName} />
-              <Detail label="البريد الإلكتروني" value={selectedUser.email} />
-              <Detail label="رقم الجوال" value={selectedUser.phone ?? 'غير مسجل'} />
-              <Detail label="تاريخ الإنشاء" value={selectedUser.createdAt} />
-              <Detail label="آخر تسجيل دخول" value={selectedUser.lastLoginAt ?? '—'} />
-              <Detail label="الدور" value={roleLabels[selectedUser.role]} />
-            </div>
-            <div className="users-detail-card users-account-actions">
-              <h3>إجراءات الحساب</h3>
-              <button type="button" onClick={() => setFormUserId(selectedUser.id)}>
-                تعديل البيانات
-              </button>
-              <button type="button" disabled>
-                إعادة تعيين كلمة المرور
-              </button>
-              <button
-                type="button"
-                disabled={isSaving}
-                className="is-danger"
-                onClick={() => void changeUserStatus(selectedUser)}
-              >
-                {selectedUser.status === 'active' ? 'إيقاف المستخدم' : 'تفعيل المستخدم'}
-              </button>
-            </div>
+            <UserAdministrationPanel
+              user={selectedUser}
+              details={administrationDetails}
+              permissions={effectivePermissions}
+              isLoading={isDetailsLoading}
+              isSaving={isSaving}
+              onEdit={() => setFormUserId(selectedUser.id)}
+              onStatusChange={() => changeUserStatus(selectedUser)}
+              onProjectsSave={(projectIds) => saveProjects(selectedUser.id, projectIds)}
+              onPasswordChange={(password) => changePassword(selectedUser.id, password)}
+            />
           </aside>
         )}
       </div>
@@ -279,14 +264,5 @@ function Kpi({
         <strong>{value}</strong>
       </div>
     </article>
-  )
-}
-
-function Detail({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="users-detail-row">
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </div>
   )
 }
