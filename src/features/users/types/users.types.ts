@@ -31,3 +31,18 @@ export type UsersViewModel = {
   filteredUsers: ManagedUser[]
   summary: UsersSummary
 }
+
+export type CreateUserInput = {
+  displayName: string
+  email: string
+  password: string
+  phone?: string
+  role: UserRole
+}
+
+export type UpdateUserInput = {
+  id: string
+  displayName: string
+  phone?: string
+  role: UserRole
+}
