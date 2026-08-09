@@ -1,14 +1,14 @@
 .advances-page {
   display: grid;
-  gap: var(--space-4);
+  gap: 1rem;
   min-width: 0;
-  color: var(--color-text-primary);
+  color: var(--text);
 }
 .advances-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: 1rem;
 }
 .advances-header h1 {
   margin: 0.25rem 0;
@@ -16,11 +16,11 @@
 }
 .advances-header p,
 .muted {
-  color: var(--color-text-secondary);
+  color: var(--muted);
 }
 .advances-eyebrow {
   font-size: 0.78rem;
-  color: var(--color-accent-gold);
+  color: var(--gold);
 }
 .advance-primary,
 .advance-secondary {
@@ -34,13 +34,13 @@
 }
 .advance-primary {
   border: 0;
-  background: var(--color-primary);
-  color: var(--color-on-primary);
+  background: var(--primary);
+  color: #fff;
 }
 .advance-secondary {
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-text-primary);
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+  color: var(--text);
 }
 .advance-primary:disabled,
 .advance-secondary:disabled {
@@ -51,27 +51,27 @@
 .advances-error {
   padding: 0.8rem 1rem;
   border-radius: var(--radius-md);
-  background: var(--color-warning-soft);
-  border: 1px solid var(--color-border);
+  background: var(--gold-soft);
+  border: 1px solid var(--border);
 }
 .advances-error {
-  background: var(--color-danger-soft);
-  color: var(--color-danger);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger);
 }
 .advance-metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-3);
+  gap: 0.75rem;
 }
 .advance-metrics article,
 .advances-list,
 .advance-details {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
 }
 .advance-metrics article {
-  padding: var(--space-4);
+  padding: 1rem;
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 0.35rem 0.7rem;
@@ -79,23 +79,23 @@
 }
 .advance-metrics svg {
   grid-row: 1/4;
-  color: var(--color-primary);
+  color: var(--primary);
 }
 .advance-metrics span,
 .advance-metrics small {
-  color: var(--color-text-secondary);
+  color: var(--muted);
 }
 .advance-metrics strong {
   font-size: 1.25rem;
 }
 .advance-metrics .is-danger strong,
 .advance-metrics .is-danger svg {
-  color: var(--color-danger);
+  color: var(--danger);
 }
 .advances-workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 19rem;
-  gap: var(--space-3);
+  gap: 0.75rem;
   align-items: start;
   min-width: 0;
 }
@@ -107,17 +107,17 @@
   display: grid;
   grid-template-columns: minmax(12rem, 1fr) 10rem 11rem;
   gap: 0.6rem;
-  padding: var(--space-3);
-  border-bottom: 1px solid var(--color-border);
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border);
 }
 .advances-filters input,
 .advances-filters select {
   min-width: 0;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 0.65rem 0.75rem;
-  background: var(--color-surface-muted);
-  color: var(--color-text-primary);
+  background: var(--surface-soft);
+  color: var(--text);
   font: inherit;
 }
 .advances-table-wrap {
@@ -133,59 +133,59 @@
 .advances-list td {
   padding: 0.8rem;
   text-align: right;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--border);
 }
 .advances-list th {
-  color: var(--color-text-secondary);
+  color: var(--muted);
   font-weight: 500;
-  background: var(--color-surface-muted);
+  background: var(--surface-soft);
 }
 .advances-list tbody tr {
   cursor: pointer;
 }
 .advances-list tbody tr:hover,
 .advances-list tbody tr.is-selected {
-  background: var(--color-primary-soft);
+  background: var(--green-soft);
 }
 .advances-list td small {
   display: block;
-  color: var(--color-text-secondary);
+  color: var(--muted);
   margin-top: 0.2rem;
 }
 .advances-empty {
   text-align: center !important;
-  color: var(--color-text-secondary);
+  color: var(--muted);
   padding: 2rem !important;
 }
 .advance-status {
   display: inline-block;
   padding: 0.25rem 0.55rem;
   border-radius: 999px;
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
+  background: var(--green-soft);
+  color: var(--primary);
 }
 .advance-status--overdue {
-  background: var(--color-danger-soft);
-  color: var(--color-danger);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger);
 }
 .advance-status--settled {
-  background: var(--color-surface-muted);
-  color: var(--color-text-secondary);
+  background: var(--surface-soft);
+  color: var(--muted);
 }
 .advance-details {
-  padding: var(--space-4);
+  padding: 1rem;
   display: grid;
-  gap: var(--space-3);
+  gap: 0.75rem;
 }
 .advance-details__head {
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.75rem;
 }
 .advance-details__head span,
 .advance-details__head p,
 .advance-details__remaining span,
 .advance-details .muted {
-  color: var(--color-text-secondary);
+  color: var(--muted);
   font-size: 0.8rem;
 }
 .advance-details__head h2 {
@@ -194,19 +194,19 @@
 .advance-details__remaining strong {
   display: block;
   font-size: 1.45rem;
-  color: var(--color-accent-gold);
+  color: var(--gold);
   margin-top: 0.35rem;
 }
 .advance-progress {
   height: 0.5rem;
   border-radius: 999px;
   overflow: hidden;
-  background: var(--color-surface-muted);
+  background: var(--surface-soft);
 }
 .advance-progress span {
   display: block;
   height: 100%;
-  background: var(--color-primary);
+  background: var(--primary);
 }
 .advance-facts {
   display: grid;
@@ -216,11 +216,11 @@
 }
 .advance-facts div {
   padding: 0.7rem;
-  background: var(--color-surface-muted);
+  background: var(--surface-soft);
   border-radius: var(--radius-md);
 }
 .advance-facts dt {
-  color: var(--color-text-secondary);
+  color: var(--muted);
   font-size: 0.75rem;
 }
 .advance-facts dd {
@@ -235,7 +235,7 @@
   place-items: center;
   text-align: center;
   min-height: 14rem;
-  color: var(--color-text-secondary);
+  color: var(--muted);
 }
 @media (max-width: 1100px) {
   .advance-metrics {
@@ -278,7 +278,7 @@
 .advance-project-tags span {
   padding: 0.25rem 0.5rem;
   border-radius: 999px;
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
+  background: var(--green-soft);
+  color: var(--primary);
   font-size: 0.75rem;
 }
