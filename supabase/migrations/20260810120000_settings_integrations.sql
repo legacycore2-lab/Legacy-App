@@ -67,7 +67,6 @@ as
 select
   a.id,
   a.advance_number,
-  coalesce(nullif(settings.settings ->> 'advancePrefix', ''), 'ADV') || '-' || lpad(a.advance_number::text, 4, '0') as advance_code,
   a.holder_name,
   a.holder_title,
   a.issue_date,
@@ -76,7 +75,8 @@ select
   a.amount,
   a.spent_amount,
   a.returned_amount,
-  coalesce(array_agg(p.name order by p.name) filter (where p.id is not null), array[]::text[]) as project_names
+  coalesce(array_agg(p.name order by p.name) filter (where p.id is not null), array[]::text[]) as project_names,
+  coalesce(nullif(settings.settings ->> 'advancePrefix', ''), 'ADV') || '-' || lpad(a.advance_number::text, 4, '0') as advance_code
 from public.advances a
 left join public.advance_projects ap on ap.advance_id = a.id
 left join public.projects p on p.id = ap.project_id
