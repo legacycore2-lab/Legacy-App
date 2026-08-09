@@ -132,3 +132,5 @@ export type JournalReportViewModel = {
 // ─── Tab type ─────────────────────────────────────────────────────────────────
 
 export type ReportsTab = 'executive' | 'projects' | 'journal' | 'insights'
+
+export type TabularRow = Record<string, string | number | boolean | null>

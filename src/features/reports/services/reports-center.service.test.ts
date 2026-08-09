@@ -14,10 +14,15 @@ describe('reports center catalogue', () => {
       'executive',
       'profit-loss',
       'projects',
+      'project-comparison',
+      'profitable-projects',
+      'loss-making-projects',
       'journal',
       'contractor-statement',
       'contractor-payments',
       'top-contractors',
+      'contract-values',
+      'income-expense',
       'insights',
     ])
   })
