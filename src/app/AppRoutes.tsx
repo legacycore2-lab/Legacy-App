@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import { AccountsPage } from '../features/accounts/pages/AccountsPage'
+import { AdvancesPage } from '../features/advances/pages/AdvancesPage'
 import {
   ProtectedRoute,
   PublicOnlyRoute,
@@ -36,13 +37,7 @@ export function AppRoutes() {
           <Route path="/journal" element={secured('/journal', <JournalPage />)} />
           <Route path="/accounts" element={secured('/accounts', <AccountsPage />)} />
           <Route path="/banks" element={secured('/banks', <CashBanksPage />)} />
-          <Route
-            path="/advances"
-            element={secured(
-              '/advances',
-              <PlaceholderPage title="العهد" description="متابعة العهد المفتوحة والمصروف والمتبقي." />,
-            )}
-          />
+          <Route path="/advances" element={secured('/advances', <AdvancesPage />)} />
           <Route path="/contractors" element={secured('/contractors', <ContractorsPage />)} />
           <Route path="/reports" element={secured('/reports', <ReportsPage />)} />
           <Route path="/users" element={secured('/users', <UsersPage />)} />
