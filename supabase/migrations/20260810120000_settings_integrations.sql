@@ -47,12 +47,18 @@ create policy company_assets_public_read on storage.objects for select using(buc
 create policy company_assets_admin_insert on storage.objects for insert to authenticated with check(bucket_id='company-assets' and coalesce((select auth.jwt())->'app_metadata'->>'role','viewer') in ('super_admin','admin'));
 create policy company_assets_admin_update on storage.objects for update to authenticated using(bucket_id='company-assets' and coalesce((select auth.jwt())->'app_metadata'->>'role','viewer') in ('super_admin','admin'));
 
-create or replace function public.apply_configured_document_numbering() returns trigger language plpgsql security definer set search_path=public as $$
+create or replace function public.apply_configured_project_numbering() returns trigger language plpgsql security definer set search_path=public as $$
 declare v_settings jsonb; v_prefix text;
 begin
   select settings into v_settings from public.system_settings where id='default';
-  if tg_table_name='projects' and nullif(btrim(new.code),'') is null then v_prefix:=coalesce(v_settings->>'projectPrefix','PRJ'); new.code:=v_prefix||'-'||lpad(nextval('public.projects_number_seq')::text,5,'0'); end if;
-  if tg_table_name='entries' and nullif(btrim(new.entry_code),'') is null then v_prefix:=coalesce(v_settings->>'journalPrefix','JE'); new.entry_code:=v_prefix||'-'||lpad(new.entry_number::text,6,'0'); end if;
+  if nullif(btrim(new.code),'') is null then v_prefix:=coalesce(v_settings->>'projectPrefix','PRJ'); new.code:=v_prefix||'-'||lpad(nextval('public.projects_number_seq')::text,5,'0'); end if;
+  return new;
+end $$;
+create or replace function public.apply_configured_entry_numbering() returns trigger language plpgsql security definer set search_path=public as $$
+declare v_settings jsonb; v_prefix text;
+begin
+  select settings into v_settings from public.system_settings where id='default';
+  if nullif(btrim(new.entry_code),'') is null then v_prefix:=coalesce(v_settings->>'journalPrefix','JE'); new.entry_code:=v_prefix||'-'||lpad(new.entry_number::text,6,'0'); end if;
   return new;
 end $$;
 create sequence if not exists public.projects_number_seq start 1;
@@ -65,9 +71,9 @@ set entry_code = coalesce(
 where entry_code is null or btrim(entry_code) = '';
 create unique index if not exists entries_entry_code_unique on public.entries(entry_code);
 drop trigger if exists projects_configured_number on public.projects;
-create trigger projects_configured_number before insert on public.projects for each row execute function public.apply_configured_document_numbering();
+create trigger projects_configured_number before insert on public.projects for each row execute function public.apply_configured_project_numbering();
 drop trigger if exists entries_configured_number on public.entries;
-create trigger entries_configured_number before insert on public.entries for each row execute function public.apply_configured_document_numbering();
+create trigger entries_configured_number before insert on public.entries for each row execute function public.apply_configured_entry_numbering();
 
 create or replace view public.advances_overview
 with (security_invoker = true)
