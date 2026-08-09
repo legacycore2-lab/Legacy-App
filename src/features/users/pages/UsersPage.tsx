@@ -13,6 +13,7 @@ import { useUsers } from '../hooks/useUsers'
 import { UserFormDialog } from '../components/UserFormDialog'
 import type { UserRole } from '../types/users.types'
 import { useState } from 'react'
+import { useCurrentUser } from '../../../shared/hooks/useCurrentUser'
 import './users-page.css'
 
 const roleLabels: Record<UserRole, string> = {
@@ -23,6 +24,7 @@ const roleLabels: Record<UserRole, string> = {
 }
 
 export function UsersPage() {
+  const currentUser = useCurrentUser()
   const [formUserId, setFormUserId] = useState<string | 'new' | null>(null)
   const {
     filters,
@@ -245,6 +247,7 @@ export function UsersPage() {
           user={formUser}
           isSaving={isSaving}
           error={mutationError instanceof Error ? mutationError : null}
+          canAssignSuperAdmin={currentUser?.role === 'super_admin'}
           onClose={() => setFormUserId(null)}
           onSubmit={async (input) => {
             if ('id' in input) await updateUser(input)

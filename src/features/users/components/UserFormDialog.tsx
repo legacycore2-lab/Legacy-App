@@ -5,11 +5,12 @@ type Props = {
   user?: ManagedUser
   isSaving: boolean
   error: Error | null
+  canAssignSuperAdmin: boolean
   onClose: () => void
   onSubmit: (input: CreateUserInput | UpdateUserInput) => Promise<void>
 }
 
-export function UserFormDialog({ user, isSaving, error, onClose, onSubmit }: Props) {
+export function UserFormDialog({ user, isSaving, error, canAssignSuperAdmin, onClose, onSubmit }: Props) {
   const [displayName, setDisplayName] = useState(user?.displayName ?? '')
   const [email, setEmail] = useState(user?.email ?? '')
   const [password, setPassword] = useState('')
@@ -65,7 +66,7 @@ export function UserFormDialog({ user, isSaving, error, onClose, onSubmit }: Pro
         <label>
           الدور
           <select value={role} onChange={(event) => setRole(event.target.value as UserRole)}>
-            <option value="super_admin">مدير عام</option>
+            {canAssignSuperAdmin && <option value="super_admin">مدير عام</option>}
             <option value="admin">مدير</option>
             <option value="accountant">محاسب</option>
             <option value="viewer">مشاهد</option>
