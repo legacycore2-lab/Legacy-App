@@ -5,11 +5,20 @@ import { formatTimestamp } from '../../../shared/date-utils'
 type Props = {
   onRefresh: () => void | Promise<void>
   onExportPdf?: () => void
+  onExportExcel?: () => void
+  onExportCsv?: () => void
   lastUpdated?: Date | null
   isExporting?: boolean
 }
 
-export function ReportsHeader({ onRefresh, onExportPdf, lastUpdated, isExporting = false }: Props) {
+export function ReportsHeader({
+  onRefresh,
+  onExportPdf,
+  onExportExcel,
+  onExportCsv,
+  lastUpdated,
+  isExporting = false,
+}: Props) {
   const [exportOpen, setExportOpen] = useState(false)
   const exportRef = useRef<HTMLDivElement>(null)
 
@@ -99,26 +108,30 @@ export function ReportsHeader({ onRefresh, onExportPdf, lastUpdated, isExporting
                 <button
                   type="button"
                   role="menuitem"
-                  disabled
-                  className="rh-dropdown__item is-disabled"
-                  aria-disabled="true"
+                  onClick={() => {
+                    setExportOpen(false)
+                    onExportExcel?.()
+                  }}
+                  disabled={isExporting || !onExportExcel}
+                  className="rh-dropdown__item"
                 >
                   <FileText size={14} />
                   Excel
-                  <span className="rh-soon">قريباً</span>
                 </button>
               </li>
               <li role="none">
                 <button
                   type="button"
                   role="menuitem"
-                  disabled
-                  className="rh-dropdown__item is-disabled"
-                  aria-disabled="true"
+                  onClick={() => {
+                    setExportOpen(false)
+                    onExportCsv?.()
+                  }}
+                  disabled={isExporting || !onExportCsv}
+                  className="rh-dropdown__item"
                 >
                   <FileText size={14} />
                   CSV
-                  <span className="rh-soon">قريباً</span>
                 </button>
               </li>
             </ul>

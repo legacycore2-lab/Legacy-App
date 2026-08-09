@@ -20,7 +20,7 @@ import { useProfitLossReport } from '../hooks/useProfitLossReport'
 import { useReportExport } from '../hooks/useReportExport'
 import { useReportsCenter } from '../hooks/useReportsCenter'
 import type { ReportKey } from '../types/reports-center.types'
-import type { ReportsTab } from '../types/report.types'
+import type { ReportsTab, TabularRow } from '../types/report.types'
 import '../styles/contractor-reports.css'
 import '../styles/profit-loss.css'
 import '../styles/reports-center.css'
@@ -39,6 +39,11 @@ const REPORT_TITLES: Partial<Record<ReportKey, string>> = {
   journal: 'تقرير القيود اليومية',
   insights: 'الرؤى والتنبيهات',
   'profit-loss': 'الأرباح والخسائر',
+  'project-comparison': 'مقارنة المشاريع',
+  'profitable-projects': 'المشاريع الأكثر ربحًا',
+  'loss-making-projects': 'المشاريع الخاسرة',
+  'contract-values': 'قيمة العقود',
+  'income-expense': 'الإيرادات والمصروفات',
   'contractor-statement': 'كشف حساب المقاول',
   'contractor-dues': 'تحليلات حركة المقاولين',
   'contractor-payments': 'مدفوعات المقاولين',
@@ -48,6 +53,15 @@ const REPORT_TITLES: Partial<Record<ReportKey, string>> = {
 function toDataTab(report: ReportKey | null): ReportsTab | null {
   if (report === 'executive' || report === 'projects' || report === 'journal' || report === 'insights') {
     return report
+  }
+  if (
+    report === 'project-comparison' ||
+    report === 'profitable-projects' ||
+    report === 'loss-making-projects' ||
+    report === 'contract-values' ||
+    report === 'income-expense'
+  ) {
+    return 'projects'
   }
   return null
 }
@@ -70,13 +84,22 @@ export function ReportsPage() {
   const contractorReports = useContractorReports(isContractors)
   const {
     isExporting,
+    exportError,
     exportExecutivePdf,
     exportProjectsPdf,
     exportJournalPdf,
     exportProfitLossPdf,
     exportContractorsPdf,
     exportContractorStatementPdf,
+    exportTable,
   } = useReportExport()
+
+  const projectRows =
+    center.selectedReport === 'profitable-projects'
+      ? executive.filteredRows.filter((row) => row.net > 0).sort((a, b) => b.net - a.net)
+      : center.selectedReport === 'loss-making-projects'
+        ? executive.filteredRows.filter((row) => row.net < 0).sort((a, b) => a.net - b.net)
+        : executive.filteredRows
 
   async function handleRefresh() {
     const result = isContractors
@@ -95,7 +118,7 @@ export function ReportsPage() {
     }
     if (activeTab === 'projects') {
       return () =>
-        exportProjectsPdf(executive.filteredRows, {
+        exportProjectsPdf(projectRows, {
           query: executive.draftQuery,
           statusFilter: executive.draftStatusFilter,
           includeArchived: executive.draftIncludeArchived,
@@ -129,6 +152,60 @@ export function ReportsPage() {
     }
     return undefined
   }
+
+  function buildTabularRows(): TabularRow[] {
+    if (activeTab === 'executive' || activeTab === 'projects') {
+      const rows = activeTab === 'executive' ? executive.allRows : projectRows
+      return rows.map((row) => ({
+        'كود المشروع': row.code,
+        'اسم المشروع': row.name,
+        العميل: row.client,
+        الحالة: row.status,
+        'نسبة الإنجاز': row.progress,
+        'قيمة العقد': row.contractValue,
+        الإيرادات: row.income,
+        المصروفات: row.expense,
+        الصافي: row.net,
+        المتبقي: row.remaining,
+      }))
+    }
+    if (activeTab === 'journal') {
+      return journal.filteredRows.map((row) => ({
+        التاريخ: row.dateFormatted,
+        النوع: row.entryType,
+        المشروع: row.projectName,
+        المقاول: row.contractorName,
+        البيان: row.description,
+        'طريقة الدفع': row.paymentMethod,
+        المبلغ: row.amount,
+      }))
+    }
+    if (isProfitLoss && profitLoss.data) {
+      return profitLoss.data.projectRows.map((row) => ({
+        المشروع: row.projectName,
+        'قيمة العقد': row.contractValue,
+        الإيرادات: row.income,
+        المصروفات: row.expense,
+        الصافي: row.net,
+        'هامش الربح': row.marginPercent,
+        'عدد القيود': row.entryCount,
+      }))
+    }
+    if (isContractors && contractorReports.data) {
+      return contractorReports.data.contractors.map((row) => ({
+        المقاول: row.contractorName,
+        الإيرادات: row.totalIncome,
+        المصروفات: row.totalExpense,
+        'صافي الحركة': row.netMovement,
+        'عدد القيود': row.entryCount,
+        'عدد المشاريع': row.projectCount,
+        'آخر نشاط': row.lastActivityDate,
+      }))
+    }
+    return []
+  }
+
+  const tabularRows = buildTabularRows()
 
   if (!center.selectedReport) {
     return (
@@ -164,8 +241,12 @@ export function ReportsPage() {
         onRefresh={handleRefresh}
         lastUpdated={lastUpdated}
         onExportPdf={buildExportPdf()}
+        onExportExcel={tabularRows.length ? () => exportTable(tabularRows, 'xlsx', center.selectedReport ?? 'report') : undefined}
+        onExportCsv={tabularRows.length ? () => exportTable(tabularRows, 'csv', center.selectedReport ?? 'report') : undefined}
         isExporting={isExporting}
       />
+
+      {exportError ? <div className="reports-export-error" role="alert">{exportError}</div> : null}
 
       {activeTab === 'executive' && (
         <>
@@ -197,7 +278,7 @@ export function ReportsPage() {
             <ReportsErrorState error={executive.error} />
           ) : (
             <ProjectsReportTable
-              rows={executive.filteredRows}
+              rows={projectRows}
               query={executive.draftQuery}
               onQueryChange={executive.setDraftQuery}
               includeArchived={executive.draftIncludeArchived}

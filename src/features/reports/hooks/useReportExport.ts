@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { buildContractorStatement } from '../services/contractor-statement.service'
 import { downloadContractorStatementPdf } from '../services/contractor-statement-renderer.service'
 import { buildPdfFilename, downloadPdf } from '../services/pdf-export.service'
+import { downloadCsv, downloadExcel } from '../services/tabular-export.service'
 import {
   buildContractorsPdfPayload,
   buildExecutivePdfPayload,
@@ -11,7 +12,12 @@ import {
 } from '../services/pdf-payload.service'
 import type { ContractorReportsFilters, ContractorReportsViewModel } from '../types/contractor-reports.types'
 import type { ProfitLossFilters, ProfitLossViewModel } from '../types/profit-loss.types'
-import type { ExecutiveViewModel, JournalReportFilters, JournalReportViewModel } from '../types/report.types'
+import type {
+  ExecutiveViewModel,
+  JournalReportFilters,
+  JournalReportViewModel,
+  TabularRow,
+} from '../types/report.types'
 
 type ContractorSection =
   'overview' | 'statement' | 'projects' | 'categories' | 'monthly' | 'payments' | 'quality'
@@ -99,6 +105,14 @@ export function useReportExport() {
     })
   }
 
+  function exportTable(rows: TabularRow[], format: 'xlsx' | 'csv', reportKey: string) {
+    void runExport(async () => {
+      const date = new Date().toISOString().slice(0, 10)
+      if (format === 'xlsx') await downloadExcel(rows, `${reportKey}-${date}.xlsx`)
+      else downloadCsv(rows, `${reportKey}-${date}.csv`)
+    })
+  }
+
   return {
     isExporting,
     exportError,
@@ -108,5 +122,6 @@ export function useReportExport() {
     exportProfitLossPdf,
     exportContractorsPdf,
     exportContractorStatementPdf,
+    exportTable,
   }
 }

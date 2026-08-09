@@ -4,12 +4,17 @@ import type { ReportDefinition, ReportKey } from '../types/reports-center.types'
 const IMPLEMENTED_REPORTS = new Set<ReportKey>([
   'executive',
   'projects',
+  'project-comparison',
+  'profitable-projects',
+  'loss-making-projects',
   'journal',
   'insights',
   'profit-loss',
   'contractor-statement',
   'contractor-payments',
   'top-contractors',
+  'contract-values',
+  'income-expense',
 ])
 
 const INSIGHTS_REPORT: ReportDefinition = {
