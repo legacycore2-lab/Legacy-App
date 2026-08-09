@@ -25,7 +25,9 @@ function buildSummary(users: ManagedUser[]): UsersSummary {
   }
 }
 
-export async function getUsersViewModel(filters: UsersFilters): Promise<UsersViewModel> {
+export async function getUsersViewModel(
+  filters: UsersFilters,
+): Promise<UsersViewModel> {
   const users = await findUsers()
   const filteredUsers = users.filter((user) => {
     if (!matchesQuery(user, filters.query)) return false
