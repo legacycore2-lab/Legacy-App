@@ -16,15 +16,20 @@ function matchesQuery(user: ManagedUser, query: string): boolean {
     .includes(normalized)
 }
 
-// prettier-ignore
+function isAdmin(user: ManagedUser): boolean {
+  return user.role === 'admin' || user.role === 'super_admin'
+}
+
 function buildSummary(users: ManagedUser[]): UsersSummary {
+  const active = users.filter((user) => user.status === 'active').length
+  const admins = users.filter(isAdmin).length
+  const suspended = users.filter((user) => user.status === 'suspended').length
+
   return {
     total: users.length,
-    active: users.filter((user) => user.status === 'active').length,
-    admins: users.filter(
-      (user) => user.role === 'admin' || user.role === 'super_admin',
-    ).length,
-    suspended: users.filter((user) => user.status === 'suspended').length,
+    active,
+    admins,
+    suspended,
   }
 }
 
