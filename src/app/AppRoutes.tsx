@@ -13,6 +13,7 @@ import { ProjectDetailsPage } from '../features/projects/pages/ProjectDetailsPag
 import { ContractorsPage } from '../features/contractors/pages/ContractorsPage'
 import { ProjectsPage } from '../features/projects/pages/ProjectsPage'
 import { ReportsPage } from '../features/reports/pages/ReportsPage'
+import { UsersPage } from '../features/users/pages/UsersPage'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
 import { AppLayoutRoute } from './AppLayoutRoute'
 
@@ -44,13 +45,7 @@ export function AppRoutes() {
           />
           <Route path="/contractors" element={secured('/contractors', <ContractorsPage />)} />
           <Route path="/reports" element={secured('/reports', <ReportsPage />)} />
-          <Route
-            path="/users"
-            element={secured(
-              '/users',
-              <PlaceholderPage title="المستخدمون" description="إدارة المستخدمين والصلاحيات." />,
-            )}
-          />
+          <Route path="/users" element={secured('/users', <UsersPage />)} />
           <Route
             path="/settings"
             element={secured(
