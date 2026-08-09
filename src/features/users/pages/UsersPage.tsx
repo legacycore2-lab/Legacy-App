@@ -20,7 +20,6 @@ const roleLabels: Record<UserRole, string> = {
   viewer: 'مشاهد',
 }
 
-// prettier-ignore
 export function UsersPage() {
   const {
     filters,
@@ -58,30 +57,15 @@ export function UsersPage() {
       </div>
 
       <div className="users-kpis">
-        <Kpi
-          icon={<Users size={20} />}
-          label="إجمالي المستخدمين"
-          value={summary.total}
-          tone="violet"
-        />
+        <Kpi icon={<Users size={20} />} label="إجمالي المستخدمين" value={summary.total} tone="violet" />
         <Kpi
           icon={<UserRoundCheck size={20} />}
           label="المستخدمون النشطون"
           value={summary.active}
           tone="green"
         />
-        <Kpi
-          icon={<ShieldCheck size={20} />}
-          label="المدراء"
-          value={summary.admins}
-          tone="blue"
-        />
-        <Kpi
-          icon={<UserRoundX size={20} />}
-          label="الموقوفون"
-          value={summary.suspended}
-          tone="red"
-        />
+        <Kpi icon={<ShieldCheck size={20} />} label="المدراء" value={summary.admins} tone="blue" />
+        <Kpi icon={<UserRoundX size={20} />} label="الموقوفون" value={summary.suspended} tone="red" />
       </div>
 
       <div className="users-workspace">
@@ -123,8 +107,7 @@ export function UsersPage() {
 
           {isError ? (
             <div className="users-state">
-              تعذر تحميل المستخدمين.{' '}
-              <button onClick={() => void refetch()}>إعادة المحاولة</button>
+              تعذر تحميل المستخدمين. <button onClick={() => void refetch()}>إعادة المحاولة</button>
             </div>
           ) : isLoading ? (
             <div className="users-state">جارٍ تحميل المستخدمين...</div>
@@ -147,11 +130,7 @@ export function UsersPage() {
                   {users.map((user) => (
                     <tr key={user.id}>
                       <td>
-                        <button
-                          className="users-person"
-                          type="button"
-                          onClick={() => selectUser(user.id)}
-                        >
+                        <button className="users-person" type="button" onClick={() => selectUser(user.id)}>
                           <span className="users-avatar">{user.displayName.slice(0, 1)}</span>
                           <span>
                             <strong>{user.displayName}</strong>
@@ -161,9 +140,7 @@ export function UsersPage() {
                       </td>
                       <td>{user.email}</td>
                       <td>
-                        <span className={`users-role users-role--${user.role}`}>
-                          {roleLabels[user.role]}
-                        </span>
+                        <span className={`users-role users-role--${user.role}`}>{roleLabels[user.role]}</span>
                       </td>
                       <td>
                         <span className={`users-status users-status--${user.status}`}>
@@ -172,16 +149,10 @@ export function UsersPage() {
                       </td>
                       <td>{user.lastLoginAt ?? '—'}</td>
                       <td>{user.createdAt}</td>
-                      <td>
-                        {user.projectCount === 0 ? 'كل المشاريع' : `${user.projectCount} مشروع`}
-                      </td>
+                      <td>{user.projectCount === 0 ? 'كل المشاريع' : `${user.projectCount} مشروع`}</td>
                       <td>
                         <div className="users-actions">
-                          <button
-                            type="button"
-                            onClick={() => selectUser(user.id)}
-                            aria-label="عرض التفاصيل"
-                          >
+                          <button type="button" onClick={() => selectUser(user.id)} aria-label="عرض التفاصيل">
                             <Eye size={16} />
                           </button>
                           <button type="button" disabled aria-label="تعديل المستخدم">

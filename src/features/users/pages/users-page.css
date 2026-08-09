@@ -1,8 +1,9 @@
 .users-page {
   display: grid;
+  min-width: 0;
   gap: 18px;
   padding: 24px;
-  color: var(--text, #10221b);
+  color: var(--text);
 }
 
 .users-page__heading {
@@ -20,7 +21,7 @@
 .users-page__heading p,
 .users-page__eyebrow {
   margin: 0;
-  color: var(--text-muted, #6b7772);
+  color: var(--muted);
 }
 
 .users-page__eyebrow {
@@ -115,6 +116,7 @@
 
 .users-workspace {
   display: grid;
+  min-width: 0;
   grid-template-columns: minmax(0, 1fr);
   gap: 16px;
   align-items: start;
@@ -126,9 +128,10 @@
 
 .users-main-card,
 .users-drawer {
+  min-width: 0;
   overflow: hidden;
-  background: var(--surface, #fff);
-  border: 1px solid var(--border, #dfe6e2);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 18px;
   box-shadow: 0 10px 30px rgba(9, 38, 27, 0.05);
 }
@@ -146,8 +149,8 @@
   gap: 8px;
   align-items: center;
   padding: 0 12px;
-  background: var(--surface, #fff);
-  border: 1px solid var(--border, #dfe6e2);
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
   border-radius: 11px;
 }
 
@@ -164,13 +167,15 @@
   min-height: 42px;
   padding: 0 10px;
   color: inherit;
-  background: var(--surface, #fff);
-  border: 1px solid var(--border, #dfe6e2);
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
   border-radius: 11px;
 }
 
 .users-table-wrap {
+  max-width: 100%;
   overflow: auto;
+  overscroll-behavior-inline: contain;
 }
 
 .users-table {
@@ -407,8 +412,30 @@
 }
 
 .users-account-actions .is-danger {
-  color: #b73333;
-  border-color: #e8a3a3;
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 45%, var(--border));
+}
+
+:root[data-theme='dark'] .users-preview-note {
+  color: var(--gold);
+  background: var(--gold-soft);
+  border-color: color-mix(in srgb, var(--gold) 35%, var(--border));
+}
+
+:root[data-theme='dark'] .users-kpi__icon,
+:root[data-theme='dark'] .users-role,
+:root[data-theme='dark'] .users-status {
+  background: var(--surface-soft);
+}
+
+:root[data-theme='dark'] .users-kpi__icon--green,
+:root[data-theme='dark'] .users-status--active {
+  color: var(--green);
+}
+
+:root[data-theme='dark'] .users-kpi__icon--red,
+:root[data-theme='dark'] .users-status--suspended {
+  color: var(--danger);
 }
 
 @media (max-width: 1100px) {
