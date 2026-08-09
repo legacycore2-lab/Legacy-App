@@ -46,3 +46,16 @@ export type UpdateUserInput = {
   phone?: string
   role: UserRole
 }
+
+export type UserProjectAccess = { id: string; name: string; assigned: boolean }
+export type UserActivity = {
+  id: string
+  action: 'user_created' | 'user_updated' | 'status_changed' | 'password_reset' | 'projects_updated'
+  details: Record<string, unknown>
+  created_at: string
+}
+export type UserAdministrationDetails = {
+  projects: UserProjectAccess[]
+  activity: UserActivity[]
+}
+export type EffectivePermission = { label: string; allowed: boolean }

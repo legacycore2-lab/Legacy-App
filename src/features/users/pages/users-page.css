@@ -416,6 +416,36 @@
   border-color: color-mix(in srgb, var(--danger) 45%, var(--border));
 }
 
+.users-project-access {
+  display: grid;
+  gap: 10px;
+}
+
+.users-project-access label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.users-project-access .users-primary-button {
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.users-activity > div {
+  display: grid;
+  gap: 3px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.users-activity span {
+  font-size: 11px;
+  color: var(--muted);
+}
+
 :root[data-theme='dark'] .users-preview-note {
   color: var(--gold);
   background: var(--gold-soft);

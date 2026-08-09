@@ -1,13 +1,29 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { createUser, findUsers, updateUserStatus } from '../repositories/users.repository'
+import {
+  createUser,
+  findUsers,
+  saveUserProjects,
+  setTemporaryPassword,
+  updateUserStatus,
+} from '../repositories/users.repository'
 import type { ManagedUser, UsersFilters } from '../types/users.types'
-import { addUser, getUsersViewModel, setUserStatus } from './users.service'
+import {
+  addUser,
+  changeTemporaryPassword,
+  getEffectivePermissions,
+  getUsersViewModel,
+  setUserStatus,
+  updateUserProjects,
+} from './users.service'
 
 vi.mock('../repositories/users.repository', () => ({
   findUsers: vi.fn(),
   createUser: vi.fn(),
   updateUser: vi.fn(),
   updateUserStatus: vi.fn(),
+  findUserAdministrationDetails: vi.fn(),
+  saveUserProjects: vi.fn(),
+  setTemporaryPassword: vi.fn(),
 }))
 
 const users: ManagedUser[] = [
@@ -118,5 +134,24 @@ describe('users mutations', () => {
     await setUserStatus('user-id', 'suspended')
 
     expect(updateUserStatus).toHaveBeenCalledWith('user-id', 'suspended')
+  })
+
+  it('deduplicates project assignments', async () => {
+    vi.mocked(saveUserProjects).mockResolvedValue({ ok: true })
+    await updateUserProjects('user-id', ['one', 'one', 'two'])
+    expect(saveUserProjects).toHaveBeenCalledWith('user-id', ['one', 'two'])
+  })
+
+  it('rejects weak replacement passwords', () => {
+    expect(() => changeTemporaryPassword('user-id', 'short')).toThrow('8')
+    expect(setTemporaryPassword).not.toHaveBeenCalled()
+  })
+
+  it('derives effective permissions from the role', () => {
+    const permissions = getEffectivePermissions('viewer')
+    expect(permissions.find((permission) => permission.label === 'عرض المشاريع')?.allowed).toBe(true)
+    expect(
+      permissions.find((permission) => permission.label === 'إدارة المستخدمين والإعدادات')?.allowed,
+    ).toBe(false)
   })
 })
