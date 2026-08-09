@@ -20,6 +20,7 @@ const roleLabels: Record<UserRole, string> = {
   viewer: 'مشاهد',
 }
 
+// prettier-ignore
 export function UsersPage() {
   const {
     filters,
