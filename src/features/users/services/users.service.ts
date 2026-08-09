@@ -16,6 +16,7 @@ function matchesQuery(user: ManagedUser, query: string): boolean {
     .includes(normalized)
 }
 
+// prettier-ignore
 function buildSummary(users: ManagedUser[]): UsersSummary {
   return {
     total: users.length,
