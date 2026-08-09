@@ -20,7 +20,9 @@ function buildSummary(users: ManagedUser[]): UsersSummary {
   return {
     total: users.length,
     active: users.filter((user) => user.status === 'active').length,
-    admins: users.filter((user) => user.role === 'admin' || user.role === 'super_admin').length,
+    admins: users.filter(
+      (user) => user.role === 'admin' || user.role === 'super_admin',
+    ).length,
     suspended: users.filter((user) => user.status === 'suspended').length,
   }
 }
