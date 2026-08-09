@@ -1,5 +1,13 @@
-import { findUsers } from '../repositories/users.repository'
-import type { ManagedUser, UsersFilters, UsersSummary, UsersViewModel } from '../types/users.types'
+import { createUser, findUsers, updateUser, updateUserStatus } from '../repositories/users.repository'
+import type {
+  CreateUserInput,
+  ManagedUser,
+  UpdateUserInput,
+  UserStatus,
+  UsersFilters,
+  UsersSummary,
+  UsersViewModel,
+} from '../types/users.types'
 
 function matchesQuery(user: ManagedUser, query: string): boolean {
   const normalized = query.trim().toLocaleLowerCase('ar')
@@ -39,4 +47,34 @@ export async function getUsersViewModel(filters: UsersFilters): Promise<UsersVie
     filteredUsers,
     summary: buildSummary(users),
   }
+}
+
+function requireText(value: string, label: string): string {
+  const normalized = value.trim()
+  if (!normalized) throw new Error(`${label} مطلوب`)
+  return normalized
+}
+
+export function addUser(input: CreateUserInput) {
+  const email = requireText(input.email, 'البريد الإلكتروني').toLowerCase()
+  if (!email.includes('@')) throw new Error('البريد الإلكتروني غير صحيح')
+  if (input.password.length < 8) throw new Error('كلمة المرور يجب ألا تقل عن 8 أحرف')
+  return createUser({
+    ...input,
+    email,
+    displayName: requireText(input.displayName, 'الاسم'),
+    phone: input.phone?.trim() || undefined,
+  })
+}
+
+export function editUser(input: UpdateUserInput) {
+  return updateUser({
+    ...input,
+    displayName: requireText(input.displayName, 'الاسم'),
+    phone: input.phone?.trim() || undefined,
+  })
+}
+
+export function setUserStatus(id: string, status: UserStatus) {
+  return updateUserStatus(id, status)
 }

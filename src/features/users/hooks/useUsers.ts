@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { getUsersViewModel } from '../services/users.service'
-import type { ManagedUser, UsersFilters } from '../types/users.types'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { addUser, editUser, getUsersViewModel, setUserStatus } from '../services/users.service'
+import type { CreateUserInput, ManagedUser, UpdateUserInput, UsersFilters } from '../types/users.types'
 
 const initialFilters: UsersFilters = {
   query: '',
@@ -10,6 +10,7 @@ const initialFilters: UsersFilters = {
 }
 
 export function useUsers() {
+  const queryClient = useQueryClient()
   const [filters, setFilters] = useState<UsersFilters>(initialFilters)
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
 
@@ -24,6 +25,14 @@ export function useUsers() {
     return query.data?.users.find((user) => user.id === selectedUserId) ?? null
   }, [query.data?.users, selectedUserId])
 
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ['users-management'] })
+  const createMutation = useMutation({ mutationFn: addUser, onSuccess: refresh })
+  const updateMutation = useMutation({ mutationFn: editUser, onSuccess: refresh })
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }: Pick<ManagedUser, 'id' | 'status'>) => setUserStatus(id, status),
+    onSuccess: refresh,
+  })
+
   return {
     filters,
     setFilters,
@@ -35,5 +44,14 @@ export function useUsers() {
     isLoading: query.isLoading,
     isError: query.isError,
     refetch: query.refetch,
+    createUser: (input: CreateUserInput) => createMutation.mutateAsync(input),
+    updateUser: (input: UpdateUserInput) => updateMutation.mutateAsync(input),
+    changeUserStatus: (user: ManagedUser) =>
+      statusMutation.mutateAsync({
+        id: user.id,
+        status: user.status === 'active' ? 'suspended' : 'active',
+      }),
+    isSaving: createMutation.isPending || updateMutation.isPending || statusMutation.isPending,
+    mutationError: createMutation.error ?? updateMutation.error ?? statusMutation.error,
   }
 }

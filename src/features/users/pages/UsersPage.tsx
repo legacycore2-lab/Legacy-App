@@ -10,7 +10,9 @@ import {
   Users,
 } from 'lucide-react'
 import { useUsers } from '../hooks/useUsers'
+import { UserFormDialog } from '../components/UserFormDialog'
 import type { UserRole } from '../types/users.types'
+import { useState } from 'react'
 import './users-page.css'
 
 const roleLabels: Record<UserRole, string> = {
@@ -21,6 +23,7 @@ const roleLabels: Record<UserRole, string> = {
 }
 
 export function UsersPage() {
+  const [formUserId, setFormUserId] = useState<string | 'new' | null>(null)
   const {
     filters,
     setFilters,
@@ -32,7 +35,14 @@ export function UsersPage() {
     isLoading,
     isError,
     refetch,
+    createUser,
+    updateUser,
+    changeUserStatus,
+    isSaving,
+    mutationError,
   } = useUsers()
+  const formUser =
+    formUserId && formUserId !== 'new' ? users.find((user) => user.id === formUserId) : undefined
 
   return (
     <section className="users-page" dir="rtl">
@@ -42,12 +52,7 @@ export function UsersPage() {
           <h1>إدارة المستخدمين</h1>
           <p>إدارة الحسابات والأدوار والوصول للمشاريع من مكان واحد.</p>
         </div>
-        <button
-          className="users-primary-button"
-          type="button"
-          disabled
-          title="يتطلب ربط إدارة المستخدمين بالخلفية أولاً"
-        >
+        <button className="users-primary-button" type="button" onClick={() => setFormUserId('new')}>
           <Plus size={18} /> إضافة مستخدم
         </button>
       </header>
@@ -155,7 +160,11 @@ export function UsersPage() {
                           <button type="button" onClick={() => selectUser(user.id)} aria-label="عرض التفاصيل">
                             <Eye size={16} />
                           </button>
-                          <button type="button" disabled aria-label="تعديل المستخدم">
+                          <button
+                            type="button"
+                            onClick={() => setFormUserId(user.id)}
+                            aria-label="تعديل المستخدم"
+                          >
                             <Pencil size={16} />
                           </button>
                           <button type="button" disabled aria-label="المزيد">
@@ -213,19 +222,37 @@ export function UsersPage() {
             </div>
             <div className="users-detail-card users-account-actions">
               <h3>إجراءات الحساب</h3>
-              <button type="button" disabled>
+              <button type="button" onClick={() => setFormUserId(selectedUser.id)}>
                 تعديل البيانات
               </button>
               <button type="button" disabled>
                 إعادة تعيين كلمة المرور
               </button>
-              <button type="button" disabled className="is-danger">
+              <button
+                type="button"
+                disabled={isSaving}
+                className="is-danger"
+                onClick={() => void changeUserStatus(selectedUser)}
+              >
                 {selectedUser.status === 'active' ? 'إيقاف المستخدم' : 'تفعيل المستخدم'}
               </button>
             </div>
           </aside>
         )}
       </div>
+      {formUserId && (
+        <UserFormDialog
+          user={formUser}
+          isSaving={isSaving}
+          error={mutationError instanceof Error ? mutationError : null}
+          onClose={() => setFormUserId(null)}
+          onSubmit={async (input) => {
+            if ('id' in input) await updateUser(input)
+            else await createUser(input)
+            setFormUserId(null)
+          }}
+        />
+      )}
     </section>
   )
 }
