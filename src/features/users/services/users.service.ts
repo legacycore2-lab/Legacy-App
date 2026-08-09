@@ -6,6 +6,7 @@ import type {
   UsersViewModel,
 } from '../types/users.types'
 
+// prettier-ignore
 function matchesQuery(user: ManagedUser, query: string): boolean {
   const normalized = query.trim().toLocaleLowerCase('ar')
   if (!normalized) return true
@@ -16,10 +17,12 @@ function matchesQuery(user: ManagedUser, query: string): boolean {
     .includes(normalized)
 }
 
+// prettier-ignore
 function isAdmin(user: ManagedUser): boolean {
   return user.role === 'admin' || user.role === 'super_admin'
 }
 
+// prettier-ignore
 function buildSummary(users: ManagedUser[]): UsersSummary {
   const active = users.filter((user) => user.status === 'active').length
   const admins = users.filter(isAdmin).length
@@ -33,6 +36,7 @@ function buildSummary(users: ManagedUser[]): UsersSummary {
   }
 }
 
+// prettier-ignore
 export async function getUsersViewModel(
   filters: UsersFilters,
 ): Promise<UsersViewModel> {
