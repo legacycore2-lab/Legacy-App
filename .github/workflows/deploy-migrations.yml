@@ -37,7 +37,35 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
       - name: Apply migrations to production
-        run: supabase db push --include-all
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Production predates repository-driven migration tracking. These
+          # schemas were applied by the historical per-feature workflows.
+          # Record them once so db push applies only genuinely new migrations.
+          supabase migration repair \
+            202607200002 \
+            20260721070000 \
+            20260721073000 \
+            20260721090000 \
+            20260722000000 \
+            20260722010000 \
+            20260722020000 \
+            20260722030000 \
+            20260722040000 \
+            20260722050000 \
+            20260725090000 \
+            20260725120000 \
+            20260725140000 \
+            20260725150000 \
+            20260727090000 \
+            20260730170000 \
+            20260731100000 \
+            20260731110000 \
+            20260731120000 \
+            20260731130000 \
+            --status applied
+          supabase db push
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
