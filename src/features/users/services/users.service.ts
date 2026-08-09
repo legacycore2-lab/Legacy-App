@@ -1,5 +1,10 @@
 import { findUsers } from '../repositories/users.repository'
-import type { ManagedUser, UsersFilters, UsersSummary, UsersViewModel } from '../types/users.types'
+import type {
+  ManagedUser,
+  UsersFilters,
+  UsersSummary,
+  UsersViewModel,
+} from '../types/users.types'
 
 function matchesQuery(user: ManagedUser, query: string): boolean {
   const normalized = query.trim().toLocaleLowerCase('ar')
