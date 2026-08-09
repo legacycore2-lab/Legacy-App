@@ -37,6 +37,8 @@ export async function renderPdf(payload: PdfExportPayload) {
 
   return renderPdfTemplate({
     orientation: 'landscape',
+    companyName: payload.companyName,
+    reportCode: `${payload.activeTab.toUpperCase()}-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`,
     reportTitle: payload.reportTitle,
     reportSubtitle: buildFiltersLabel(payload.activeFilters),
     infoItems,

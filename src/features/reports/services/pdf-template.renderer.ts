@@ -65,6 +65,8 @@ export type TemplateSignature = {
 export type PdfTemplateInput = {
   /** Portrait A4 (default) or landscape */
   orientation?: 'portrait' | 'landscape'
+  companyName?: string
+  reportCode?: string
   reportTitle: string
   reportSubtitle?: string
   infoItems?: TemplateInfoItem[]
@@ -103,37 +105,65 @@ function drawCornerTriangle(doc: jsPDF, W: number): void {
 
 // ── Section: header ───────────────────────────────────────────────────────────
 
-function drawHeader(doc: jsPDF, W: number, ML: number, reportTitle: string, subtitle: string): number {
+function drawHeader(
+  doc: jsPDF,
+  W: number,
+  ML: number,
+  reportTitle: string,
+  subtitle: string,
+  companyName = COMPANY_NAME,
+  reportCode = '',
+): number {
+  doc.setFillColor(...BRAND.dark)
+  doc.rect(0, 0, W, 7, 'F')
+  doc.setFillColor(...BRAND.gold)
+  doc.rect(0, 7, W, 1.2, 'F')
   drawCornerTriangle(doc, W)
 
-  doc.setFont(ARABIC_FONT_NAME, 'normal')
-  doc.setFontSize(20)
-  doc.setTextColor(...BRAND.dark)
-  doc.text(ar(COMPANY_NAME), ML, 18)
+  doc.setFillColor(...BRAND.dark)
+  doc.roundedRect(ML, 12, 18, 18, 3, 3, 'F')
+  doc.setFillColor(...BRAND.gold)
+  doc.roundedRect(ML + 4, 16, 2.2, 10, 0.8, 0.8, 'F')
+  doc.roundedRect(ML + 8, 13.5, 2.2, 12.5, 0.8, 0.8, 'F')
+  doc.roundedRect(ML + 12, 18, 2.2, 8, 0.8, 0.8, 'F')
 
-  doc.setFontSize(8)
+  doc.setFont(ARABIC_FONT_NAME, 'normal')
+  doc.setFontSize(15)
+  doc.setTextColor(...BRAND.dark)
+  doc.text(ar(companyName), ML + 22, 18)
+
+  doc.setFontSize(7.5)
   doc.setTextColor(...BRAND.textMid)
-  doc.text(ar('إنشاء وتشطيبات'), ML, 24)
+  doc.text(ar('نظام إدارة الإنشاءات والحسابات'), ML + 22, 24)
 
   doc.setDrawColor(...BRAND.border)
   doc.setLineWidth(0.4)
   doc.line(W / 2 - 10, 6, W / 2 - 10, 28)
 
-  doc.setFontSize(22)
+  doc.setFontSize(18)
   doc.setTextColor(...BRAND.dark)
   doc.text(ar(reportTitle), W - ML, 16, { align: 'right' })
 
   if (subtitle) {
-    doc.setFontSize(10)
+    doc.setFontSize(8)
     doc.setTextColor(...BRAND.light)
     doc.text(ar(subtitle), W - ML, 24, { align: 'right' })
   }
 
+  if (reportCode) {
+    doc.setFillColor(...BRAND.offWhite)
+    doc.setDrawColor(...BRAND.border)
+    doc.roundedRect(W - ML - 42, 26.5, 42, 7, 1.5, 1.5, 'FD')
+    doc.setFontSize(6.5)
+    doc.setTextColor(...BRAND.textMid)
+    doc.text(ar(`مرجع التقرير: ${reportCode}`), W - ML - 3, 31.2, { align: 'right' })
+  }
+
   doc.setDrawColor(...BRAND.border)
   doc.setLineWidth(0.5)
-  doc.line(ML, 30, W - ML, 30)
+  doc.line(ML, 35, W - ML, 35)
 
-  return 34
+  return 39
 }
 
 // ── Section: info bar ─────────────────────────────────────────────────────────
@@ -390,12 +420,17 @@ function drawSignatures(
 
 // ── Section: page footer (stamped on every page) ──────────────────────────────
 
-function stampPageFooters(doc: jsPDF, W: number, H: number, ML: number): void {
+function stampPageFooters(doc: jsPDF, W: number, H: number, ML: number, companyName = COMPANY_NAME): void {
   const totalPages = (doc as jsPDF & { internal: { pages: unknown[] } }).internal.pages.length - 1
 
   for (let p = 1; p <= totalPages; p++) {
     doc.setPage(p)
     const footerY = H - 16
+
+    doc.setFont(ARABIC_FONT_NAME, 'normal')
+    doc.setFontSize(22)
+    doc.setTextColor(235, 241, 237)
+    doc.text(ar(companyName), W / 2, H / 2, { align: 'center', angle: 35 })
 
     doc.setFillColor(...BRAND.dark)
     doc.rect(0, footerY, W, 16, 'F')
@@ -403,7 +438,7 @@ function stampPageFooters(doc: jsPDF, W: number, H: number, ML: number): void {
     doc.setFont(ARABIC_FONT_NAME, 'normal')
     doc.setFontSize(7.5)
     doc.setTextColor(...BRAND.white)
-    doc.text(ar(`${COMPANY_NAME} — Confidential`), ML, footerY + 6)
+    doc.text(ar(`${companyName} — سري وللاستخدام الداخلي`), ML, footerY + 6)
     doc.text(ar(`صفحة ${p} / ${totalPages}`), W - ML, footerY + 6, { align: 'right' })
 
     doc.setFontSize(6.5)
@@ -424,7 +459,8 @@ export async function renderPdfTemplate(input: PdfTemplateInput): Promise<jsPDF>
   const H = doc.internal.pageSize.getHeight()
   const ML = 12
 
-  let y = drawHeader(doc, W, ML, input.reportTitle, input.reportSubtitle ?? '')
+  const reportCode = input.reportCode ?? `LCR-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`
+  let y = drawHeader(doc, W, ML, input.reportTitle, input.reportSubtitle ?? '', input.companyName, reportCode)
 
   if (input.infoItems && input.infoItems.length > 0) {
     y = drawInfoBar(doc, W, ML, y, input.infoItems)
@@ -470,7 +506,7 @@ export async function renderPdfTemplate(input: PdfTemplateInput): Promise<jsPDF>
     drawSignatures(doc, W, ML, y, input.signatures)
   }
 
-  stampPageFooters(doc, W, H, ML)
+  stampPageFooters(doc, W, H, ML, input.companyName)
 
   return doc
 }
