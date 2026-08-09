@@ -1,9 +1,9 @@
 import { Eye, MoreHorizontal, Pencil, Plus, Search, ShieldCheck, UserRoundCheck, UserRoundX, Users } from 'lucide-react'
 import { useUsers } from '../hooks/useUsers'
-import type { AppRole } from '../../auth/types/auth.types'
+import type { UserRole } from '../types/users.types'
 import './users-page.css'
 
-const roleLabels: Record<AppRole, string> = {
+const roleLabels: Record<UserRole, string> = {
   super_admin: 'مدير عام',
   admin: 'مدير',
   accountant: 'محاسب',
