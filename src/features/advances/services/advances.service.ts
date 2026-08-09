@@ -1,10 +1,19 @@
-import { findAdvances } from '../repositories/advances.repository'
+import {
+  findAdvanceOptions,
+  findAdvances,
+  postAdvance,
+  postAdvanceExpense,
+  postAdvanceReturn,
+} from '../repositories/advances.repository'
 import type {
   Advance,
   AdvanceFilters,
   AdvanceRow,
   AdvancesSummary,
   AdvancesViewModel,
+  CreateAdvanceInput,
+  RecordAdvanceExpenseInput,
+  ReturnAdvanceInput,
 } from '../types/advances.types'
 
 const normalized = (value: string) => value.trim().toLocaleLowerCase('ar-EG')
@@ -71,4 +80,36 @@ export async function getAdvancesViewModel(filters: AdvanceFilters): Promise<Adv
     ),
     summary: summarizeAdvances(advances),
   }
+}
+
+const positiveAmount = (value: string) => Number.isFinite(Number(value)) && Number(value) > 0
+export const getAdvanceOptions = findAdvanceOptions
+
+export async function createAdvance(input: CreateAdvanceInput): Promise<string> {
+  if (!input.holderName.trim()) throw new Error('اسم حامل العهدة مطلوب.')
+  if (input.projectIds.length === 0) throw new Error('اختر مشروعًا واحدًا على الأقل.')
+  if (!input.sourceAccountId || !input.advanceLedgerAccountId)
+    throw new Error('حساب الصرف وحساب العهدة مطلوبان.')
+  if (!input.issueDate || !input.purpose.trim()) throw new Error('تاريخ الصرف والغرض مطلوبان.')
+  if (!positiveAmount(input.amount)) throw new Error('المبلغ يجب أن يكون أكبر من صفر.')
+  return postAdvance(input, crypto.randomUUID())
+}
+
+export async function recordAdvanceExpense(
+  input: RecordAdvanceExpenseInput,
+  remaining: number,
+): Promise<string> {
+  if (!input.projectId || !input.expenseAccountId || !input.transactionDate || !input.description.trim())
+    throw new Error('أكمل بيانات المصروف.')
+  if (!positiveAmount(input.amount) || Number(input.amount) > remaining)
+    throw new Error('مبلغ المصروف غير صالح أو أكبر من المتبقي.')
+  return postAdvanceExpense(input, crypto.randomUUID())
+}
+
+export async function returnAdvanceAmount(input: ReturnAdvanceInput, remaining: number): Promise<string> {
+  if (!input.destinationAccountId || !input.transactionDate || !input.description.trim())
+    throw new Error('أكمل بيانات رد المبلغ.')
+  if (!positiveAmount(input.amount) || Number(input.amount) > remaining)
+    throw new Error('المبلغ المرتجع غير صالح أو أكبر من المتبقي.')
+  return postAdvanceReturn(input, crypto.randomUUID())
 }

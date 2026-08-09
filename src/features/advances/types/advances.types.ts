@@ -50,3 +50,52 @@ export interface AdvancesViewModel {
   projects: string[]
   summary: AdvancesSummary
 }
+
+export interface AdvanceProjectOption {
+  id: string
+  name: string
+}
+export interface AdvanceAccountOption {
+  id: string
+  name: string
+  ledgerAccountId: string
+  balance?: number
+}
+export interface AdvanceLedgerOption {
+  id: string
+  code: string
+  name: string
+}
+export interface AdvanceOptions {
+  projects: AdvanceProjectOption[]
+  cashAccounts: AdvanceAccountOption[]
+  ledgerAccounts: AdvanceLedgerOption[]
+  expenseAccounts: AdvanceLedgerOption[]
+}
+
+export interface CreateAdvanceInput {
+  holderName: string
+  holderTitle: string
+  projectIds: string[]
+  sourceAccountId: string
+  advanceLedgerAccountId: string
+  issueDate: string
+  dueDate: string
+  purpose: string
+  amount: string
+}
+export interface RecordAdvanceExpenseInput {
+  advanceId: string
+  projectId: string
+  expenseAccountId: string
+  transactionDate: string
+  description: string
+  amount: string
+}
+export interface ReturnAdvanceInput {
+  advanceId: string
+  destinationAccountId: string
+  transactionDate: string
+  description: string
+  amount: string
+}

@@ -1,23 +1,25 @@
 import { useMemo, useState } from 'react'
 import { AlertTriangle, HandCoins, Plus, ReceiptText, RotateCcw, WalletCards } from 'lucide-react'
+import { AdvanceMovementDialog, CreateAdvanceDialog } from '../components/AdvanceDialogs'
 import { useAdvances } from '../hooks/useAdvances'
 import type { Advance, AdvanceFilters, AdvanceStatus } from '../types/advances.types'
 import '../styles/advances.css'
 
-const money = new Intl.NumberFormat('ar-EG', {
-  style: 'currency',
-  currency: 'EGP',
-  currencyDisplay: 'narrowSymbol',
-  maximumFractionDigits: 0,
-})
+const number = new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 2 })
+const money = (value: number) => `${number.format(value)} ج.م`
 const date = new Intl.DateTimeFormat('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' })
 const labels: Record<AdvanceStatus, string> = { open: 'مفتوحة', overdue: 'متأخرة', settled: 'تمت التسوية' }
-function formattedDate(value: string) {
-  const parsed = new Date(`${value}T12:00:00`)
-  return !value || Number.isNaN(parsed.getTime()) ? '—' : date.format(parsed)
-}
+const formatDate = (value: string) => (value ? date.format(new Date(`${value}T12:00:00`)) : '—')
 
-function Details({ advance }: { advance: Advance }) {
+function Details({
+  advance,
+  onExpense,
+  onReturn,
+}: {
+  advance: Advance
+  onExpense: () => void
+  onReturn: () => void
+}) {
   return (
     <aside className="advance-details" aria-label="تفاصيل العهدة">
       <div className="advance-details__head">
@@ -32,7 +34,7 @@ function Details({ advance }: { advance: Advance }) {
       </div>
       <div className="advance-details__remaining">
         <span>المبلغ المتبقي</span>
-        <strong>{money.format(advance.remaining)}</strong>
+        <strong>{money(advance.remaining)}</strong>
       </div>
       <div className="advance-progress">
         <span style={{ width: `${advance.progress}%` }} />
@@ -41,19 +43,19 @@ function Details({ advance }: { advance: Advance }) {
       <dl className="advance-facts">
         <div>
           <dt>إجمالي العهدة</dt>
-          <dd>{money.format(advance.amount)}</dd>
+          <dd>{money(advance.amount)}</dd>
         </div>
         <div>
           <dt>المصروف</dt>
-          <dd>{money.format(advance.spent)}</dd>
+          <dd>{money(advance.spent)}</dd>
         </div>
         <div>
           <dt>تاريخ الصرف</dt>
-          <dd>{formattedDate(advance.issueDate)}</dd>
+          <dd>{formatDate(advance.issueDate)}</dd>
         </div>
         <div>
           <dt>الاستحقاق</dt>
-          <dd>{formattedDate(advance.dueDate)}</dd>
+          <dd>{formatDate(advance.dueDate)}</dd>
         </div>
       </dl>
       <div>
@@ -61,14 +63,24 @@ function Details({ advance }: { advance: Advance }) {
         <p>{advance.purpose}</p>
       </div>
       <div className="advance-details__actions">
-        <button type="button" className="advance-primary" disabled>
+        <button
+          type="button"
+          className="advance-primary"
+          onClick={onExpense}
+          disabled={advance.remaining <= 0}
+        >
           <ReceiptText size={17} /> تسجيل مصروف
         </button>
-        <button type="button" className="advance-secondary" disabled>
+        <button
+          type="button"
+          className="advance-secondary"
+          onClick={onReturn}
+          disabled={advance.remaining <= 0}
+        >
           <RotateCcw size={17} /> رد المبلغ المتبقي
         </button>
       </div>
-      <p className="muted">التسجيل والتسوية سيتم تفعيلهما في المرحلة المحاسبية التالية.</p>
+      <p className="muted">كل حركة تُرحّل محاسبيًا وتُحدّث رصيد العهدة تلقائيًا.</p>
     </aside>
   )
 }
@@ -76,7 +88,18 @@ function Details({ advance }: { advance: Advance }) {
 export function AdvancesPage() {
   const [filters, setFilters] = useState<AdvanceFilters>({ search: '', status: 'all', project: 'all' })
   const [selectedId, setSelectedId] = useState('')
-  const { data, isLoading, error } = useAdvances(filters)
+  const [dialog, setDialog] = useState<'create' | 'expense' | 'return' | null>(null)
+  const {
+    data,
+    options,
+    isLoading,
+    error,
+    actionError,
+    isSaving,
+    createAdvance,
+    recordExpense,
+    returnAmount,
+  } = useAdvances(filters)
   const selected = useMemo(
     () => data?.advances.find((item) => item.id === selectedId) ?? data?.filteredAdvances[0],
     [data, selectedId],
@@ -89,13 +112,11 @@ export function AdvancesPage() {
           <h1>إدارة العُهد والسلف</h1>
           <p>متابعة الصرف والمصروفات والتسويات من مكان واحد.</p>
         </div>
-        <button type="button" className="advance-primary" disabled>
+        <button type="button" className="advance-primary" onClick={() => setDialog('create')}>
           <Plus size={18} /> صرف عهدة جديدة
         </button>
       </header>
-      <div className="advances-notice">
-        الصفحة متصلة ببيانات العُهد. الصرف والتسوية سيظلان غير متاحين حتى اكتمال دورة القيود المحاسبية.
-      </div>
+      <div className="advances-notice">الصرف والمصروفات ورد المتبقي متصلون بدورة القيود المحاسبية.</div>
       {error && (
         <div className="advances-error" role="alert">
           {error}
@@ -111,13 +132,13 @@ export function AdvancesPage() {
         <article>
           <ReceiptText />
           <span>إجمالي المصروف</span>
-          <strong>{money.format(data?.summary.totalSpent ?? 0)}</strong>
+          <strong>{money(data?.summary.totalSpent ?? 0)}</strong>
           <small>من العُهد المسجلة</small>
         </article>
         <article>
           <WalletCards />
           <span>إجمالي المتبقي</span>
-          <strong>{money.format(data?.summary.totalRemaining ?? 0)}</strong>
+          <strong>{money(data?.summary.totalRemaining ?? 0)}</strong>
           <small>قيد التسوية</small>
         </article>
         <article className="is-danger">
@@ -131,11 +152,13 @@ export function AdvancesPage() {
         <section className="advances-list">
           <div className="advances-filters">
             <input
+              aria-label="البحث في العهد"
               value={filters.search}
               onChange={(e) => setFilters({ ...filters, search: e.target.value })}
               placeholder="ابحث بصاحب العهدة أو المشروع..."
             />
             <select
+              aria-label="الحالة"
               value={filters.status}
               onChange={(e) => setFilters({ ...filters, status: e.target.value as AdvanceFilters['status'] })}
             >
@@ -145,6 +168,7 @@ export function AdvancesPage() {
               <option value="settled">تمت التسوية</option>
             </select>
             <select
+              aria-label="المشروع"
               value={filters.project}
               onChange={(e) => setFilters({ ...filters, project: e.target.value })}
             >
@@ -179,10 +203,10 @@ export function AdvancesPage() {
                       <small>{advance.holderTitle}</small>
                     </td>
                     <td>{advance.projectNames.join('، ')}</td>
-                    <td>{formattedDate(advance.issueDate)}</td>
-                    <td>{money.format(advance.amount)}</td>
-                    <td>{money.format(advance.spent)}</td>
-                    <td>{money.format(advance.remaining)}</td>
+                    <td>{formatDate(advance.issueDate)}</td>
+                    <td>{money(advance.amount)}</td>
+                    <td>{money(advance.spent)}</td>
+                    <td>{money(advance.remaining)}</td>
                     <td>
                       <span className={`advance-status advance-status--${advance.status}`}>
                         {labels[advance.status]}
@@ -209,7 +233,11 @@ export function AdvancesPage() {
           </div>
         </section>
         {selected ? (
-          <Details advance={selected} />
+          <Details
+            advance={selected}
+            onExpense={() => setDialog('expense')}
+            onReturn={() => setDialog('return')}
+          />
         ) : (
           <aside className="advance-details advance-details--empty">
             <HandCoins size={32} />
@@ -217,6 +245,39 @@ export function AdvancesPage() {
           </aside>
         )}
       </div>
+      {dialog === 'create' && (
+        <CreateAdvanceDialog
+          options={options}
+          saving={isSaving}
+          error={actionError}
+          onClose={() => setDialog(null)}
+          onSave={createAdvance}
+        />
+      )}
+      {selected && dialog === 'expense' && (
+        <AdvanceMovementDialog
+          mode="expense"
+          advance={selected}
+          options={options}
+          saving={isSaving}
+          error={actionError}
+          onClose={() => setDialog(null)}
+          onExpense={(input) => recordExpense({ input, remaining: selected.remaining })}
+          onReturn={(input) => returnAmount({ input, remaining: selected.remaining })}
+        />
+      )}
+      {selected && dialog === 'return' && (
+        <AdvanceMovementDialog
+          mode="return"
+          advance={selected}
+          options={options}
+          saving={isSaving}
+          error={actionError}
+          onClose={() => setDialog(null)}
+          onExpense={(input) => recordExpense({ input, remaining: selected.remaining })}
+          onReturn={(input) => returnAmount({ input, remaining: selected.remaining })}
+        />
+      )}
     </main>
   )
 }

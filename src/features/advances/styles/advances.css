@@ -282,3 +282,101 @@
   color: var(--primary);
   font-size: 0.75rem;
 }
+.advance-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(2, 20, 14, 0.62);
+}
+.advance-dialog {
+  width: min(44rem, 100%);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-strong);
+  box-shadow: var(--shadow-card);
+}
+.advance-dialog--small {
+  width: min(34rem, 100%);
+}
+.advance-dialog h2 {
+  margin: 0 0 1rem;
+}
+.advance-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+.advance-form-grid label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.advance-form-grid input,
+.advance-form-grid select,
+.advance-form-grid textarea {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+  color: var(--text);
+  font: inherit;
+}
+.advance-form-grid textarea {
+  min-height: 5rem;
+  resize: vertical;
+}
+.advance-form-wide,
+.advance-form-grid fieldset {
+  grid-column: 1/-1;
+}
+.advance-form-grid fieldset {
+  margin: 0;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.advance-form-grid legend {
+  padding: 0 0.35rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.advance-project-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+.advance-project-choices label {
+  display: flex;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--text);
+}
+.advance-project-choices input {
+  width: auto;
+}
+.advance-dialog-actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+@media (max-width: 600px) {
+  .advance-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .advance-form-wide,
+  .advance-form-grid fieldset {
+    grid-column: auto;
+  }
+  .advance-dialog-actions {
+    display: grid;
+  }
+}
