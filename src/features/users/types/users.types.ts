@@ -1,12 +1,11 @@
-import type { AppRole } from '../../auth/types/auth.types'
-
+export type UserRole = 'super_admin' | 'admin' | 'accountant' | 'viewer'
 export type UserStatus = 'active' | 'suspended'
 
 export type ManagedUser = {
   id: string
   displayName: string
   email: string
-  role: AppRole
+  role: UserRole
   status: UserStatus
   lastLoginAt: string | null
   createdAt: string
@@ -16,7 +15,7 @@ export type ManagedUser = {
 
 export type UsersFilters = {
   query: string
-  role: AppRole | 'all'
+  role: UserRole | 'all'
   status: UserStatus | 'all'
 }
 
