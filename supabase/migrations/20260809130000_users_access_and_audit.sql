@@ -6,6 +6,13 @@ create table if not exists public.user_project_access (
   primary key (user_id, project_id)
 );
 
+create table if not exists public.user_project_access_scope (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  restricted boolean not null default true,
+  updated_by uuid references auth.users(id) on delete set null,
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists public.user_admin_audit (
   id uuid primary key default gen_random_uuid(),
   actor_id uuid references auth.users(id) on delete set null,
@@ -16,11 +23,14 @@ create table if not exists public.user_admin_audit (
 );
 
 alter table public.user_project_access enable row level security;
+alter table public.user_project_access_scope enable row level security;
 alter table public.user_admin_audit enable row level security;
 
 revoke all on public.user_project_access from anon;
+revoke all on public.user_project_access_scope from anon;
 revoke all on public.user_admin_audit from anon;
 grant select on public.user_project_access to authenticated;
+grant select on public.user_project_access_scope to authenticated;
 grant select on public.user_admin_audit to authenticated;
 
 drop policy if exists user_project_access_admin_select on public.user_project_access;
@@ -31,23 +41,28 @@ drop policy if exists user_project_access_self_select on public.user_project_acc
 create policy user_project_access_self_select on public.user_project_access for select to authenticated
 using (user_id = (select auth.uid()));
 
+drop policy if exists user_project_access_scope_admin_select on public.user_project_access_scope;
+create policy user_project_access_scope_admin_select on public.user_project_access_scope for select to authenticated
+using (coalesce((select auth.jwt()) -> 'app_metadata' ->> 'role', 'viewer') in ('admin', 'super_admin'));
+
+drop policy if exists user_project_access_scope_self_select on public.user_project_access_scope;
+create policy user_project_access_scope_self_select on public.user_project_access_scope for select to authenticated
+using (user_id = (select auth.uid()));
+
 drop policy if exists user_admin_audit_admin_select on public.user_admin_audit;
 create policy user_admin_audit_admin_select on public.user_admin_audit for select to authenticated
 using (coalesce((select auth.jwt()) -> 'app_metadata' ->> 'role', 'viewer') in ('admin', 'super_admin'));
-
--- Preserve the access that existing non-admin users had before assignment-based RLS.
-insert into public.user_project_access (user_id, project_id, granted_by)
-select users.id, projects.id, null
-from auth.users as users
-cross join public.projects as projects
-where coalesce(users.raw_app_meta_data ->> 'role', 'viewer') not in ('admin', 'super_admin')
-on conflict do nothing;
 
 drop policy if exists projects_select_authenticated on public.projects;
 drop policy if exists projects_select_by_assignment on public.projects;
 create policy projects_select_by_assignment on public.projects for select to authenticated
 using (
   coalesce((select auth.jwt()) -> 'app_metadata' ->> 'role', 'viewer') in ('admin', 'super_admin')
+  or not exists (
+    select 1 from public.user_project_access_scope
+    where user_project_access_scope.user_id = (select auth.uid())
+      and user_project_access_scope.restricted
+  )
   or exists (
     select 1 from public.user_project_access
     where user_project_access.user_id = (select auth.uid())

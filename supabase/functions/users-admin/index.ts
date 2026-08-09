@@ -123,6 +123,15 @@ Deno.serve(async (request) => {
         user_metadata: { full_name: String(payload.displayName).trim(), phone: payload.phone || null },
       })
       if (error) throw error
+      const { error: scopeError } = await admin.from('user_project_access_scope').insert({
+        user_id: data.user.id,
+        restricted: true,
+        updated_by: caller.id,
+      })
+      if (scopeError) {
+        await admin.auth.admin.deleteUser(data.user.id)
+        throw scopeError
+      }
       await audit(data.user.id, 'user_created', { role: payload.role })
       return json({ id: data.user.id }, 201)
     }
@@ -153,6 +162,13 @@ Deno.serve(async (request) => {
           )
           if (insertError) throw insertError
         }
+        const { error: scopeError } = await admin.from('user_project_access_scope').upsert({
+          user_id: payload.id,
+          restricted: true,
+          updated_by: caller.id,
+          updated_at: new Date().toISOString(),
+        })
+        if (scopeError) throw scopeError
         await audit(payload.id, 'projects_updated', { projectIds })
         return json({ ok: true })
       }
