@@ -5,6 +5,7 @@ import type { AdvanceRow } from '../types/advances.types'
 const base: AdvanceRow = {
   id: '1',
   advance_number: 7,
+  advance_code: 'ADV-0007',
   holder_name: 'أحمد سالم',
   holder_title: 'مهندس موقع',
   project_names: ['مول زايد', 'فيلا التجمع'],

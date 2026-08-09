@@ -3,6 +3,7 @@ export type AdvanceStatus = 'open' | 'overdue' | 'settled'
 export interface AdvanceRow {
   id: string
   advance_number: number
+  advance_code: string
   holder_name: string
   holder_title: string | null
   project_names: string[] | null

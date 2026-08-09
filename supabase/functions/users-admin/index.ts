@@ -43,6 +43,24 @@ Deno.serve(async (request) => {
 
   const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } })
 
+  async function validatePassword(password: unknown) {
+    if (typeof password !== 'string' || password.length < 8) {
+      return 'Password must contain at least 8 characters'
+    }
+    const { data } = await admin.from('system_settings').select('settings').eq('id', 'default').maybeSingle()
+    const requiresStrongPassword = Boolean(data?.settings?.requireStrongPasswords)
+    if (
+      requiresStrongPassword &&
+      (password.length < 10 ||
+        !/[A-Za-z]/.test(password) ||
+        !/\d/.test(password) ||
+        !/[^A-Za-z\d]/.test(password))
+    ) {
+      return 'Password must contain at least 10 characters, a letter, a number, and a symbol'
+    }
+    return null
+  }
+
   async function audit(targetUserId: string, action: string, details: Record<string, unknown> = {}) {
     const { error } = await admin.from('user_admin_audit').insert({
       actor_id: caller.id,
@@ -97,9 +115,8 @@ Deno.serve(async (request) => {
     }
 
     if (request.method === 'POST' && payload.action === 'reset_password' && payload.id) {
-      if (typeof payload.password !== 'string' || payload.password.length < 8) {
-        return json({ error: 'Password must contain at least 8 characters' }, 400)
-      }
+      const passwordError = await validatePassword(payload.password)
+      if (passwordError) return json({ error: passwordError }, 400)
       const { error } = await admin.auth.admin.updateUserById(payload.id, {
         password: payload.password,
       })
@@ -112,6 +129,8 @@ Deno.serve(async (request) => {
       if (!payload.email || !payload.password || !payload.displayName || !isRole(payload.role)) {
         return json({ error: 'Invalid user data' }, 400)
       }
+      const passwordError = await validatePassword(payload.password)
+      if (passwordError) return json({ error: passwordError }, 400)
       if (payload.role === 'super_admin' && callerRole !== 'super_admin') {
         return json({ error: 'Only a super administrator can grant this role' }, 403)
       }

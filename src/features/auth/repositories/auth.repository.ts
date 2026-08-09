@@ -44,4 +44,16 @@ export const authRepository = {
     const { error } = await getSupabaseClient().auth.signOut()
     if (error) throw error
   },
+  async getSessionTimeoutMinutes(): Promise<number> {
+    const { data, error } = await getSupabaseClient()
+      .from('system_settings')
+      .select('settings')
+      .eq('id', 'default')
+      .maybeSingle()
+    if (error) return 60
+    const value = Number(
+      (data?.settings as { sessionTimeoutMinutes?: unknown } | null)?.sessionTimeoutMinutes,
+    )
+    return Number.isFinite(value) && value >= 5 ? value : 60
+  },
 }

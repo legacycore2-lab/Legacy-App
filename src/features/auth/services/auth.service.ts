@@ -76,4 +76,7 @@ export const authService = {
       throw authError(error)
     }
   },
+  getSessionTimeoutMinutes() {
+    return authRepository.getSessionTimeoutMinutes()
+  },
 }
