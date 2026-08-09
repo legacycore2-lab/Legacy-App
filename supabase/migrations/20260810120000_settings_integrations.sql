@@ -56,6 +56,14 @@ begin
   return new;
 end $$;
 create sequence if not exists public.projects_number_seq start 1;
+alter table public.entries add column if not exists entry_code text;
+update public.entries
+set entry_code = coalesce(
+  nullif((select settings ->> 'journalPrefix' from public.system_settings where id = 'default'), ''),
+  'JE'
+) || '-' || lpad(entry_number::text, 6, '0')
+where entry_code is null or btrim(entry_code) = '';
+create unique index if not exists entries_entry_code_unique on public.entries(entry_code);
 drop trigger if exists projects_configured_number on public.projects;
 create trigger projects_configured_number before insert on public.projects for each row execute function public.apply_configured_document_numbering();
 drop trigger if exists entries_configured_number on public.entries;
