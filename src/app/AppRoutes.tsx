@@ -14,8 +14,8 @@ import { ProjectDetailsPage } from '../features/projects/pages/ProjectDetailsPag
 import { ContractorsPage } from '../features/contractors/pages/ContractorsPage'
 import { ProjectsPage } from '../features/projects/pages/ProjectsPage'
 import { ReportsPage } from '../features/reports/pages/ReportsPage'
+import { SettingsPage } from '../features/settings/pages/SettingsPage'
 import { UsersPage } from '../features/users/pages/UsersPage'
-import { PlaceholderPage } from '../pages/PlaceholderPage'
 import { AppLayoutRoute } from './AppLayoutRoute'
 
 function secured(path: string, page: React.ReactNode) {
@@ -41,13 +41,7 @@ export function AppRoutes() {
           <Route path="/contractors" element={secured('/contractors', <ContractorsPage />)} />
           <Route path="/reports" element={secured('/reports', <ReportsPage />)} />
           <Route path="/users" element={secured('/users', <UsersPage />)} />
-          <Route
-            path="/settings"
-            element={secured(
-              '/settings',
-              <PlaceholderPage title="الإعدادات" description="إعدادات النظام والهوية والتكاملات." />,
-            )}
-          />
+          <Route path="/settings" element={secured('/settings', <SettingsPage />)} />
         </Route>
       </Route>
     </Routes>
