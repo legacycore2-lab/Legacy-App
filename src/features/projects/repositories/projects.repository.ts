@@ -86,10 +86,7 @@ export async function insertProject(record: ProjectInsertRecord): Promise<Projec
   return data as unknown as ProjectRecord
 }
 
-export async function updateProject(
-  id: string,
-  record: ProjectInsertRecord,
-): Promise<ProjectRecord> {
+export async function updateProject(id: string, record: ProjectInsertRecord): Promise<ProjectRecord> {
   const { data, error } = await getSupabaseClient()
     .from('projects')
     .update(record)
@@ -121,9 +118,7 @@ async function countRowsByProject(table: string, projectId: string): Promise<num
   return count ?? 0
 }
 
-export async function countProjectDeleteDependencies(
-  projectId: string,
-): Promise<ProjectDeleteDependencies> {
+export async function countProjectDeleteDependencies(projectId: string): Promise<ProjectDeleteDependencies> {
   const [entries, journals, journalLines, advanceProjects, advanceTransactions] = await Promise.all([
     countRowsByProject('entries', projectId),
     countRowsByProject('journals', projectId),

@@ -1,8 +1,5 @@
 import { AppError, DataValidationError } from '../../../shared/errors/app-error'
-import {
-  countProjectDeleteDependencies,
-  deleteProjectById,
-} from '../repositories/projects.repository'
+import { countProjectDeleteDependencies, deleteProjectById } from '../repositories/projects.repository'
 
 export async function deleteProject(projectId: string): Promise<void> {
   const normalizedProjectId = projectId.trim()

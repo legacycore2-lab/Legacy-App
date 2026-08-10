@@ -1,8 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import {
-  countProjectDeleteDependencies,
-  deleteProjectById,
-} from '../repositories/projects.repository'
+import { countProjectDeleteDependencies, deleteProjectById } from '../repositories/projects.repository'
 import { deleteProject } from './project-delete.service'
 
 vi.mock('../repositories/projects.repository', () => ({
