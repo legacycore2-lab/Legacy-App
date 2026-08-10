@@ -86,7 +86,10 @@ export async function insertProject(record: ProjectInsertRecord): Promise<Projec
   return data as unknown as ProjectRecord
 }
 
-export async function updateProject(id: string, record: ProjectInsertRecord): Promise<ProjectRecord> {
+export async function updateProject(
+  id: string,
+  record: ProjectInsertRecord,
+): Promise<ProjectRecord> {
   const { data, error } = await getSupabaseClient()
     .from('projects')
     .update(record)
