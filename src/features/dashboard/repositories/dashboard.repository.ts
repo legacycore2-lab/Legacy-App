@@ -7,7 +7,15 @@ import type {
   DashboardSourceData,
 } from '../types/dashboard.types'
 
-const DASHBOARD_PROJECT_FIELDS = ['id', 'name', 'client_name', 'status', 'progress', 'is_archived'].join(', ')
+const DASHBOARD_PROJECT_FIELDS = [
+  'id',
+  'name',
+  'client_name',
+  'status',
+  'progress',
+  'is_archived',
+  'created_at',
+].join(', ')
 
 const DASHBOARD_ENTRY_FIELDS = [
   'id',
@@ -23,7 +31,9 @@ async function findProjects(): Promise<DashboardProjectRecord[]> {
   const { data, error } = await getSupabaseClient()
     .from('projects')
     .select(DASHBOARD_PROJECT_FIELDS)
-    .order('name', { ascending: true })
+    // Most-recently created projects first so the dashboard "latest projects" widget
+    // shows the newest additions rather than the alphabetically-first names.
+    .order('created_at', { ascending: false })
 
   if (error) throw error
 
@@ -32,12 +42,13 @@ async function findProjects(): Promise<DashboardProjectRecord[]> {
 
 async function findEntries(): Promise<DashboardEntryRecord[]> {
   // Paginated to avoid Supabase 1000-row default cap.
-  // Stable order: entry_number ASC (unique surrogate key) for consistent pages.
+  // Descending entry_number ensures the most-recent entries appear first; this
+  // allows the dashboard widget to slice the first 3 records correctly.
   return fetchAllWithPagination<DashboardEntryRecord>((from, to) =>
     getSupabaseClient()
       .from('entries')
       .select(DASHBOARD_ENTRY_FIELDS)
-      .order('entry_number', { ascending: true })
+      .order('entry_number', { ascending: false })
       .range(from, to),
   )
 }

@@ -12,12 +12,7 @@ type QuickActionItem = {
 const quickActions: QuickActionItem[] = [
   { label: 'إضافة مشروع', description: 'إنشاء مشروع جديد', icon: FolderPlus, route: '/projects' },
   { label: 'إضافة قيد', description: 'دخل أو مصروف', icon: ReceiptText, route: '/journal' },
-  {
-    label: 'تسجيل عهدة',
-    description: 'إنشاء عهدة جديدة',
-    icon: BriefcaseBusiness,
-    disabledReason: 'ستتوفر بعد اكتمال وحدة العهد والسلف.',
-  },
+  { label: 'تسجيل عهدة', description: 'إنشاء عهدة جديدة', icon: BriefcaseBusiness, route: '/advances' },
   { label: 'تحويل مالي', description: 'بين الخزنة والبنوك', icon: Banknote, route: '/banks' },
 ]
 
