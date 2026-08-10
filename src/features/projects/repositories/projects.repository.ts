@@ -121,13 +121,14 @@ async function countRowsByProject(table: string, projectId: string): Promise<num
 export async function countProjectDeleteDependencies(
   projectId: string,
 ): Promise<ProjectDeleteDependencies> {
-  const [entries, journals, journalLines, advanceProjects, advanceTransactions] = await Promise.all([
-    countRowsByProject('entries', projectId),
-    countRowsByProject('journals', projectId),
-    countRowsByProject('journal_lines', projectId),
-    countRowsByProject('advance_projects', projectId),
-    countRowsByProject('advance_transactions', projectId),
-  ])
+  const [entries, journals, journalLines, advanceProjects, advanceTransactions] =
+    await Promise.all([
+      countRowsByProject('entries', projectId),
+      countRowsByProject('journals', projectId),
+      countRowsByProject('journal_lines', projectId),
+      countRowsByProject('advance_projects', projectId),
+      countRowsByProject('advance_transactions', projectId),
+    ])
 
   return {
     entries,
