@@ -10,6 +10,7 @@ describe('route permissions', () => {
       '/accounts',
       '/banks',
       '/advances',
+      '/contractors',
       '/reports',
       '/users',
       '/settings',
@@ -26,6 +27,7 @@ describe('route permissions', () => {
       '/accounts',
       '/banks',
       '/advances',
+      '/contractors',
       '/reports',
       '/users',
       '/settings',
@@ -40,11 +42,13 @@ describe('route permissions', () => {
     expect(canAccessRoute('viewer', '/journal')).toBe(false)
     expect(canAccessRoute('viewer', '/accounts')).toBe(false)
     expect(canAccessRoute('viewer', '/banks')).toBe(false)
+    expect(canAccessRoute('viewer', '/contractors')).toBe(false)
     expect(canAccessRoute('viewer', '/users')).toBe(false)
   })
 
-  it('keeps reports available to accountants', () => {
+  it('keeps reports and contractors available to accountants', () => {
     expect(canAccessRoute('accountant', '/reports')).toBe(true)
+    expect(canAccessRoute('accountant', '/contractors')).toBe(true)
   })
 
   it('keeps user and settings administration away from accountants', () => {
