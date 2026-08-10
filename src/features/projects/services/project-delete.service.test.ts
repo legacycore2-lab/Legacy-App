@@ -24,9 +24,7 @@ describe('project delete service', () => {
   })
 
   it('deletes a project when it has no financial dependencies', async () => {
-    vi.mocked(countProjectDeleteDependencies).mockResolvedValue(
-      noDependencies,
-    )
+    vi.mocked(countProjectDeleteDependencies).mockResolvedValue(noDependencies)
     vi.mocked(deleteProjectById).mockResolvedValue()
 
     await expect(deleteProject(' project-id ')).resolves.toBeUndefined()
