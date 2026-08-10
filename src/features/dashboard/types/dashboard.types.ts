@@ -51,6 +51,7 @@ export type DashboardProjectRecord = {
   status: string | null
   progress: number | string | null
   is_archived: boolean | null
+  created_at: string | null
 }
 
 export type DashboardEntryRecord = {
