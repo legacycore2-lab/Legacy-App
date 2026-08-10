@@ -46,6 +46,10 @@ from (values
 ) as v(schema_name, table_name, policy_name);
 
 -- 2 Cash & Banks SELECT policies must be finance-only.
+-- Note: every policy qual contains the literal string 'viewer' as the coalesce()
+-- fallback default, so a plain position() check would always find it.  Instead
+-- we verify that 'viewer' does NOT appear inside the ARRAY[...] role list, which
+-- is the only place it would indicate the role is permitted.
 select ok(
   exists (
     select 1
@@ -54,9 +58,9 @@ select ok(
       and p.tablename = v.table_name
       and p.policyname = v.policy_name
       and position('super_admin' in coalesce(p.qual, '')) > 0
-      and position('admin' in coalesce(p.qual, '')) > 0
-      and position('accountant' in coalesce(p.qual, '')) > 0
-      and position('viewer' in coalesce(p.qual, '')) = 0
+      and position('admin'       in coalesce(p.qual, '')) > 0
+      and position('accountant'  in coalesce(p.qual, '')) > 0
+      and not (coalesce(p.qual, '') ~ $$ARRAY\[.*'viewer'.*\]$$)
   ),
   format('%s is finance-only', v.policy_name)
 )
