@@ -18,12 +18,43 @@ describe('route permissions', () => {
     }
   })
 
+  it('allows super admins to access every registered route', () => {
+    for (const path of [
+      '/',
+      '/projects',
+      '/journal',
+      '/accounts',
+      '/banks',
+      '/advances',
+      '/reports',
+      '/users',
+      '/settings',
+    ]) {
+      expect(canAccessRoute('super_admin', path)).toBe(true)
+    }
+  })
+
   it('keeps financial and administrative areas away from viewers', () => {
     expect(canAccessRoute('viewer', '/projects')).toBe(true)
-    expect(canAccessRoute('viewer', '/reports')).toBe(true)
+    expect(canAccessRoute('viewer', '/reports')).toBe(false)
     expect(canAccessRoute('viewer', '/journal')).toBe(false)
     expect(canAccessRoute('viewer', '/accounts')).toBe(false)
+    expect(canAccessRoute('viewer', '/banks')).toBe(false)
     expect(canAccessRoute('viewer', '/users')).toBe(false)
+  })
+
+  it('keeps reports available to accountants', () => {
+    expect(canAccessRoute('accountant', '/reports')).toBe(true)
+  })
+
+  it('keeps user and settings administration away from accountants', () => {
+    expect(canAccessRoute('accountant', '/users')).toBe(false)
+    expect(canAccessRoute('accountant', '/settings')).toBe(false)
+  })
+
+  it('keeps the dashboard and projects available to viewers', () => {
+    expect(canAccessRoute('viewer', '/')).toBe(true)
+    expect(canAccessRoute('viewer', '/projects')).toBe(true)
   })
 
   it('denies unknown routes by default', () => {
