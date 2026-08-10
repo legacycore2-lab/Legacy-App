@@ -8,6 +8,7 @@ const migrationPath = resolve(
 )
 const migration = readFileSync(migrationPath, 'utf8')
 
+// prettier-ignore
 describe('finance role database contract', () => {
   it('covers all 27 RLS policies from the approved remediation plan', () => {
     const policies = [
