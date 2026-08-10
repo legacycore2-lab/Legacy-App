@@ -8,7 +8,7 @@ import type {
   ContractorReportsViewModel,
 } from '../types/contractor-reports.types'
 
-type ContractorReportSection =
+export type ContractorReportSection =
   'overview' | 'statement' | 'projects' | 'categories' | 'monthly' | 'payments' | 'quality'
 
 type Props = {
@@ -25,6 +25,7 @@ type Props = {
   onSearch: () => void
   onReset: () => void
   onPageChange: (page: number) => void
+  initialSection?: ContractorReportSection
   onSectionChange?: (section: ContractorReportSection) => void
 }
 
@@ -58,9 +59,10 @@ export function ContractorReportsPanel({
   onSearch,
   onReset,
   onPageChange,
+  initialSection = 'overview',
   onSectionChange,
 }: Props) {
-  const [section, setSection] = useState<ContractorReportSection>('overview')
+  const [section, setSection] = useState<ContractorReportSection>(initialSection)
   const { overview } = data
 
   return (
