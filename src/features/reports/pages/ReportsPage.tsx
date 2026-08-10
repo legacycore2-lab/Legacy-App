@@ -1,6 +1,7 @@
 import { ArrowRight } from 'lucide-react'
 import { useState } from 'react'
 import { ContractorReportsPanel } from '../components/ContractorReportsPanel'
+import type { ContractorReportSection } from '../components/ContractorReportsPanel'
 import { ExecutiveDashboard } from '../components/ExecutiveDashboard'
 import { ExecutiveKpis } from '../components/ExecutiveKpis'
 import { JournalFilters } from '../components/JournalFilters'
@@ -66,7 +67,12 @@ function toDataTab(report: ReportKey | null): ReportsTab | null {
   return null
 }
 
-// prettier-ignore
+function toContractorSection(report: ReportKey | null): ContractorReportSection {
+  if (report === 'contractor-statement') return 'statement'
+  if (report === 'contractor-payments') return 'payments'
+  return 'overview'
+}
+
 export function ReportsPage() {
   const center = useReportsCenter()
   const activeTab = toDataTab(center.selectedReport)
@@ -74,9 +80,15 @@ export function ReportsPage() {
   const isContractorStatement = center.selectedReport === 'contractor-statement'
   const isContractors = center.selectedReport ? CONTRACTOR_REPORT_KEYS.has(center.selectedReport) : false
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
-  const [contractorSection, setContractorSection] = useState<
-    'overview' | 'statement' | 'projects' | 'categories' | 'monthly' | 'payments' | 'quality'
-  >('overview')
+  const initialContractorSection = toContractorSection(center.selectedReport)
+  const [contractorNavigation, setContractorNavigation] = useState<{
+    report: ReportKey | null
+    section: ContractorReportSection
+  }>({ report: null, section: 'overview' })
+  const contractorSection =
+    contractorNavigation.report === center.selectedReport
+      ? contractorNavigation.section
+      : initialContractorSection
 
   const executive = useExecutiveReports(activeTab)
   const journal = useJournalReport(activeTab)
@@ -114,7 +126,12 @@ export function ReportsPage() {
 
   function buildExportPdf(): (() => void) | undefined {
     if (activeTab === 'executive' && executive.allRows.length > 0 && executive.summary) {
-      return () => exportExecutivePdf({ summary: executive.summary!, topProjects: executive.topProjects!, rows: executive.allRows })
+      return () =>
+        exportExecutivePdf({
+          summary: executive.summary!,
+          topProjects: executive.topProjects!,
+          rows: executive.allRows,
+        })
     }
     if (activeTab === 'projects') {
       return () =>
@@ -125,21 +142,27 @@ export function ReportsPage() {
         })
     }
     if (activeTab === 'journal' && journal.filteredRows.length > 0) {
-      return () => exportJournalPdf(
-        { allRows: journal.filteredRows, contractors: journal.contractors, paymentMethods: journal.paymentMethods, projectOptions: journal.projectOptions },
-        journal.filters,
-        journal.totalCount,
-      )
+      return () =>
+        exportJournalPdf(
+          {
+            allRows: journal.filteredRows,
+            contractors: journal.contractors,
+            paymentMethods: journal.paymentMethods,
+            projectOptions: journal.projectOptions,
+          },
+          journal.filters,
+          journal.totalCount,
+        )
     }
     if (isProfitLoss && profitLoss.data) {
       return () => exportProfitLossPdf(profitLoss.data!, profitLoss.filters)
     }
-    if (isContractorStatement && contractorReports.data && contractorReports.committedFilters.contractorName) {
-      return () =>
-        exportContractorStatementPdf(
-          contractorReports.data!,
-          contractorReports.committedFilters,
-        )
+    if (
+      isContractorStatement &&
+      contractorReports.data &&
+      contractorReports.committedFilters.contractorName
+    ) {
+      return () => exportContractorStatementPdf(contractorReports.data!, contractorReports.committedFilters)
     }
     if (isContractors && contractorReports.data) {
       return () =>
@@ -192,6 +215,27 @@ export function ReportsPage() {
       }))
     }
     if (isContractors && contractorReports.data) {
+      if (center.selectedReport === 'contractor-payments') {
+        return contractorReports.data.paymentMethods.map((row) => ({
+          المقاول: row.contractorName,
+          'طريقة الدفع': row.paymentMethod,
+          القيمة: row.totalAmount,
+          'عدد القيود': row.entryCount,
+          النسبة: row.percentageOfContractorMovement,
+        }))
+      }
+      if (center.selectedReport === 'top-contractors') {
+        return [...contractorReports.data.contractors]
+          .sort((a, b) => b.totalExpense - a.totalExpense)
+          .map((row, index) => ({
+            الترتيب: index + 1,
+            المقاول: row.contractorName,
+            'إجمالي التكلفة': row.totalExpense,
+            'عدد المشاريع': row.projectCount,
+            'عدد القيود': row.entryCount,
+            'آخر نشاط': row.lastActivityDate,
+          }))
+      }
       return contractorReports.data.contractors.map((row) => ({
         المقاول: row.contractorName,
         الإيرادات: row.totalIncome,
@@ -241,12 +285,24 @@ export function ReportsPage() {
         onRefresh={handleRefresh}
         lastUpdated={lastUpdated}
         onExportPdf={buildExportPdf()}
-        onExportExcel={tabularRows.length ? () => exportTable(tabularRows, 'xlsx', center.selectedReport ?? 'report') : undefined}
-        onExportCsv={tabularRows.length ? () => exportTable(tabularRows, 'csv', center.selectedReport ?? 'report') : undefined}
+        onExportExcel={
+          tabularRows.length
+            ? () => exportTable(tabularRows, 'xlsx', center.selectedReport ?? 'report')
+            : undefined
+        }
+        onExportCsv={
+          tabularRows.length
+            ? () => exportTable(tabularRows, 'csv', center.selectedReport ?? 'report')
+            : undefined
+        }
         isExporting={isExporting}
       />
 
-      {exportError ? <div className="reports-export-error" role="alert">{exportError}</div> : null}
+      {exportError ? (
+        <div className="reports-export-error" role="alert">
+          {exportError}
+        </div>
+      ) : null}
 
       {activeTab === 'executive' && (
         <>
@@ -374,6 +430,7 @@ export function ReportsPage() {
             <ReportsErrorState error={contractorReports.error} />
           ) : contractorReports.data ? (
             <ContractorReportsPanel
+              key={center.selectedReport}
               data={contractorReports.data}
               filters={contractorReports.filters}
               hasActiveFilter={contractorReports.hasActiveFilter}
@@ -387,7 +444,10 @@ export function ReportsPage() {
               onSearch={contractorReports.commitSearch}
               onReset={contractorReports.resetFilters}
               onPageChange={contractorReports.setPage}
-              onSectionChange={setContractorSection}
+              initialSection={initialContractorSection}
+              onSectionChange={(section) =>
+                setContractorNavigation({ report: center.selectedReport, section })
+              }
             />
           ) : (
             <ReportsEmptyState message="جاري تحميل تقارير المقاولين..." />
