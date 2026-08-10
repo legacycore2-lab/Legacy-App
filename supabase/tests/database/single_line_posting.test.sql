@@ -1,40 +1,34 @@
+-- Finance Roles V3 contract: the legacy text-based overload
+-- post_single_line_entry(date,text,text,text,text,text,text,numeric) is intentionally
+-- unreachable.  All callers must use the id-based overload tested in
+-- id_based_single_line_posting.test.sql.
 begin;
 
-select plan(6);
+create extension if not exists pgtap with schema extensions;
+
+select plan(2);
 
 insert into auth.users (id, email, raw_app_meta_data)
 values (
   '70000000-0000-0000-0000-000000000001',
   'accountant@test.local',
   '{"role":"accountant"}'::jsonb
-);
+) on conflict (id) do nothing;
 
 insert into public.projects (id, name)
-values ('71000000-0000-0000-0000-000000000001', 'مشروع القيد الواحد');
+values ('71000000-0000-0000-0000-000000000001', 'مشروع القيد الواحد')
+on conflict (id) do nothing;
 
 insert into public.accounts (
   id, code, name_ar, account_type, normal_balance, level, is_postable
 )
 values
-  (
-    '72000000-0000-0000-0000-000000000001',
-    '95100',
-    'مصروفات الموقع',
-    'expense',
-    'debit',
-    1,
-    true
-  ),
-  (
-    '72000000-0000-0000-0000-000000000002',
-    '91100',
-    'الخزنة',
-    'asset',
-    'debit',
-    1,
-    true
-  );
+  ('72000000-0000-0000-0000-000000000001', '95100', 'مصروفات الموقع', 'expense', 'debit', 1, true),
+  ('72000000-0000-0000-0000-000000000002', '91100', 'الخزنة', 'asset', 'debit', 1, true)
+on conflict (id) do nothing;
 
+-- V3: legacy 8-param overload has EXECUTE revoked from all roles.
+-- accountant receives permission-denied, not a successful post.
 set local role authenticated;
 select set_config(
   'request.jwt.claims',
@@ -42,7 +36,7 @@ select set_config(
   true
 );
 
-select lives_ok(
+select throws_ok(
   $$select public.post_single_line_entry(
       current_date,
       'مشروع القيد الواحد',
@@ -53,42 +47,11 @@ select lives_ok(
       '91100',
       1250
     )$$,
-  'accountant can post one user-facing line'
+  '42501',
+  null,
+  'V3: legacy post_single_line_entry is unreachable by accountant'
 );
 
-reset role;
-
-select is(
-  (select count(*) from public.entries where description = 'شراء خامات'),
-  1::bigint,
-  'one legacy entry is created for the journal list'
-);
-
-select is(
-  (select status from public.journals where description = 'شراء خامات'),
-  'posted',
-  'generated journal is posted'
-);
-
-select is(
-  (select count(*) from public.journal_lines line
-    join public.journals journal on journal.id = line.journal_id
-    where journal.description = 'شراء خامات'),
-  2::bigint,
-  'exactly two journal lines are generated'
-);
-
-select is(
-  (select sum(line.debit) from public.journal_lines line
-    join public.journals journal on journal.id = line.journal_id
-    where journal.description = 'شراء خامات'),
-  (select sum(line.credit) from public.journal_lines line
-    join public.journals journal on journal.id = line.journal_id
-    where journal.description = 'شراء خامات'),
-  'generated debit equals generated credit'
-);
-
-set local role authenticated;
 select set_config(
   'request.jwt.claims',
   '{"sub":"70000000-0000-0000-0000-000000000001","role":"authenticated","app_metadata":{"role":"viewer"}}',
@@ -107,8 +70,8 @@ select throws_ok(
       100
     )$$,
   '42501',
-  'Insufficient permissions to post journal entries',
-  'viewer cannot post a single-line entry'
+  null,
+  'V3: legacy post_single_line_entry is unreachable by viewer'
 );
 
 reset role;
