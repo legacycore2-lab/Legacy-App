@@ -47,10 +47,7 @@ function buildStoragePath(entryId: string, originalName: string): string {
 
 function validateUploadFile(file: File): void {
   if (!ENTRY_ATTACHMENT_ALLOWED_MIME_TYPES.includes(file.type as EntryAttachment['mimeType'])) {
-    throw new AppError(
-      'نوع الملف غير مسموح به. الأنواع المقبولة: JPEG، PNG، WEBP، PDF.',
-      'INVALID_MIME_TYPE',
-    )
+    throw new AppError('نوع الملف غير مسموح به. الأنواع المقبولة: JPEG، PNG، WEBP، PDF.', 'INVALID_MIME_TYPE')
   }
   if (file.size > ENTRY_ATTACHMENT_MAX_FILE_SIZE_BYTES) {
     throw new AppError('حجم الملف يتجاوز الحد المسموح به (10 ميغابايت).', 'FILE_TOO_LARGE')

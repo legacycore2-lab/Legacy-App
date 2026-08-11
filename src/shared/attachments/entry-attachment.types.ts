@@ -31,9 +31,7 @@ export type EntryAttachmentCleanupWarning = {
 
 export type DeleteEntryAttachmentResult = { kind: 'success' } | EntryAttachmentCleanupWarning
 
-export type RetryEntryAttachmentCleanupResult =
-  | { kind: 'success' }
-  | { kind: 'failed'; reason: string }
+export type RetryEntryAttachmentCleanupResult = { kind: 'success' } | { kind: 'failed'; reason: string }
 
 export const ENTRY_ATTACHMENT_ALLOWED_MIME_TYPES = [
   'image/jpeg',
