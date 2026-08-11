@@ -2,6 +2,7 @@ import {
   findJournalPostingOptions,
   forceDeleteJournalEntry,
   postSingleLineEntry,
+  reverseJournalEntry,
   subscribeToJournalPostingOptionChanges,
 } from '../repositories/journal.repository'
 import type {
@@ -68,6 +69,11 @@ export async function getJournalPostingOptions(): Promise<JournalPostingOptions>
 
 export function watchJournalPostingOptions(onChange: () => void): () => void {
   return subscribeToJournalPostingOptionChanges(onChange)
+}
+
+export async function reverseEntry(entryId: string): Promise<string> {
+  if (!entryId) throw new Error('معرّف القيد مطلوب.')
+  return reverseJournalEntry(entryId)
 }
 
 export async function forceDeleteEntry(entryId: string, reason: string): Promise<void> {
