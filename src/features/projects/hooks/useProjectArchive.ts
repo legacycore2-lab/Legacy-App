@@ -2,12 +2,15 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
 import { archiveProject } from '../services/project-archive.service'
+import { useProjectPermissions } from './useProjectPermissions'
 
 export function useProjectArchive(projectId: string | null) {
   const queryClient = useQueryClient()
+  const { canArchive } = useProjectPermissions()
   const [isOpen, setIsOpen] = useState(false)
   const mutation = useMutation({
     mutationFn: async () => {
+      if (!canArchive) throw new Error('Project archive is not allowed for this role.')
       if (!projectId) throw new Error('Project identifier is missing.')
       return archiveProject(projectId)
     },
@@ -23,6 +26,7 @@ export function useProjectArchive(projectId: string | null) {
   return {
     isOpen,
     open: () => {
+      if (!canArchive) return
       mutation.reset()
       setIsOpen(true)
     },
@@ -31,10 +35,12 @@ export function useProjectArchive(projectId: string | null) {
     },
     isArchiving: mutation.isPending,
     error: mutation.error ? toErrorMessage(mutation.error, 'تعذر أرشفة المشروع.') : '',
-    submit: async () =>
-      mutation
+    submit: async () => {
+      if (!canArchive || mutation.isPending) return false
+      return mutation
         .mutateAsync()
         .then(() => true)
-        .catch(() => false),
+        .catch(() => false)
+    },
   }
 }

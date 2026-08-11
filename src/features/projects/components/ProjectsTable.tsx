@@ -5,12 +5,13 @@ import type { ProjectRow } from '../types/project.types'
 type Props = {
   projects: ProjectRow[]
   onEdit: (project: ProjectRow) => void
+  canEdit: boolean
 }
 
 const money = new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 0 })
 const statusLabel = { active: 'مفتوح', completed: 'مكتمل', paused: 'متوقف', archived: 'مؤرشف' }
 
-export function ProjectsTable({ projects, onEdit }: Props) {
+export function ProjectsTable({ projects, onEdit, canEdit }: Props) {
   const navigate = useNavigate()
 
   return (
@@ -31,6 +32,14 @@ export function ProjectsTable({ projects, onEdit }: Props) {
           </thead>
           <tbody>
             {projects.map((project) => {
+              const isArchived = project.status === 'archived'
+              const editDisabled = isArchived || !canEdit
+              const editLabel = isArchived
+                ? 'المشروع المؤرشف غير قابل للتعديل'
+                : canEdit
+                  ? 'تعديل المشروع'
+                  : 'ليس لديك صلاحية تعديل المشروع'
+
               return (
                 <tr
                   key={project.id}
@@ -63,10 +72,12 @@ export function ProjectsTable({ projects, onEdit }: Props) {
                     <div className="table-actions">
                       <button
                         type="button"
-                        title="تعديل المشروع"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          onEdit(project)
+                        title={editLabel}
+                        aria-label={editLabel}
+                        disabled={editDisabled}
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          if (!editDisabled) onEdit(project)
                         }}
                       >
                         <Pencil size={16} />

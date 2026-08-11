@@ -1,5 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
+import { watchProjectDetails } from '../services/project-details-realtime.service'
 import {
   buildFinanceViewModel,
   buildProjectDetailsViewModel,
@@ -19,11 +21,21 @@ export function useProjectDetails(projectId: string | null): {
   isLoading: boolean
   error: string
 } {
+  const queryClient = useQueryClient()
   const { data, isLoading, error } = useQuery({
     queryKey: ['project-details', projectId],
     queryFn: () => getProjectDetails(projectId!),
     enabled: !!projectId,
+    staleTime: 30_000,
   })
+
+  useEffect(() => {
+    if (!projectId) return
+
+    return watchProjectDetails(() => {
+      void queryClient.invalidateQueries({ queryKey: ['project-details', projectId] })
+    })
+  }, [projectId, queryClient])
 
   return {
     viewModel: data ? buildProjectDetailsViewModel(data) : null,
