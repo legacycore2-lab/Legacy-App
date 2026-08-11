@@ -37,7 +37,7 @@ export function JournalView({
   isRefreshing,
   error,
 }: Props) {
-  const { canForceDelete, canReverse } = useJournalPermissions()
+  const { canForceDelete, canManageAttachments, canReverse } = useJournalPermissions()
   const [isEntryFormOpen, setIsEntryFormOpen] = useState(false)
   const [isImportOpen, setIsImportOpen] = useState(false)
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null)
@@ -70,6 +70,7 @@ export function JournalView({
         onClose={() => setSelectedEntryId(null)}
         canForceDelete={canForceDelete}
         canReverse={canReverse}
+        canManageAttachments={canManageAttachments}
       />
 
       <div className="journal-stats">
