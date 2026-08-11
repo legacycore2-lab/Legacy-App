@@ -1,7 +1,9 @@
 import { findContractorEntries } from '../repositories/contractors.repository'
 import type {
   Contractor,
+  ContractorEntriesPage,
   ContractorEntry,
+  ContractorEntryFilters,
   ContractorEntryRecord,
   ContractorProject,
   ContractorSort,
@@ -15,6 +17,8 @@ import {
   parseAmount,
 } from '../../../shared/contractors-helpers'
 
+export const CONTRACTOR_ENTRIES_PAGE_SIZE = 20
+
 // ─── Aggregation ──────────────────────────────────────────────────────────────
 
 /**
@@ -23,7 +27,6 @@ import {
  * Does not mutate the input array.
  */
 export function buildContractors(records: ContractorEntryRecord[]): Contractor[] {
-  // Map: dedup key → mutable accumulator
   const map = new Map<
     string,
     {
@@ -38,7 +41,6 @@ export function buildContractors(records: ContractorEntryRecord[]): Contractor[]
   >()
 
   for (const record of records) {
-    // Skip null / empty contractor names
     if (!record.contractor_name || !record.contractor_name.trim()) continue
 
     const name = normaliseName(record.contractor_name)
@@ -46,14 +48,10 @@ export function buildContractors(records: ContractorEntryRecord[]): Contractor[]
     const amount = parseAmount(record.amount)
     const entryType = normalizeEntryType(record.entry_type)
 
-    // Unknown entry_type: keep the entry in the list (documented) but exclude
-    // it from financial aggregation — never treat an unknown type as expense.
     const entry: ContractorEntry = {
       id: record.id,
       entryDate: record.entry_date,
-      // Preserve null as 'unknown' in the UI type — never coerce to 'expense'
       entryType: entryType ?? 'unknown',
-      // Show the real amount in the details panel — just don't aggregate it
       amount,
       description: record.description?.trim() ?? '',
       seq: record.entry_number,
@@ -63,29 +61,20 @@ export function buildContractors(records: ContractorEntryRecord[]): Contractor[]
 
     const existing = map.get(key)
     if (existing) {
-      // Only aggregate known types — unknown entry_type contributes 0 to both totals
       if (entryType === 'income') existing.totalIncome += amount
       else if (entryType === 'expense') existing.totalExpense += amount
 
-      if (entry.entryDate > existing.latestActivityDate) {
-        existing.latestActivityDate = entry.entryDate
-      }
+      if (entry.entryDate > existing.latestActivityDate) existing.latestActivityDate = entry.entryDate
 
       if (record.project_id && record.projects) {
-        existing.projectMap.set(record.project_id, {
-          id: record.project_id,
-          name: record.projects.name,
-        })
+        existing.projectMap.set(record.project_id, { id: record.project_id, name: record.projects.name })
       }
 
       existing.entries.push(entry)
     } else {
       const projectMap = new Map<string, ContractorProject>()
       if (record.project_id && record.projects) {
-        projectMap.set(record.project_id, {
-          id: record.project_id,
-          name: record.projects.name,
-        })
+        projectMap.set(record.project_id, { id: record.project_id, name: record.projects.name })
       }
 
       map.set(key, {
@@ -109,18 +98,17 @@ export function buildContractors(records: ContractorEntryRecord[]): Contractor[]
     totalExpense: acc.totalExpense,
     netMovement: acc.totalIncome - acc.totalExpense,
     latestActivityDate: acc.latestActivityDate,
-    projects: Array.from(acc.projectMap.values()),
-    entries: acc.entries,
+    projects: Array.from(acc.projectMap.values()).sort((a, b) => a.name.localeCompare(b.name, 'ar')),
+    entries: [...acc.entries].sort((a, b) => {
+      const byDate = b.entryDate.localeCompare(a.entryDate)
+      if (byDate !== 0) return byDate
+      return (b.seq ?? 0) - (a.seq ?? 0)
+    }),
   }))
 }
 
-// ─── Search ───────────────────────────────────────────────────────────────────
+// ─── Directory search/sort ───────────────────────────────────────────────────
 
-/**
- * Filters contractors by a search query against their name.
- * Case-insensitive for Latin characters; Arabic compared directly.
- * Returns a new array — does not mutate input.
- */
 export function searchContractors(contractors: Contractor[], query: string): Contractor[] {
   const q = query.trim()
   if (!q) return contractors
@@ -128,12 +116,6 @@ export function searchContractors(contractors: Contractor[], query: string): Con
   return contractors.filter((c) => c.key.includes(lq) || c.name.includes(q))
 }
 
-// ─── Sort ─────────────────────────────────────────────────────────────────────
-
-/**
- * Sorts a list of contractors by the given criterion.
- * Returns a new array — does not mutate input.
- */
 export function sortContractors(contractors: Contractor[], sort: ContractorSort): Contractor[] {
   return [...contractors].sort((a, b) => {
     switch (sort) {
@@ -147,6 +129,42 @@ export function sortContractors(contractors: Contractor[], sort: ContractorSort)
         return b.latestActivityDate.localeCompare(a.latestActivityDate)
     }
   })
+}
+
+// ─── Contractor details ──────────────────────────────────────────────────────
+
+export function filterContractorEntries(
+  entries: ContractorEntry[],
+  filters: ContractorEntryFilters,
+): ContractorEntry[] {
+  return entries.filter((entry) => {
+    if (filters.projectId && entry.projectId !== filters.projectId) return false
+    if (filters.dateFrom && entry.entryDate < filters.dateFrom) return false
+    if (filters.dateTo && entry.entryDate > filters.dateTo) return false
+    return true
+  })
+}
+
+export function getContractorEntriesPage(
+  contractor: Contractor,
+  filters: ContractorEntryFilters,
+  page: number,
+  pageSize = CONTRACTOR_ENTRIES_PAGE_SIZE,
+): ContractorEntriesPage {
+  const safePageSize = Math.min(Math.max(Math.trunc(pageSize), 1), 100)
+  const filtered = filterContractorEntries(contractor.entries, filters)
+  const totalCount = filtered.length
+  const totalPages = Math.max(1, Math.ceil(totalCount / safePageSize))
+  const safePage = Math.min(Math.max(1, Math.trunc(page)), totalPages)
+  const offset = (safePage - 1) * safePageSize
+
+  return {
+    entries: filtered.slice(offset, offset + safePageSize),
+    page: safePage,
+    pageSize: safePageSize,
+    totalPages,
+    totalCount,
+  }
 }
 
 // ─── ViewModel builder ────────────────────────────────────────────────────────
@@ -170,13 +188,8 @@ export async function getContractors(): Promise<Contractor[]> {
   return buildContractors(records)
 }
 
-// ─── Selected contractor derivation (pure, testable) ─────────────────────────
+// ─── Selected contractor derivation ──────────────────────────────────────────
 
-/**
- * Derives the selected Contractor from a list by key.
- * Returns null if the key is not found — handles refetch removal and
- * search-hiding gracefully without any manual state cleanup.
- */
 export function extractSelectedContractor(
   contractors: Contractor[],
   selectedKey: string | null,

@@ -59,3 +59,17 @@ export type ContractorsViewModel = {
   totalProjects: number
   totalEntries: number
 }
+
+export type ContractorEntryFilters = {
+  projectId: string
+  dateFrom: string
+  dateTo: string
+}
+
+export type ContractorEntriesPage = {
+  entries: ContractorEntry[]
+  page: number
+  pageSize: number
+  totalPages: number
+  totalCount: number
+}

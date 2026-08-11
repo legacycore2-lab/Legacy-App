@@ -1,0 +1,100 @@
+.contractor-panel__section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.contractor-panel__section-head h3 {
+  margin: 0;
+}
+
+.contractor-panel__reset {
+  border: 0;
+  background: transparent;
+  color: var(--primary);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.contractor-panel__filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.contractor-panel__filters select {
+  grid-column: 1 / -1;
+}
+
+.contractor-panel__filters select,
+.contractor-panel__filters input {
+  min-width: 0;
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 11px;
+}
+
+.contractor-panel__empty {
+  margin: 0;
+  padding: 20px 8px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 12px;
+}
+
+.contractor-panel__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.contractor-panel__pagination button {
+  padding: 6px 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.contractor-panel__pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+[data-theme='dark'] .contractor-panel__filters select,
+[data-theme='dark'] .contractor-panel__filters input,
+[data-theme='dark'] .contractor-panel__pagination button {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+[data-theme='dark'] .contractor-panel__entry {
+  background: var(--surface-soft);
+}
+
+@media (max-width: 420px) {
+  .contractor-panel__filters {
+    grid-template-columns: 1fr;
+  }
+
+  .contractor-panel__filters select {
+    grid-column: auto;
+  }
+}
