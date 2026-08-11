@@ -3,14 +3,7 @@ import type { ProfitLossViewModel } from '../types/profit-loss.types'
 import type { ReportKey } from '../types/reports-center.types'
 import type { ReportJournalRow, ReportProjectRow, ReportsTab, TabularRow } from '../types/report.types'
 
-export type ContractorReportSection =
-  | 'overview'
-  | 'statement'
-  | 'projects'
-  | 'categories'
-  | 'monthly'
-  | 'payments'
-  | 'quality'
+export type ContractorReportSection = 'overview' | 'statement' | 'projects' | 'categories' | 'monthly' | 'payments' | 'quality'
 
 const CONTRACTOR_REPORT_KEYS = new Set<ReportKey>([
   'contractor-statement',
