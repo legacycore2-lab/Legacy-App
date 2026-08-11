@@ -1,20 +1,35 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useMemo, useState } from 'react'
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useDeferredValue, useEffect, useMemo, useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
-import { filterProjects } from '../services/project-filter.service'
-import { buildProjectRows, getProjects, summarizeProjects, watchProjects } from '../services/projects.service'
+import { getProjectsPage, PROJECTS_PAGE_SIZE } from '../services/project-list.service'
+import { getProjects, summarizeProjects, watchProjects } from '../services/projects.service'
 import type { ProjectStatusFilter } from '../types/project.types'
 
 const projectsQueryKey = ['projects'] as const
 
 export function useProjects() {
   const queryClient = useQueryClient()
-  const [query, setQuery] = useState('')
-  const [status, setStatus] = useState<ProjectStatusFilter>('all')
+  const [query, setQueryState] = useState('')
+  const [status, setStatusState] = useState<ProjectStatusFilter>('all')
+  const [page, setPage] = useState(1)
+  const deferredQuery = useDeferredValue(query)
 
-  const projectsQuery = useQuery({
-    queryKey: projectsQueryKey,
+  const summaryQuery = useQuery({
+    queryKey: [...projectsQueryKey, 'summary'],
     queryFn: getProjects,
+    staleTime: 30_000,
+  })
+
+  const pageQuery = useQuery({
+    queryKey: [...projectsQueryKey, 'page', page, deferredQuery, status],
+    queryFn: () =>
+      getProjectsPage({
+        page,
+        pageSize: PROJECTS_PAGE_SIZE,
+        query: deferredQuery,
+        status,
+      }),
+    placeholderData: keepPreviousData,
     staleTime: 30_000,
   })
 
@@ -23,20 +38,40 @@ export function useProjects() {
     [queryClient],
   )
 
-  const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data])
-  const filteredProjects = useMemo(() => filterProjects(projects, query, status), [projects, query, status])
+  useEffect(() => {
+    if (pageQuery.data && pageQuery.data.page !== page) setPage(pageQuery.data.page)
+  }, [page, pageQuery.data])
+
+  const projects = useMemo(() => summaryQuery.data ?? [], [summaryQuery.data])
   const summary = useMemo(() => summarizeProjects(projects), [projects])
-  const projectRows = useMemo(() => buildProjectRows(filteredProjects), [filteredProjects])
+
+  const setQuery = (value: string) => {
+    setQueryState(value)
+    setPage(1)
+  }
+
+  const setStatus = (value: ProjectStatusFilter) => {
+    setStatusState(value)
+    setPage(1)
+  }
+
+  const error = pageQuery.error ?? summaryQuery.error
 
   return {
     projects,
-    projectRows,
+    projectRows: pageQuery.data?.rows ?? [],
     summary,
+    totalCount: pageQuery.data?.totalCount ?? 0,
+    page,
+    totalPages: pageQuery.data?.totalPages ?? 1,
     query,
     setQuery,
     status,
     setStatus,
-    isLoading: projectsQuery.isLoading,
-    error: projectsQuery.error ? toErrorMessage(projectsQuery.error, 'تعذر تحميل المشاريع.') : '',
+    previousPage: () => setPage((current) => Math.max(1, current - 1)),
+    nextPage: () => setPage((current) => Math.min(pageQuery.data?.totalPages ?? current, current + 1)),
+    isLoading: pageQuery.isLoading || summaryQuery.isLoading,
+    isRefreshing: pageQuery.isFetching && !pageQuery.isLoading,
+    error: error ? toErrorMessage(error, 'تعذر تحميل المشاريع.') : '',
   }
 }
