@@ -22,9 +22,8 @@ export function useProjectDetails(projectId: string | null): {
   error: string
 } {
   const queryClient = useQueryClient()
-  const queryKey = ['project-details', projectId] as const
   const { data, isLoading, error } = useQuery({
-    queryKey,
+    queryKey: ['project-details', projectId],
     queryFn: () => getProjectDetails(projectId!),
     enabled: !!projectId,
     staleTime: 30_000,
@@ -34,7 +33,7 @@ export function useProjectDetails(projectId: string | null): {
     if (!projectId) return
 
     return watchProjectDetails(() => {
-      void queryClient.invalidateQueries({ queryKey })
+      void queryClient.invalidateQueries({ queryKey: ['project-details', projectId] })
     })
   }, [projectId, queryClient])
 
