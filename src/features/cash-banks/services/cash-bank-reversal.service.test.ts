@@ -19,4 +19,18 @@ describe('validateCashBankReversalInput', () => {
       validateCashBankReversalInput(validInput({ transactionId: '', reversalDate: '', reason: ' ' })),
     ).toHaveLength(3)
   })
+
+  it('rejects whitespace-only reason', () => {
+    expect(validateCashBankReversalInput(validInput({ reason: '   ' }))).toContain('سبب العكس مطلوب.')
+  })
+
+  it('rejects missing transactionId alone', () => {
+    expect(validateCashBankReversalInput(validInput({ transactionId: '' }))).toContain(
+      'الحركة الأصلية مطلوبة.',
+    )
+  })
+
+  it('rejects missing reversalDate alone', () => {
+    expect(validateCashBankReversalInput(validInput({ reversalDate: '' }))).toContain('تاريخ العكس مطلوب.')
+  })
 })

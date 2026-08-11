@@ -66,7 +66,6 @@ export interface CashBankAccount {
   iban: string | null
   branchName: string | null
   openingBalance: number
-  currentBalance: number
   currencyCode: string
   isActive: boolean
 }
@@ -321,6 +320,30 @@ export interface CashBanksViewModel {
   asOfDate: string
   metrics: CashBankMetric[]
   accounts: CashBankAccountSummary[]
-  movements: CashBankMovement[]
   cashFlow: CashFlowPoint[]
+}
+
+// ─── Pagination & Filters ─────────────────────────────────────────────────────
+export type CashBankTransactionTypeFilter = 'all' | CashBankTransactionType
+
+export interface CashBankMovementsFilters {
+  accountId: string
+  type: CashBankTransactionTypeFilter
+  dateFrom: string
+  dateTo: string
+  query: string
+}
+
+export interface CashBankMovementsPageRequest {
+  page: number
+  pageSize: number
+  filters: CashBankMovementsFilters
+}
+
+export interface CashBankMovementsPage {
+  movements: CashBankMovement[]
+  page: number
+  pageSize: number
+  totalPages: number
+  totalCount: number
 }

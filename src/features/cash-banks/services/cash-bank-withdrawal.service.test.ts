@@ -38,4 +38,20 @@ describe('validateCashBankWithdrawalInput', () => {
       validateCashBankWithdrawalInput(validInput({ offsetAccountId: 'ledger-1' }), 'ledger-1'),
     ).toContain('الحساب المقابل يجب أن يختلف عن حساب أستاذ الخزنة أو البنك.')
   })
+
+  it('accepts amount exactly equal to available balance', () => {
+    expect(validateCashBankWithdrawalInput(validInput({ amount: '1000' }), 'ledger-1', 1000)).toEqual([])
+  })
+
+  it('rejects negative amount', () => {
+    expect(validateCashBankWithdrawalInput(validInput({ amount: '-100' }))).toContain(
+      'مبلغ السحب يجب أن يكون أكبر من صفر.',
+    )
+  })
+
+  it('rejects non-numeric amount', () => {
+    expect(validateCashBankWithdrawalInput(validInput({ amount: 'abc' }))).toContain(
+      'مبلغ السحب يجب أن يكون أكبر من صفر.',
+    )
+  })
 })

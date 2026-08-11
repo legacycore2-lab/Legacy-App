@@ -10,6 +10,7 @@ import { CashBanksMetrics } from '../components/CashBanksMetrics'
 import { CashBanksMovements } from '../components/CashBanksMovements'
 import { CashBanksQuickActions } from '../components/CashBanksQuickActions'
 import { useCashBanks } from '../hooks/useCashBanks'
+import { useCashBankMovements } from '../hooks/useCashBankMovements'
 import { useCashBankAccountForm } from '../hooks/useCashBankAccountForm'
 import { useCashBankDepositForm } from '../hooks/useCashBankDepositForm'
 import { useCashBankWithdrawalForm } from '../hooks/useCashBankWithdrawalForm'
@@ -19,6 +20,7 @@ import '../styles/cash-banks.css'
 
 export function CashBanksPage() {
   const { data, isLoading, error } = useCashBanks()
+  const movements = useCashBankMovements()
   const accountForm = useCashBankAccountForm()
   const depositForm = useCashBankDepositForm()
   const withdrawalForm = useCashBankWithdrawalForm()
@@ -43,7 +45,20 @@ export function CashBanksPage() {
       <CashBankTransferDialog form={transferForm} />
       <CashBankReversalDialog form={reversalForm} />
       <div className="cash-banks-bottom-grid">
-        <CashBanksMovements movements={data.movements} onReverse={reversalForm.open} />
+        <CashBanksMovements
+          movements={movements.movements}
+          accounts={data.accounts}
+          filters={movements.filters}
+          onFiltersChange={movements.onFiltersChange}
+          onResetFilters={movements.onResetFilters}
+          page={movements.page}
+          totalPages={movements.totalPages}
+          totalCount={movements.totalCount}
+          onPreviousPage={movements.onPreviousPage}
+          onNextPage={movements.onNextPage}
+          isLoading={movements.isLoading}
+          onReverse={reversalForm.open}
+        />
         <CashBanksQuickActions
           onDeposit={depositForm.open}
           onWithdrawal={withdrawalForm.open}

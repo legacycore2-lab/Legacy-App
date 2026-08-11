@@ -8,6 +8,7 @@ import {
   findDepositOffsetAccounts,
   findCashBankAccountById,
   findCashBankBalances,
+  findCashBankTransactionPage,
   findRecentCashBankTransactions,
   postCashBankDeposit,
   findWithdrawalSourceAccounts,
@@ -36,6 +37,8 @@ import type {
   CashBankMetric,
   CashBankMetricTone,
   CashBankMovement,
+  CashBankMovementsPage,
+  CashBankMovementsPageRequest,
   CashBankTransactionRow,
   CashBanksViewModel,
   CashFlowPoint,
@@ -108,7 +111,6 @@ function mapAccount(row: CashBankAccountRow): CashBankAccount {
     iban: row.iban,
     branchName: row.branch_name,
     openingBalance: Number(row.opening_balance),
-    currentBalance: Number(row.opening_balance),
     currencyCode: row.currency_code,
     isActive: row.is_active,
   }
@@ -456,7 +458,38 @@ export async function getCashBanksViewModel(): Promise<CashBanksViewModel> {
     asOfDate: dateFormatter.format(new Date()),
     metrics: buildMetrics(balances),
     accounts: buildAccountSummaries(balances),
-    movements: buildMovements(transactions, balances),
     cashFlow: buildCashFlow(transactions),
+  }
+}
+
+// ─── Paginated movements ──────────────────────────────────────────────────────
+export const MOVEMENTS_PAGE_SIZE = 25
+
+export async function getCashBankMovementsPage(
+  request: CashBankMovementsPageRequest,
+): Promise<CashBankMovementsPage> {
+  const pageSize = Math.min(Math.max(Math.trunc(request.pageSize), 1), 100)
+  const page = Math.max(1, Math.trunc(request.page))
+  const offset = (page - 1) * pageSize
+
+  const [{ records, totalCount }, balances] = await Promise.all([
+    findCashBankTransactionPage({
+      offset,
+      limit: pageSize,
+      accountId: request.filters.accountId,
+      type: request.filters.type,
+      dateFrom: request.filters.dateFrom,
+      dateTo: request.filters.dateTo,
+      query: request.filters.query,
+    }),
+    findCashBankBalances(),
+  ])
+
+  return {
+    movements: buildMovements(records, balances),
+    page,
+    pageSize,
+    totalPages: Math.max(1, Math.ceil(totalCount / pageSize)),
+    totalCount,
   }
 }
