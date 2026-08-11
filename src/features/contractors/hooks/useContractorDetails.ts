@@ -42,7 +42,8 @@ export function useContractorDetails(contractor: Contractor | null) {
   return {
     filters: activeState.filters,
     onFiltersChange: updateFilters,
-    onResetFilters: () => setState({ contractorKey, page: 1, filters: defaultFilters }),
+    onResetFilters: () =>
+      setState({ contractorKey, page: 1, filters: defaultFilters }),
     entries: pageData.entries,
     page: pageData.page,
     totalPages: pageData.totalPages,
