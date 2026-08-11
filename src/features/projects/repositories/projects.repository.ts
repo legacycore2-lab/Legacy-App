@@ -1,7 +1,7 @@
 import { getSupabaseClient } from '../../../lib/supabase/client'
 import { fetchAllWithPagination } from '../../../shared/pagination-helpers'
 import { subscribeToTableChanges } from '../../../lib/supabase/realtime'
-import type { ProjectInsertRecord, ProjectRecord } from '../types/project.types'
+import type { ProjectInsertRecord, ProjectRecord, ProjectStatusFilter } from '../types/project.types'
 
 const PROJECT_FIELDS = [
   'id',
@@ -24,10 +24,10 @@ const PROJECT_FIELDS = [
   'created_by',
 ].join(', ')
 
-/**
- * Fetches all projects ordered by name.
- * Returns raw project records — no financial aggregation here.
- */
+function normalizeProjectSearch(value: string): string {
+  return value.replace(/[(),%_]/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
 export async function findProjects(): Promise<ProjectRecord[]> {
   const { data, error } = await getSupabaseClient()
     .from('projects')
@@ -38,30 +38,48 @@ export async function findProjects(): Promise<ProjectRecord[]> {
   return (data ?? []) as unknown as ProjectRecord[]
 }
 
+export async function findProjectsPage(input: {
+  offset: number
+  limit: number
+  query: string
+  status: ProjectStatusFilter
+}): Promise<{ records: ProjectRecord[]; totalCount: number }> {
+  let request = getSupabaseClient()
+    .from('projects')
+    .select(PROJECT_FIELDS, { count: 'exact' })
+    .order('name', { ascending: true })
+    .range(input.offset, input.offset + input.limit - 1)
+
+  if (input.status === 'archived') {
+    request = request.eq('is_archived', true)
+  } else if (input.status !== 'all') {
+    request = request.eq('is_archived', false).eq('status', input.status)
+  }
+
+  const search = normalizeProjectSearch(input.query)
+  if (search) {
+    const pattern = `%${search}%`
+    request = request.or(
+      `name.ilike.${pattern},code.ilike.${pattern},client_name.ilike.${pattern},location.ilike.${pattern},manager.ilike.${pattern}`,
+    )
+  }
+
+  const { data, error, count } = await request
+  if (error) throw error
+
+  return {
+    records: (data ?? []) as unknown as ProjectRecord[],
+    totalCount: count ?? 0,
+  }
+}
+
 export type FinancialEntryRow = {
   project_id: string
   entry_type: string | null
   amount: number | string | null
-  /**
-   * Included solely to provide a stable ORDER BY for pagination.
-   * entry_number is a sequential surrogate key on the entries table and
-   * guarantees consistent page boundaries across range() calls.
-   * It is NOT used in any financial calculation.
-   */
   entry_number: number | null
 }
 
-/**
- * Fetches ALL entries that have a project_id, using range-based pagination
- * to avoid Supabase's default 1000-row cap.
- *
- * Stable ordering: .order('entry_number', { ascending: true }) ensures that
- * row ordering is deterministic across pages. Without a stable ORDER BY,
- * the database is free to return rows in any order, which can cause duplicate
- * or missing rows at page boundaries.
- *
- * No parsing, conversion, or aggregation — raw rows only.
- */
 export async function findAllProjectFinancialEntries(): Promise<FinancialEntryRow[]> {
   return fetchAllWithPagination<FinancialEntryRow>((from, to) =>
     getSupabaseClient()
@@ -73,16 +91,27 @@ export async function findAllProjectFinancialEntries(): Promise<FinancialEntryRo
   )
 }
 
+export async function findProjectFinancialEntries(projectIds: string[]): Promise<FinancialEntryRow[]> {
+  if (projectIds.length === 0) return []
+
+  return fetchAllWithPagination<FinancialEntryRow>((from, to) =>
+    getSupabaseClient()
+      .from('entries')
+      .select('project_id, entry_type, amount, entry_number')
+      .in('project_id', projectIds)
+      .order('entry_number', { ascending: true })
+      .range(from, to),
+  )
+}
+
 export async function insertProject(record: ProjectInsertRecord): Promise<ProjectRecord> {
   const { data, error } = await getSupabaseClient()
     .from('projects')
     .insert(record)
     .select(PROJECT_FIELDS)
     .single()
-
   if (error) throw error
   if (!data) throw new Error('Supabase did not return the created project.')
-
   return data as unknown as ProjectRecord
 }
 
@@ -93,10 +122,8 @@ export async function updateProject(id: string, record: ProjectInsertRecord): Pr
     .eq('id', id)
     .select(PROJECT_FIELDS)
     .single()
-
   if (error) throw error
   if (!data) throw new Error('Supabase did not return the updated project.')
-
   return data as unknown as ProjectRecord
 }
 
@@ -113,7 +140,6 @@ async function countRowsByProject(table: string, projectId: string): Promise<num
     .from(table)
     .select('id', { count: 'exact', head: true })
     .eq('project_id', projectId)
-
   if (error) throw error
   return count ?? 0
 }
@@ -126,14 +152,7 @@ export async function countProjectDeleteDependencies(projectId: string): Promise
     countRowsByProject('advance_projects', projectId),
     countRowsByProject('advance_transactions', projectId),
   ])
-
-  return {
-    entries,
-    journals,
-    journalLines,
-    advanceProjects,
-    advanceTransactions,
-  }
+  return { entries, journals, journalLines, advanceProjects, advanceTransactions }
 }
 
 export async function deleteProjectById(projectId: string): Promise<void> {
@@ -148,7 +167,6 @@ export async function archiveProjectById(projectId: string): Promise<ProjectReco
     .eq('id', projectId)
     .select(PROJECT_FIELDS)
     .single()
-
   if (error) throw error
   if (!data) throw new Error('Supabase did not return the archived project.')
   return data as unknown as ProjectRecord
@@ -162,7 +180,6 @@ export type ProjectEntryRecord = {
   id: string
   seq: number | null
   entry_date: string
-  /** Raw DB value — may be null in edge cases; normalised in service layer */
   entry_type: string | null
   category: string | null
   description: string | null
@@ -177,15 +194,10 @@ export async function findProjectById(id: string): Promise<ProjectRecord | null>
     .select(PROJECT_FIELDS)
     .eq('id', id)
     .maybeSingle()
-
   if (error) throw error
   return data as unknown as ProjectRecord | null
 }
 
-/**
- * Fetches all entries for a project, paginated with stable ordering.
- * entry_number ASC for consistent pages; service layer sorts for display.
- */
 export async function findProjectEntries(projectId: string): Promise<ProjectEntryRecord[]> {
   return fetchAllWithPagination<ProjectEntryRecord>((from, to) =>
     getSupabaseClient()
