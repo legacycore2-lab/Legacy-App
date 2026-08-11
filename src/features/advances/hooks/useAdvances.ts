@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
 import {
   ADVANCES_PAGE_SIZE,
@@ -29,6 +29,7 @@ export function useAdvances() {
   const client = useQueryClient()
   const [filters, setFilters] = useState<AdvanceFilters>(defaultAdvanceFilters)
   const [page, setPage] = useState(1)
+  const [selectedId, setSelectedId] = useState('')
 
   // ─── Idempotency: stable requestId per submit attempt ─────────────────────
   const createRequestId = useRef(crypto.randomUUID())
@@ -49,6 +50,11 @@ export function useAdvances() {
     queryFn: getAdvanceOptions,
     staleTime: 60_000,
   })
+
+  const selectedAdvance = useMemo(
+    () => query.data?.filteredAdvances.find((item) => item.id === selectedId) ?? query.data?.filteredAdvances[0],
+    [query.data, selectedId],
+  )
 
   const refresh = () => client.invalidateQueries({ queryKey: ['advances'] })
 
@@ -80,11 +86,13 @@ export function useAdvances() {
 
   const updateFilters = (next: AdvanceFilters) => {
     setPage(1)
+    setSelectedId('')
     setFilters(next)
   }
 
   const resetFilters = () => {
     setPage(1)
+    setSelectedId('')
     setFilters(defaultAdvanceFilters)
   }
 
@@ -96,6 +104,9 @@ export function useAdvances() {
     filters,
     onFiltersChange: updateFilters,
     onResetFilters: resetFilters,
+    selectedAdvance,
+    selectedAdvanceId: selectedAdvance?.id ?? null,
+    selectAdvance: setSelectedId,
     page,
     totalPages: query.data?.totalPages ?? 1,
     totalCount: query.data?.totalCount ?? 0,
