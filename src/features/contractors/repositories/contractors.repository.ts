@@ -16,7 +16,7 @@ const FIELDS = [
 
 /**
  * Fetches all entries that have a non-null contractor_name.
- * Paginated to avoid Supabase 1000-row cap. Stable order: entry_number ASC.
+ * Paginated to avoid Supabase 1000-row cap. Stable order: newest first.
  * No normalisation or aggregation — raw rows only.
  */
 export async function findContractorEntries(): Promise<ContractorEntryRecord[]> {
@@ -25,7 +25,8 @@ export async function findContractorEntries(): Promise<ContractorEntryRecord[]> 
       .from('entries')
       .select(FIELDS)
       .not('contractor_name', 'is', null)
-      .order('entry_number', { ascending: true })
+      .order('entry_date', { ascending: false })
+      .order('entry_number', { ascending: false })
       .range(from, to),
   )
 }
