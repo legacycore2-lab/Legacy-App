@@ -23,9 +23,7 @@ export function useContractorDetails(contractor: Contractor | null) {
   })
 
   const activeState =
-    state.contractorKey === contractorKey
-      ? state
-      : { contractorKey, page: 1, filters: defaultFilters }
+    state.contractorKey === contractorKey ? state : { contractorKey, page: 1, filters: defaultFilters }
 
   const pageData = useMemo(() => {
     if (!contractor) {
