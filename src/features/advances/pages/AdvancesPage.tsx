@@ -133,25 +133,25 @@ export function AdvancesPage() {
         <article>
           <HandCoins />
           <span>العُهد المفتوحة</span>
-          <strong>{advances.data?.summary.openCount ?? 0}</strong>
+          <strong>{advances.summary.openCount}</strong>
           <small>عهدة قيد المتابعة</small>
         </article>
         <article>
           <ReceiptText />
           <span>إجمالي المصروف</span>
-          <strong>{money(advances.data?.summary.totalSpent ?? 0)}</strong>
+          <strong>{money(advances.summary.totalSpent)}</strong>
           <small>من العُهد المسجلة</small>
         </article>
         <article>
           <WalletCards />
           <span>إجمالي المتبقي</span>
-          <strong>{money(advances.data?.summary.totalRemaining ?? 0)}</strong>
+          <strong>{money(advances.summary.totalRemaining)}</strong>
           <small>قيد التسوية</small>
         </article>
         <article className="is-danger">
           <AlertTriangle />
           <span>عُهد متأخرة</span>
-          <strong>{advances.data?.summary.overdueCount ?? 0}</strong>
+          <strong>{advances.summary.overdueCount}</strong>
           <small>تحتاج متابعة</small>
         </article>
       </section>
@@ -180,7 +180,7 @@ export function AdvancesPage() {
               onChange={(e) => handleFiltersChange('project', e.target.value)}
             >
               <option value="all">جميع المشاريع</option>
-              {advances.data?.projects.map((project) => (
+              {advances.projects.map((project) => (
                 <option key={project}>{project}</option>
               ))}
             </select>
