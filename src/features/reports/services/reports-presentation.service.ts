@@ -55,7 +55,9 @@ export function resolveReportsTab(report: ReportKey | null): ReportsTab | null {
   return null
 }
 
-export function resolveContractorReportSection(report: ReportKey | null): ContractorReportSection {
+export function resolveContractorReportSection(
+  report: ReportKey | null,
+): ContractorReportSection {
   if (report === 'contractor-statement') return 'statement'
   if (report === 'contractor-payments') return 'payments'
   return 'overview'
@@ -66,7 +68,7 @@ export function isContractorReport(report: ReportKey | null): boolean {
 }
 
 export function getReportTitle(report: ReportKey | null): string {
-  return report ? (REPORT_TITLES[report] ?? 'التقرير') : 'التقرير'
+  return report ? REPORT_TITLES[report] ?? 'التقرير' : 'التقرير'
 }
 
 export function selectProjectReportRows(
