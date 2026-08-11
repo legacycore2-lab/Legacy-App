@@ -17,6 +17,7 @@ export type DashboardHeaderSummary = {
 }
 
 export type DashboardProject = {
+  id: string
   name: string
   client: string
   balance: string
