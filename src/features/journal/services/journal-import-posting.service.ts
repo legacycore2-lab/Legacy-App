@@ -20,8 +20,10 @@ export async function commitJournalImport(preview: JournalImportPreview): Promis
       throw new Error(`الصف ${row.excelRow} غير مكتمل ولا يمكن اعتماده.`)
     }
 
+    row.requestId ??= crypto.randomUUID()
+
     return {
-      requestId: crypto.randomUUID(),
+      requestId: row.requestId,
       excelRow: row.excelRow,
       entryDate: row.date,
       projectId: row.projectId,

@@ -95,6 +95,7 @@ export function useSingleLineJournalForm() {
   }
 
   const selectType = (type: SingleLineJournalInput['type']) => {
+    setSubmitted(false)
     setValue((current) => ({
       ...current,
       type,
@@ -136,7 +137,9 @@ export function useSingleLineJournalForm() {
     categoryAccounts,
     paymentAccounts,
     isLoadingOptions: optionsQuery.isLoading,
+    isRetryingOptions: optionsQuery.isFetching && !optionsQuery.isLoading,
     optionsError: optionsQuery.error ? toErrorMessage(optionsQuery.error, 'تعذر تحميل خيارات القيد.') : '',
+    retryOptions: () => optionsQuery.refetch(),
     submit,
     isSaving: mutation.isPending,
     saveError: mutation.error ? toErrorMessage(mutation.error, 'تعذر حفظ القيد.') : '',

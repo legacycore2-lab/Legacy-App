@@ -1,0 +1,114 @@
+.journal-attachments {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--border-color, #d9d9d9);
+  border-radius: 14px;
+}
+
+.journal-attachments-header,
+.journal-attachment-list article,
+.journal-attachment-actions,
+.journal-attachment-confirm > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.journal-attachments-header {
+  justify-content: space-between;
+}
+
+.journal-attachments-header > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.journal-attachment-upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+}
+
+.journal-attachment-upload input {
+  display: none;
+}
+
+.journal-attachment-list {
+  display: grid;
+  gap: 8px;
+}
+
+.journal-attachment-list article {
+  justify-content: space-between;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color, #e2e2e2);
+  border-radius: 10px;
+}
+
+.journal-attachment-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+}
+
+.journal-attachment-meta {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.journal-attachment-meta strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.journal-attachment-meta span,
+.journal-attachment-state {
+  opacity: 0.72;
+}
+
+.journal-attachment-error,
+.journal-attachment-warning {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.journal-attachment-error {
+  color: #b42318;
+}
+
+.journal-attachment-warning {
+  display: grid;
+  gap: 8px;
+}
+
+.journal-attachment-confirm {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border-color, #d9d9d9);
+  border-radius: 10px;
+}
+
+.journal-attachment-confirm > div {
+  justify-content: flex-end;
+}
+
+@media (max-width: 720px) {
+  .journal-attachments-header,
+  .journal-attachment-list article {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .journal-attachment-actions {
+    justify-content: flex-end;
+  }
+}

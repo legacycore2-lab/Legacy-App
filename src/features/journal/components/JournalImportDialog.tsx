@@ -25,6 +25,7 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
     importEntries,
     reset,
   } = useJournalImport()
+  const isBusy = isParsing || isImporting
 
   const errorSummary = useMemo(() => {
     if (!preview) return []
@@ -46,7 +47,7 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
     dialogRef.current?.focus()
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !isImporting) onClose()
+      if (event.key === 'Escape' && !isBusy) onClose()
     }
 
     document.addEventListener('keydown', handleKeyDown)
@@ -54,7 +55,7 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
       document.removeEventListener('keydown', handleKeyDown)
       previousFocus?.focus()
     }
-  }, [isImporting, isOpen, onClose])
+  }, [isBusy, isOpen, onClose])
 
   useEffect(() => {
     if (!isOpen) reset()
@@ -62,14 +63,14 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
 
   if (!isOpen) return null
 
-  const canImport = Boolean(preview?.canImport && !success && !isImporting)
+  const canImport = Boolean(preview?.canImport && !success && !isBusy)
 
   return (
     <div
       className="journal-import-backdrop"
       role="presentation"
       onMouseDown={() => {
-        if (!isImporting) onClose()
+        if (!isBusy) onClose()
       }}
     >
       <div
@@ -87,7 +88,7 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
             <h2 id="journal-import-title">استيراد القيود من Excel</h2>
             <p>استخدم النموذج الرسمي لأنه يتضمن أسماء المشاريع والحسابات الفعلية من النظام.</p>
           </div>
-          <button type="button" onClick={onClose} aria-label="إغلاق نافذة الاستيراد" disabled={isImporting}>
+          <button type="button" onClick={onClose} aria-label="إغلاق نافذة الاستيراد" disabled={isBusy}>
             <X size={20} />
           </button>
         </header>
@@ -104,7 +105,7 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
             type="button"
             className="journal-import-template"
             onClick={downloadTemplate}
-            disabled={isDownloading || isImporting}
+            disabled={isDownloading || isBusy}
           >
             <Download size={18} />
             {isDownloading ? 'جارٍ إنشاء النموذج...' : 'تحميل نموذج Excel الرسمي'}
@@ -119,7 +120,7 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
             id={fileInputId}
             type="file"
             accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
-            disabled={isParsing || isImporting}
+            disabled={isBusy}
             onChange={(event) => {
               const file = event.target.files?.[0]
               if (file) void loadFile(file)
@@ -129,13 +130,13 @@ export function JournalImportDialog({ isOpen, onClose }: Props) {
         </div>
 
         {error && (
-          <div className="journal-import-message journal-import-message--error">
+          <div className="journal-import-message journal-import-message--error" aria-live="polite">
             <AlertTriangle size={18} /> {error}
           </div>
         )}
 
         {success && (
-          <div className="journal-import-message journal-import-message--success">
+          <div className="journal-import-message journal-import-message--success" aria-live="polite">
             <CheckCircle2 size={18} /> {success}
           </div>
         )}

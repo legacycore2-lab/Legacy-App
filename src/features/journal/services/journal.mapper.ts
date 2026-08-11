@@ -8,6 +8,11 @@ function normalizeType(type: string): JournalEntryType {
   throw new DataValidationError(`نوع القيد غير صالح: ${type || 'فارغ'}`)
 }
 
+function normalizeStatus(status: string): JournalDetails['status'] {
+  if (status === 'draft' || status === 'posted' || status === 'reversed') return status
+  throw new DataValidationError(`حالة القيد غير صالحة: ${status || 'فارغة'}`)
+}
+
 function getProjectName(project: JournalEntryRecord['project']): string {
   // Supabase can infer embedded relations as arrays without generated database types.
   // Normalize that transport detail here so it never leaks into the UI model.
@@ -61,7 +66,7 @@ export function mapJournalDetails(record: JournalDetailsRecord): JournalDetails 
     journalNumber: toAmount(record.journal_number),
     journalDate: record.journal_date,
     description: record.description,
-    status: record.status === 'draft' || record.status === 'reversed' ? record.status : 'posted',
+    status: normalizeStatus(record.status),
     projectName: relationValue(record.project)?.name ?? 'بدون مشروع',
     createdAt: record.created_at,
     postedAt: record.posted_at ?? '',

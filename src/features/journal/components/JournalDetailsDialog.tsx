@@ -1,28 +1,50 @@
-import { AlertTriangle, Trash2, X } from 'lucide-react'
+import { AlertTriangle, RotateCcw, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
 import { useDialogAccessibility } from '../../../shared/hooks/useDialogAccessibility'
 import { useJournalActions } from '../hooks/useJournalActions'
 import { useJournalDetails } from '../hooks/useJournalDetails'
+import { JournalAttachmentsPanel } from './JournalAttachmentsPanel'
 
 type Props = {
   entryId: string | null
   onClose: () => void
-  isAdmin?: boolean
+  canForceDelete?: boolean
+  canReverse?: boolean
+  canManageAttachments?: boolean
 }
 
 const money = new Intl.NumberFormat('ar-EG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 const statusLabel = { draft: 'مسودة', posted: 'مرحّل', reversed: 'معكوس' }
 
-export function JournalDetailsDialog({ entryId, onClose, isAdmin = false }: Props) {
+export function JournalDetailsDialog({
+  entryId,
+  onClose,
+  canForceDelete = false,
+  canReverse = false,
+  canManageAttachments = false,
+}: Props) {
   const { details, isLoading, error } = useJournalDetails(entryId)
-  const { forceDeleteEntry, isForceDeleting, forceDeleteError } = useJournalActions()
+  const { reverseEntry, isReversing, reverseError, forceDeleteEntry, isForceDeleting, forceDeleteError } =
+    useJournalActions()
 
-  const [showConfirm, setShowConfirm] = useState(false)
+  const [confirmMode, setConfirmMode] = useState<'reverse' | 'delete' | null>(null)
   const [reason, setReason] = useState('')
   const [confirmText, setConfirmText] = useState('')
 
-  const canDelete = confirmText === 'DELETE' && reason.trim().length >= 5 && !isForceDeleting
-  const dialogRef = useDialogAccessibility<HTMLElement>(entryId !== null, onClose, !isForceDeleting)
+  const actionInProgress = isReversing || isForceDeleting
+  const canDelete = confirmText === 'DELETE' && reason.trim().length >= 5 && !actionInProgress
+  const canConfirmReverse = confirmText === 'REVERSE' && !actionInProgress
+  const dialogRef = useDialogAccessibility<HTMLElement>(entryId !== null, onClose, !actionInProgress)
+
+  const handleReverse = async () => {
+    if (!entryId || !canConfirmReverse) return
+    try {
+      await reverseEntry(entryId)
+      onClose()
+    } catch {
+      // error shown in UI
+    }
+  }
 
   const handleForceDelete = async () => {
     if (!entryId || !canDelete) return
@@ -35,7 +57,7 @@ export function JournalDetailsDialog({ entryId, onClose, isAdmin = false }: Prop
   }
 
   const resetConfirm = () => {
-    setShowConfirm(false)
+    setConfirmMode(null)
     setReason('')
     setConfirmText('')
   }
@@ -56,7 +78,7 @@ export function JournalDetailsDialog({ entryId, onClose, isAdmin = false }: Prop
             <span>تفاصيل الحركة المحاسبية</span>
             <h2>{details ? `قيد رقم ${details.journalNumber}` : 'تفاصيل القيد'}</h2>
           </div>
-          <button type="button" onClick={onClose} aria-label="إغلاق">
+          <button type="button" onClick={onClose} aria-label="إغلاق" disabled={actionInProgress}>
             <X size={18} />
           </button>
         </header>
@@ -67,7 +89,7 @@ export function JournalDetailsDialog({ entryId, onClose, isAdmin = false }: Prop
           <div className="journal-details-state">هذا قيد قديم ولا توجد له تفاصيل محاسبية مرتبطة.</div>
         )}
 
-        {details && !showConfirm && (
+        {details && !confirmMode && (
           <div className="journal-details-content">
             <dl className="journal-details-summary">
               <div>
@@ -119,22 +141,80 @@ export function JournalDetailsDialog({ entryId, onClose, isAdmin = false }: Prop
               </table>
             </div>
 
-            {isAdmin && (
+            <JournalAttachmentsPanel entryId={entryId} canManage={canManageAttachments} />
+
+            {(canReverse || canForceDelete) && (
               <div className="journal-details-admin-actions">
-                <button
-                  type="button"
-                  className="journal-force-delete-btn"
-                  onClick={() => setShowConfirm(true)}
-                >
-                  <Trash2 size={15} />
-                  حذف نهائي
-                </button>
+                {canReverse && details.status === 'posted' && (
+                  <button
+                    type="button"
+                    className="journal-secondary"
+                    onClick={() => setConfirmMode('reverse')}
+                  >
+                    <RotateCcw size={15} />
+                    عكس القيد
+                  </button>
+                )}
+                {canForceDelete && (
+                  <button
+                    type="button"
+                    className="journal-force-delete-btn"
+                    onClick={() => setConfirmMode('delete')}
+                  >
+                    <Trash2 size={15} />
+                    حذف نهائي
+                  </button>
+                )}
               </div>
             )}
           </div>
         )}
 
-        {details && showConfirm && (
+        {details && confirmMode === 'reverse' && (
+          <div className="journal-force-delete-panel">
+            <div className="journal-force-delete-warning">
+              <AlertTriangle size={22} />
+              <p>
+                سيتم إنشاء <strong>قيد عكسي جديد</strong> مع الاحتفاظ بالقيد الأصلي وسجل المراجعة.
+              </p>
+            </div>
+
+            <label className="journal-force-delete-label">
+              تأكيد العكس — اكتب <strong>REVERSE</strong>
+              <input
+                value={confirmText}
+                onChange={(event) => setConfirmText(event.target.value)}
+                placeholder="REVERSE"
+                disabled={isReversing}
+                dir="ltr"
+              />
+            </label>
+
+            {reverseError && <div className="journal-force-delete-error">{reverseError}</div>}
+
+            <div className="journal-force-delete-footer">
+              <button
+                type="button"
+                className="journal-force-delete-cancel"
+                onClick={resetConfirm}
+                disabled={isReversing}
+              >
+                إلغاء
+              </button>
+              <button
+                type="button"
+                className="journal-primary"
+                onClick={handleReverse}
+                disabled={!canConfirmReverse}
+              >
+                <RotateCcw size={15} />
+                {isReversing ? 'جارٍ عكس القيد...' : 'تأكيد العكس'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {details && confirmMode === 'delete' && (
           <div className="journal-force-delete-panel">
             <div className="journal-force-delete-warning">
               <AlertTriangle size={22} />
@@ -148,7 +228,7 @@ export function JournalDetailsDialog({ entryId, onClose, isAdmin = false }: Prop
               سبب الحذف <span>(5 أحرف على الأقل)</span>
               <textarea
                 value={reason}
-                onChange={(e) => setReason(e.target.value)}
+                onChange={(event) => setReason(event.target.value)}
                 placeholder="اكتب سبب الحذف..."
                 rows={3}
                 disabled={isForceDeleting}
@@ -159,7 +239,7 @@ export function JournalDetailsDialog({ entryId, onClose, isAdmin = false }: Prop
               تأكيد الحذف — اكتب <strong>DELETE</strong>
               <input
                 value={confirmText}
-                onChange={(e) => setConfirmText(e.target.value)}
+                onChange={(event) => setConfirmText(event.target.value)}
                 placeholder="DELETE"
                 disabled={isForceDeleting}
                 dir="ltr"

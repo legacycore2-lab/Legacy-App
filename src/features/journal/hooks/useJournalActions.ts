@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toErrorMessage } from '../../../shared/errors/app-error'
-import { forceDeleteEntry } from '../services/journal-entry.service'
+import { forceDeleteEntry, reverseEntry } from '../services/journal-entry.service'
 
 export function useJournalActions() {
   const queryClient = useQueryClient()
@@ -16,6 +16,11 @@ export function useJournalActions() {
       queryClient.invalidateQueries({ queryKey: ['project-contractors'] }),
     ])
 
+  const reverseMutation = useMutation({
+    mutationFn: (entryId: string) => reverseEntry(entryId),
+    onSuccess: invalidate,
+  })
+
   const forceDeleteMutation = useMutation({
     mutationFn: ({ entryId, reason }: { entryId: string; reason: string }) =>
       forceDeleteEntry(entryId, reason),
@@ -23,6 +28,9 @@ export function useJournalActions() {
   })
 
   return {
+    reverseEntry: (entryId: string) => reverseMutation.mutateAsync(entryId),
+    isReversing: reverseMutation.isPending,
+    reverseError: reverseMutation.error ? toErrorMessage(reverseMutation.error, 'تعذر عكس القيد.') : '',
     forceDeleteEntry: (entryId: string, reason: string) =>
       forceDeleteMutation.mutateAsync({ entryId, reason }),
     isForceDeleting: forceDeleteMutation.isPending,

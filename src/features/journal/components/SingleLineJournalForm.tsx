@@ -1,4 +1,4 @@
-import { Eye, Save, X } from 'lucide-react'
+import { Eye, RefreshCcw, Save, X } from 'lucide-react'
 import { useSingleLineJournalForm } from '../hooks/useSingleLineJournalForm'
 import type { SingleLineJournalInput } from '../types/journal-entry.types'
 
@@ -24,7 +24,9 @@ export function SingleLineJournalForm({ onClose }: Props) {
     categoryAccounts,
     paymentAccounts,
     isLoadingOptions,
+    isRetryingOptions,
     optionsError,
+    retryOptions,
   } = useSingleLineJournalForm()
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -132,7 +134,7 @@ export function SingleLineJournalForm({ onClose }: Props) {
         </div>
 
         {submitted && errors.length > 0 && (
-          <div className="journal-entry-errors">
+          <div className="journal-entry-errors" aria-live="polite">
             {errors.map((error) => (
               <p key={error}>{error}</p>
             ))}
@@ -140,13 +142,22 @@ export function SingleLineJournalForm({ onClose }: Props) {
         )}
 
         {optionsError && (
-          <div className="journal-entry-errors">
+          <div className="journal-entry-errors" aria-live="polite">
             <p>{optionsError}</p>
+            <button
+              type="button"
+              className="journal-secondary"
+              onClick={() => void retryOptions()}
+              disabled={isRetryingOptions}
+            >
+              <RefreshCcw size={15} />
+              {isRetryingOptions ? 'جارٍ إعادة المحاولة...' : 'إعادة المحاولة'}
+            </button>
           </div>
         )}
 
         {saveError && (
-          <div className="journal-entry-errors">
+          <div className="journal-entry-errors" aria-live="polite">
             <p>{saveError}</p>
           </div>
         )}
@@ -167,10 +178,14 @@ export function SingleLineJournalForm({ onClose }: Props) {
         )}
 
         <footer>
-          <button type="button" className="journal-secondary" onClick={onClose}>
+          <button type="button" className="journal-secondary" onClick={onClose} disabled={isSaving}>
             إلغاء
           </button>
-          <button type="submit" className="journal-primary" disabled={isSaving || isLoadingOptions}>
+          <button
+            type="submit"
+            className="journal-primary"
+            disabled={isSaving || isLoadingOptions || Boolean(optionsError)}
+          >
             <Save size={17} /> {isSaving ? 'جارٍ الحفظ...' : 'حفظ وترحيل القيد'}
           </button>
         </footer>
