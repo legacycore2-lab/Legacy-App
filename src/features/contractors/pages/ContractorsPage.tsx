@@ -6,6 +6,7 @@ import { useContractorDetails } from '../hooks/useContractorDetails'
 import { useContractors } from '../hooks/useContractors'
 import type { ContractorSort } from '../types/contractor.types'
 import '../styles/contractors.css'
+import '../styles/contractor-details-controls.css'
 
 const SORT_OPTIONS: { value: ContractorSort; label: string }[] = [
   { value: 'expense', label: 'الأعلى مصروفات' },
