@@ -179,6 +179,10 @@ export function subscribeToProjectChanges(onChange: () => void): () => void {
   return subscribeToTableChanges('projects', ['projects'], onChange)
 }
 
+export function subscribeToProjectDetailChanges(onChange: () => void): () => void {
+  return subscribeToTableChanges('project-details', ['projects', 'entries'], onChange)
+}
+
 export type ProjectEntryRecord = {
   id: string
   seq: number | null
