@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useDeferredValue, useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
 import { getCashBankMovementsPage, MOVEMENTS_PAGE_SIZE } from '../services/cash-banks.service'
@@ -13,7 +13,6 @@ export const defaultMovementsFilters: CashBankMovementsFilters = {
 }
 
 export function useCashBankMovements() {
-  const queryClient = useQueryClient()
   const [filters, setFilters] = useState<CashBankMovementsFilters>(defaultMovementsFilters)
   const [page, setPage] = useState(1)
   const deferredQuery = useDeferredValue(filters.query)
@@ -49,8 +48,6 @@ export function useCashBankMovements() {
     setFilters(defaultMovementsFilters)
   }
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ['cash-banks', 'movements'] })
-
   return {
     movements: query.data?.movements ?? [],
     filters,
@@ -64,6 +61,5 @@ export function useCashBankMovements() {
     isLoading: query.isLoading,
     isRefreshing: query.isFetching && !query.isLoading,
     error: query.error ? toErrorMessage(query.error, 'تعذر تحميل سجل الحركات.') : '',
-    invalidate,
   }
 }
