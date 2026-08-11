@@ -27,14 +27,28 @@ export function summarizeJournalPage(entries: JournalEntry[], totalCount: number
   }
 }
 
+export function normalizeJournalDateRange(dateFrom: string, dateTo: string) {
+  const from = dateFrom.trim()
+  const to = dateTo.trim()
+
+  if (from && to && from > to) {
+    return { dateFrom: to, dateTo: from }
+  }
+
+  return { dateFrom: from, dateTo: to }
+}
+
 export async function getJournalPage(request: JournalPageRequest): Promise<JournalPageResult> {
   const pageSize = Math.min(Math.max(Math.trunc(request.pageSize), 1), 100)
   const page = Math.max(Math.trunc(request.page), 1)
+  const dateRange = normalizeJournalDateRange(request.filters.dateFrom, request.filters.dateTo)
   const result = await findJournalEntries({
     offset: (page - 1) * pageSize,
     limit: pageSize,
     query: request.filters.query,
     type: request.filters.type,
+    dateFrom: dateRange.dateFrom,
+    dateTo: dateRange.dateTo,
   })
   const entries = result.records.map(mapJournalEntry)
 
