@@ -60,7 +60,8 @@ export function useAdvances() {
   })
 
   const selectedAdvance = useMemo(
-    () => query.data?.filteredAdvances.find((item) => item.id === selectedId) ?? query.data?.filteredAdvances[0],
+    () =>
+      query.data?.filteredAdvances.find((item) => item.id === selectedId) ?? query.data?.filteredAdvances[0],
     [query.data, selectedId],
   )
 
