@@ -54,14 +54,10 @@ export function useJournalAttachmentActions(entryId: string) {
   return {
     upload: uploadMutation.mutateAsync,
     isUploading: uploadMutation.isPending,
-    uploadError: uploadMutation.error
-      ? toErrorMessage(uploadMutation.error, 'تعذر رفع المرفق.')
-      : '',
+    uploadError: uploadMutation.error ? toErrorMessage(uploadMutation.error, 'تعذر رفع المرفق.') : '',
     remove: deleteMutation.mutateAsync,
     isDeleting: deleteMutation.isPending,
-    deleteError: deleteMutation.error
-      ? toErrorMessage(deleteMutation.error, 'تعذر حذف المرفق.')
-      : '',
+    deleteError: deleteMutation.error ? toErrorMessage(deleteMutation.error, 'تعذر حذف المرفق.') : '',
     cleanupWarning:
       deleteMutation.data?.kind === 'cleanup_warning'
         ? (deleteMutation.data as EntryAttachmentCleanupWarning)
