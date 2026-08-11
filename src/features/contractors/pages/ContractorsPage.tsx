@@ -2,6 +2,7 @@ import { HardHat, Loader2, Search, ShieldOff, UsersRound } from 'lucide-react'
 import { formatMoneyInteger } from '../../../shared/formatters'
 import { ContractorDetailsPanel } from '../components/ContractorDetailsPanel'
 import { ContractorsTable } from '../components/ContractorsTable'
+import { useContractorDetails } from '../hooks/useContractorDetails'
 import { useContractors } from '../hooks/useContractors'
 import type { ContractorSort } from '../types/contractor.types'
 import '../styles/contractors.css'
@@ -26,6 +27,7 @@ export function ContractorsPage() {
     error,
     isPermissionDenied,
   } = useContractors()
+  const details = useContractorDetails(selectedContractor)
 
   if (isPermissionDenied) {
     return (
@@ -149,7 +151,19 @@ export function ContractorsPage() {
       </div>
 
       {selectedContractor && (
-        <ContractorDetailsPanel contractor={selectedContractor} onClose={() => selectContractor(null)} />
+        <ContractorDetailsPanel
+          contractor={selectedContractor}
+          entries={details.entries}
+          filters={details.filters}
+          page={details.page}
+          totalPages={details.totalPages}
+          totalCount={details.totalCount}
+          onFiltersChange={details.onFiltersChange}
+          onResetFilters={details.onResetFilters}
+          onPreviousPage={details.onPreviousPage}
+          onNextPage={details.onNextPage}
+          onClose={() => selectContractor(null)}
+        />
       )}
     </div>
   )
