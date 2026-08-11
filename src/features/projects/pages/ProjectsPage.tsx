@@ -12,8 +12,25 @@ import '../styles/project-create.css'
 import '../styles/projects-table.css'
 import '../styles/projects.css'
 
+const number = new Intl.NumberFormat('ar-EG')
+
 export function ProjectsPage() {
-  const { projectRows, summary, query, setQuery, status, setStatus, isLoading, error } = useProjects()
+  const {
+    projectRows,
+    summary,
+    totalCount,
+    page,
+    totalPages,
+    query,
+    setQuery,
+    status,
+    setStatus,
+    previousPage,
+    nextPage,
+    isLoading,
+    isRefreshing,
+    error,
+  } = useProjects()
   const projectCreate = useProjectCreateForm()
   const [importOpen, setImportOpen] = useState(false)
 
@@ -43,10 +60,24 @@ export function ProjectsPage() {
           <span>المحفظة الحالية</span>
           <h2>كل المشاريع</h2>
         </div>
-        <small>{projectRows.length} مشروع</small>
+        <small>{number.format(totalCount)} مشروع</small>
       </div>
       {!isLoading && !error && projectRows.length > 0 ? (
-        <ProjectsTable projects={projectRows} onEdit={projectCreate.edit} />
+        <>
+          <ProjectsTable projects={projectRows} onEdit={projectCreate.edit} />
+          <nav className="projects-pagination" aria-label="صفحات المشاريع">
+            <button type="button" onClick={previousPage} disabled={page <= 1 || isRefreshing}>
+              السابق
+            </button>
+            <span>
+              صفحة {number.format(page)} من {number.format(totalPages)}
+              {isRefreshing ? ' · جاري التحديث' : ''}
+            </span>
+            <button type="button" onClick={nextPage} disabled={page >= totalPages || isRefreshing}>
+              التالي
+            </button>
+          </nav>
+        </>
       ) : !isLoading && !error ? (
         <div className="projects-empty">
           <BriefcaseBusiness size={28} />
