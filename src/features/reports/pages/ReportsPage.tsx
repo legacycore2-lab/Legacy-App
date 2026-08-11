@@ -1,7 +1,6 @@
 import { ArrowRight } from 'lucide-react'
 import { useState } from 'react'
 import { ContractorReportsPanel } from '../components/ContractorReportsPanel'
-import type { ContractorReportSection } from '../components/ContractorReportsPanel'
 import { ExecutiveDashboard } from '../components/ExecutiveDashboard'
 import { ExecutiveKpis } from '../components/ExecutiveKpis'
 import { JournalFilters } from '../components/JournalFilters'
@@ -20,67 +19,28 @@ import { useJournalReport } from '../hooks/useJournalReport'
 import { useProfitLossReport } from '../hooks/useProfitLossReport'
 import { useReportExport } from '../hooks/useReportExport'
 import { useReportsCenter } from '../hooks/useReportsCenter'
+import {
+  useReportsMode,
+  useReportsPresentation,
+  type ContractorReportSection,
+} from '../hooks/useReportsPresentation'
 import type { ReportKey } from '../types/reports-center.types'
-import type { ReportsTab, TabularRow } from '../types/report.types'
 import '../styles/contractor-reports.css'
 import '../styles/profit-loss.css'
 import '../styles/reports-center.css'
 import '../styles/reports.css'
 
-const CONTRACTOR_REPORT_KEYS = new Set<ReportKey>([
-  'contractor-statement',
-  'contractor-dues',
-  'contractor-payments',
-  'top-contractors',
-])
-
-const REPORT_TITLES: Partial<Record<ReportKey, string>> = {
-  executive: 'الملخص التنفيذي',
-  projects: 'تقرير المشاريع',
-  journal: 'تقرير القيود اليومية',
-  insights: 'الرؤى والتنبيهات',
-  'profit-loss': 'الأرباح والخسائر',
-  'project-comparison': 'مقارنة المشاريع',
-  'profitable-projects': 'المشاريع الأكثر ربحًا',
-  'loss-making-projects': 'المشاريع الخاسرة',
-  'contract-values': 'قيمة العقود',
-  'income-expense': 'الإيرادات والمصروفات',
-  'contractor-statement': 'كشف حساب المقاول',
-  'contractor-dues': 'تحليلات حركة المقاولين',
-  'contractor-payments': 'مدفوعات المقاولين',
-  'top-contractors': 'أعلى المقاولين تكلفة',
-}
-
-function toDataTab(report: ReportKey | null): ReportsTab | null {
-  if (report === 'executive' || report === 'projects' || report === 'journal' || report === 'insights') {
-    return report
-  }
-  if (
-    report === 'project-comparison' ||
-    report === 'profitable-projects' ||
-    report === 'loss-making-projects' ||
-    report === 'contract-values' ||
-    report === 'income-expense'
-  ) {
-    return 'projects'
-  }
-  return null
-}
-
-function toContractorSection(report: ReportKey | null): ContractorReportSection {
-  if (report === 'contractor-statement') return 'statement'
-  if (report === 'contractor-payments') return 'payments'
-  return 'overview'
-}
-
 export function ReportsPage() {
   const center = useReportsCenter()
-  const activeTab = toDataTab(center.selectedReport)
-  const isProfitLoss = center.selectedReport === 'profit-loss'
-  const isContractorStatement = center.selectedReport === 'contractor-statement'
-  const isContractors = center.selectedReport ? CONTRACTOR_REPORT_KEYS.has(center.selectedReport) : false
+  const {
+    activeTab,
+    isProfitLoss,
+    isContractorStatement,
+    isContractors,
+    initialContractorSection,
+    reportTitle,
+  } = useReportsMode(center.selectedReport)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
-  const initialContractorSection = toContractorSection(center.selectedReport)
   const [contractorNavigation, setContractorNavigation] = useState<{
     report: ReportKey | null
     section: ContractorReportSection
@@ -94,6 +54,15 @@ export function ReportsPage() {
   const journal = useJournalReport(activeTab)
   const profitLoss = useProfitLossReport(isProfitLoss)
   const contractorReports = useContractorReports(isContractors)
+  const { projectRows, tabularRows } = useReportsPresentation({
+    selectedReport: center.selectedReport,
+    activeTab,
+    executiveRows: executive.allRows,
+    filteredExecutiveRows: executive.filteredRows,
+    journalRows: journal.filteredRows,
+    profitLoss: profitLoss.data ?? null,
+    contractors: contractorReports.data ?? null,
+  })
   const {
     isExporting,
     exportError,
@@ -105,13 +74,6 @@ export function ReportsPage() {
     exportContractorStatementPdf,
     exportTable,
   } = useReportExport()
-
-  const projectRows =
-    center.selectedReport === 'profitable-projects'
-      ? executive.filteredRows.filter((row) => row.net > 0).sort((a, b) => b.net - a.net)
-      : center.selectedReport === 'loss-making-projects'
-        ? executive.filteredRows.filter((row) => row.net < 0).sort((a, b) => a.net - b.net)
-        : executive.filteredRows
 
   async function handleRefresh() {
     const result = isContractors
@@ -176,81 +138,6 @@ export function ReportsPage() {
     return undefined
   }
 
-  function buildTabularRows(): TabularRow[] {
-    if (activeTab === 'executive' || activeTab === 'projects') {
-      const rows = activeTab === 'executive' ? executive.allRows : projectRows
-      return rows.map((row) => ({
-        'كود المشروع': row.code,
-        'اسم المشروع': row.name,
-        العميل: row.client,
-        الحالة: row.status,
-        'نسبة الإنجاز': row.progress,
-        'قيمة العقد': row.contractValue,
-        الإيرادات: row.income,
-        المصروفات: row.expense,
-        الصافي: row.net,
-        المتبقي: row.remaining,
-      }))
-    }
-    if (activeTab === 'journal') {
-      return journal.filteredRows.map((row) => ({
-        التاريخ: row.dateFormatted,
-        النوع: row.entryType,
-        المشروع: row.projectName,
-        المقاول: row.contractorName,
-        البيان: row.description,
-        'طريقة الدفع': row.paymentMethod,
-        المبلغ: row.amount,
-      }))
-    }
-    if (isProfitLoss && profitLoss.data) {
-      return profitLoss.data.projectRows.map((row) => ({
-        المشروع: row.projectName,
-        'قيمة العقد': row.contractValue,
-        الإيرادات: row.income,
-        المصروفات: row.expense,
-        الصافي: row.net,
-        'هامش الربح': row.marginPercent,
-        'عدد القيود': row.entryCount,
-      }))
-    }
-    if (isContractors && contractorReports.data) {
-      if (center.selectedReport === 'contractor-payments') {
-        return contractorReports.data.paymentMethods.map((row) => ({
-          المقاول: row.contractorName,
-          'طريقة الدفع': row.paymentMethod,
-          القيمة: row.totalAmount,
-          'عدد القيود': row.entryCount,
-          النسبة: row.percentageOfContractorMovement,
-        }))
-      }
-      if (center.selectedReport === 'top-contractors') {
-        return [...contractorReports.data.contractors]
-          .sort((a, b) => b.totalExpense - a.totalExpense)
-          .map((row, index) => ({
-            الترتيب: index + 1,
-            المقاول: row.contractorName,
-            'إجمالي التكلفة': row.totalExpense,
-            'عدد المشاريع': row.projectCount,
-            'عدد القيود': row.entryCount,
-            'آخر نشاط': row.lastActivityDate,
-          }))
-      }
-      return contractorReports.data.contractors.map((row) => ({
-        المقاول: row.contractorName,
-        الإيرادات: row.totalIncome,
-        المصروفات: row.totalExpense,
-        'صافي الحركة': row.netMovement,
-        'عدد القيود': row.entryCount,
-        'عدد المشاريع': row.projectCount,
-        'آخر نشاط': row.lastActivityDate,
-      }))
-    }
-    return []
-  }
-
-  const tabularRows = buildTabularRows()
-
   if (!center.selectedReport) {
     return (
       <main className="reports-page reports-page--center">
@@ -278,7 +165,7 @@ export function ReportsPage() {
         </button>
         <span>التقارير</span>
         <span aria-hidden>/</span>
-        <strong>{REPORT_TITLES[center.selectedReport] ?? 'التقرير'}</strong>
+        <strong>{reportTitle}</strong>
       </nav>
 
       <ReportsHeader
