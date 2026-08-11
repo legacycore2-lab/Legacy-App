@@ -22,7 +22,10 @@ export function useContractorDetails(contractor: Contractor | null) {
     filters: defaultFilters,
   })
 
-  const activeState = state.contractorKey === contractorKey ? state : { contractorKey, page: 1, filters: defaultFilters }
+  const activeState =
+    state.contractorKey === contractorKey
+      ? state
+      : { contractorKey, page: 1, filters: defaultFilters }
 
   const pageData = useMemo(
     () =>
@@ -45,7 +48,11 @@ export function useContractorDetails(contractor: Contractor | null) {
     totalPages: pageData.totalPages,
     totalCount: pageData.totalCount,
     onPreviousPage: () =>
-      setState({ contractorKey, filters: activeState.filters, page: Math.max(1, pageData.page - 1) }),
+      setState({
+        contractorKey,
+        filters: activeState.filters,
+        page: Math.max(1, pageData.page - 1),
+      }),
     onNextPage: () =>
       setState({
         contractorKey,
