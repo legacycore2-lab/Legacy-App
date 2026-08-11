@@ -56,7 +56,7 @@ export function isContractorReport(report: ReportKey | null): boolean {
 }
 
 export function getReportTitle(report: ReportKey | null): string {
-  return report ? REPORT_TITLES[report] ?? 'التقرير' : 'التقرير'
+  return report ? (REPORT_TITLES[report] ?? 'التقرير') : 'التقرير'
 }
 
 export function selectProjectReportRows(
@@ -83,15 +83,8 @@ type BuildTabularRowsInput = {
 }
 
 export function buildReportTabularRows(input: BuildTabularRowsInput): TabularRow[] {
-  const {
-    selectedReport,
-    activeTab,
-    executiveRows,
-    projectRows,
-    journalRows,
-    profitLoss,
-    contractors,
-  } = input
+  const { selectedReport, activeTab, executiveRows, projectRows, journalRows, profitLoss, contractors } =
+    input
 
   if (activeTab === 'executive' || activeTab === 'projects') {
     const rows = activeTab === 'executive' ? executiveRows : projectRows
