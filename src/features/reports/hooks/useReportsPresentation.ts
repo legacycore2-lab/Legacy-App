@@ -11,12 +11,13 @@ import type { ContractorReportSection } from '../services/reports-presentation.s
 import type { ContractorReportsViewModel } from '../types/contractor-reports.types'
 import type { ProfitLossViewModel } from '../types/profit-loss.types'
 import type { ReportKey } from '../types/reports-center.types'
-import type { ReportJournalRow, ReportProjectRow } from '../types/report.types'
+import type { ReportJournalRow, ReportProjectRow, ReportsTab } from '../types/report.types'
 
 export type { ContractorReportSection }
 
 type UseReportsPresentationInput = {
   selectedReport: ReportKey | null
+  activeTab: ReportsTab | null
   executiveRows: ReportProjectRow[]
   filteredExecutiveRows: ReportProjectRow[]
   journalRows: ReportJournalRow[]
@@ -24,14 +25,22 @@ type UseReportsPresentationInput = {
   contractors: ContractorReportsViewModel | null
 }
 
-export function useReportsPresentation(input: UseReportsPresentationInput) {
-  const activeTab = resolveReportsTab(input.selectedReport)
-  const isProfitLoss = input.selectedReport === 'profit-loss'
-  const isContractorStatement = input.selectedReport === 'contractor-statement'
-  const isContractors = isContractorReport(input.selectedReport)
-  const initialContractorSection = resolveContractorReportSection(input.selectedReport)
-  const reportTitle = getReportTitle(input.selectedReport)
+export function useReportsMode(selectedReport: ReportKey | null) {
+  return useMemo(() => {
+    const activeTab = resolveReportsTab(selectedReport)
 
+    return {
+      activeTab,
+      isProfitLoss: selectedReport === 'profit-loss',
+      isContractorStatement: selectedReport === 'contractor-statement',
+      isContractors: isContractorReport(selectedReport),
+      initialContractorSection: resolveContractorReportSection(selectedReport),
+      reportTitle: getReportTitle(selectedReport),
+    }
+  }, [selectedReport])
+}
+
+export function useReportsPresentation(input: UseReportsPresentationInput) {
   const projectRows = useMemo(
     () => selectProjectReportRows(input.selectedReport, input.filteredExecutiveRows),
     [input.selectedReport, input.filteredExecutiveRows],
@@ -41,7 +50,7 @@ export function useReportsPresentation(input: UseReportsPresentationInput) {
     () =>
       buildReportTabularRows({
         selectedReport: input.selectedReport,
-        activeTab,
+        activeTab: input.activeTab,
         executiveRows: input.executiveRows,
         projectRows,
         journalRows: input.journalRows,
@@ -50,22 +59,16 @@ export function useReportsPresentation(input: UseReportsPresentationInput) {
       }),
     [
       input.selectedReport,
+      input.activeTab,
       input.executiveRows,
       input.journalRows,
       input.profitLoss,
       input.contractors,
-      activeTab,
       projectRows,
     ],
   )
 
   return {
-    activeTab,
-    isProfitLoss,
-    isContractorStatement,
-    isContractors,
-    initialContractorSection,
-    reportTitle,
     projectRows,
     tabularRows,
   }
