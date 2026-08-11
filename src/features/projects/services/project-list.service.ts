@@ -1,7 +1,4 @@
-import {
-  findProjectFinancialEntries,
-  findProjectsPage,
-} from '../repositories/projects.repository'
+import { findProjectFinancialEntries, findProjectsPage } from '../repositories/projects.repository'
 import type { Project, ProjectsPage, ProjectsPageRequest } from '../types/project.types'
 import { mapProject } from './project.mapper'
 import {

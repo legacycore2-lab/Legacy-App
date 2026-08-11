@@ -25,7 +25,10 @@ const PROJECT_FIELDS = [
 ].join(', ')
 
 function normalizeProjectSearch(value: string): string {
-  return value.replace(/[(),%_]/g, ' ').replace(/\s+/g, ' ').trim()
+  return value
+    .replace(/[(),%_]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 export async function findProjects(): Promise<ProjectRecord[]> {
