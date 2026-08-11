@@ -31,7 +31,13 @@ export function useContractorDetails(contractor: Contractor | null) {
     () =>
       contractor
         ? getContractorEntriesPage(contractor, activeState.filters, activeState.page)
-        : { entries: [], page: 1, pageSize: 20, totalPages: 1, totalCount: 0 },
+        : {
+            entries: [],
+            page: 1,
+            pageSize: 20,
+            totalPages: 1,
+            totalCount: 0,
+          },
     [contractor, activeState.filters, activeState.page],
   )
 
