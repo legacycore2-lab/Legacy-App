@@ -73,7 +73,8 @@ function resolveProjectStatus(
 ): 'active' | 'paused' | 'completed' | 'archived' {
   if (project.is_archived) return 'archived'
   const status = project.status ?? 'active'
-  if (status === 'active' || status === 'paused' || status === 'completed' || status === 'archived') return status
+  if (status === 'active' || status === 'paused' || status === 'completed' || status === 'archived')
+    return status
   return 'active'
 }
 

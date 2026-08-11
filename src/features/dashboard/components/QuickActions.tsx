@@ -11,10 +11,28 @@ type QuickActionItem = {
 }
 
 const quickActions: QuickActionItem[] = [
-  { key: 'project', label: 'إضافة مشروع', description: 'إنشاء مشروع جديد', icon: FolderPlus, route: '/projects' },
+  {
+    key: 'project',
+    label: 'إضافة مشروع',
+    description: 'إنشاء مشروع جديد',
+    icon: FolderPlus,
+    route: '/projects',
+  },
   { key: 'journal', label: 'إضافة قيد', description: 'دخل أو مصروف', icon: ReceiptText, route: '/journal' },
-  { key: 'advance', label: 'تسجيل عهدة', description: 'إنشاء عهدة جديدة', icon: BriefcaseBusiness, route: '/advances' },
-  { key: 'transfer', label: 'تحويل مالي', description: 'بين الخزنة والبنوك', icon: Banknote, route: '/banks' },
+  {
+    key: 'advance',
+    label: 'تسجيل عهدة',
+    description: 'إنشاء عهدة جديدة',
+    icon: BriefcaseBusiness,
+    route: '/advances',
+  },
+  {
+    key: 'transfer',
+    label: 'تحويل مالي',
+    description: 'بين الخزنة والبنوك',
+    icon: Banknote,
+    route: '/banks',
+  },
 ]
 
 export function QuickActions() {
