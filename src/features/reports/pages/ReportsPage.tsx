@@ -20,14 +20,10 @@ import { useProfitLossReport } from '../hooks/useProfitLossReport'
 import { useReportExport } from '../hooks/useReportExport'
 import { useReportsCenter } from '../hooks/useReportsCenter'
 import {
-  buildReportTabularRows,
-  getReportTitle,
-  isContractorReport,
-  resolveContractorReportSection,
-  resolveReportsTab,
-  selectProjectReportRows,
-} from '../services/reports-presentation.service'
-import type { ContractorReportSection } from '../services/reports-presentation.service'
+  useReportsMode,
+  useReportsPresentation,
+  type ContractorReportSection,
+} from '../hooks/useReportsPresentation'
 import type { ReportKey } from '../types/reports-center.types'
 import '../styles/contractor-reports.css'
 import '../styles/profit-loss.css'
@@ -36,12 +32,15 @@ import '../styles/reports.css'
 
 export function ReportsPage() {
   const center = useReportsCenter()
-  const activeTab = resolveReportsTab(center.selectedReport)
-  const isProfitLoss = center.selectedReport === 'profit-loss'
-  const isContractorStatement = center.selectedReport === 'contractor-statement'
-  const isContractors = isContractorReport(center.selectedReport)
+  const {
+    activeTab,
+    isProfitLoss,
+    isContractorStatement,
+    isContractors,
+    initialContractorSection,
+    reportTitle,
+  } = useReportsMode(center.selectedReport)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
-  const initialContractorSection = resolveContractorReportSection(center.selectedReport)
   const [contractorNavigation, setContractorNavigation] = useState<{
     report: ReportKey | null
     section: ContractorReportSection
@@ -55,6 +54,15 @@ export function ReportsPage() {
   const journal = useJournalReport(activeTab)
   const profitLoss = useProfitLossReport(isProfitLoss)
   const contractorReports = useContractorReports(isContractors)
+  const { projectRows, tabularRows } = useReportsPresentation({
+    selectedReport: center.selectedReport,
+    activeTab,
+    executiveRows: executive.allRows,
+    filteredExecutiveRows: executive.filteredRows,
+    journalRows: journal.filteredRows,
+    profitLoss: profitLoss.data ?? null,
+    contractors: contractorReports.data ?? null,
+  })
   const {
     isExporting,
     exportError,
@@ -66,17 +74,6 @@ export function ReportsPage() {
     exportContractorStatementPdf,
     exportTable,
   } = useReportExport()
-
-  const projectRows = selectProjectReportRows(center.selectedReport, executive.filteredRows)
-  const tabularRows = buildReportTabularRows({
-    selectedReport: center.selectedReport,
-    activeTab,
-    executiveRows: executive.allRows,
-    projectRows,
-    journalRows: journal.filteredRows,
-    profitLoss: profitLoss.data ?? null,
-    contractors: contractorReports.data ?? null,
-  })
 
   async function handleRefresh() {
     const result = isContractors
@@ -168,7 +165,7 @@ export function ReportsPage() {
         </button>
         <span>التقارير</span>
         <span aria-hidden>/</span>
-        <strong>{getReportTitle(center.selectedReport)}</strong>
+        <strong>{reportTitle}</strong>
       </nav>
 
       <ReportsHeader
