@@ -38,4 +38,14 @@ describe('validateCashBankTransferInput', () => {
       'الرصيد المتاح لا يكفي لإتمام التحويل.',
     )
   })
+
+  it('accepts amount exactly equal to available balance', () => {
+    expect(validateCashBankTransferInput(validInput({ amount: '1000' }), 1000)).toEqual([])
+  })
+
+  it('rejects negative amount', () => {
+    expect(validateCashBankTransferInput(validInput({ amount: '-1' }))).toContain(
+      'مبلغ التحويل يجب أن يكون أكبر من صفر.',
+    )
+  })
 })

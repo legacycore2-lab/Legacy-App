@@ -10,12 +10,23 @@ import type {
   CashBankLedgerAccountOption,
   CashBankOffsetAccountOption,
   CashBankTransactionRow,
+  CashBankTransactionTypeFilter,
   CashBankWithdrawalAccountOption,
   CashBankWithdrawalPayload,
   CashBankTransferAccountOption,
   CashBankTransferPayload,
   CashBankReversalPayload,
 } from '../types/cash-banks.types'
+
+type CashBankMovementsQuery = {
+  offset: number
+  limit: number
+  accountId: string
+  type: CashBankTransactionTypeFilter
+  dateFrom: string
+  dateTo: string
+  query: string
+}
 
 const ACCOUNT_FIELDS =
   'id,ledger_account_id,name,account_kind,bank_name,account_number,iban,branch_name,opening_balance,currency_code,is_active,created_at,updated_at'
@@ -65,6 +76,44 @@ export async function findRecentCashBankTransactions(limit = 20): Promise<CashBa
 
   if (error) throw new AppError(error.message, 'CASH_BANK_TRANSACTIONS_FETCH_FAILED')
   return (data as unknown as CashBankTransactionRow[]) ?? []
+}
+
+export async function findCashBankTransactionPage(
+  q: CashBankMovementsQuery,
+): Promise<{ records: CashBankTransactionRow[]; totalCount: number }> {
+  const supabase = getSupabaseClient()
+
+  let request = supabase
+    .from('cash_bank_transactions')
+    .select(TRANSACTION_FIELDS.join(', '), { count: 'exact' })
+    .order('transaction_date', { ascending: false })
+    .order('transaction_number', { ascending: false })
+    .range(q.offset, q.offset + q.limit - 1)
+
+  if (q.accountId) {
+    request = request.or(`source_account_id.eq.${q.accountId},destination_account_id.eq.${q.accountId}`)
+  }
+  if (q.type !== 'all') {
+    request = request.eq('transaction_type', q.type)
+  }
+  if (q.dateFrom) {
+    request = request.gte('transaction_date', q.dateFrom)
+  }
+  if (q.dateTo) {
+    request = request.lte('transaction_date', q.dateTo)
+  }
+  if (q.query.trim()) {
+    const pattern = `%${q.query.trim().replace(/[%_]/g, ' ')}%`
+    request = request.or(`description.ilike.${pattern},reference_number.ilike.${pattern}`)
+  }
+
+  const { data, error, count } = await request
+
+  if (error) throw new AppError(error.message, 'CASH_BANK_TRANSACTIONS_PAGE_FETCH_FAILED')
+  return {
+    records: (data as unknown as CashBankTransactionRow[]) ?? [],
+    totalCount: count ?? 0,
+  }
 }
 
 export async function findCashBankAccountById(id: string): Promise<CashBankAccountRow | null> {
