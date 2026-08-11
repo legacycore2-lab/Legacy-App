@@ -19,6 +19,20 @@ export type Project = {
 
 export type ProjectStatusFilter = 'all' | ProjectStatus
 
+export type ProjectsPageRequest = {
+  page: number
+  pageSize: number
+  query: string
+  status: ProjectStatusFilter
+}
+
+export type ProjectsPage = {
+  rows: ProjectRow[]
+  totalCount: number
+  totalPages: number
+  page: number
+}
+
 export type ProjectRow = Project & {
   balance: number
 }
