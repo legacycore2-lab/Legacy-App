@@ -21,14 +21,8 @@ export function JournalDetailsDialog({
   canReverse = false,
 }: Props) {
   const { details, isLoading, error } = useJournalDetails(entryId)
-  const {
-    reverseEntry,
-    isReversing,
-    reverseError,
-    forceDeleteEntry,
-    isForceDeleting,
-    forceDeleteError,
-  } = useJournalActions()
+  const { reverseEntry, isReversing, reverseError, forceDeleteEntry, isForceDeleting, forceDeleteError } =
+    useJournalActions()
 
   const [confirmMode, setConfirmMode] = useState<'reverse' | 'delete' | null>(null)
   const [reason, setReason] = useState('')
@@ -147,7 +141,11 @@ export function JournalDetailsDialog({
             {(canReverse || canForceDelete) && (
               <div className="journal-details-admin-actions">
                 {canReverse && details.status === 'posted' && (
-                  <button type="button" className="journal-secondary" onClick={() => setConfirmMode('reverse')}>
+                  <button
+                    type="button"
+                    className="journal-secondary"
+                    onClick={() => setConfirmMode('reverse')}
+                  >
                     <RotateCcw size={15} />
                     عكس القيد
                   </button>
@@ -190,7 +188,12 @@ export function JournalDetailsDialog({
             {reverseError && <div className="journal-force-delete-error">{reverseError}</div>}
 
             <div className="journal-force-delete-footer">
-              <button type="button" className="journal-force-delete-cancel" onClick={resetConfirm} disabled={isReversing}>
+              <button
+                type="button"
+                className="journal-force-delete-cancel"
+                onClick={resetConfirm}
+                disabled={isReversing}
+              >
                 إلغاء
               </button>
               <button

@@ -30,9 +30,7 @@ export function useJournalActions() {
   return {
     reverseEntry: (entryId: string) => reverseMutation.mutateAsync(entryId),
     isReversing: reverseMutation.isPending,
-    reverseError: reverseMutation.error
-      ? toErrorMessage(reverseMutation.error, 'تعذر عكس القيد.')
-      : '',
+    reverseError: reverseMutation.error ? toErrorMessage(reverseMutation.error, 'تعذر عكس القيد.') : '',
     forceDeleteEntry: (entryId: string, reason: string) =>
       forceDeleteMutation.mutateAsync({ entryId, reason }),
     isForceDeleting: forceDeleteMutation.isPending,

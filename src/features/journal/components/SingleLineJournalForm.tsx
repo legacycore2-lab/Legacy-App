@@ -144,7 +144,12 @@ export function SingleLineJournalForm({ onClose }: Props) {
         {optionsError && (
           <div className="journal-entry-errors" aria-live="polite">
             <p>{optionsError}</p>
-            <button type="button" className="journal-secondary" onClick={() => void retryOptions()} disabled={isRetryingOptions}>
+            <button
+              type="button"
+              className="journal-secondary"
+              onClick={() => void retryOptions()}
+              disabled={isRetryingOptions}
+            >
               <RefreshCcw size={15} />
               {isRetryingOptions ? 'جارٍ إعادة المحاولة...' : 'إعادة المحاولة'}
             </button>
@@ -176,7 +181,11 @@ export function SingleLineJournalForm({ onClose }: Props) {
           <button type="button" className="journal-secondary" onClick={onClose} disabled={isSaving}>
             إلغاء
           </button>
-          <button type="submit" className="journal-primary" disabled={isSaving || isLoadingOptions || Boolean(optionsError)}>
+          <button
+            type="submit"
+            className="journal-primary"
+            disabled={isSaving || isLoadingOptions || Boolean(optionsError)}
+          >
             <Save size={17} /> {isSaving ? 'جارٍ الحفظ...' : 'حفظ وترحيل القيد'}
           </button>
         </footer>
