@@ -25,6 +25,8 @@ type JournalEntriesQuery = {
   limit: number
   query: string
   type: 'all' | 'income' | 'expense'
+  dateFrom: string
+  dateTo: string
 }
 
 type JournalEntriesResult = {
@@ -92,6 +94,8 @@ export async function findJournalEntries(query: JournalEntriesQuery): Promise<Jo
     .range(query.offset, query.offset + query.limit - 1)
 
   if (query.type !== 'all') request = request.eq('entry_type', query.type)
+  if (query.dateFrom) request = request.gte('entry_date', query.dateFrom)
+  if (query.dateTo) request = request.lte('entry_date', query.dateTo)
 
   const search = normalizeSearch(query.query)
   if (search) {

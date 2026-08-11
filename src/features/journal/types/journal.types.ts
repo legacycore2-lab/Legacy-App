@@ -16,6 +16,8 @@ export type JournalEntry = {
 export type JournalFilters = {
   query: string
   type: 'all' | JournalEntryType
+  dateFrom: string
+  dateTo: string
 }
 
 export type JournalPageRequest = {
