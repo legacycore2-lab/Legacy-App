@@ -19,6 +19,7 @@ type AdvancesQuery = {
   offset: number
   limit: number
   search: string
+  project: string
   dateFrom: string
   dateTo: string
 }
@@ -29,11 +30,14 @@ type AdvanceTransactionsQuery = {
   limit: number
 }
 
+const sanitizedSearch = (value: string) => value.trim().replace(/[,%_()]/g, ' ')
+
 export async function findAdvances(): Promise<AdvanceRow[]> {
   const { data, error } = await getSupabaseClient()
     .from('advances_overview')
     .select(ADVANCE_FIELDS)
     .order('issue_date', { ascending: false })
+    .order('advance_number', { ascending: false })
 
   if (error) throw new AppError(error.message, 'ADVANCES_FETCH_FAILED')
   return (data as AdvanceRow[] | null) ?? []
@@ -47,22 +51,43 @@ export async function findAdvancesPage(
     .select(ADVANCE_FIELDS, { count: 'exact' })
     .order('issue_date', { ascending: false })
     .order('advance_number', { ascending: false })
-    .range(q.offset, q.offset + q.limit - 1)
 
-  if (q.search.trim()) {
-    request = request.ilike('holder_name', `%${q.search.trim().replace(/[%_]/g, ' ')}%`)
+  const search = sanitizedSearch(q.search)
+  if (search) {
+    request = request.or(
+      `holder_name.ilike.%${search}%,holder_title.ilike.%${search}%,advance_code.ilike.%${search}%,purpose.ilike.%${search}%`,
+    )
   }
-  if (q.dateFrom) {
-    request = request.gte('issue_date', q.dateFrom)
-  }
-  if (q.dateTo) {
-    request = request.lte('issue_date', q.dateTo)
-  }
+  if (q.project !== 'all') request = request.contains('project_names', [q.project])
+  if (q.dateFrom) request = request.gte('issue_date', q.dateFrom)
+  if (q.dateTo) request = request.lte('issue_date', q.dateTo)
 
-  const { data, error, count } = await request
+  const { data, error, count } = await request.range(q.offset, q.offset + q.limit - 1)
 
   if (error) throw new AppError(error.message, 'ADVANCES_PAGE_FETCH_FAILED')
   return { records: (data as AdvanceRow[] | null) ?? [], totalCount: count ?? 0 }
+}
+
+export async function findAdvancesForStatusFilter(q: Omit<AdvancesQuery, 'offset' | 'limit'>): Promise<AdvanceRow[]> {
+  let request = getSupabaseClient()
+    .from('advances_overview')
+    .select(ADVANCE_FIELDS)
+    .order('issue_date', { ascending: false })
+    .order('advance_number', { ascending: false })
+
+  const search = sanitizedSearch(q.search)
+  if (search) {
+    request = request.or(
+      `holder_name.ilike.%${search}%,holder_title.ilike.%${search}%,advance_code.ilike.%${search}%,purpose.ilike.%${search}%`,
+    )
+  }
+  if (q.project !== 'all') request = request.contains('project_names', [q.project])
+  if (q.dateFrom) request = request.gte('issue_date', q.dateFrom)
+  if (q.dateTo) request = request.lte('issue_date', q.dateTo)
+
+  const { data, error } = await request
+  if (error) throw new AppError(error.message, 'ADVANCES_FILTERED_FETCH_FAILED')
+  return (data as AdvanceRow[] | null) ?? []
 }
 
 export async function findAdvanceTransactions(
