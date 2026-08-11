@@ -1,0 +1,33 @@
+name: Temp Format Reports Presentation
+
+on:
+  push:
+    branches:
+      - feature/reports-production-readiness
+    paths:
+      - .github/workflows/temp-format-reports.yml
+      - src/features/reports/services/reports-presentation.service.ts
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Format target file
+        run: npx prettier --write src/features/reports/services/reports-presentation.service.ts
+      - name: Upload formatted file
+        uses: actions/upload-artifact@v4
+        with:
+          name: formatted-reports-presentation
+          path: src/features/reports/services/reports-presentation.service.ts
