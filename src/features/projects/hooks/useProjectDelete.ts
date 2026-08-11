@@ -46,17 +46,12 @@ export function useProjectDelete(projectId: string | null, projectName: string) 
     close,
     confirmation,
     setConfirmation,
-    canDelete:
-      canDeleteProject && confirmation.trim() === projectName.trim() && !mutation.isPending,
+    canDelete: canDeleteProject && confirmation.trim() === projectName.trim() && !mutation.isPending,
     isDeleting: mutation.isPending,
     isDeleted: mutation.isSuccess,
     error: mutation.error ? toErrorMessage(mutation.error, 'تعذر حذف المشروع.') : '',
     submit: async () => {
-      if (
-        !canDeleteProject ||
-        confirmation.trim() !== projectName.trim() ||
-        mutation.isPending
-      ) {
+      if (!canDeleteProject || confirmation.trim() !== projectName.trim() || mutation.isPending) {
         return false
       }
       return mutation
