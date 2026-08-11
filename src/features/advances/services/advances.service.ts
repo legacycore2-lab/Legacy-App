@@ -1,6 +1,7 @@
 import {
   findAdvanceOptions,
   findAdvances,
+  findAdvancesForStatusFilter,
   findAdvancesPage,
   findAdvanceTransactions,
   postAdvance,
@@ -11,6 +12,7 @@ import type {
   Advance,
   AdvanceFilters,
   AdvanceRow,
+  AdvancesMeta,
   AdvancesPage,
   AdvancesPageRequest,
   AdvancesSummary,
@@ -26,7 +28,6 @@ import type {
 export const ADVANCES_PAGE_SIZE = 25
 export const ADVANCE_TRANSACTIONS_PAGE_SIZE = 20
 
-// ─── Mappers ──────────────────────────────────────────────────────────────────
 export function mapAdvance(row: AdvanceRow, today = new Date()): Advance {
   const amount = Number(row.amount)
   const spent = Number(row.spent_amount)
@@ -65,7 +66,6 @@ export function mapAdvanceTransaction(row: AdvanceTransactionRow): AdvanceTransa
   }
 }
 
-// ─── Client-side filters (status + project cannot be server-side) ─────────────
 export function filterAdvances(advances: Advance[], filters: AdvanceFilters): Advance[] {
   return advances.filter((advance) => {
     const matchesStatus = filters.status === 'all' || advance.status === filters.status
@@ -86,7 +86,6 @@ export function summarizeAdvances(advances: Advance[]): AdvancesSummary {
   )
 }
 
-// ─── Legacy ViewModel (kept for backward compat — hook now uses getAdvancesPage) ──
 export async function getAdvancesViewModel(filters: AdvanceFilters): Promise<AdvancesViewModel> {
   const advances = (await findAdvances()).map((row) => mapAdvance(row))
   return {
@@ -99,28 +98,56 @@ export async function getAdvancesViewModel(filters: AdvanceFilters): Promise<Adv
   }
 }
 
-// ─── Paginated advances ───────────────────────────────────────────────────────
+export async function getAdvancesMeta(): Promise<AdvancesMeta> {
+  const advances = (await findAdvances()).map((row) => mapAdvance(row))
+  return {
+    projects: [...new Set(advances.flatMap((advance) => advance.projectNames))].sort((a, b) =>
+      a.localeCompare(b, 'ar'),
+    ),
+    summary: summarizeAdvances(advances),
+  }
+}
+
 export async function getAdvancesPage(request: AdvancesPageRequest): Promise<AdvancesPage> {
   const pageSize = Math.min(Math.max(Math.trunc(request.pageSize), 1), 100)
   const page = Math.max(1, Math.trunc(request.page))
   const offset = (page - 1) * pageSize
+  const repositoryFilters = {
+    search: request.filters.search,
+    project: request.filters.project,
+    dateFrom: request.filters.dateFrom,
+    dateTo: request.filters.dateTo,
+  }
+
+  if (request.filters.status !== 'all') {
+    const records = await findAdvancesForStatusFilter(repositoryFilters)
+    const filtered = filterAdvances(
+      records.map((row) => mapAdvance(row)),
+      request.filters,
+    )
+    const totalCount = filtered.length
+    const paged = filtered.slice(offset, offset + pageSize)
+
+    return {
+      advances: paged,
+      filteredAdvances: paged,
+      page,
+      pageSize,
+      totalPages: Math.max(1, Math.ceil(totalCount / pageSize)),
+      totalCount,
+    }
+  }
 
   const { records, totalCount } = await findAdvancesPage({
     offset,
     limit: pageSize,
-    search: request.filters.search,
-    dateFrom: request.filters.dateFrom,
-    dateTo: request.filters.dateTo,
+    ...repositoryFilters,
   })
-
   const advances = records.map((row) => mapAdvance(row))
-  const filteredAdvances = filterAdvances(advances, request.filters)
 
   return {
     advances,
-    filteredAdvances,
-    projects: [...new Set(advances.flatMap((a) => a.projectNames))].sort((a, b) => a.localeCompare(b, 'ar')),
-    summary: summarizeAdvances(advances),
+    filteredAdvances: advances,
     page,
     pageSize,
     totalPages: Math.max(1, Math.ceil(totalCount / pageSize)),
@@ -128,7 +155,6 @@ export async function getAdvancesPage(request: AdvancesPageRequest): Promise<Adv
   }
 }
 
-// ─── Transaction history ──────────────────────────────────────────────────────
 export async function getAdvanceTransactionsPage(
   advanceId: string,
   page: number,
@@ -152,7 +178,6 @@ export async function getAdvanceTransactionsPage(
   }
 }
 
-// ─── Write operations (clientRequestId passed explicitly for idempotency) ─────
 export const getAdvanceOptions = findAdvanceOptions
 
 const positiveAmount = (value: string) => Number.isFinite(Number(value)) && Number(value) > 0
