@@ -3,12 +3,14 @@ import { useState } from 'react'
 import { useDialogAccessibility } from '../../../shared/hooks/useDialogAccessibility'
 import { useJournalActions } from '../hooks/useJournalActions'
 import { useJournalDetails } from '../hooks/useJournalDetails'
+import { JournalAttachmentsPanel } from './JournalAttachmentsPanel'
 
 type Props = {
   entryId: string | null
   onClose: () => void
   canForceDelete?: boolean
   canReverse?: boolean
+  canManageAttachments?: boolean
 }
 
 const money = new Intl.NumberFormat('ar-EG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -19,6 +21,7 @@ export function JournalDetailsDialog({
   onClose,
   canForceDelete = false,
   canReverse = false,
+  canManageAttachments = false,
 }: Props) {
   const { details, isLoading, error } = useJournalDetails(entryId)
   const { reverseEntry, isReversing, reverseError, forceDeleteEntry, isForceDeleting, forceDeleteError } =
@@ -137,6 +140,8 @@ export function JournalDetailsDialog({
                 </tfoot>
               </table>
             </div>
+
+            <JournalAttachmentsPanel entryId={entryId} canManage={canManageAttachments} />
 
             {(canReverse || canForceDelete) && (
               <div className="journal-details-admin-actions">
