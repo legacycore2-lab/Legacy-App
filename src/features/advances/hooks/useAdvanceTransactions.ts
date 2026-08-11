@@ -1,10 +1,14 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
 import { getAdvanceTransactionsPage } from '../services/advances.service'
-import { useState } from 'react'
 
 export function useAdvanceTransactions(advanceId: string | null) {
   const [page, setPage] = useState(1)
+
+  useEffect(() => {
+    setPage(1)
+  }, [advanceId])
 
   const query = useQuery({
     queryKey: ['advance-transactions', advanceId, page],
