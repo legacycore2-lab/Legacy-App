@@ -146,6 +146,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       },
     ],
     projects: activeProjects.slice(0, 3).map((project) => ({
+      id: project.id,
       name: project.name,
       client: project.client_name?.trim() || 'بدون عميل',
       balance: formatAmount(projectBalances.get(project.id) ?? 0),
