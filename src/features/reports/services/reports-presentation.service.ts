@@ -1,12 +1,7 @@
 import type { ContractorReportsViewModel } from '../types/contractor-reports.types'
 import type { ProfitLossViewModel } from '../types/profit-loss.types'
 import type { ReportKey } from '../types/reports-center.types'
-import type {
-  ReportJournalRow,
-  ReportProjectRow,
-  ReportsTab,
-  TabularRow,
-} from '../types/report.types'
+import type { ReportJournalRow, ReportProjectRow, ReportsTab, TabularRow } from '../types/report.types'
 
 export type ContractorReportSection = 'overview' | 'statement' | 'payments'
 
@@ -35,12 +30,7 @@ const REPORT_TITLES: Partial<Record<ReportKey, string>> = {
 }
 
 export function resolveReportsTab(report: ReportKey | null): ReportsTab | null {
-  if (
-    report === 'executive' ||
-    report === 'projects' ||
-    report === 'journal' ||
-    report === 'insights'
-  ) {
+  if (report === 'executive' || report === 'projects' || report === 'journal' || report === 'insights') {
     return report
   }
   if (
@@ -55,9 +45,7 @@ export function resolveReportsTab(report: ReportKey | null): ReportsTab | null {
   return null
 }
 
-export function resolveContractorReportSection(
-  report: ReportKey | null,
-): ContractorReportSection {
+export function resolveContractorReportSection(report: ReportKey | null): ContractorReportSection {
   if (report === 'contractor-statement') return 'statement'
   if (report === 'contractor-payments') return 'payments'
   return 'overview'
