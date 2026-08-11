@@ -29,15 +29,20 @@ vi.mock('../repositories/dashboard.repository', () => ({
         is_archived: true,
       },
     ],
-    entries: [
+    financialEntries: [
+      { seq: 1, project_id: 'p1', amount: '10000', type: 'income' },
+      { seq: 2, project_id: 'p1', amount: '3000', type: 'expense' },
+      { seq: 3, project_id: null, amount: '500', type: 'expense' },
+    ],
+    recentEntries: [
       {
-        id: 'e1',
-        seq: 1,
-        project_id: 'p1',
-        description: 'دفعة',
-        entry_date: '2026-07-25',
-        amount: '10000',
-        type: 'income',
+        id: 'e3',
+        seq: 3,
+        project_id: null,
+        description: 'قيد عام',
+        entry_date: '2026-07-23',
+        amount: '500',
+        type: 'expense',
       },
       {
         id: 'e2',
@@ -49,13 +54,13 @@ vi.mock('../repositories/dashboard.repository', () => ({
         type: 'expense',
       },
       {
-        id: 'e3',
-        seq: 3,
-        project_id: null,
-        description: 'قيد عام',
-        entry_date: '2026-07-23',
-        amount: '500',
-        type: 'expense',
+        id: 'e1',
+        seq: 1,
+        project_id: 'p1',
+        description: 'دفعة',
+        entry_date: '2026-07-25',
+        amount: '10000',
+        type: 'income',
       },
     ],
   }),
@@ -63,9 +68,8 @@ vi.mock('../repositories/dashboard.repository', () => ({
 }))
 
 describe('getDashboardData', () => {
-  it('calculates correct balance (income - expense)', async () => {
+  it('calculates correct balance from financial rows', async () => {
     const data = await getDashboardData()
-    // 10000 income - 3000 - 500 expense = 6500
     expect(data.kpis[0].value).toBe('6,500')
   })
 
@@ -81,21 +85,17 @@ describe('getDashboardData', () => {
 
   it('counts only active non-archived projects', async () => {
     const data = await getDashboardData()
-    // p1 active, p2 paused (not active), p3 archived — only p1 counts
     expect(data.kpis[3].value).toBe('1')
   })
 
   it('excludes archived projects from the projects list', async () => {
     const data = await getDashboardData()
-    const names = data.projects.map((p) => p.name)
-    expect(names).not.toContain('مشروع مؤرشف')
+    expect(data.projects.map((project) => project.name)).not.toContain('مشروع مؤرشف')
   })
 
-  it('shows "بدون عميل" when client_name is null', async () => {
+  it('preserves the project client display', async () => {
     const data = await getDashboardData()
-    // p2 is paused (not active) so won't appear — test p1 which has a client
-    const withClient = data.projects.find((p) => p.name === 'هايد بارك')
-    expect(withClient?.client).toBe('شركة ليجاسي')
+    expect(data.projects.find((project) => project.name === 'هايد بارك')?.client).toBe('شركة ليجاسي')
   })
 
   it('limits projects list to 3 items', async () => {
@@ -103,14 +103,15 @@ describe('getDashboardData', () => {
     expect(data.projects.length).toBeLessThanOrEqual(3)
   })
 
-  it('limits entries list to 3 items', async () => {
+  it('uses only recent-entry payload for the recent entries widget', async () => {
     const data = await getDashboardData()
-    expect(data.entries.length).toBeLessThanOrEqual(3)
+    expect(data.entries).toHaveLength(3)
+    expect(data.entries[0]).toMatchObject({ id: '#3', project: 'بدون مشروع', description: 'قيد عام' })
   })
 
-  it('formats entry id using seq number', async () => {
+  it('keeps total entry count based on all financial rows', async () => {
     const data = await getDashboardData()
-    expect(data.entries[0].id).toBe('#1')
+    expect(data.kpis[0].trend).toBe('3 قيد')
   })
 
   it('returns dashboardActions', async () => {
