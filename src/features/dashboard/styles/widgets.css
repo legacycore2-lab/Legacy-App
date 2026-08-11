@@ -46,10 +46,25 @@
   grid-template-columns: minmax(150px, 1.3fr) minmax(120px, 1fr) minmax(100px, 0.7fr) auto;
   align-items: center;
   gap: 14px;
+  width: 100%;
   padding: 13px 8px;
+  border: 0;
   border-top: 1px solid var(--border);
   border-radius: 10px;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  text-align: inherit;
   transition: background 150ms ease;
+}
+
+.project-row--button {
+  cursor: pointer;
+}
+
+.project-row--button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
 }
 
 .project-row:hover,
