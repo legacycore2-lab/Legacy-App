@@ -31,6 +31,8 @@ export function ProjectsTable({ projects, onEdit }: Props) {
           </thead>
           <tbody>
             {projects.map((project) => {
+              const isArchived = project.status === 'archived'
+
               return (
                 <tr
                   key={project.id}
@@ -63,10 +65,12 @@ export function ProjectsTable({ projects, onEdit }: Props) {
                     <div className="table-actions">
                       <button
                         type="button"
-                        title="تعديل المشروع"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          onEdit(project)
+                        title={isArchived ? 'المشروع المؤرشف غير قابل للتعديل' : 'تعديل المشروع'}
+                        aria-label={isArchived ? 'المشروع المؤرشف غير قابل للتعديل' : 'تعديل المشروع'}
+                        disabled={isArchived}
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          if (!isArchived) onEdit(project)
                         }}
                       >
                         <Pencil size={16} />
