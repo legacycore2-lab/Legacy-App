@@ -68,7 +68,9 @@ export async function findAdvancesPage(
   return { records: (data as AdvanceRow[] | null) ?? [], totalCount: count ?? 0 }
 }
 
-export async function findAdvancesForStatusFilter(q: Omit<AdvancesQuery, 'offset' | 'limit'>): Promise<AdvanceRow[]> {
+export async function findAdvancesForStatusFilter(
+  q: Omit<AdvancesQuery, 'offset' | 'limit'>,
+): Promise<AdvanceRow[]> {
   let request = getSupabaseClient()
     .from('advances_overview')
     .select(ADVANCE_FIELDS)
