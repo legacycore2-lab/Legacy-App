@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
 import {
   buildProjectCreatePreview,
@@ -26,6 +26,7 @@ function createInitialValue(): ProjectCreateInput {
 
 export function useProjectCreateForm(): ProjectCreateFormState {
   const queryClient = useQueryClient()
+  const submissionInProgressRef = useRef(false)
   const [isOpen, setIsOpen] = useState(false)
   const [value, setValue] = useState(createInitialValue)
   const [submitted, setSubmitted] = useState(false)
@@ -60,7 +61,7 @@ export function useProjectCreateForm(): ProjectCreateFormState {
   }
 
   const close = () => {
-    if (createMutation.isPending) return
+    if (createMutation.isPending || submissionInProgressRef.current) return
 
     setIsOpen(false)
     setSubmitted(false)
@@ -70,12 +71,19 @@ export function useProjectCreateForm(): ProjectCreateFormState {
   }
 
   const submit = async () => {
-    setSubmitted(true)
-    if (errors.length > 0 || !preview || createMutation.isPending) return
+    if (submissionInProgressRef.current || createMutation.isPending) return
 
-    await createMutation
-      .mutateAsync({ input: value, projectId: editingId ?? undefined })
-      .catch(() => undefined)
+    setSubmitted(true)
+    if (errors.length > 0 || !preview) return
+
+    submissionInProgressRef.current = true
+    try {
+      await createMutation.mutateAsync({ input: value, projectId: editingId ?? undefined })
+    } catch {
+      // mutation error is exposed below for the form UI
+    } finally {
+      submissionInProgressRef.current = false
+    }
   }
 
   return {
@@ -88,6 +96,8 @@ export function useProjectCreateForm(): ProjectCreateFormState {
       setIsOpen(true)
     },
     edit: (project: Project) => {
+      if (project.status === 'archived') return
+
       createMutation.reset()
       setSubmitted(false)
       setEditingId(project.id)
@@ -97,7 +107,7 @@ export function useProjectCreateForm(): ProjectCreateFormState {
         client: project.client,
         location: project.location,
         manager: project.manager,
-        status: project.status === 'archived' ? 'paused' : project.status,
+        status: project.status,
         contractValue: String(project.contractValue),
         startDate: project.startDate,
         endDate: project.endDate,
@@ -112,7 +122,9 @@ export function useProjectCreateForm(): ProjectCreateFormState {
     errors,
     preview,
     isSaving: createMutation.isPending,
-    saveError: createMutation.error ? toErrorMessage(createMutation.error, 'تعذر إنشاء المشروع.') : '',
+    saveError: createMutation.error
+      ? toErrorMessage(createMutation.error, editingId ? 'تعذر تعديل المشروع.' : 'تعذر إنشاء المشروع.')
+      : '',
     submit,
   }
 }
