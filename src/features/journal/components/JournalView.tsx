@@ -13,6 +13,7 @@ type Props = {
   summary: JournalSummary
   filters: JournalFilters
   onFiltersChange: (filters: JournalFilters) => void
+  onResetFilters: () => void
   page: number
   totalPages: number
   onPreviousPage: () => void
@@ -27,6 +28,7 @@ export function JournalView({
   summary,
   filters,
   onFiltersChange,
+  onResetFilters,
   page,
   totalPages,
   onPreviousPage,
@@ -39,6 +41,9 @@ export function JournalView({
   const [isEntryFormOpen, setIsEntryFormOpen] = useState(false)
   const [isImportOpen, setIsImportOpen] = useState(false)
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null)
+  const hasActiveFilters = Boolean(
+    filters.query || filters.type !== 'all' || filters.dateFrom || filters.dateTo,
+  )
 
   return (
     <section className="journal-page">
@@ -108,6 +113,29 @@ export function JournalView({
           <option value="income">إيرادات</option>
           <option value="expense">مصروفات</option>
         </select>
+        <label>
+          <span>من</span>
+          <input
+            type="date"
+            value={filters.dateFrom}
+            max={filters.dateTo || undefined}
+            onChange={(event) => onFiltersChange({ ...filters, dateFrom: event.target.value })}
+          />
+        </label>
+        <label>
+          <span>إلى</span>
+          <input
+            type="date"
+            value={filters.dateTo}
+            min={filters.dateFrom || undefined}
+            onChange={(event) => onFiltersChange({ ...filters, dateTo: event.target.value })}
+          />
+        </label>
+        {hasActiveFilters && (
+          <button type="button" className="journal-secondary" onClick={onResetFilters}>
+            إعادة الضبط
+          </button>
+        )}
       </div>
 
       <div className="journal-table-wrap">
@@ -117,7 +145,7 @@ export function JournalView({
           <div className="journal-state">
             <FileText size={34} />
             <h2>لا توجد قيود لعرضها</h2>
-            <p>ستظهر القيود هنا بعد ربط قاعدة البيانات أو إضافة أول قيد.</p>
+            <p>ستظهر القيود هنا بعد إضافة أول قيد أو تغيير الفلاتر.</p>
           </div>
         )}
         {!isLoading && !error && entries.length > 0 && (
