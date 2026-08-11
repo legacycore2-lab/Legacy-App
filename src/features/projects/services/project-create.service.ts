@@ -1,5 +1,5 @@
 import { DataValidationError } from '../../../shared/errors/app-error'
-import { insertProject, updateProject } from '../repositories/projects.repository'
+import { findProjectById, insertProject, updateProject } from '../repositories/projects.repository'
 import type { Project } from '../types/project.types'
 import type { ProjectCreateInput, ProjectCreatePreview } from '../types/project-create.types'
 import { mapProject, mapProjectCreateToRecord } from './project.mapper'
@@ -38,11 +38,21 @@ export function buildProjectCreatePreview(input: ProjectCreateInput): ProjectCre
   }
 }
 
+async function assertProjectEditable(projectId: string): Promise<void> {
+  const current = await findProjectById(projectId)
+  if (!current) throw new DataValidationError('المشروع غير موجود.')
+  if (current.is_archived || current.status === 'archived') {
+    throw new DataValidationError('لا يمكن تعديل مشروع مؤرشف. أعد تفعيله بإجراء مستقل أولًا.')
+  }
+}
+
 export async function saveProject(input: ProjectCreateInput, projectId?: string): Promise<Project> {
   const preview = buildProjectCreatePreview(input)
   if (!preview) {
     throw new DataValidationError(validateProjectCreateInput(input)[0] ?? 'بيانات المشروع غير صالحة.')
   }
+
+  if (projectId) await assertProjectEditable(projectId)
 
   const record = mapProjectCreateToRecord(preview)
   return mapProject(projectId ? await updateProject(projectId, record) : await insertProject(record))
