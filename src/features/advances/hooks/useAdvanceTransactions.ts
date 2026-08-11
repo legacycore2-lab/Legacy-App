@@ -1,14 +1,16 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
 import { getAdvanceTransactionsPage } from '../services/advances.service'
 
-export function useAdvanceTransactions(advanceId: string | null) {
-  const [page, setPage] = useState(1)
+type HistoryPageState = {
+  advanceId: string | null
+  page: number
+}
 
-  useEffect(() => {
-    setPage(1)
-  }, [advanceId])
+export function useAdvanceTransactions(advanceId: string | null) {
+  const [pageState, setPageState] = useState<HistoryPageState>({ advanceId, page: 1 })
+  const page = pageState.advanceId === advanceId ? pageState.page : 1
 
   const query = useQuery({
     queryKey: ['advance-transactions', advanceId, page],
@@ -18,13 +20,15 @@ export function useAdvanceTransactions(advanceId: string | null) {
     staleTime: 30_000,
   })
 
+  const setPage = (nextPage: number) => setPageState({ advanceId, page: nextPage })
+
   return {
     transactions: query.data?.transactions ?? [],
     page,
     totalPages: query.data?.totalPages ?? 1,
     totalCount: query.data?.totalCount ?? 0,
-    onPreviousPage: () => setPage((p) => Math.max(1, p - 1)),
-    onNextPage: () => setPage((p) => Math.min(query.data?.totalPages ?? p, p + 1)),
+    onPreviousPage: () => setPage(Math.max(1, page - 1)),
+    onNextPage: () => setPage(Math.min(query.data?.totalPages ?? page, page + 1)),
     isLoading: query.isLoading,
     error: query.error ? toErrorMessage(query.error, 'تعذر تحميل سجل الحركات.') : '',
   }
