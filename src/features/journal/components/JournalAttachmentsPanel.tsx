@@ -127,10 +127,20 @@ export function JournalAttachmentsPanel({ entryId, canManage }: Props) {
         <div className="journal-attachment-confirm">
           <p>هل تريد حذف هذا المرفق؟ لن يتم حذف القيد نفسه.</p>
           <div>
-            <button type="button" className="journal-secondary" onClick={() => setPendingDeleteId(null)} disabled={isDeleting}>
+            <button
+              type="button"
+              className="journal-secondary"
+              onClick={() => setPendingDeleteId(null)}
+              disabled={isDeleting}
+            >
               إلغاء
             </button>
-            <button type="button" className="journal-force-delete-btn" onClick={() => void handleDelete()} disabled={isDeleting}>
+            <button
+              type="button"
+              className="journal-force-delete-btn"
+              onClick={() => void handleDelete()}
+              disabled={isDeleting}
+            >
               <Trash2 size={14} /> {isDeleting ? 'جارٍ الحذف...' : 'تأكيد الحذف'}
             </button>
           </div>
