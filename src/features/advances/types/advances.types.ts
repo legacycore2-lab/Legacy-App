@@ -49,15 +49,17 @@ export interface AdvancesPageRequest {
 export interface AdvancesPage {
   advances: Advance[]
   filteredAdvances: Advance[]
-  projects: string[]
-  summary: AdvancesSummary
   page: number
   pageSize: number
   totalPages: number
   totalCount: number
 }
 
-// ─── Advance Transaction History ─────────────────────────────────────────────
+export interface AdvancesMeta {
+  projects: string[]
+  summary: AdvancesSummary
+}
+
 export type AdvanceTransactionType = 'expense' | 'return'
 
 export interface AdvanceTransactionRow {
