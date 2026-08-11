@@ -3,6 +3,7 @@ import type { JournalEntryType } from './journal.types'
 export type JournalImportStatus = 'valid' | 'invalid'
 
 export type JournalImportRow = {
+  requestId: string
   excelRow: number
   project: string
   projectId: string | null
