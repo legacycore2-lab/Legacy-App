@@ -198,11 +198,24 @@ export async function findJournalPostingOptions(): Promise<JournalPostingOptions
 }
 
 export function subscribeToJournalChanges(onChange: () => void): () => void {
-  return subscribeToTableChanges('journal', ['entries'], onChange)
+  return subscribeToTableChanges('journal', ['entries', 'journals'], onChange)
 }
 
 export function subscribeToJournalPostingOptionChanges(onChange: () => void): () => void {
   return subscribeToTableChanges('journal-options', ['projects', 'accounts'], onChange)
+}
+
+export async function reverseJournalEntry(entryId: string): Promise<string> {
+  const { data, error } = await getSupabaseClient().rpc('reverse_journal_entry', {
+    p_source_entry_id: entryId,
+  })
+
+  if (error) throw error
+  if (typeof data !== 'string') {
+    throw new Error('Supabase did not return the reversal entry identifier.')
+  }
+
+  return data
 }
 
 export async function forceDeleteJournalEntry(entryId: string, reason: string): Promise<void> {
