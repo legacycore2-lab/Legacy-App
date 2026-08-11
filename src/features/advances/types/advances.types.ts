@@ -36,6 +36,59 @@ export interface AdvanceFilters {
   search: string
   status: 'all' | AdvanceStatus
   project: string
+  dateFrom: string
+  dateTo: string
+}
+
+export interface AdvancesPageRequest {
+  page: number
+  pageSize: number
+  filters: AdvanceFilters
+}
+
+export interface AdvancesPage {
+  advances: Advance[]
+  filteredAdvances: Advance[]
+  projects: string[]
+  summary: AdvancesSummary
+  page: number
+  pageSize: number
+  totalPages: number
+  totalCount: number
+}
+
+// ─── Advance Transaction History ─────────────────────────────────────────────
+export type AdvanceTransactionType = 'expense' | 'return'
+
+export interface AdvanceTransactionRow {
+  id: string
+  advance_id: string
+  transaction_type: AdvanceTransactionType
+  project_id: string | null
+  transaction_date: string
+  amount: number
+  description: string
+  source_record_id: string
+  created_at: string
+  project_name: string | null
+}
+
+export interface AdvanceTransaction {
+  id: string
+  type: AdvanceTransactionType
+  date: string
+  projectName: string | null
+  description: string
+  amount: number
+  sourceRecordId: string
+}
+
+export interface AdvanceTransactionsPage {
+  transactions: AdvanceTransaction[]
+  page: number
+  pageSize: number
+  totalPages: number
+  totalCount: number
 }
 
 export interface AdvancesSummary {
@@ -45,6 +98,7 @@ export interface AdvancesSummary {
   overdueCount: number
 }
 
+/** @deprecated use AdvancesPage — retained for internal service use only */
 export interface AdvancesViewModel {
   advances: Advance[]
   filteredAdvances: Advance[]
