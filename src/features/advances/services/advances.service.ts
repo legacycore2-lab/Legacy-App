@@ -1,6 +1,9 @@
 import {
   findAdvanceOptions,
   findAdvances,
+  findAdvancesForStatusFilter,
+  findAdvancesPage,
+  findAdvanceTransactions,
   postAdvance,
   postAdvanceExpense,
   postAdvanceReturn,
@@ -9,14 +12,21 @@ import type {
   Advance,
   AdvanceFilters,
   AdvanceRow,
+  AdvancesMeta,
+  AdvancesPage,
+  AdvancesPageRequest,
   AdvancesSummary,
   AdvancesViewModel,
+  AdvanceTransaction,
+  AdvanceTransactionRow,
+  AdvanceTransactionsPage,
   CreateAdvanceInput,
   RecordAdvanceExpenseInput,
   ReturnAdvanceInput,
 } from '../types/advances.types'
 
-const normalized = (value: string) => value.trim().toLocaleLowerCase('ar-EG')
+export const ADVANCES_PAGE_SIZE = 25
+export const ADVANCE_TRANSACTIONS_PAGE_SIZE = 20
 
 export function mapAdvance(row: AdvanceRow, today = new Date()): Advance {
   const amount = Number(row.amount)
@@ -44,17 +54,23 @@ export function mapAdvance(row: AdvanceRow, today = new Date()): Advance {
   }
 }
 
+export function mapAdvanceTransaction(row: AdvanceTransactionRow): AdvanceTransaction {
+  return {
+    id: row.id,
+    type: row.transaction_type,
+    date: row.transaction_date,
+    projectName: row.project_name ?? null,
+    description: row.description,
+    amount: Number(row.amount),
+    sourceRecordId: row.source_record_id,
+  }
+}
+
 export function filterAdvances(advances: Advance[], filters: AdvanceFilters): Advance[] {
-  const term = normalized(filters.search)
   return advances.filter((advance) => {
-    const matchesSearch =
-      !term ||
-      [advance.holderName, advance.holderTitle, ...advance.projectNames, advance.number, advance.purpose]
-        .map(normalized)
-        .some((value) => value.includes(term))
     const matchesStatus = filters.status === 'all' || advance.status === filters.status
     const matchesProject = filters.project === 'all' || advance.projectNames.includes(filters.project)
-    return matchesSearch && matchesStatus && matchesProject
+    return matchesStatus && matchesProject
   })
 }
 
@@ -82,34 +98,123 @@ export async function getAdvancesViewModel(filters: AdvanceFilters): Promise<Adv
   }
 }
 
-const positiveAmount = (value: string) => Number.isFinite(Number(value)) && Number(value) > 0
+export async function getAdvancesMeta(): Promise<AdvancesMeta> {
+  const advances = (await findAdvances()).map((row) => mapAdvance(row))
+  return {
+    projects: [...new Set(advances.flatMap((advance) => advance.projectNames))].sort((a, b) =>
+      a.localeCompare(b, 'ar'),
+    ),
+    summary: summarizeAdvances(advances),
+  }
+}
+
+export async function getAdvancesPage(request: AdvancesPageRequest): Promise<AdvancesPage> {
+  const pageSize = Math.min(Math.max(Math.trunc(request.pageSize), 1), 100)
+  const page = Math.max(1, Math.trunc(request.page))
+  const offset = (page - 1) * pageSize
+  const repositoryFilters = {
+    search: request.filters.search,
+    project: request.filters.project,
+    dateFrom: request.filters.dateFrom,
+    dateTo: request.filters.dateTo,
+  }
+
+  if (request.filters.status !== 'all') {
+    const records = await findAdvancesForStatusFilter(repositoryFilters)
+    const filtered = filterAdvances(
+      records.map((row) => mapAdvance(row)),
+      request.filters,
+    )
+    const totalCount = filtered.length
+    const paged = filtered.slice(offset, offset + pageSize)
+
+    return {
+      advances: paged,
+      filteredAdvances: paged,
+      page,
+      pageSize,
+      totalPages: Math.max(1, Math.ceil(totalCount / pageSize)),
+      totalCount,
+    }
+  }
+
+  const { records, totalCount } = await findAdvancesPage({
+    offset,
+    limit: pageSize,
+    ...repositoryFilters,
+  })
+  const advances = records.map((row) => mapAdvance(row))
+
+  return {
+    advances,
+    filteredAdvances: advances,
+    page,
+    pageSize,
+    totalPages: Math.max(1, Math.ceil(totalCount / pageSize)),
+    totalCount,
+  }
+}
+
+export async function getAdvanceTransactionsPage(
+  advanceId: string,
+  page: number,
+): Promise<AdvanceTransactionsPage> {
+  const pageSize = ADVANCE_TRANSACTIONS_PAGE_SIZE
+  const safePage = Math.max(1, Math.trunc(page))
+  const offset = (safePage - 1) * pageSize
+
+  const { records, totalCount } = await findAdvanceTransactions({
+    advanceId,
+    offset,
+    limit: pageSize,
+  })
+
+  return {
+    transactions: records.map(mapAdvanceTransaction),
+    page: safePage,
+    pageSize,
+    totalPages: Math.max(1, Math.ceil(totalCount / pageSize)),
+    totalCount,
+  }
+}
+
 export const getAdvanceOptions = findAdvanceOptions
 
-export async function createAdvance(input: CreateAdvanceInput): Promise<string> {
+const positiveAmount = (value: string) => Number.isFinite(Number(value)) && Number(value) > 0
+
+export async function createAdvance(input: CreateAdvanceInput, clientRequestId: string): Promise<string> {
   if (!input.holderName.trim()) throw new Error('اسم حامل العهدة مطلوب.')
   if (input.projectIds.length === 0) throw new Error('اختر مشروعًا واحدًا على الأقل.')
   if (!input.sourceAccountId || !input.advanceLedgerAccountId)
     throw new Error('حساب الصرف وحساب العهدة مطلوبان.')
   if (!input.issueDate || !input.purpose.trim()) throw new Error('تاريخ الصرف والغرض مطلوبان.')
   if (!positiveAmount(input.amount)) throw new Error('المبلغ يجب أن يكون أكبر من صفر.')
-  return postAdvance(input, crypto.randomUUID())
+  if (!clientRequestId) throw new Error('معرّف الطلب مطلوب.')
+  return postAdvance(input, clientRequestId)
 }
 
 export async function recordAdvanceExpense(
   input: RecordAdvanceExpenseInput,
   remaining: number,
+  clientRequestId: string,
 ): Promise<string> {
   if (!input.projectId || !input.expenseAccountId || !input.transactionDate || !input.description.trim())
     throw new Error('أكمل بيانات المصروف.')
   if (!positiveAmount(input.amount) || Number(input.amount) > remaining)
     throw new Error('مبلغ المصروف غير صالح أو أكبر من المتبقي.')
-  return postAdvanceExpense(input, crypto.randomUUID())
+  if (!clientRequestId) throw new Error('معرّف الطلب مطلوب.')
+  return postAdvanceExpense(input, clientRequestId)
 }
 
-export async function returnAdvanceAmount(input: ReturnAdvanceInput, remaining: number): Promise<string> {
+export async function returnAdvanceAmount(
+  input: ReturnAdvanceInput,
+  remaining: number,
+  clientRequestId: string,
+): Promise<string> {
   if (!input.destinationAccountId || !input.transactionDate || !input.description.trim())
     throw new Error('أكمل بيانات رد المبلغ.')
   if (!positiveAmount(input.amount) || Number(input.amount) > remaining)
     throw new Error('المبلغ المرتجع غير صالح أو أكبر من المتبقي.')
-  return postAdvanceReturn(input, crypto.randomUUID())
+  if (!clientRequestId) throw new Error('معرّف الطلب مطلوب.')
+  return postAdvanceReturn(input, clientRequestId)
 }
