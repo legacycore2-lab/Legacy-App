@@ -38,12 +38,10 @@ export function useProjects() {
     [queryClient],
   )
 
-  useEffect(() => {
-    if (pageQuery.data && pageQuery.data.page !== page) setPage(pageQuery.data.page)
-  }, [page, pageQuery.data])
-
   const projects = useMemo(() => summaryQuery.data ?? [], [summaryQuery.data])
   const summary = useMemo(() => summarizeProjects(projects), [projects])
+  const effectivePage = pageQuery.data?.page ?? page
+  const totalPages = pageQuery.data?.totalPages ?? 1
 
   const setQuery = (value: string) => {
     setQueryState(value)
@@ -62,14 +60,14 @@ export function useProjects() {
     projectRows: pageQuery.data?.rows ?? [],
     summary,
     totalCount: pageQuery.data?.totalCount ?? 0,
-    page,
-    totalPages: pageQuery.data?.totalPages ?? 1,
+    page: effectivePage,
+    totalPages,
     query,
     setQuery,
     status,
     setStatus,
-    previousPage: () => setPage((current) => Math.max(1, current - 1)),
-    nextPage: () => setPage((current) => Math.min(pageQuery.data?.totalPages ?? current, current + 1)),
+    previousPage: () => setPage(Math.max(1, effectivePage - 1)),
+    nextPage: () => setPage(Math.min(totalPages, effectivePage + 1)),
     isLoading: pageQuery.isLoading || summaryQuery.isLoading,
     isRefreshing: pageQuery.isFetching && !pageQuery.isLoading,
     error: error ? toErrorMessage(error, 'تعذر تحميل المشاريع.') : '',
