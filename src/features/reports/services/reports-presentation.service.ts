@@ -1,7 +1,12 @@
 import type { ContractorReportsViewModel } from '../types/contractor-reports.types'
 import type { ProfitLossViewModel } from '../types/profit-loss.types'
 import type { ReportKey } from '../types/reports-center.types'
-import type { ReportJournalRow, ReportProjectRow, ReportsTab, TabularRow } from '../types/report.types'
+import type {
+  ReportJournalRow,
+  ReportProjectRow,
+  ReportsTab,
+  TabularRow,
+} from '../types/report.types'
 
 export type ContractorReportSection = 'overview' | 'statement' | 'payments'
 
@@ -30,7 +35,12 @@ const REPORT_TITLES: Partial<Record<ReportKey, string>> = {
 }
 
 export function resolveReportsTab(report: ReportKey | null): ReportsTab | null {
-  if (report === 'executive' || report === 'projects' || report === 'journal' || report === 'insights') {
+  if (
+    report === 'executive' ||
+    report === 'projects' ||
+    report === 'journal' ||
+    report === 'insights'
+  ) {
     return report
   }
   if (
@@ -56,7 +66,7 @@ export function isContractorReport(report: ReportKey | null): boolean {
 }
 
 export function getReportTitle(report: ReportKey | null): string {
-  return report ? REPORT_TITLES[report] ?? 'التقرير' : 'التقرير'
+  return report ? (REPORT_TITLES[report] ?? 'التقرير') : 'التقرير'
 }
 
 export function selectProjectReportRows(
@@ -83,7 +93,15 @@ type BuildTabularRowsInput = {
 }
 
 export function buildReportTabularRows(input: BuildTabularRowsInput): TabularRow[] {
-  const { selectedReport, activeTab, executiveRows, projectRows, journalRows, profitLoss, contractors } = input
+  const {
+    selectedReport,
+    activeTab,
+    executiveRows,
+    projectRows,
+    journalRows,
+    profitLoss,
+    contractors,
+  } = input
 
   if (activeTab === 'executive' || activeTab === 'projects') {
     const rows = activeTab === 'executive' ? executiveRows : projectRows
