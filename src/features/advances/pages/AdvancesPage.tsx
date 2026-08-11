@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { AlertTriangle, HandCoins, Plus, ReceiptText, RotateCcw, WalletCards } from 'lucide-react'
 import { AdvanceMovementDialog, CreateAdvanceDialog } from '../components/AdvanceDialogs'
 import { AdvanceTransactionHistory } from '../components/AdvanceTransactionHistory'
@@ -101,22 +101,11 @@ function Details({
 }
 
 export function AdvancesPage() {
-  const [selectedId, setSelectedId] = useState('')
   const [dialog, setDialog] = useState<'create' | 'expense' | 'return' | null>(null)
 
   const advances = useAdvances()
-  const history = useAdvanceTransactions(
-    advances.data?.filteredAdvances.find((a) => a.id === selectedId)?.id ??
-      advances.data?.filteredAdvances[0]?.id ??
-      null,
-  )
-
-  const selected = useMemo(
-    () =>
-      advances.data?.filteredAdvances.find((item) => item.id === selectedId) ??
-      advances.data?.filteredAdvances[0],
-    [advances.data, selectedId],
-  )
+  const selected = advances.selectedAdvance
+  const history = useAdvanceTransactions(advances.selectedAdvanceId)
 
   const handleFiltersChange = (key: keyof typeof advances.filters, value: string) => {
     advances.onFiltersChange({ ...advances.filters, [key]: value })
@@ -226,7 +215,7 @@ export function AdvancesPage() {
                   <tr
                     key={advance.id}
                     className={selected?.id === advance.id ? 'is-selected' : ''}
-                    onClick={() => setSelectedId(advance.id)}
+                    onClick={() => advances.selectAdvance(advance.id)}
                   >
                     <td>
                       <strong>{advance.holderName}</strong>
