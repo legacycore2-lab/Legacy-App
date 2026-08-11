@@ -1,8 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import {
-  findProjectFinancialEntries,
-  findProjectsPage,
-} from '../repositories/projects.repository'
+import { findProjectFinancialEntries, findProjectsPage } from '../repositories/projects.repository'
 import { getProjectsPage } from './project-list.service'
 
 vi.mock('../repositories/projects.repository', () => ({
