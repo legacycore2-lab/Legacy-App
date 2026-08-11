@@ -6,6 +6,7 @@ import { ProjectsStats } from '../components/ProjectsStats'
 import { ProjectsTable } from '../components/ProjectsTable'
 import { ProjectsToolbar } from '../components/ProjectsToolbar'
 import { useProjectCreateForm } from '../hooks/useProjectCreateForm'
+import { useProjectPermissions } from '../hooks/useProjectPermissions'
 import { useProjects } from '../hooks/useProjects'
 import '../styles/excel-import.css'
 import '../styles/project-create.css'
@@ -32,6 +33,7 @@ export function ProjectsPage() {
     error,
   } = useProjects()
   const projectCreate = useProjectCreateForm()
+  const { canCreate, canEdit } = useProjectPermissions()
   const [importOpen, setImportOpen] = useState(false)
 
   return (
@@ -42,14 +44,16 @@ export function ProjectsPage() {
           <h1>المشاريع</h1>
           <p>متابعة التنفيذ والتدفقات المالية واستيراد البيانات من مكان واحد.</p>
         </div>
-        <div className="projects-hero__actions">
-          <button className="projects-secondary-action" type="button" onClick={() => setImportOpen(true)}>
-            استيراد من Excel
-          </button>
-          <button className="projects-primary-action" type="button" onClick={projectCreate.open}>
-            <Plus size={18} /> مشروع جديد
-          </button>
-        </div>
+        {canCreate && (
+          <div className="projects-hero__actions">
+            <button className="projects-secondary-action" type="button" onClick={() => setImportOpen(true)}>
+              استيراد من Excel
+            </button>
+            <button className="projects-primary-action" type="button" onClick={projectCreate.open}>
+              <Plus size={18} /> مشروع جديد
+            </button>
+          </div>
+        )}
       </header>
       <ProjectsStats summary={summary} />
       {isLoading && <div className="projects-empty">جاري تحميل المشاريع...</div>}
@@ -64,7 +68,7 @@ export function ProjectsPage() {
       </div>
       {!isLoading && !error && projectRows.length > 0 ? (
         <>
-          <ProjectsTable projects={projectRows} onEdit={projectCreate.edit} />
+          <ProjectsTable projects={projectRows} onEdit={projectCreate.edit} canEdit={canEdit} />
           <nav className="projects-pagination" aria-label="صفحات المشاريع">
             <button type="button" onClick={previousPage} disabled={page <= 1 || isRefreshing}>
               السابق
@@ -85,8 +89,8 @@ export function ProjectsPage() {
           <p>جرّب تغيير كلمة البحث أو حالة المشروع.</p>
         </div>
       ) : null}
-      <ProjectCreateDialog {...projectCreate} />
-      <ExcelImportDialog open={importOpen} onClose={() => setImportOpen(false)} />
+      {canCreate && <ProjectCreateDialog {...projectCreate} />}
+      {canCreate && <ExcelImportDialog open={importOpen} onClose={() => setImportOpen(false)} />}
     </section>
   )
 }
