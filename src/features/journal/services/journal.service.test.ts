@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import type { JournalEntry } from '../types/journal.types'
 import type { JournalDetailsRecord } from '../repositories/journal.repository'
-import { summarizeJournalPage } from './journal.service'
+import type { JournalEntry } from '../types/journal.types'
 import { mapJournalDetails } from './journal.mapper'
+import { normalizeJournalDateRange, summarizeJournalPage } from './journal.service'
 
 const entries: JournalEntry[] = [
   {
@@ -38,6 +38,29 @@ describe('summarizeJournalPage', () => {
       pageIncome: 1500,
       pageExpense: 400,
       pageNet: 1100,
+    })
+  })
+})
+
+describe('normalizeJournalDateRange', () => {
+  it('keeps a valid date range unchanged', () => {
+    expect(normalizeJournalDateRange('2026-07-01', '2026-07-31')).toEqual({
+      dateFrom: '2026-07-01',
+      dateTo: '2026-07-31',
+    })
+  })
+
+  it('swaps an inverted date range', () => {
+    expect(normalizeJournalDateRange('2026-07-31', '2026-07-01')).toEqual({
+      dateFrom: '2026-07-01',
+      dateTo: '2026-07-31',
+    })
+  })
+
+  it('supports an open-ended range', () => {
+    expect(normalizeJournalDateRange('', '2026-07-31')).toEqual({
+      dateFrom: '',
+      dateTo: '2026-07-31',
     })
   })
 })
