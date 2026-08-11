@@ -6,13 +6,20 @@ import type { JournalFilters } from '../types/journal.types'
 
 const PAGE_SIZE = 25
 
+const INITIAL_FILTERS: JournalFilters = {
+  query: '',
+  type: 'all',
+  dateFrom: '',
+  dateTo: '',
+}
+
 export function useJournal() {
   const queryClient = useQueryClient()
-  const [filters, setFilters] = useState<JournalFilters>({ query: '', type: 'all' })
+  const [filters, setFilters] = useState<JournalFilters>(INITIAL_FILTERS)
   const [page, setPage] = useState(1)
   const deferredSearch = useDeferredValue(filters.query)
   const query = useQuery({
-    queryKey: ['journal', page, deferredSearch, filters.type],
+    queryKey: ['journal', page, deferredSearch, filters.type, filters.dateFrom, filters.dateTo],
     queryFn: () =>
       getJournalPage({ page, pageSize: PAGE_SIZE, filters: { ...filters, query: deferredSearch } }),
     placeholderData: keepPreviousData,
@@ -36,6 +43,7 @@ export function useJournal() {
     summary: result?.summary ?? { totalCount: 0, pageIncome: 0, pageExpense: 0, pageNet: 0 },
     filters,
     onFiltersChange: updateFilters,
+    onResetFilters: () => updateFilters(INITIAL_FILTERS),
     page,
     totalPages: result?.totalPages ?? 1,
     onPreviousPage: () => setPage((current) => Math.max(1, current - 1)),
