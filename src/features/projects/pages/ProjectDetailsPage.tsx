@@ -24,7 +24,6 @@ import {
   Trash2,
   TrendingDown,
   TrendingUp,
-  Truck,
   Upload,
   UsersRound,
   Wallet,
@@ -70,7 +69,6 @@ const workspaceTabs = [
   { id: 'banks', label: 'الخزنة والبنوك', icon: Landmark },
   { id: 'advances', label: 'العهد والسلف', icon: HandCoins },
   { id: 'contractors', label: 'المقاولون', icon: UsersRound },
-  { id: 'suppliers', label: 'الموردون', icon: Truck },
   { id: 'attachments', label: 'المرفقات', icon: Paperclip },
   { id: 'reports', label: 'التقارير', icon: FileBarChart },
   { id: 'activity', label: 'النشاط', icon: Activity },
@@ -78,13 +76,6 @@ const workspaceTabs = [
 ] as const
 
 type WorkspaceTabId = (typeof workspaceTabs)[number]['id']
-
-const internalSectionCopy: Partial<Record<WorkspaceTabId, { title: string; description: string }>> = {
-  suppliers: {
-    title: 'موردو المشروع',
-    description: 'سيتم عرض وربط موردي المشروع هنا عند اكتمال وحدة الموردين.',
-  },
-}
 
 function Currency({ value }: { value: number }) {
   return (
@@ -137,13 +128,11 @@ export function ProjectDetailsPage() {
     { label: 'الخزنة والبنوك', icon: Landmark, action: () => selectTab('banks') },
     { label: 'العهد والسلف', icon: HandCoins, action: () => selectTab('advances') },
     { label: 'المقاولون', icon: UsersRound, action: () => selectTab('contractors') },
-    { label: 'الموردون', icon: Truck, action: () => selectTab('suppliers') },
     { label: 'المرفقات', icon: Paperclip, action: () => selectTab('attachments') },
     { label: 'تقارير المشروع', icon: FileBarChart, action: () => selectTab('reports') },
     { label: 'إعدادات المشروع', icon: Settings, action: () => selectTab('settings') },
   ]
 
-  const internalSection = internalSectionCopy[activeTab]
   const openProjectJournal = () => navigate(`/journal?${projectQuery}`)
 
   return (
@@ -314,17 +303,7 @@ export function ProjectDetailsPage() {
       </header>
 
       <div className="project-command__scroll erp-scroll-region">
-        {internalSection ? (
-          <article className="project-command__panel project-workspace__facts">
-            <div className="project-command__panel-heading">
-              <div>
-                <span>مساحة المشروع</span>
-                <h2>{internalSection.title}</h2>
-              </div>
-            </div>
-            <div className="project-command__empty">{internalSection.description}</div>
-          </article>
-        ) : activeTab === 'activity' ? (
+        {activeTab === 'activity' ? (
           <WorkspaceActivityTab projectId={project.id} />
         ) : activeTab === 'contractors' ? (
           <WorkspaceContractorsTab projectId={project.id} />
