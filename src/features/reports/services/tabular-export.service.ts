@@ -43,14 +43,8 @@ export function downloadWord(rows: TabularRow[], filename: string) {
   const headers = Object.keys(rows[0])
   const headerCells = headers.map((header) => `<th>${escapeHtml(header)}</th>`).join('')
   const bodyRows = rows
-    .map(
-      (row) =>
-        `<tr>${headers.map((header) => `<td>${escapeHtml(row[header])}</td>`).join('')}</tr>`,
-    )
+    .map((row) => `<tr>${headers.map((header) => `<td>${escapeHtml(row[header])}</td>`).join('')}</tr>`)
     .join('')
   const html = `<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;direction:rtl}table{border-collapse:collapse;width:100%}th,td{border:1px solid #999;padding:6px;text-align:right}th{font-weight:700}</style></head><body><table><thead><tr>${headerCells}</tr></thead><tbody>${bodyRows}</tbody></table></body></html>`
-  downloadBlob(
-    new Blob([`\uFEFF${html}`], { type: 'application/msword;charset=utf-8' }),
-    filename,
-  )
+  downloadBlob(new Blob([`\uFEFF${html}`], { type: 'application/msword;charset=utf-8' }), filename)
 }

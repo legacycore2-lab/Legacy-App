@@ -1,7 +1,4 @@
-import type {
-  ReportCategoryDefinition,
-  ReportDefinition,
-} from '../types/reports-center.types'
+import type { ReportCategoryDefinition, ReportDefinition } from '../types/reports-center.types'
 
 const SIMPLE_REPORTS: ReportDefinition[] = [
   {
