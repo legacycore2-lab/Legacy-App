@@ -70,17 +70,17 @@ vi.mock('../repositories/dashboard.repository', () => ({
 describe('getDashboardData', () => {
   it('calculates correct balance from financial rows', async () => {
     const data = await getDashboardData()
-    expect(data.kpis[0].value).toBe('6,500')
+    expect(data.kpis[0].value).toBe('٦٬٥٠٠')
   })
 
   it('calculates total income correctly', async () => {
     const data = await getDashboardData()
-    expect(data.kpis[1].value).toBe('10,000')
+    expect(data.kpis[1].value).toBe('١٠٬٠٠٠')
   })
 
   it('calculates total expense correctly', async () => {
     const data = await getDashboardData()
-    expect(data.kpis[2].value).toBe('3,500')
+    expect(data.kpis[2].value).toBe('٣٬٥٠٠')
   })
 
   it('counts only active non-archived projects', async () => {
