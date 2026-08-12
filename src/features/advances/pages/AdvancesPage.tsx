@@ -291,6 +291,8 @@ export function AdvancesPage() {
       {dialog === 'create' && (
         <CreateAdvanceDialog
           options={advances.options}
+          optionsError={advances.optionsError}
+          optionsLoading={advances.isOptionsLoading}
           saving={advances.isSaving}
           error={advances.actionError}
           onClose={() => setDialog(null)}
@@ -302,6 +304,8 @@ export function AdvancesPage() {
           mode="expense"
           advance={selected}
           options={advances.options}
+          optionsError={advances.optionsError}
+          optionsLoading={advances.isOptionsLoading}
           saving={advances.isSaving}
           error={advances.actionError}
           onClose={() => setDialog(null)}
@@ -314,6 +318,8 @@ export function AdvancesPage() {
           mode="return"
           advance={selected}
           options={advances.options}
+          optionsError={advances.optionsError}
+          optionsLoading={advances.isOptionsLoading}
           saving={advances.isSaving}
           error={advances.actionError}
           onClose={() => setDialog(null)}
