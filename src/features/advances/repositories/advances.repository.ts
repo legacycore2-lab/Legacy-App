@@ -1,5 +1,6 @@
 import { AppError } from '../../../shared/errors/app-error'
 import { getSupabaseClient } from '../../../lib/supabase/client'
+import { subscribeToTableChanges } from '../../../lib/supabase/realtime'
 import type {
   AdvanceOptions,
   AdvanceRow,
@@ -222,4 +223,16 @@ export async function postAdvanceReturn(input: ReturnAdvanceInput, clientRequest
   })
   if (error) throw new AppError(error.message, 'ADVANCE_RETURN_POST_FAILED')
   return data as string
+}
+
+export function subscribeToAdvanceChanges(onChange: () => void): () => void {
+  return subscribeToTableChanges('advances', ['advances', 'advance_transactions'], onChange)
+}
+
+export function subscribeToAdvanceOptionChanges(onChange: () => void): () => void {
+  return subscribeToTableChanges(
+    'advance-options',
+    ['projects', 'accounts', 'cash_bank_accounts'],
+    onChange,
+  )
 }
