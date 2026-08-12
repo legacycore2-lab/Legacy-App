@@ -1,5 +1,6 @@
 import { LoginForm } from '../components/LoginForm'
 import '../styles/login.css'
+import '../styles/login-dark.css'
 
 export function LoginPage() {
   return (
