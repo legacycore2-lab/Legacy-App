@@ -177,9 +177,9 @@ export function ReportsPage() {
             ? () => exportTable(tabularRows, 'xlsx', center.selectedReport ?? 'report')
             : undefined
         }
-        onExportCsv={
+        onExportWord={
           tabularRows.length
-            ? () => exportTable(tabularRows, 'csv', center.selectedReport ?? 'report')
+            ? () => exportTable(tabularRows, 'doc', center.selectedReport ?? 'report')
             : undefined
         }
         isExporting={isExporting}
