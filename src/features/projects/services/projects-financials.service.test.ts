@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  buildProjectFinancialTotals,
-  mergeProjectsWithFinancialTotals,
-  normalizeFinancialEntryType,
-  parseFinancialAmount,
-} from './projects.service'
+import { buildProjectFinancialTotals, mergeProjectsWithFinancialTotals } from './projects.service'
 import type { FinancialEntryRow } from '../repositories/projects.repository'
 import type { Project } from '../types/project.types'
 
@@ -31,8 +26,8 @@ function project(id: string, overrides: Partial<Project> = {}): Project {
     status: 'active',
     progress: 0,
     contractValue: 0,
-    received: 999, // static column — must be overridden to 0 if no entries
-    spent: 999, // static column — must be overridden to 0 if no entries
+    received: 999,
+    spent: 999,
     startDate: '',
     endDate: '',
     notes: '',
@@ -56,30 +51,8 @@ function project(id: string, overrides: Partial<Project> = {}): Project {
 // (buildProjectFinancialTotals, mergeProjectsWithFinancialTotals) is fully
 // covered below — it is agnostic to how many pages the repository fetched.
 
-// ─── normalizeFinancialEntryType ──────────────────────────────────────────────
-
-describe('normalizeFinancialEntryType', () => {
-  it('returns income for "income"', () => expect(normalizeFinancialEntryType('income')).toBe('income'))
-  it('returns income for "i"', () => expect(normalizeFinancialEntryType('i')).toBe('income'))
-  it('returns expense for "expense"', () => expect(normalizeFinancialEntryType('expense')).toBe('expense'))
-  it('returns expense for "e"', () => expect(normalizeFinancialEntryType('e')).toBe('expense'))
-  it('returns null for unknown', () => expect(normalizeFinancialEntryType('debit')).toBeNull())
-  it('returns null for null', () => expect(normalizeFinancialEntryType(null)).toBeNull())
-  it('is case-insensitive', () => expect(normalizeFinancialEntryType('INCOME')).toBe('income'))
-})
-
-// ─── parseFinancialAmount ─────────────────────────────────────────────────────
-
-describe('parseFinancialAmount', () => {
-  it('parses valid number', () => expect(parseFinancialAmount(5000)).toBe(5000))
-  it('parses numeric string', () => expect(parseFinancialAmount('3000')).toBe(3000))
-  it('returns 0 for negative', () => expect(parseFinancialAmount(-100)).toBe(0))
-  it('returns 0 for null', () => expect(parseFinancialAmount(null)).toBe(0))
-  it('returns 0 for NaN string', () => expect(parseFinancialAmount('abc')).toBe(0))
-  it('returns 0 for Infinity', () => expect(parseFinancialAmount(Infinity)).toBe(0))
-})
-
-// ─── buildProjectFinancialTotals ──────────────────────────────────────────────
+// Shared entry-type and amount normalization are covered by shared helper tests.
+// These tests focus only on Projects-specific aggregation behavior.
 
 describe('buildProjectFinancialTotals', () => {
   it('returns empty map for empty rows', () => {
@@ -148,14 +121,11 @@ describe('buildProjectFinancialTotals', () => {
   })
 })
 
-// ─── mergeProjectsWithFinancialTotals ─────────────────────────────────────────
-
 describe('mergeProjectsWithFinancialTotals', () => {
   it('project without entries gets received=0, spent=0 — NOT static column value', () => {
     const projects = [project('p-no-entries')]
-    const totals = new Map() // no entries for this project
+    const totals = new Map()
     const merged = mergeProjectsWithFinancialTotals(projects, totals)
-    // static columns were 999/999 — must be overridden to 0
     expect(merged[0].received).toBe(0)
     expect(merged[0].spent).toBe(0)
   })
@@ -190,8 +160,8 @@ describe('mergeProjectsWithFinancialTotals', () => {
     ])
     const merged = mergeProjectsWithFinancialTotals(projects, totals)
     expect(merged[0].received).toBe(10000)
-    expect(merged[1].received).toBe(0) // p2 has no entries
-    expect(merged[1].spent).toBe(0) // not static 999
+    expect(merged[1].received).toBe(0)
+    expect(merged[1].spent).toBe(0)
     expect(merged[2].received).toBe(500)
   })
 })
