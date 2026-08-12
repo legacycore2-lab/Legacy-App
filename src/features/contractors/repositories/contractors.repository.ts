@@ -1,4 +1,5 @@
 import { getSupabaseClient } from '../../../lib/supabase/client'
+import { subscribeToTableChanges } from '../../../lib/supabase/realtime'
 import { fetchAllWithPagination } from '../../../shared/pagination-helpers'
 import type { ContractorEntryRecord } from '../types/contractor.types'
 
@@ -29,4 +30,8 @@ export async function findContractorEntries(): Promise<ContractorEntryRecord[]> 
       .order('entry_number', { ascending: false })
       .range(from, to),
   )
+}
+
+export function subscribeToContractorChanges(onChange: () => void): () => void {
+  return subscribeToTableChanges('contractors', ['entries', 'projects'], onChange)
 }

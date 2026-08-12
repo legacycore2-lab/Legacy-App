@@ -8,12 +8,21 @@ import type {
 } from '../types/advances.types'
 
 const today = () => new Date().toISOString().slice(0, 10)
-type CommonProps = { options?: AdvanceOptions; saving: boolean; error: string; onClose: () => void }
+type CommonProps = {
+  options?: AdvanceOptions
+  saving: boolean
+  error: string
+  optionsError?: string
+  optionsLoading?: boolean
+  onClose: () => void
+}
 
 export function CreateAdvanceDialog({
   options,
   saving,
   error,
+  optionsError = '',
+  optionsLoading = false,
   onClose,
   onSave,
 }: CommonProps & { onSave: (input: CreateAdvanceInput) => Promise<unknown> }) {
@@ -33,6 +42,8 @@ export function CreateAdvanceDialog({
     await onSave(input)
     onClose()
   }
+  const formUnavailable = saving || optionsLoading || Boolean(optionsError) || !options
+
   return (
     <div className="advance-dialog-backdrop">
       <form className="advance-dialog" onSubmit={submit}>
@@ -142,12 +153,14 @@ export function CreateAdvanceDialog({
             />
           </label>
         </div>
+        {optionsLoading && <p className="muted">جاري تحميل المشاريع والحسابات...</p>}
+        {optionsError && <p className="advances-error">{optionsError}</p>}
         {error && <p className="advances-error">{error}</p>}
         <div className="advance-dialog-actions">
-          <button className="advance-primary" disabled={saving}>
-            {saving ? 'جاري الحفظ...' : 'صرف العهدة'}
+          <button className="advance-primary" disabled={formUnavailable}>
+            {saving ? 'جاري الحفظ...' : optionsLoading ? 'جاري التحميل...' : 'صرف العهدة'}
           </button>
-          <button type="button" className="advance-secondary" onClick={onClose}>
+          <button type="button" className="advance-secondary" onClick={onClose} disabled={saving}>
             إلغاء
           </button>
         </div>
@@ -162,6 +175,8 @@ export function AdvanceMovementDialog({
   options,
   saving,
   error,
+  optionsError = '',
+  optionsLoading = false,
   onClose,
   onExpense,
   onReturn,
@@ -197,6 +212,8 @@ export function AdvanceMovementDialog({
       })
     onClose()
   }
+  const formUnavailable = saving || optionsLoading || Boolean(optionsError) || !options
+
   return (
     <div className="advance-dialog-backdrop">
       <form className="advance-dialog advance-dialog--small" onSubmit={submit}>
@@ -251,12 +268,14 @@ export function AdvanceMovementDialog({
             <textarea required value={description} onChange={(e) => setDescription(e.target.value)} />
           </label>
         </div>
+        {optionsLoading && <p className="muted">جاري تحميل الحسابات...</p>}
+        {optionsError && <p className="advances-error">{optionsError}</p>}
         {error && <p className="advances-error">{error}</p>}
         <div className="advance-dialog-actions">
-          <button className="advance-primary" disabled={saving}>
-            {saving ? 'جاري الحفظ...' : 'حفظ وترحيل'}
+          <button className="advance-primary" disabled={formUnavailable}>
+            {saving ? 'جاري الحفظ...' : optionsLoading ? 'جاري التحميل...' : 'حفظ وترحيل'}
           </button>
-          <button type="button" className="advance-secondary" onClick={onClose}>
+          <button type="button" className="advance-secondary" onClick={onClose} disabled={saving}>
             إلغاء
           </button>
         </div>

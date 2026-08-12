@@ -7,6 +7,8 @@ import {
   postAdvance,
   postAdvanceExpense,
   postAdvanceReturn,
+  subscribeToAdvanceChanges,
+  subscribeToAdvanceOptionChanges,
 } from '../repositories/advances.repository'
 import type {
   Advance,
@@ -179,6 +181,14 @@ export async function getAdvanceTransactionsPage(
 }
 
 export const getAdvanceOptions = findAdvanceOptions
+
+export function watchAdvances(onChange: () => void): () => void {
+  return subscribeToAdvanceChanges(onChange)
+}
+
+export function watchAdvanceOptions(onChange: () => void): () => void {
+  return subscribeToAdvanceOptionChanges(onChange)
+}
 
 const positiveAmount = (value: string) => Number.isFinite(Number(value)) && Number(value) > 0
 

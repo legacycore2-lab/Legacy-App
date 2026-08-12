@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
 import {
   ADVANCES_PAGE_SIZE,
@@ -9,6 +9,8 @@ import {
   getAdvancesPage,
   recordAdvanceExpense,
   returnAdvanceAmount,
+  watchAdvanceOptions,
+  watchAdvances,
 } from '../services/advances.service'
 import type {
   AdvanceFilters,
@@ -58,6 +60,22 @@ export function useAdvances() {
     queryFn: getAdvanceOptions,
     staleTime: 60_000,
   })
+
+  useEffect(
+    () =>
+      watchAdvances(() => {
+        void client.invalidateQueries({ queryKey: ['advances'] })
+      }),
+    [client],
+  )
+
+  useEffect(
+    () =>
+      watchAdvanceOptions(() => {
+        void client.invalidateQueries({ queryKey: ['advance-options'] })
+      }),
+    [client],
+  )
 
   const selectedAdvance = useMemo(
     () =>
@@ -123,6 +141,10 @@ export function useAdvances() {
     summary: meta.data?.summary ?? emptySummary,
     projects: meta.data?.projects ?? [],
     options: options.data,
+    optionsError: options.error
+      ? toErrorMessage(options.error, 'تعذر تحميل المشاريع والحسابات المطلوبة لتنفيذ حركة العهدة.')
+      : '',
+    isOptionsLoading: options.isLoading,
     filters,
     onFiltersChange: updateFilters,
     onResetFilters: resetFilters,
