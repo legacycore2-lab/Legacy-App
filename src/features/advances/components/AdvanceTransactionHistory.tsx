@@ -1,18 +1,11 @@
+import { formatAccountingDate } from '../../../shared/date-utils'
+import { formatMoney } from '../../../shared/formatters'
 import type { AdvanceTransaction } from '../types/advances.types'
 
 const typeLabels: Record<string, string> = {
   expense: 'مصروف',
   return: 'رد',
 }
-
-const number = new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 2 })
-const money = (value: number) => `${number.format(value)} ج.م`
-const dateFormatter = new Intl.DateTimeFormat('ar-EG', {
-  year: 'numeric',
-  month: 'short',
-  day: 'numeric',
-})
-const formatDate = (value: string) => (value ? dateFormatter.format(new Date(`${value}T12:00:00`)) : '—')
 
 export function AdvanceTransactionHistory({
   transactions,
@@ -75,7 +68,7 @@ export function AdvanceTransactionHistory({
             <tbody>
               {transactions.map((tx) => (
                 <tr key={tx.id}>
-                  <td>{formatDate(tx.date)}</td>
+                  <td>{formatAccountingDate(tx.date, '—')}</td>
                   <td>
                     <span className={`advance-tx-type advance-tx-type--${tx.type}`}>
                       {typeLabels[tx.type] ?? tx.type}
@@ -84,7 +77,7 @@ export function AdvanceTransactionHistory({
                   <td>{tx.projectName ?? '—'}</td>
                   <td>{tx.description}</td>
                   <td className={tx.type === 'expense' ? 'amount-negative' : 'amount-positive'}>
-                    {tx.type === 'expense' ? '−' : '+'} {money(tx.amount)}
+                    {tx.type === 'expense' ? '−' : '+'} {formatMoney(tx.amount)}
                   </td>
                 </tr>
               ))}
