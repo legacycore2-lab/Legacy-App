@@ -5,31 +5,20 @@ import { getReportsCenterDefinitions } from './reports-center-navigation.service
 const reports = getReportsCenterDefinitions()
 
 describe('reports center catalogue', () => {
-  it('exposes only implemented reports as available', () => {
-    const available = reports
-      .filter((report) => report.availability === 'available')
-      .map((report) => report.key)
-
-    expect(available).toEqual([
-      'executive',
-      'profit-loss',
-      'projects',
-      'project-comparison',
-      'profitable-projects',
-      'loss-making-projects',
+  it('exposes only the four approved production reports', () => {
+    expect(reports.map((report) => report.key)).toEqual([
       'journal',
+      'executive',
+      'projects',
       'contractor-statement',
-      'contractor-payments',
-      'top-contractors',
-      'contract-values',
-      'income-expense',
-      'insights',
     ])
+    expect(reports.every((report) => report.availability === 'available')).toBe(true)
   })
 
-  it('keeps reports without real source data unavailable', () => {
-    expect(reports.find((report) => report.key === 'cash-flow')?.availability).toBe('coming-soon')
-    expect(reports.find((report) => report.key === 'contractor-dues')?.availability).toBe('coming-soon')
+  it('does not expose legacy coming-soon catalogue entries', () => {
+    expect(reports.find((report) => report.key === 'cash-flow')).toBeUndefined()
+    expect(reports.find((report) => report.key === 'contractor-dues')).toBeUndefined()
+    expect(reports.find((report) => report.key === 'profit-loss')).toBeUndefined()
   })
 
   it('filters by title', () => {
@@ -38,19 +27,19 @@ describe('reports center catalogue', () => {
   })
 
   it('filters by description', () => {
-    const result = filterReportDefinitions(reports, 'المستندات', 'all')
-    expect(result.some((report) => report.category === 'documents')).toBe(true)
+    const result = filterReportDefinitions(reports, 'الإيرادات والمصروفات', 'all')
+    expect(result.map((report) => report.key)).toContain('projects')
   })
 
   it('filters by keyword', () => {
-    const result = filterReportDefinitions(reports, 'سيولة', 'all')
-    expect(result.map((report) => report.key)).toContain('cash-flow')
+    const result = filterReportDefinitions(reports, 'مقاول', 'all')
+    expect(result.map((report) => report.key)).toContain('contractor-statement')
   })
 
   it('filters by category', () => {
     const result = filterReportDefinitions(reports, '', 'projects')
-    expect(result.length).toBeGreaterThan(0)
-    expect(result.every((report) => report.category === 'projects')).toBe(true)
+    expect(result).toHaveLength(1)
+    expect(result[0]?.key).toBe('projects')
   })
 
   it('builds sections and counts from the filtered definitions', () => {
@@ -59,16 +48,17 @@ describe('reports center catalogue', () => {
 
     expect(viewModel.sections).toHaveLength(1)
     expect(viewModel.sections[0]?.category).toBe('executive')
-    expect(viewModel.totalReports).toBe(filtered.length)
-    expect(viewModel.availableReports).toBe(3)
+    expect(viewModel.totalReports).toBe(1)
+    expect(viewModel.availableReports).toBe(1)
   })
 
-  it('counts three available contractor reports and keeps dues disabled', () => {
+  it('builds one contractor report section', () => {
     const filtered = filterReportDefinitions(reports, '', 'contractors')
     const viewModel = buildReportsCenterViewModel(filtered)
 
-    expect(viewModel.availableReports).toBe(3)
-    expect(filtered.find((report) => report.key === 'contractor-dues')?.availability).toBe('coming-soon')
+    expect(filtered.map((report) => report.key)).toEqual(['contractor-statement'])
+    expect(viewModel.totalReports).toBe(1)
+    expect(viewModel.availableReports).toBe(1)
   })
 
   it('does not mutate report definitions while filtering', () => {

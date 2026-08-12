@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { buildContractorStatement } from '../services/contractor-statement.service'
 import { downloadContractorStatementPdf } from '../services/contractor-statement-renderer.service'
 import { buildPdfFilename, downloadPdf } from '../services/pdf-export.service'
-import { downloadCsv, downloadExcel } from '../services/tabular-export.service'
+import { downloadCsv, downloadExcel, downloadWord } from '../services/tabular-export.service'
 import {
   buildContractorsPdfPayload,
   buildExecutivePdfPayload,
@@ -32,7 +32,7 @@ export function useReportExport() {
     try {
       await fn()
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'تعذر تصدير PDF'
+      const msg = err instanceof Error ? err.message : 'تعذر تصدير التقرير.'
       setExportError(msg)
     } finally {
       setIsExporting(false)
@@ -105,10 +105,11 @@ export function useReportExport() {
     })
   }
 
-  function exportTable(rows: TabularRow[], format: 'xlsx' | 'csv', reportKey: string) {
+  function exportTable(rows: TabularRow[], format: 'xlsx' | 'csv' | 'doc', reportKey: string) {
     void runExport(async () => {
       const date = new Date().toISOString().slice(0, 10)
       if (format === 'xlsx') await downloadExcel(rows, `${reportKey}-${date}.xlsx`)
+      else if (format === 'doc') downloadWord(rows, `${reportKey}-${date}.doc`)
       else downloadCsv(rows, `${reportKey}-${date}.csv`)
     })
   }

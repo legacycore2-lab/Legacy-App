@@ -6,7 +6,7 @@ type Props = {
   onRefresh: () => void | Promise<void>
   onExportPdf?: () => void
   onExportExcel?: () => void
-  onExportCsv?: () => void
+  onExportWord?: () => void
   lastUpdated?: Date | null
   isExporting?: boolean
 }
@@ -15,7 +15,7 @@ export function ReportsHeader({
   onRefresh,
   onExportPdf,
   onExportExcel,
-  onExportCsv,
+  onExportWord,
   lastUpdated,
   isExporting = false,
 }: Props) {
@@ -42,20 +42,20 @@ export function ReportsHeader({
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [exportOpen])
 
-  function handlePdfClick() {
+  function closeAndRun(action?: () => void) {
     setExportOpen(false)
-    onExportPdf?.()
+    action?.()
   }
 
   return (
     <header className="rh">
       <div className="rh__text">
-        <span className="rh__eyebrow">مركز التقارير والتحليلات</span>
+        <span className="rh__eyebrow">مركز التقارير</span>
         <h1 className="rh__title">التقارير</h1>
         {lastUpdated ? (
           <p className="rh__meta">آخر تحديث: {formatTimestamp(lastUpdated)}</p>
         ) : (
-          <p className="rh__meta">ملخص مالي مباشر من القيود المسجلة</p>
+          <p className="rh__meta">تقارير مباشرة من البيانات المسجلة في النظام</p>
         )}
       </div>
 
@@ -80,7 +80,7 @@ export function ReportsHeader({
           <button
             type="button"
             className="rh-btn is-primary"
-            onClick={() => setExportOpen((o) => !o)}
+            onClick={() => setExportOpen((open) => !open)}
             aria-haspopup="true"
             aria-expanded={exportOpen}
           >
@@ -95,7 +95,7 @@ export function ReportsHeader({
                 <button
                   type="button"
                   role="menuitem"
-                  onClick={handlePdfClick}
+                  onClick={() => closeAndRun(onExportPdf)}
                   disabled={isExporting || !onExportPdf}
                   className="rh-dropdown__item"
                   data-action="export-pdf"
@@ -108,10 +108,7 @@ export function ReportsHeader({
                 <button
                   type="button"
                   role="menuitem"
-                  onClick={() => {
-                    setExportOpen(false)
-                    onExportExcel?.()
-                  }}
+                  onClick={() => closeAndRun(onExportExcel)}
                   disabled={isExporting || !onExportExcel}
                   className="rh-dropdown__item"
                 >
@@ -123,15 +120,12 @@ export function ReportsHeader({
                 <button
                   type="button"
                   role="menuitem"
-                  onClick={() => {
-                    setExportOpen(false)
-                    onExportCsv?.()
-                  }}
-                  disabled={isExporting || !onExportCsv}
+                  onClick={() => closeAndRun(onExportWord)}
+                  disabled={isExporting || !onExportWord}
                   className="rh-dropdown__item"
                 >
                   <FileText size={14} />
-                  CSV
+                  Word
                 </button>
               </li>
             </ul>
