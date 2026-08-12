@@ -62,7 +62,8 @@
 }
 
 .kpi-card span {
-  font-size: 10px;
+  font-size: 12px;
+  line-height: 1.4;
 }
 .kpi-card strong {
   display: block;
@@ -73,18 +74,24 @@
   letter-spacing: -0.03em;
 }
 .kpi-card small {
-  margin-top: 1px;
-  font-size: 9px;
+  margin-top: 2px;
+  font-size: 11px;
+  line-height: 1.35;
 }
 
 .kpi-card em {
   position: absolute;
   left: 14px;
   bottom: 13px;
+  max-width: calc(100% - 28px);
   padding: 4px 7px;
+  overflow: hidden;
   border-radius: 99px;
   font-style: normal;
-  font-size: 9px;
+  font-size: 10px;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .kpi-card em.positive {
