@@ -34,6 +34,7 @@ export function AppShell({ children }: AppShellProps) {
           userName={user?.displayName ?? 'مستخدم النظام'}
           roleLabel={user?.roleLabel ?? 'الحساب الحالي'}
           canManageSystem={canAccess('/settings')}
+          canAccess={canAccess}
           onLogout={() => void signOut()}
         />
         <main className="page-content">{children}</main>
