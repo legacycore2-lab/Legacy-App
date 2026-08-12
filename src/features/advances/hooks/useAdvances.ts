@@ -141,6 +141,10 @@ export function useAdvances() {
     summary: meta.data?.summary ?? emptySummary,
     projects: meta.data?.projects ?? [],
     options: options.data,
+    optionsError: options.error
+      ? toErrorMessage(options.error, 'تعذر تحميل المشاريع والحسابات المطلوبة لتنفيذ حركة العهدة.')
+      : '',
+    isOptionsLoading: options.isLoading,
     filters,
     onFiltersChange: updateFilters,
     onResetFilters: resetFilters,
