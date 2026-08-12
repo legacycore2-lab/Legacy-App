@@ -1,4 +1,7 @@
-import { findContractorEntries } from '../repositories/contractors.repository'
+import {
+  findContractorEntries,
+  subscribeToContractorChanges,
+} from '../repositories/contractors.repository'
 import type {
   Contractor,
   ContractorEntriesPage,
@@ -19,13 +22,6 @@ import {
 
 export const CONTRACTOR_ENTRIES_PAGE_SIZE = 20
 
-// ─── Aggregation ──────────────────────────────────────────────────────────────
-
-/**
- * Builds the Contractor[] directory from raw DB records.
- * All grouping, dedup, and aggregation happens here — no logic in components.
- * Does not mutate the input array.
- */
 export function buildContractors(records: ContractorEntryRecord[]): Contractor[] {
   const map = new Map<
     string,
@@ -107,8 +103,6 @@ export function buildContractors(records: ContractorEntryRecord[]): Contractor[]
   }))
 }
 
-// ─── Directory search/sort ───────────────────────────────────────────────────
-
 export function searchContractors(contractors: Contractor[], query: string): Contractor[] {
   const q = query.trim()
   if (!q) return contractors
@@ -130,8 +124,6 @@ export function sortContractors(contractors: Contractor[], sort: ContractorSort)
     }
   })
 }
-
-// ─── Contractor details ──────────────────────────────────────────────────────
 
 export function filterContractorEntries(
   entries: ContractorEntry[],
@@ -167,8 +159,6 @@ export function getContractorEntriesPage(
   }
 }
 
-// ─── ViewModel builder ────────────────────────────────────────────────────────
-
 export function buildContractorsViewModel(contractors: Contractor[]): ContractorsViewModel {
   const uniqueProjectIds = new Set(contractors.flatMap((c) => c.projects.map((p) => p.id)))
 
@@ -181,14 +171,14 @@ export function buildContractorsViewModel(contractors: Contractor[]): Contractor
   }
 }
 
-// ─── Public async API ─────────────────────────────────────────────────────────
-
 export async function getContractors(): Promise<Contractor[]> {
   const records = await findContractorEntries()
   return buildContractors(records)
 }
 
-// ─── Selected contractor derivation ──────────────────────────────────────────
+export function watchContractors(onChange: () => void): () => void {
+  return subscribeToContractorChanges(onChange)
+}
 
 export function extractSelectedContractor(
   contractors: Contractor[],
