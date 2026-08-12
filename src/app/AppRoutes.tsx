@@ -31,7 +31,7 @@ export function AppRoutes() {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayoutRoute />}>
-          <Route path="/" element={<DashboardPage />} />
+          <Route path="/" element={secured('/', <DashboardPage />)} />
           <Route path="/projects" element={secured('/projects', <ProjectsPage />)} />
           <Route path="/projects/:id" element={secured('/projects', <ProjectDetailsPage />)} />
           <Route path="/journal" element={secured('/journal', <JournalPage />)} />
