@@ -293,8 +293,9 @@ using (
 
 -- ---------------------------------------------------------------------------
 -- Cover foreign-key columns reported by the Supabase Performance Advisor.
--- The canonical journals schema uses reversal_of_id; legacy reversal_of is
--- intentionally not indexed here so the migration replays cleanly from scratch.
+-- The canonical clean-replay journals schema uses reversal_of_id and does not
+-- include production-only legacy reversal columns, so only canonical columns
+-- are indexed here.
 -- ---------------------------------------------------------------------------
 create index if not exists accounts_created_by_idx on public.accounts(created_by);
 create index if not exists advance_projects_project_id_idx on public.advance_projects(project_id);
@@ -313,7 +314,6 @@ create index if not exists journal_lines_created_by_idx on public.journal_lines(
 create index if not exists journals_created_by_idx on public.journals(created_by);
 create index if not exists journals_posted_by_idx on public.journals(posted_by);
 create index if not exists journals_reversal_of_id_idx on public.journals(reversal_of_id);
-create index if not exists journals_reversed_by_idx on public.journals(reversed_by);
 create index if not exists projects_created_by_idx on public.projects(created_by);
 create index if not exists system_settings_updated_by_idx on public.system_settings(updated_by);
 create index if not exists system_settings_audit_actor_id_idx on public.system_settings_audit(actor_id);
