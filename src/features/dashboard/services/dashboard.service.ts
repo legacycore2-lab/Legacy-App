@@ -2,7 +2,12 @@ import { ArrowDownLeft, ArrowUpRight, BriefcaseBusiness, WalletCards } from 'luc
 import { normalizeEntryType } from '../../../shared/contractors-helpers'
 import { dashboardActions } from '../data/dashboard.data'
 import { findDashboardData, subscribeToDashboardChanges } from '../repositories/dashboard.repository'
-import type { DashboardData, DashboardEntryRecord, DashboardProjectRecord } from '../types/dashboard.types'
+import type {
+  DashboardData,
+  DashboardFinancialEntryRecord,
+  DashboardProjectRecord,
+  DashboardRecentEntryRecord,
+} from '../types/dashboard.types'
 
 const numberFormatter = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 })
 
@@ -26,16 +31,12 @@ function isActiveProject(project: DashboardProjectRecord): boolean {
   return !project.status || project.status === 'active'
 }
 
-/**
- * Builds a signed balance per project from entries.
- * unknown entry_type → skipped (not treated as expense).
- */
-export function buildProjectBalances(entries: DashboardEntryRecord[]): Map<string, number> {
+export function buildProjectBalances(entries: DashboardFinancialEntryRecord[]): Map<string, number> {
   const balances = new Map<string, number>()
   for (const entry of entries) {
     if (!entry.project_id) continue
     const type = normalizeEntryType(entry.type)
-    if (!type) continue // unknown → skip entirely
+    if (!type) continue
     const amount = toAmount(entry.amount)
     const signedAmount = type === 'income' ? amount : -amount
     balances.set(entry.project_id, (balances.get(entry.project_id) ?? 0) + signedAmount)
@@ -43,7 +44,7 @@ export function buildProjectBalances(entries: DashboardEntryRecord[]): Map<strin
   return balances
 }
 
-export function buildDashboardTotals(entries: DashboardEntryRecord[]): {
+export function buildDashboardTotals(entries: DashboardFinancialEntryRecord[]): {
   totalIncome: number
   totalExpense: number
 } {
@@ -71,18 +72,31 @@ function resolveProjectStatus(
   project: DashboardProjectRecord,
 ): 'active' | 'paused' | 'completed' | 'archived' {
   if (project.is_archived) return 'archived'
-  const s = project.status ?? 'active'
-  if (s === 'active' || s === 'paused' || s === 'completed' || s === 'archived') return s
+  const status = project.status ?? 'active'
+  if (status === 'active' || status === 'paused' || status === 'completed' || status === 'archived')
+    return status
   return 'active'
+}
+
+function mapRecentEntries(entries: DashboardRecentEntryRecord[], projectNames: Map<string, string>) {
+  return entries.map((entry) => {
+    const type = normalizeEntryType(entry.type)
+    return {
+      id: entry.seq ? `#${entry.seq}` : entry.id,
+      project: entry.project_id ? (projectNames.get(entry.project_id) ?? 'مشروع غير معروف') : 'بدون مشروع',
+      description: entry.description?.trim() || 'بدون بيان',
+      date: formatEntryDate(entry.entry_date),
+      amount: formatAmount(toAmount(entry.amount)),
+      type: type ?? 'unknown',
+    } as const
+  })
 }
 
 export async function getDashboardData(): Promise<DashboardData> {
   const source = await findDashboardData()
-  const projectBalances = buildProjectBalances(source.entries)
+  const projectBalances = buildProjectBalances(source.financialEntries)
   const projectNames = buildProjectNameMap(source.projects)
-
-  // Totals: unknown entry_type is excluded — never treated as expense
-  const { totalIncome, totalExpense } = buildDashboardTotals(source.entries)
+  const { totalIncome, totalExpense } = buildDashboardTotals(source.financialEntries)
 
   const balance = totalIncome - totalExpense
   const activeProjects = source.projects.filter(isActiveProject)
@@ -103,7 +117,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       {
         label: 'إجمالي الرصيد',
         value: formatAmount(balance),
-        trend: `${source.entries.length} قيد`,
+        trend: `${source.financialEntries.length} قيد`,
         icon: WalletCards,
         tone: balance >= 0 ? 'green' : 'gold',
         unit: 'ج.م',
@@ -133,24 +147,14 @@ export async function getDashboardData(): Promise<DashboardData> {
       },
     ],
     projects: activeProjects.slice(0, 3).map((project) => ({
+      id: project.id,
       name: project.name,
       client: project.client_name?.trim() || 'بدون عميل',
       balance: formatAmount(projectBalances.get(project.id) ?? 0),
       progress: toProgress(project.progress),
       status: resolveProjectStatus(project),
     })),
-    entries: source.entries.slice(0, 3).map((entry) => {
-      const type = normalizeEntryType(entry.type)
-      return {
-        id: entry.seq ? `#${entry.seq}` : entry.id,
-        project: entry.project_id ? (projectNames.get(entry.project_id) ?? 'مشروع غير معروف') : 'بدون مشروع',
-        description: entry.description?.trim() || 'بدون بيان',
-        date: formatEntryDate(entry.entry_date),
-        amount: formatAmount(toAmount(entry.amount)),
-        // unknown entry_type → shown as 'unknown', not coerced to expense
-        type: type ?? 'unknown',
-      }
-    }),
+    entries: mapRecentEntries(source.recentEntries, projectNames),
     actions: dashboardActions,
   }
 }

@@ -34,7 +34,13 @@ export function RecentProjects({ projects }: { projects: DashboardProject[] }) {
           projects.map((project) => {
             const { label, className } = statusConfig[project.status] ?? statusConfig.active
             return (
-              <div className="project-row" key={project.name}>
+              <button
+                type="button"
+                className="project-row project-row--button"
+                key={project.id}
+                onClick={() => navigate(`/projects/${project.id}`)}
+                aria-label={`فتح مشروع ${project.name}`}
+              >
                 <div className="project-main">
                   <strong>{project.name}</strong>
                   <small>{project.client}</small>
@@ -50,7 +56,7 @@ export function RecentProjects({ projects }: { projects: DashboardProject[] }) {
                   <small>ج.م</small>
                 </div>
                 <span className={`status-badge ${className}`}>{label}</span>
-              </div>
+              </button>
             )
           })
         )}

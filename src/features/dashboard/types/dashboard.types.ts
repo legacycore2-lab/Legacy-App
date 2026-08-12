@@ -17,6 +17,7 @@ export type DashboardHeaderSummary = {
 }
 
 export type DashboardProject = {
+  id: string
   name: string
   client: string
   balance: string
@@ -54,17 +55,21 @@ export type DashboardProjectRecord = {
   created_at: string | null
 }
 
-export type DashboardEntryRecord = {
-  id: string
+export type DashboardFinancialEntryRecord = {
   project_id: string | null
   type: string | null
   amount: number | string | null
+  seq: number | null
+}
+
+export type DashboardRecentEntryRecord = DashboardFinancialEntryRecord & {
+  id: string
   description: string | null
   entry_date: string | null
-  seq: number | null
 }
 
 export type DashboardSourceData = {
   projects: DashboardProjectRecord[]
-  entries: DashboardEntryRecord[]
+  financialEntries: DashboardFinancialEntryRecord[]
+  recentEntries: DashboardRecentEntryRecord[]
 }

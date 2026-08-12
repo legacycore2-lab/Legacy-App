@@ -1,15 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import type { DashboardEntryRecord } from '../types/dashboard.types'
+import type { DashboardFinancialEntryRecord } from '../types/dashboard.types'
 import { buildDashboardTotals, buildProjectBalances } from './dashboard.service'
 
-function makeEntry(overrides: Partial<DashboardEntryRecord>): DashboardEntryRecord {
+function makeEntry(overrides: Partial<DashboardFinancialEntryRecord>): DashboardFinancialEntryRecord {
   return {
-    id: 'e1',
     project_id: 'p1',
     type: 'expense',
     amount: 1000,
-    description: 'test',
-    entry_date: '2025-01-01',
     seq: 1,
     ...overrides,
   }
