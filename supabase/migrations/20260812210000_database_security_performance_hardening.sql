@@ -3,28 +3,37 @@
 
 -- ---------------------------------------------------------------------------
 -- Accounts: restrict direct DELETE and use initPlan-friendly auth helpers.
+-- Recreate canonical policies instead of ALTERing environment-specific names so
+-- the migration works both on production reconciliation and on a clean replay.
 -- ---------------------------------------------------------------------------
 drop policy if exists accounts_authenticated_delete on public.accounts;
 drop policy if exists accounts_delete_admin on public.accounts;
-create policy accounts_delete_admin
-on public.accounts
-for delete
-to authenticated
-using (
-  coalesce(((select auth.jwt()) -> 'app_metadata' ->> 'role'), 'viewer')
-    in ('super_admin', 'admin')
-);
+drop policy if exists accounts_authenticated_select on public.accounts;
+drop policy if exists accounts_select_finance on public.accounts;
+drop policy if exists accounts_authenticated_insert on public.accounts;
+drop policy if exists accounts_insert_finance on public.accounts;
+drop policy if exists accounts_authenticated_update on public.accounts;
+drop policy if exists accounts_update_finance on public.accounts;
 
-alter policy accounts_authenticated_select on public.accounts
+create policy accounts_select_finance
+on public.accounts
+for select
+to authenticated
 using ((select auth.uid()) is not null);
 
-alter policy accounts_insert_finance on public.accounts
+create policy accounts_insert_finance
+on public.accounts
+for insert
+to authenticated
 with check (
   coalesce(((select auth.jwt()) -> 'app_metadata' ->> 'role'), 'viewer')
     in ('super_admin', 'admin', 'accountant')
 );
 
-alter policy accounts_update_finance on public.accounts
+create policy accounts_update_finance
+on public.accounts
+for update
+to authenticated
 using (
   coalesce(((select auth.jwt()) -> 'app_metadata' ->> 'role'), 'viewer')
     in ('super_admin', 'admin', 'accountant')
@@ -32,6 +41,15 @@ using (
 with check (
   coalesce(((select auth.jwt()) -> 'app_metadata' ->> 'role'), 'viewer')
     in ('super_admin', 'admin', 'accountant')
+);
+
+create policy accounts_delete_admin
+on public.accounts
+for delete
+to authenticated
+using (
+  coalesce(((select auth.jwt()) -> 'app_metadata' ->> 'role'), 'viewer')
+    in ('super_admin', 'admin')
 );
 
 -- ---------------------------------------------------------------------------
