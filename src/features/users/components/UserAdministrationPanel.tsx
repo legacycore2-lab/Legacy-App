@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { formatTimestamp } from '../../../shared/date-utils'
 import type { EffectivePermission, ManagedUser, UserAdministrationDetails } from '../types/users.types'
 
 type Tab = 'information' | 'permissions' | 'projects' | 'activity'
@@ -49,11 +50,8 @@ export function UserAdministrationPanel(props: Props) {
             <Row label="الاسم الكامل" value={props.user.displayName} />
             <Row label="البريد الإلكتروني" value={props.user.email} />
             <Row label="رقم الجوال" value={props.user.phone ?? 'غير مسجل'} />
-            <Row label="تاريخ الإنشاء" value={new Date(props.user.createdAt).toLocaleString('ar-EG')} />
-            <Row
-              label="آخر تسجيل دخول"
-              value={props.user.lastLoginAt ? new Date(props.user.lastLoginAt).toLocaleString('ar-EG') : '—'}
-            />
+            <Row label="تاريخ الإنشاء" value={formatTimestamp(props.user.createdAt)} />
+            <Row label="آخر تسجيل دخول" value={formatTimestamp(props.user.lastLoginAt, '—')} />
             <Row label="الدور" value={roleLabels[props.user.role]} />
           </div>
           <div className="users-detail-card users-account-actions">
@@ -113,7 +111,7 @@ export function UserAdministrationPanel(props: Props) {
             props.details.activity.map((item) => (
               <div key={item.id}>
                 <strong>{activityLabels[item.action]}</strong>
-                <span>{new Date(item.created_at).toLocaleString('ar-EG')}</span>
+                <span>{formatTimestamp(item.created_at)}</span>
               </div>
             ))
           ) : (
