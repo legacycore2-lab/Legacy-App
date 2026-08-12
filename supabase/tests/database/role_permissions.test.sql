@@ -1,8 +1,8 @@
 begin;
 
-select plan(47);
+select plan(51);
 
--- 25 policies that must explicitly admit super_admin while preserving their
+-- 29 policies that must explicitly admit super_admin while preserving their
 -- existing RLS scope.
 select ok(
   exists (
@@ -34,8 +34,12 @@ from (values
   ('public', 'journal_lines', 'journal_lines_delete_finance'),
   ('public', 'accounts', 'accounts_insert_finance'),
   ('public', 'accounts', 'accounts_update_finance'),
-  ('public', 'cash_bank_accounts', 'cash_bank_accounts_write_finance'),
-  ('public', 'cash_bank_transactions', 'cash_bank_transactions_write_finance'),
+  ('public', 'cash_bank_accounts', 'cash_bank_accounts_insert_finance'),
+  ('public', 'cash_bank_accounts', 'cash_bank_accounts_update_finance'),
+  ('public', 'cash_bank_accounts', 'cash_bank_accounts_delete_finance'),
+  ('public', 'cash_bank_transactions', 'cash_bank_transactions_insert_finance'),
+  ('public', 'cash_bank_transactions', 'cash_bank_transactions_update_finance'),
+  ('public', 'cash_bank_transactions', 'cash_bank_transactions_delete_finance'),
   ('public', 'entry_attachments', 'entry_attachments_select_finance'),
   ('public', 'entry_attachments', 'entry_attachments_insert_finance'),
   ('public', 'entry_attachments', 'entry_attachments_delete_finance'),
