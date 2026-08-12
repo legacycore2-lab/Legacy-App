@@ -9,7 +9,7 @@ import type {
   DashboardRecentEntryRecord,
 } from '../types/dashboard.types'
 
-const numberFormatter = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 })
+const numberFormatter = new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 2 })
 
 function toAmount(value: number | string | null): number {
   const amount = Number(value ?? 0)
