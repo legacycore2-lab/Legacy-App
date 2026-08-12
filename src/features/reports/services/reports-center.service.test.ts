@@ -28,7 +28,7 @@ describe('reports center catalogue', () => {
 
   it('filters by description', () => {
     const result = filterReportDefinitions(reports, 'الإيرادات والمصروفات', 'all')
-    expect(result.map((report) => report.key)).toContain('executive')
+    expect(result.map((report) => report.key)).toContain('projects')
   })
 
   it('filters by keyword', () => {
