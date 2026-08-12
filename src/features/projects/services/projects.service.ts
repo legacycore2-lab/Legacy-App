@@ -19,29 +19,10 @@ import type {
   ProjectRow,
   ProjectsSummary,
 } from '../types/project.types'
-import { normalizeEntryType } from '../../../shared/contractors-helpers'
+import { normalizeEntryType, parseAmount } from '../../../shared/contractors-helpers'
 import { mapProject } from './project.mapper'
 
 // ─── Financial totals helpers ─────────────────────────────────────────────────
-
-/**
- * Thin wrapper around shared normalizeEntryType.
- * Kept as a named export so existing callers and tests don't break.
- * Behaviour: income/i→income, expense/e→expense, unknown/null→null.
- */
-export function normalizeFinancialEntryType(raw: string | null | undefined): 'income' | 'expense' | null {
-  return normalizeEntryType(raw)
-}
-
-/**
- * Parses a raw DB amount to a non-negative finite number.
- * Invalid, non-finite, or negative values → 0.
- */
-export function parseFinancialAmount(raw: number | string | null | undefined): number {
-  const n = Number(raw)
-  if (!Number.isFinite(n) || n < 0) return 0
-  return n
-}
 
 export type ProjectFinancialTotals = {
   received: number // income total from entries
@@ -58,9 +39,9 @@ export function buildProjectFinancialTotals(rows: FinancialEntryRow[]): Map<stri
 
   for (const row of rows) {
     if (!row.project_id) continue
-    const type = normalizeFinancialEntryType(row.entry_type)
+    const type = normalizeEntryType(row.entry_type)
     if (!type) continue // unknown → ignored entirely
-    const amount = parseFinancialAmount(row.amount)
+    const amount = parseAmount(row.amount)
     if (amount === 0) continue // invalid / negative → ignored
 
     const existing = totals.get(row.project_id) ?? { received: 0, spent: 0 }
