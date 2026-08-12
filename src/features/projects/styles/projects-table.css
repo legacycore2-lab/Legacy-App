@@ -109,9 +109,37 @@
 }
 
 @media (max-width: 760px) {
+  .projects-table {
+    min-width: 680px;
+  }
+
   .projects-table th,
   .projects-table td {
     padding: 12px 10px;
+  }
+
+  .projects-table th:nth-child(2),
+  .projects-table td:nth-child(2),
+  .projects-table th:nth-child(4),
+  .projects-table td:nth-child(4),
+  .projects-table th:nth-child(6),
+  .projects-table td:nth-child(6) {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .projects-table {
+    min-width: 540px;
+  }
+
+  .projects-table th:nth-child(3),
+  .projects-table td:nth-child(3) {
+    display: none;
+  }
+
+  .projects-table td:first-child {
+    min-width: 170px;
   }
 }
 

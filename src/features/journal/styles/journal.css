@@ -289,6 +289,22 @@
     width: 100%;
   }
 }
+@media (max-width: 640px) {
+  .journal-table-wrap table {
+    min-width: 720px;
+  }
+
+  .journal-table-wrap th:nth-child(5),
+  .journal-table-wrap td:nth-child(5),
+  .journal-table-wrap th:nth-child(6),
+  .journal-table-wrap td:nth-child(6),
+  .journal-table-wrap th:nth-child(7),
+  .journal-table-wrap td:nth-child(7),
+  .journal-table-wrap th:nth-child(8),
+  .journal-table-wrap td:nth-child(8) {
+    display: none;
+  }
+}
 @media (max-width: 560px) {
   .journal-stats {
     grid-template-columns: 1fr;
