@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { AlertTriangle, HandCoins, Plus, ReceiptText, RotateCcw, WalletCards } from 'lucide-react'
+import { formatAccountingDate } from '../../../shared/date-utils'
+import { formatMoney } from '../../../shared/formatters'
 import { AdvanceMovementDialog, CreateAdvanceDialog } from '../components/AdvanceDialogs'
 import { AdvanceTransactionHistory } from '../components/AdvanceTransactionHistory'
 import { useAdvances } from '../hooks/useAdvances'
@@ -7,11 +9,7 @@ import { useAdvanceTransactions } from '../hooks/useAdvanceTransactions'
 import type { Advance, AdvanceFilters } from '../types/advances.types'
 import '../styles/advances.css'
 
-const number = new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 2 })
-const money = (value: number) => `${number.format(value)} ج.م`
-const date = new Intl.DateTimeFormat('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' })
 const labels = { open: 'مفتوحة', overdue: 'متأخرة', settled: 'تمت التسوية' }
-const formatDate = (value: string) => (value ? date.format(new Date(`${value}T12:00:00`)) : '—')
 
 function Details({
   advance,
@@ -38,7 +36,7 @@ function Details({
       </div>
       <div className="advance-details__remaining">
         <span>المبلغ المتبقي</span>
-        <strong>{money(advance.remaining)}</strong>
+        <strong>{formatMoney(advance.remaining)}</strong>
       </div>
       <div className="advance-progress">
         <span style={{ width: `${advance.progress}%` }} />
@@ -47,19 +45,19 @@ function Details({
       <dl className="advance-facts">
         <div>
           <dt>إجمالي العهدة</dt>
-          <dd>{money(advance.amount)}</dd>
+          <dd>{formatMoney(advance.amount)}</dd>
         </div>
         <div>
           <dt>المصروف</dt>
-          <dd>{money(advance.spent)}</dd>
+          <dd>{formatMoney(advance.spent)}</dd>
         </div>
         <div>
           <dt>تاريخ الصرف</dt>
-          <dd>{formatDate(advance.issueDate)}</dd>
+          <dd>{formatAccountingDate(advance.issueDate, '—')}</dd>
         </div>
         <div>
           <dt>الاستحقاق</dt>
-          <dd>{formatDate(advance.dueDate)}</dd>
+          <dd>{formatAccountingDate(advance.dueDate, '—')}</dd>
         </div>
       </dl>
       <div>
@@ -139,13 +137,13 @@ export function AdvancesPage() {
         <article>
           <ReceiptText />
           <span>إجمالي المصروف</span>
-          <strong>{money(advances.summary.totalSpent)}</strong>
+          <strong>{formatMoney(advances.summary.totalSpent)}</strong>
           <small>من العُهد المسجلة</small>
         </article>
         <article>
           <WalletCards />
           <span>إجمالي المتبقي</span>
-          <strong>{money(advances.summary.totalRemaining)}</strong>
+          <strong>{formatMoney(advances.summary.totalRemaining)}</strong>
           <small>قيد التسوية</small>
         </article>
         <article className="is-danger">
@@ -222,10 +220,10 @@ export function AdvancesPage() {
                       <small>{advance.holderTitle}</small>
                     </td>
                     <td>{advance.projectNames.join('، ')}</td>
-                    <td>{formatDate(advance.issueDate)}</td>
-                    <td>{money(advance.amount)}</td>
-                    <td>{money(advance.spent)}</td>
-                    <td>{money(advance.remaining)}</td>
+                    <td>{formatAccountingDate(advance.issueDate, '—')}</td>
+                    <td>{formatMoney(advance.amount)}</td>
+                    <td>{formatMoney(advance.spent)}</td>
+                    <td>{formatMoney(advance.remaining)}</td>
                     <td>
                       <span className={`advance-status advance-status--${advance.status}`}>
                         {labels[advance.status]}
