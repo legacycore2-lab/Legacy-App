@@ -8,6 +8,7 @@
   --surface-soft: rgba(245, 248, 245, 0.82);
   --text: #13231d;
   --muted: #68766f;
+  --text-muted: var(--muted);
   --gold: #c8a55f;
   --gold-soft: rgba(200, 165, 95, 0.16);
   --green: #4d9b68;
@@ -44,6 +45,7 @@
   --surface-soft: rgba(17, 35, 30, 0.82);
   --text: #f2f4ef;
   --muted: #98a8a0;
+  --text-muted: var(--muted);
   --gold: #d1aa60;
   --gold-soft: rgba(209, 170, 96, 0.14);
   --green: #75bf83;
