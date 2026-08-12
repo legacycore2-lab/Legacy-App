@@ -18,7 +18,6 @@ import type {
   AdvancesPage,
   AdvancesPageRequest,
   AdvancesSummary,
-  AdvancesViewModel,
   AdvanceTransaction,
   AdvanceTransactionRow,
   AdvanceTransactionsPage,
@@ -86,18 +85,6 @@ export function summarizeAdvances(advances: Advance[]): AdvancesSummary {
     }),
     { openCount: 0, totalSpent: 0, totalRemaining: 0, overdueCount: 0 },
   )
-}
-
-export async function getAdvancesViewModel(filters: AdvanceFilters): Promise<AdvancesViewModel> {
-  const advances = (await findAdvances()).map((row) => mapAdvance(row))
-  return {
-    advances,
-    filteredAdvances: filterAdvances(advances, filters),
-    projects: [...new Set(advances.flatMap((advance) => advance.projectNames))].sort((a, b) =>
-      a.localeCompare(b, 'ar'),
-    ),
-    summary: summarizeAdvances(advances),
-  }
 }
 
 export async function getAdvancesMeta(): Promise<AdvancesMeta> {
