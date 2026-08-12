@@ -1,3 +1,4 @@
+import { useSearchParams } from 'react-router-dom'
 import { JournalView } from '../components/JournalView'
 import { useJournal } from '../hooks/useJournal'
 import '../styles/journal.css'
@@ -9,5 +10,6 @@ import '../styles/journal-attachments.css'
 
 export function JournalPage() {
   const journal = useJournal()
-  return <JournalView {...journal} />
+  const [searchParams] = useSearchParams()
+  return <JournalView {...journal} openEntryOnLoad={searchParams.get('create') === '1'} />
 }

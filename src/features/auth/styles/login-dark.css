@@ -1,0 +1,78 @@
+:root[data-theme='dark'] .login-page {
+  --login-ivory: #081411;
+  color: #e8eee9;
+  background: #081411;
+}
+
+:root[data-theme='dark'] .login-page__visual::after {
+  background: linear-gradient(90deg, transparent, #081411 96%);
+}
+
+:root[data-theme='dark'] .login-page__content {
+  background: linear-gradient(135deg, rgba(8, 20, 17, 0.82), rgba(5, 15, 13, 0.97));
+}
+
+:root[data-theme='dark'] .login-brand,
+:root[data-theme='dark'] .login-page__intro h1 {
+  color: #eef3ee;
+}
+
+:root[data-theme='dark'] .login-page__intro p,
+:root[data-theme='dark'] .login-form__security,
+:root[data-theme='dark'] .login-page__footer {
+  color: #9aaba3;
+}
+
+:root[data-theme='dark'] .login-form__field label {
+  color: #d9e5df;
+}
+
+:root[data-theme='dark'] .login-form__control {
+  border-color: rgba(209, 170, 96, 0.2);
+  color: #c6d5ce;
+  background: rgba(12, 28, 24, 0.78);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+:root[data-theme='dark'] .login-form__control:focus-within {
+  border-color: #2c9368;
+  background: #0d211c;
+  box-shadow:
+    0 0 0 3px rgba(44, 147, 104, 0.14),
+    0 14px 34px rgba(0, 0, 0, 0.25);
+}
+
+:root[data-theme='dark'] .login-form__control input {
+  color: #f1f5f2;
+}
+
+:root[data-theme='dark'] .login-form__control input::placeholder {
+  color: #71837b;
+}
+
+:root[data-theme='dark'] .login-form__reveal {
+  color: #9aaba3;
+}
+
+:root[data-theme='dark'] .login-form__error {
+  border-color: rgba(240, 92, 81, 0.24);
+  color: #ffaaa4;
+  background: rgba(104, 28, 25, 0.3);
+}
+
+:root[data-theme='dark'] .auth-loading {
+  color: #d1aa60;
+  background: #081411;
+}
+
+@media (max-width: 960px) {
+  :root[data-theme='dark'] .login-page__visual::after {
+    background: rgba(6, 16, 14, 0.82);
+  }
+
+  :root[data-theme='dark'] .login-page__panel {
+    border-color: rgba(209, 170, 96, 0.2);
+    background: rgba(9, 23, 20, 0.82);
+    box-shadow: 0 28px 84px rgba(0, 0, 0, 0.34);
+  }
+}

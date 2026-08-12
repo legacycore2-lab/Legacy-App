@@ -21,6 +21,7 @@ type Props = {
   isLoading: boolean
   isRefreshing: boolean
   error: string
+  openEntryOnLoad?: boolean
 }
 
 export function JournalView({
@@ -36,9 +37,10 @@ export function JournalView({
   isLoading,
   isRefreshing,
   error,
+  openEntryOnLoad = false,
 }: Props) {
   const { canForceDelete, canManageAttachments, canReverse } = useJournalPermissions()
-  const [isEntryFormOpen, setIsEntryFormOpen] = useState(false)
+  const [isEntryFormOpen, setIsEntryFormOpen] = useState(openEntryOnLoad)
   const [isImportOpen, setIsImportOpen] = useState(false)
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null)
   const hasActiveFilters = Boolean(

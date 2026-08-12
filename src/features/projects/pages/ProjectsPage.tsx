@@ -1,5 +1,6 @@
 import { BriefcaseBusiness, Plus } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { ExcelImportDialog } from '../components/ExcelImportDialog'
 import { ProjectCreateDialog } from '../components/ProjectCreateDialog'
 import { ProjectsStats } from '../components/ProjectsStats'
@@ -35,6 +36,16 @@ export function ProjectsPage() {
   const projectCreate = useProjectCreateForm()
   const { canCreate, canEdit } = useProjectPermissions()
   const [importOpen, setImportOpen] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  useEffect(() => {
+    if (searchParams.get('create') !== '1') return
+    if (canCreate) projectCreate.open()
+
+    const next = new URLSearchParams(searchParams)
+    next.delete('create')
+    setSearchParams(next, { replace: true })
+  }, [canCreate, projectCreate, searchParams, setSearchParams])
 
   return (
     <section className="projects-page">
