@@ -1,11 +1,12 @@
-import { useQuery } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useMemo, useState } from 'react'
 import { isPermissionError, toErrorMessage } from '../../../shared/errors/app-error'
 import {
   buildContractorsViewModel,
   getContractors,
   searchContractors,
   sortContractors,
+  watchContractors,
 } from '../services/contractors.service'
 import type { Contractor, ContractorSort, ContractorsViewModel } from '../types/contractor.types'
 
@@ -23,6 +24,7 @@ export function useContractors(): {
   error: string
   isPermissionDenied: boolean
 } {
+  const queryClient = useQueryClient()
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<ContractorSort>('expense')
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
@@ -36,6 +38,11 @@ export function useContractors(): {
     queryFn: getContractors,
     staleTime: 60_000,
   })
+
+  useEffect(
+    () => watchContractors(() => void queryClient.invalidateQueries({ queryKey: CONTRACTORS_QUERY_KEY })),
+    [queryClient],
+  )
 
   const filteredContractors = useMemo(() => {
     if (!allContractors) return null
