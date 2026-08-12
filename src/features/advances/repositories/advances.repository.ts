@@ -1,6 +1,7 @@
 import { AppError } from '../../../shared/errors/app-error'
 import { getSupabaseClient } from '../../../lib/supabase/client'
 import { subscribeToTableChanges } from '../../../lib/supabase/realtime'
+import { fetchAllWithPagination } from '../../../shared/pagination-helpers'
 import type {
   AdvanceOptions,
   AdvanceRow,
@@ -33,15 +34,37 @@ type AdvanceTransactionsQuery = {
 
 const sanitizedSearch = (value: string) => value.trim().replace(/[,%_()]/g, ' ')
 
-export async function findAdvances(): Promise<AdvanceRow[]> {
-  const { data, error } = await getSupabaseClient()
-    .from('advances_overview')
-    .select(ADVANCE_FIELDS)
-    .order('issue_date', { ascending: false })
-    .order('advance_number', { ascending: false })
+function applyAdvanceFilters<T>(
+  request: T,
+  q: Omit<AdvancesQuery, 'offset' | 'limit'>,
+): T {
+  let filtered = request as T & {
+    or: (value: string) => T
+    contains: (column: string, value: unknown[]) => T
+    gte: (column: string, value: string) => T
+    lte: (column: string, value: string) => T
+  }
+  const search = sanitizedSearch(q.search)
+  if (search) {
+    filtered = filtered.or(
+      `holder_name.ilike.%${search}%,holder_title.ilike.%${search}%,advance_code.ilike.%${search}%,purpose.ilike.%${search}%`,
+    ) as typeof filtered
+  }
+  if (q.project !== 'all') filtered = filtered.contains('project_names', [q.project]) as typeof filtered
+  if (q.dateFrom) filtered = filtered.gte('issue_date', q.dateFrom) as typeof filtered
+  if (q.dateTo) filtered = filtered.lte('issue_date', q.dateTo) as typeof filtered
+  return filtered
+}
 
-  if (error) throw new AppError(error.message, 'ADVANCES_FETCH_FAILED')
-  return (data as AdvanceRow[] | null) ?? []
+export async function findAdvances(): Promise<AdvanceRow[]> {
+  return fetchAllWithPagination<AdvanceRow>((from, to) =>
+    getSupabaseClient()
+      .from('advances_overview')
+      .select(ADVANCE_FIELDS)
+      .order('issue_date', { ascending: false })
+      .order('advance_number', { ascending: false })
+      .range(from, to),
+  )
 }
 
 export async function findAdvancesPage(
@@ -53,15 +76,7 @@ export async function findAdvancesPage(
     .order('issue_date', { ascending: false })
     .order('advance_number', { ascending: false })
 
-  const search = sanitizedSearch(q.search)
-  if (search) {
-    request = request.or(
-      `holder_name.ilike.%${search}%,holder_title.ilike.%${search}%,advance_code.ilike.%${search}%,purpose.ilike.%${search}%`,
-    )
-  }
-  if (q.project !== 'all') request = request.contains('project_names', [q.project])
-  if (q.dateFrom) request = request.gte('issue_date', q.dateFrom)
-  if (q.dateTo) request = request.lte('issue_date', q.dateTo)
+  request = applyAdvanceFilters(request, q)
 
   const { data, error, count } = await request.range(q.offset, q.offset + q.limit - 1)
 
@@ -72,25 +87,16 @@ export async function findAdvancesPage(
 export async function findAdvancesForStatusFilter(
   q: Omit<AdvancesQuery, 'offset' | 'limit'>,
 ): Promise<AdvanceRow[]> {
-  let request = getSupabaseClient()
-    .from('advances_overview')
-    .select(ADVANCE_FIELDS)
-    .order('issue_date', { ascending: false })
-    .order('advance_number', { ascending: false })
+  return fetchAllWithPagination<AdvanceRow>((from, to) => {
+    let request = getSupabaseClient()
+      .from('advances_overview')
+      .select(ADVANCE_FIELDS)
+      .order('issue_date', { ascending: false })
+      .order('advance_number', { ascending: false })
 
-  const search = sanitizedSearch(q.search)
-  if (search) {
-    request = request.or(
-      `holder_name.ilike.%${search}%,holder_title.ilike.%${search}%,advance_code.ilike.%${search}%,purpose.ilike.%${search}%`,
-    )
-  }
-  if (q.project !== 'all') request = request.contains('project_names', [q.project])
-  if (q.dateFrom) request = request.gte('issue_date', q.dateFrom)
-  if (q.dateTo) request = request.lte('issue_date', q.dateTo)
-
-  const { data, error } = await request
-  if (error) throw new AppError(error.message, 'ADVANCES_FILTERED_FETCH_FAILED')
-  return (data as AdvanceRow[] | null) ?? []
+    request = applyAdvanceFilters(request, q)
+    return request.range(from, to)
+  })
 }
 
 export async function findAdvanceTransactions(
@@ -230,9 +236,5 @@ export function subscribeToAdvanceChanges(onChange: () => void): () => void {
 }
 
 export function subscribeToAdvanceOptionChanges(onChange: () => void): () => void {
-  return subscribeToTableChanges(
-    'advance-options',
-    ['projects', 'accounts', 'cash_bank_accounts'],
-    onChange,
-  )
+  return subscribeToTableChanges('advance-options', ['projects', 'accounts', 'cash_bank_accounts'], onChange)
 }
