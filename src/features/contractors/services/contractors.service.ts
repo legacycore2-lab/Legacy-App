@@ -1,7 +1,4 @@
-import {
-  findContractorEntries,
-  subscribeToContractorChanges,
-} from '../repositories/contractors.repository'
+import { findContractorEntries, subscribeToContractorChanges } from '../repositories/contractors.repository'
 import type {
   Contractor,
   ContractorEntriesPage,

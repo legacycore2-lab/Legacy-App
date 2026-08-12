@@ -34,10 +34,7 @@ type AdvanceTransactionsQuery = {
 
 const sanitizedSearch = (value: string) => value.trim().replace(/[,%_()]/g, ' ')
 
-function applyAdvanceFilters<T>(
-  request: T,
-  q: Omit<AdvancesQuery, 'offset' | 'limit'>,
-): T {
+function applyAdvanceFilters<T>(request: T, q: Omit<AdvancesQuery, 'offset' | 'limit'>): T {
   let filtered = request as T & {
     or: (value: string) => T
     contains: (column: string, value: unknown[]) => T
