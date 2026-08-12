@@ -1,0 +1,43 @@
+name: Temp Format Contractors Advances
+
+on:
+  push:
+    branches:
+      - feature/contractors-advances-production-readiness
+    paths:
+      - .github/workflows/temp-format-contractors-advances.yml
+      - src/features/advances/repositories/advances.repository.ts
+      - src/features/contractors/services/contractors.service.ts
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v7
+        with:
+          ref: feature/contractors-advances-production-readiness
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Format target files
+        run: npx prettier --write "src/features/advances/repositories/advances.repository.ts" "src/features/contractors/services/contractors.service.ts"
+      - name: Commit exact Prettier output
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "No formatting changes needed."
+            exit 0
+          fi
+          git config user.name "Legacy CI"
+          git config user.email "ci@legacycore.app"
+          git add src/features/advances/repositories/advances.repository.ts src/features/contractors/services/contractors.service.ts
+          git commit -m "style(contractors-advances): apply exact prettier output"
+          git push origin HEAD:feature/contractors-advances-production-readiness
