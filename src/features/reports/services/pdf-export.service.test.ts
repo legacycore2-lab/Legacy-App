@@ -219,6 +219,7 @@ describe('pdf payload header fields', () => {
       dataQuality: [],
       contractorOptions: [],
       projectOptions: [],
+      categoryOptions: [],
     }
     const emptyFilters = {
       query: '',
