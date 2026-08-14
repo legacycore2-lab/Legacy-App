@@ -76,9 +76,6 @@ describe('buildFiltersLabel', () => {
   })
 })
 
-// ── Font registration verified before render ──────────────────────────────────
-// vi.hoisted ensures the mock factory variable is available at hoist time
-
 const { registerFontMock } = vi.hoisted(() => {
   return { registerFontMock: vi.fn().mockResolvedValue(undefined) }
 })
@@ -112,8 +109,6 @@ afterEach(() => {
 
 describe('font registration contract', () => {
   it('pdf-font.service exports registerArabicFont used by renderPdf', async () => {
-    // Verify the contract: pdf-font.service must export registerArabicFont
-    // so renderPdf can call it before any text rendering.
     const fontService = await import('./pdf-font.service')
     expect(typeof fontService.registerArabicFont).toBe('function')
     expect(typeof fontService.ARABIC_FONT_NAME).toBe('string')
@@ -121,9 +116,6 @@ describe('font registration contract', () => {
   })
 
   it('pdf-export.service imports and calls registerArabicFont (mock verified)', async () => {
-    // registerFontMock is wired via vi.hoisted + vi.mock at the top of this file.
-    // The mock replaces pdf-font.service for all imports in this test file.
-    // We verify the mock is in place — the actual call-through is tested in integration.
     expect(registerFontMock).toBeDefined()
     expect(vi.isMockFunction(registerFontMock)).toBe(true)
   })
@@ -159,8 +151,6 @@ describe('downloadPdf does not call window.print', () => {
   })
 })
 
-// ── Payload header data ───────────────────────────────────────────────────────
-
 describe('pdf payload header fields', () => {
   it('executive payload has correct title and companyName', async () => {
     const { buildExecutivePdfPayload } = await import('./pdf-payload.service')
@@ -177,7 +167,7 @@ describe('pdf payload header fields', () => {
       rows: [],
     })
     expect(payload.reportTitle).toBe('الملخص التنفيذي')
-    expect(payload.companyName).toBe('LEGACY FINE TOUCH')
+    expect(payload.companyName).toBe('LEGACY CORE')
     expect(payload.activeTab).toBe('executive')
     expect(payload.exportDate).toBeTruthy()
   })
@@ -229,7 +219,6 @@ describe('pdf payload header fields', () => {
       dataQuality: [],
       contractorOptions: [],
       projectOptions: [],
-      categoryOptions: [],
     }
     const emptyFilters = {
       query: '',
