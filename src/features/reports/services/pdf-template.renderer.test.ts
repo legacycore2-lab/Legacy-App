@@ -12,10 +12,8 @@ import { buildFiltersLabel } from './pdf-export.service'
 // ── Company name ──────────────────────────────────────────────────────────────
 
 describe('COMPANY_NAME', () => {
-  it('is LEGACY FINE TOUCH — not the app name', () => {
-    expect(COMPANY_NAME).toBe('LEGACY FINE TOUCH')
-    expect(COMPANY_NAME).not.toBe('Legacy Core')
-    expect(COMPANY_NAME).not.toBe('legacy core')
+  it('uses the approved LEGACY CORE report identity', () => {
+    expect(COMPANY_NAME).toBe('LEGACY CORE')
   })
 
   it('is a non-empty string', () => {
