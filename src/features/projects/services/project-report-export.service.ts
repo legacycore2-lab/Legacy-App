@@ -101,10 +101,7 @@ export function exportProjectReportWord(input: ExportInput) {
     ['الكود', project.code || '—'],
     ['العميل', project.client || '—'],
     ['المدير', project.manager || '—'],
-    [
-      'الفترة',
-      `${formatAccountingDate(project.startDate)} — ${formatAccountingDate(project.endDate)}`,
-    ],
+    ['الفترة', `${formatAccountingDate(project.startDate)} — ${formatAccountingDate(project.endDate)}`],
     ['قيمة العقد', project.contractValue],
     ['الإيرادات', summary.totalIncome],
     ['المصروفات', summary.totalExpense],
