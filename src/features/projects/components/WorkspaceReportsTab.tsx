@@ -1,6 +1,7 @@
-import { FileBarChart, Printer } from 'lucide-react'
+import { FileBarChart, FileSpreadsheet, FileText, Printer } from 'lucide-react'
 import { formatAccountingDate } from '../../../shared/date-utils'
 import { formatMoneyInteger } from '../../../shared/formatters'
+import { useProjectReportExport } from '../hooks/useProjectReportExport'
 import type { ProjectDetailsViewModel, ProjectJournalViewModel } from '../types/project.types'
 
 type Props = {
@@ -11,6 +12,10 @@ type Props = {
 export function WorkspaceReportsTab({ viewModel, journalViewModel }: Props) {
   const { project, summary, progress, remaining, profitMargin } = viewModel
   const entries = journalViewModel?.entries ?? []
+  const { isExporting, exportError, exportExcel, exportWord } = useProjectReportExport({
+    viewModel,
+    journalViewModel,
+  })
 
   return (
     <article className="project-command__panel project-report" aria-labelledby="project-report-title">
@@ -18,16 +23,40 @@ export function WorkspaceReportsTab({ viewModel, journalViewModel }: Props) {
         <div>
           <span>تقرير تشغيلي</span>
           <h2 id="project-report-title">ملخص مشروع {project.name}</h2>
-          <p>تقرير مباشر من بيانات المشروع والقيود المسجلة حتى لحظة الطباعة.</p>
+          <p>تقرير مباشر من بيانات المشروع والقيود المسجلة حتى لحظة التصدير أو الطباعة.</p>
         </div>
-        <button
-          type="button"
-          className="project-workspace__quick-button is-primary"
-          onClick={() => window.print()}
-        >
-          <Printer size={17} /> طباعة التقرير
-        </button>
+        <div className="project-report__actions">
+          <button
+            type="button"
+            className="project-workspace__quick-button"
+            onClick={exportExcel}
+            disabled={isExporting || entries.length === 0}
+          >
+            <FileSpreadsheet size={17} /> Excel
+          </button>
+          <button
+            type="button"
+            className="project-workspace__quick-button"
+            onClick={exportWord}
+            disabled={isExporting || entries.length === 0}
+          >
+            <FileText size={17} /> Word
+          </button>
+          <button
+            type="button"
+            className="project-workspace__quick-button is-primary"
+            onClick={() => window.print()}
+          >
+            <Printer size={17} /> طباعة التقرير
+          </button>
+        </div>
       </header>
+
+      {exportError ? (
+        <div className="project-command__empty" role="alert">
+          {exportError}
+        </div>
+      ) : null}
 
       <section className="project-report__facts" aria-label="بيانات المشروع">
         <div>
