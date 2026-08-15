@@ -15,7 +15,7 @@
     "test:e2e:install": "playwright install chromium",
     "lint": "eslint . --max-warnings 0",
     "format": "prettier --write .",
-    "format:check": "prettier --write src/features/projects/services/project-report-export.service.ts && git diff -- src/features/projects/services/project-report-export.service.ts && exit 1",
+    "format:check": "prettier --check .",
     "architecture:check": "node scripts/check-architecture.mjs && node scripts/check-dependency-graph.mjs",
     "architecture:test": "node --test scripts/check-architecture.contract.mjs",
     "quality": "npm run format:check && npm run lint && npm run architecture:test && npm run architecture:check && npm test && npm run build"
