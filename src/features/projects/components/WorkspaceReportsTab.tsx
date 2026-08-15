@@ -3,6 +3,7 @@ import { formatAccountingDate } from '../../../shared/date-utils'
 import { formatMoneyInteger } from '../../../shared/formatters'
 import { useProjectReportExport } from '../hooks/useProjectReportExport'
 import type { ProjectDetailsViewModel, ProjectJournalViewModel } from '../types/project.types'
+import '../styles/project-report-export.css'
 
 type Props = {
   viewModel: ProjectDetailsViewModel
