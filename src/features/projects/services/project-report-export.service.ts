@@ -28,7 +28,12 @@ function buildRows({ journalViewModel }: ExportInput): ExportRow[] {
 }
 
 function safeFilename(projectName: string) {
-  return projectName.trim().replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, '-') || 'project'
+  return (
+    projectName
+      .trim()
+      .replace(/[\\/:*?"<>|]+/g, '-')
+      .replace(/\s+/g, '-') || 'project'
+  )
 }
 
 function filename(projectName: string, extension: 'xlsx' | 'doc') {
@@ -96,7 +101,10 @@ export function exportProjectReportWord(input: ExportInput) {
     ['الكود', project.code || '—'],
     ['العميل', project.client || '—'],
     ['المدير', project.manager || '—'],
-    ['الفترة', `${formatAccountingDate(project.startDate)} — ${formatAccountingDate(project.endDate)}`],
+    [
+      'الفترة',
+      `${formatAccountingDate(project.startDate)} — ${formatAccountingDate(project.endDate)}`,
+    ],
     ['قيمة العقد', project.contractValue],
     ['الإيرادات', summary.totalIncome],
     ['المصروفات', summary.totalExpense],
