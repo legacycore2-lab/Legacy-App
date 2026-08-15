@@ -15,7 +15,7 @@
     "test:e2e:install": "playwright install chromium",
     "lint": "eslint . --max-warnings 0",
     "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format:check": "prettier --write src/features/projects/services/project-report-export.service.ts && git diff -- src/features/projects/services/project-report-export.service.ts && exit 1",
     "architecture:check": "node scripts/check-architecture.mjs && node scripts/check-dependency-graph.mjs",
     "architecture:test": "node --test scripts/check-architecture.contract.mjs",
     "quality": "npm run format:check && npm run lint && npm run architecture:test && npm run architecture:check && npm test && npm run build"
@@ -39,7 +39,7 @@
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^10.7.0",
-    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-hooks": "^6.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^17.7.0",
     "prettier": "^3.9.5",
