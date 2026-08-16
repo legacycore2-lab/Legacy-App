@@ -1,6 +1,8 @@
 import { getSupabaseClient } from '../../../lib/supabase/client'
 import { subscribeToTableChanges } from '../../../lib/supabase/realtime'
 import type {
+  JournalCashBankLink,
+  JournalCashBankMovementPayload,
   JournalPostingAccountOption,
   JournalPostingOptions,
   JournalPostingProjectOption,
@@ -165,6 +167,64 @@ export async function postSingleLineEntry(input: SingleLineJournalInput): Promis
   }
 
   return data
+}
+
+export async function findSingleLineCashBankLink(
+  entryId: string,
+  paymentAccountId: string,
+): Promise<JournalCashBankLink | null> {
+  const client = getSupabaseClient()
+  const [cashAccountResult, journalResult] = await Promise.all([
+    client
+      .from('cash_bank_accounts')
+      .select('id')
+      .eq('ledger_account_id', paymentAccountId)
+      .eq('is_active', true)
+      .maybeSingle(),
+    client
+      .from('journals')
+      .select('id')
+      .eq('source_type', 'single_line_entry')
+      .eq('source_id', entryId)
+      .maybeSingle(),
+  ])
+
+  if (cashAccountResult.error) throw cashAccountResult.error
+
+  // Asset ledger accounts are valid journal counterparts even when they are not
+  // configured as operational Cash & Banks accounts.
+  const cashAccount = cashAccountResult.data as { id: string } | null
+  if (!cashAccount) return null
+
+  if (journalResult.error) throw journalResult.error
+  const journal = journalResult.data as { id: string } | null
+  if (!journal) throw new Error('The posted journal could not be linked to Cash & Banks.')
+
+  return { cashBankAccountId: cashAccount.id, journalId: journal.id }
+}
+
+export async function upsertSingleLineCashBankMovement(
+  payload: JournalCashBankMovementPayload,
+): Promise<void> {
+  const client = getSupabaseClient()
+  const { error } = await client.from('cash_bank_transactions').upsert(
+    {
+      client_request_id: payload.clientRequestId,
+      transaction_date: payload.transactionDate,
+      transaction_type: payload.transactionType,
+      source_account_id: payload.sourceAccountId,
+      destination_account_id: payload.destinationAccountId,
+      amount: payload.amount,
+      description: payload.description,
+      reference_number: payload.referenceNumber,
+      status: 'posted',
+      journal_id: payload.journalId,
+      posted_at: new Date().toISOString(),
+    },
+    { onConflict: 'client_request_id', ignoreDuplicates: true },
+  )
+
+  if (error) throw error
 }
 
 export async function findJournalPostingOptions(): Promise<JournalPostingOptions> {

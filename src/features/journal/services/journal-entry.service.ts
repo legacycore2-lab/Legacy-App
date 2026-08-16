@@ -1,9 +1,11 @@
 import {
+  findSingleLineCashBankLink,
   findJournalPostingOptions,
   forceDeleteJournalEntry,
   postSingleLineEntry,
   reverseJournalEntry,
   subscribeToJournalPostingOptionChanges,
+  upsertSingleLineCashBankMovement,
 } from '../repositories/journal.repository'
 import type {
   JournalPostingOptions,
@@ -60,7 +62,25 @@ export async function submitSingleLineEntry(input: SingleLineJournalInput): Prom
   const errors = validateSingleLineEntry(input)
   if (errors.length > 0) throw new Error(errors[0])
 
-  return postSingleLineEntry(input)
+  const entryId = await postSingleLineEntry(input)
+  const link = await findSingleLineCashBankLink(entryId, input.paymentAccountId)
+
+  if (link) {
+    const isExpense = input.type === 'expense'
+    await upsertSingleLineCashBankMovement({
+      clientRequestId: input.requestId,
+      transactionDate: input.entryDate,
+      transactionType: isExpense ? 'withdrawal' : 'deposit',
+      sourceAccountId: isExpense ? link.cashBankAccountId : null,
+      destinationAccountId: isExpense ? null : link.cashBankAccountId,
+      amount: Number(input.amount),
+      description: input.description.trim(),
+      referenceNumber: entryId,
+      journalId: link.journalId,
+    })
+  }
+
+  return entryId
 }
 
 export async function getJournalPostingOptions(): Promise<JournalPostingOptions> {
