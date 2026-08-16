@@ -18,7 +18,11 @@ export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }
       <div className="account-form-head">
         <span className="accounts-section-kicker">إدارة الحساب</span>
         <h2>{editing ? 'تعديل الحساب' : 'إضافة حساب جديد'}</h2>
-        <p>{editing ? 'حدّث بيانات الحساب مع الحفاظ على مكانه الصحيح داخل الشجرة.' : 'أنشئ حسابًا رئيسيًا أو فرعيًا داخل دليل الحسابات.'}</p>
+        <p>
+          {editing
+            ? 'حدّث بيانات الحساب مع الحفاظ على مكانه الصحيح داخل الشجرة.'
+            : 'أنشئ حسابًا رئيسيًا أو فرعيًا داخل دليل الحسابات.'}
+        </p>
       </div>
 
       <div className="account-form-section">
@@ -109,7 +113,9 @@ export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }
       </div>
 
       <div className="account-actions">
-        <button disabled={isSaving}>{isSaving ? 'جارٍ الحفظ...' : editing ? 'حفظ التعديلات' : 'إضافة الحساب'}</button>
+        <button disabled={isSaving}>
+          {isSaving ? 'جارٍ الحفظ...' : editing ? 'حفظ التعديلات' : 'إضافة الحساب'}
+        </button>
         {editing && (
           <button type="button" className="secondary" onClick={form.cancel} disabled={isSaving}>
             إلغاء
