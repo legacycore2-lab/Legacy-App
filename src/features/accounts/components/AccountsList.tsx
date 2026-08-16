@@ -34,7 +34,9 @@ function buildTypeTree(accounts: Account[], expandedIds: Set<string>, expandAll:
     children.set(parentKey, siblings)
   })
 
-  children.forEach((siblings) => siblings.sort((a, b) => a.code.localeCompare(b.code, 'en', { numeric: true })))
+  children.forEach((siblings) =>
+    siblings.sort((a, b) => a.code.localeCompare(b.code, 'en', { numeric: true })),
+  )
 
   const rows: TreeRow[] = []
   const visit = (account: Account, depth: number) => {
@@ -192,7 +194,9 @@ export function AccountsList({
                             <div className="account-meta-line">
                               {account.nameEn && <span>{account.nameEn}</span>}
                               <span>المستوى {depth + 1}</span>
-                              {isOrphan && <span className="account-data-warning">الرئيسي غير مرتبط</span>}
+                              {isOrphan && (
+                                <span className="account-data-warning">الرئيسي غير مرتبط</span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -206,13 +210,19 @@ export function AccountsList({
                           </span>
                         </div>
 
-                        <div className={`account-status-badge ${account.isActive ? 'active' : 'inactive'}`}>
+                        <div
+                          className={`account-status-badge ${account.isActive ? 'active' : 'inactive'}`}
+                        >
                           <span aria-hidden="true" />
                           {account.isActive ? 'نشط' : 'متوقف'}
                         </div>
 
                         <div className="account-row-actions">
-                          <button type="button" className="account-action-primary" onClick={() => onEdit(account)}>
+                          <button
+                            type="button"
+                            className="account-action-primary"
+                            onClick={() => onEdit(account)}
+                          >
                             تعديل
                           </button>
                           <button
