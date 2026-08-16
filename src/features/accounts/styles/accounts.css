@@ -5,19 +5,25 @@
 
 .accounts-header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: 24px;
-  align-items: center;
 }
 
 .accounts-heading {
   min-width: 0;
 }
 
+.accounts-eyebrow,
+.accounts-section-kicker {
+  color: var(--primary);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
 .accounts-header h1 {
   margin: 5px 0 6px;
   font-size: clamp(1.75rem, 3vw, 2.45rem);
-  letter-spacing: -0.025em;
 }
 
 .accounts-header p,
@@ -28,14 +34,6 @@
   line-height: 1.7;
 }
 
-.accounts-eyebrow,
-.accounts-section-kicker {
-  font-size: 0.76rem;
-  color: var(--primary);
-  font-weight: 800;
-  letter-spacing: 0.01em;
-}
-
 .accounts-total {
   min-width: 132px;
   padding: 15px 18px;
@@ -43,7 +41,6 @@
   border-radius: 18px;
   background: var(--surface);
   text-align: center;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.035);
 }
 
 .accounts-total span {
@@ -56,8 +53,8 @@
 .accounts-total small {
   display: block;
   margin-top: 5px;
-  font-size: 0.72rem;
   color: var(--text-muted);
+  font-size: 0.72rem;
 }
 
 .accounts-guide {
@@ -104,10 +101,9 @@
 
 .accounts-list-card,
 .account-form {
-  background: var(--surface);
   border: 1px solid var(--border-color);
   border-radius: 20px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.035);
+  background: var(--surface);
 }
 
 .accounts-list-card {
@@ -117,9 +113,9 @@
 
 .accounts-list-head {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  align-items: flex-start;
   padding: 18px 18px 14px;
 }
 
@@ -161,8 +157,8 @@
   position: absolute;
   inset-inline-start: 12px;
   color: var(--text-muted);
-  pointer-events: none;
   font-size: 1.1rem;
+  pointer-events: none;
 }
 
 .accounts-search-field input {
@@ -179,10 +175,9 @@
   padding: 10px 12px;
   border: 1px solid var(--border-color);
   border-radius: 11px;
+  outline: none;
   background: var(--background);
   color: var(--text-primary);
-  outline: none;
-  transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
 }
 
 .account-form input:focus,
@@ -190,19 +185,18 @@
 .accounts-toolbar input:focus,
 .accounts-toolbar select:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 12%, transparent);
 }
 
 .accounts-clear-search {
   position: absolute;
   inset-inline-end: 7px;
+  padding: 6px 8px;
   border: 0;
+  border-radius: 7px;
   background: transparent;
   color: var(--text-muted);
-  cursor: pointer;
-  padding: 6px 8px;
-  border-radius: 7px;
   font-size: 0.72rem;
+  cursor: pointer;
 }
 
 .accounts-clear-search:hover {
@@ -236,12 +230,8 @@
   white-space: nowrap;
 }
 
-.accounts-table-wrap tbody tr {
-  transition: background 0.14s ease;
-}
-
 .accounts-table-wrap tbody tr:hover {
-  background: color-mix(in srgb, var(--primary) 3.5%, transparent);
+  background: rgba(80, 110, 255, 0.04);
 }
 
 .accounts-table-wrap tbody tr:last-child td {
@@ -249,7 +239,6 @@
 }
 
 .account-tree-cell {
-  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -260,8 +249,8 @@
   flex: 0 0 auto;
   width: 9px;
   height: 9px;
-  border-radius: 50%;
   border: 2px solid var(--primary);
+  border-radius: 50%;
   background: var(--surface);
 }
 
@@ -272,16 +261,17 @@
 }
 
 .account-name-stack {
-  min-width: 0;
   display: grid;
   gap: 3px;
+  min-width: 0;
 }
 
-.account-name-line {
+.account-name-line,
+.account-meta-line {
   display: flex;
   align-items: center;
-  gap: 8px;
   flex-wrap: wrap;
+  gap: 8px;
 }
 
 .account-name-line strong {
@@ -289,20 +279,16 @@
 }
 
 .account-code {
-  direction: ltr;
   padding: 2px 6px;
   border-radius: 6px;
   background: var(--background);
   color: var(--text-muted);
+  direction: ltr;
   font-size: 0.67rem;
   font-weight: 800;
-  font-variant-numeric: tabular-nums;
 }
 
 .account-meta-line {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
   color: var(--text-muted);
   font-size: 0.68rem;
 }
@@ -318,10 +304,10 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  white-space: nowrap;
   border-radius: 999px;
   font-size: 0.69rem;
   font-weight: 800;
+  white-space: nowrap;
 }
 
 .account-type-badge {
@@ -335,13 +321,13 @@
 }
 
 .account-kind-badge.postable {
+  background: rgba(45, 180, 120, 0.12);
   color: var(--primary);
-  background: color-mix(in srgb, var(--primary) 10%, transparent);
 }
 
 .account-kind-badge.summary {
-  color: var(--text-muted);
   border: 1px solid var(--border-color);
+  color: var(--text-muted);
 }
 
 .account-status-badge {
@@ -372,17 +358,11 @@
 
 .account-row-actions button,
 .account-actions button {
-  border-radius: 9px;
   padding: 8px 10px;
-  cursor: pointer;
-  font-weight: 700;
+  border-radius: 9px;
   font-size: 0.74rem;
-  transition: transform 0.12s ease, opacity 0.12s ease, background 0.12s ease;
-}
-
-.account-row-actions button:hover,
-.account-actions button:hover:not(:disabled) {
-  transform: translateY(-1px);
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .account-action-primary,
@@ -405,8 +385,8 @@
 
 .accounts-empty-state {
   padding: 34px 18px !important;
-  text-align: center !important;
   color: var(--text-muted);
+  text-align: center !important;
 }
 
 .accounts-side-panel {
@@ -499,14 +479,14 @@
 }
 
 .account-actions button:disabled {
-  cursor: not-allowed;
   opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .accounts-error {
   padding: 12px 14px;
-  border-radius: 12px;
   border: 1px solid rgba(190, 40, 40, 0.18);
+  border-radius: 12px;
   background: rgba(190, 40, 40, 0.1);
   color: #b52828;
 }
@@ -563,9 +543,9 @@
   }
 
   .accounts-table-wrap {
+    overflow: visible;
     padding: 0 12px 12px;
     border-top: 0;
-    overflow: visible;
   }
 
   .accounts-table-wrap table,
@@ -593,7 +573,6 @@
   }
 
   .accounts-table-wrap td,
-  .accounts-table-wrap th,
   .accounts-table-wrap td:nth-child(2) {
     display: flex;
     align-items: center;
@@ -621,8 +600,8 @@
   }
 
   .accounts-table-wrap td:last-child {
-    border-bottom: 0;
     padding-bottom: 0;
+    border-bottom: 0;
   }
 
   .account-tree-cell {
@@ -631,11 +610,6 @@
 
   .account-row-actions {
     justify-content: flex-start;
-  }
-
-  .accounts-empty-state {
-    display: block !important;
-    border: 0 !important;
   }
 
   .accounts-empty-state::before {
