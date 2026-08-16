@@ -5,7 +5,7 @@ import {
   postSingleLineEntry,
   reverseJournalEntry,
   subscribeToJournalPostingOptionChanges,
-  upsertSingleLineCashBankMovement,
+  ensureSingleLineCashBankMovement,
 } from '../repositories/journal.repository'
 import type {
   JournalPostingOptions,
@@ -67,7 +67,7 @@ export async function submitSingleLineEntry(input: SingleLineJournalInput): Prom
 
   if (link) {
     const isExpense = input.type === 'expense'
-    await upsertSingleLineCashBankMovement({
+    await ensureSingleLineCashBankMovement({
       clientRequestId: input.requestId,
       transactionDate: input.entryDate,
       transactionType: isExpense ? 'withdrawal' : 'deposit',
