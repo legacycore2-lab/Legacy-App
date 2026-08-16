@@ -1,3 +1,4 @@
+import { X } from 'lucide-react'
 import { accountTypes } from '../data/account-options'
 import { useAccountForm } from '../hooks/useAccountForm'
 import type { Account, AccountInput } from '../types/accounts.types'
@@ -16,12 +17,15 @@ export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }
   return (
     <form className="account-form" onSubmit={form.submit}>
       <div className="account-form-head">
+        <button type="button" className="account-form-close" onClick={form.cancel} aria-label="إغلاق">
+          <X size={18} aria-hidden="true" />
+        </button>
         <span className="accounts-section-kicker">إدارة الحساب</span>
         <h2>{editing ? 'تعديل الحساب' : 'إضافة حساب جديد'}</h2>
         <p>
           {editing
-            ? 'حدّث بيانات الحساب مع الحفاظ على مكانه الصحيح داخل الشجرة.'
-            : 'أنشئ حسابًا رئيسيًا أو فرعيًا داخل دليل الحسابات.'}
+            ? 'حدّث البيانات وسيظل الحساب داخل نفس منطق الشجرة المحاسبية.'
+            : 'اختر النوع أولًا، وسيعرض النظام الحسابات الرئيسية المناسبة لنفس النوع فقط.'}
         </p>
       </div>
 
@@ -32,7 +36,7 @@ export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }
           <input
             value={form.value.code}
             onChange={(event) => form.update('code', event.target.value)}
-            placeholder="مثال: 1101"
+            placeholder="مثال: 5101"
             required
           />
         </label>
@@ -41,7 +45,7 @@ export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }
           <input
             value={form.value.nameAr}
             onChange={(event) => form.update('nameAr', event.target.value)}
-            placeholder="اسم الحساب"
+            placeholder="مثال: أسمنت"
             required
           />
         </label>
@@ -55,7 +59,7 @@ export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }
         </label>
       </div>
 
-      <div className="account-form-section">
+      <div className="account-form-section account-tree-placement">
         <span className="account-form-section-title">مكان الحساب في الشجرة</span>
         <label>
           نوع الحساب
@@ -76,13 +80,16 @@ export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }
             value={form.value.parentId ?? ''}
             onChange={(event) => form.update('parentId', event.target.value || null)}
           >
-            <option value="">بدون حساب رئيسي</option>
+            <option value="">حساب رئيسي بدون أب</option>
             {form.parentAccountOptions.map((account) => (
               <option key={account.id} value={account.id}>
                 {account.code} — {account.nameAr}
               </option>
             ))}
           </select>
+          <small className="account-field-hint">
+            تظهر هنا الحسابات التجميعية النشطة من نفس النوع فقط، والمستوى يُحسب تلقائيًا.
+          </small>
         </label>
       </div>
 
@@ -95,8 +102,8 @@ export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }
             onChange={(event) => form.update('isPostable', event.target.checked)}
           />
           <span>
-            <strong>قابل للترحيل</strong>
-            <small>يسمح باستخدام الحساب مباشرة في القيود.</small>
+            <strong>حساب ترحيل</strong>
+            <small>يسمح بتسجيل القيود مباشرة على هذا الحساب.</small>
           </span>
         </label>
         <label className="account-option-card">
@@ -107,7 +114,7 @@ export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }
           />
           <span>
             <strong>حساب نشط</strong>
-            <small>يظهر الحساب ضمن الخيارات المتاحة للاستخدام.</small>
+            <small>يظهر ضمن الحسابات المتاحة للاستخدام.</small>
           </span>
         </label>
       </div>
@@ -116,11 +123,9 @@ export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }
         <button type="submit" disabled={isSaving}>
           {isSaving ? 'جارٍ الحفظ...' : editing ? 'حفظ التعديلات' : 'إضافة الحساب'}
         </button>
-        {editing && (
-          <button type="button" className="secondary" onClick={form.cancel} disabled={isSaving}>
-            إلغاء
-          </button>
-        )}
+        <button type="button" className="secondary" onClick={form.cancel} disabled={isSaving}>
+          إلغاء
+        </button>
       </div>
     </form>
   )
