@@ -1,3 +1,4 @@
+import { Search } from 'lucide-react'
 import { accountTypes, getAccountTypeLabel } from '../data/account-options'
 import type { Account, AccountType } from '../types/accounts.types'
 
@@ -110,7 +111,7 @@ export function AccountsList({
 
       <div className="accounts-toolbar">
         <div className="accounts-search-field">
-          <span aria-hidden="true">⌕</span>
+          <Search size={17} strokeWidth={2} aria-hidden="true" focusable="false" />
           <input
             aria-label="البحث في دليل الحسابات"
             placeholder="ابحث بالكود أو اسم الحساب"
