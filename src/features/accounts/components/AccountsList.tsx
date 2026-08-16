@@ -43,7 +43,11 @@ export function AccountsList({
             onChange={(event) => onSearchChange(event.target.value)}
           />
           {search && (
-            <button type="button" className="accounts-clear-search" onClick={() => onSearchChange('')}>
+            <button
+              type="button"
+              className="accounts-clear-search"
+              onClick={() => onSearchChange('')}
+            >
               مسح
             </button>
           )}
@@ -76,11 +80,15 @@ export function AccountsList({
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={5} className="accounts-empty-state">جارٍ تحميل دليل الحسابات...</td>
+                <td colSpan={5} className="accounts-empty-state">
+                  جارٍ تحميل دليل الحسابات...
+                </td>
               </tr>
             ) : accounts.length === 0 ? (
               <tr>
-                <td colSpan={5} className="accounts-empty-state">لا توجد حسابات مطابقة للبحث أو الفلتر الحالي.</td>
+                <td colSpan={5} className="accounts-empty-state">
+                  لا توجد حسابات مطابقة للبحث أو الفلتر الحالي.
+                </td>
               </tr>
             ) : (
               accounts.map((account) => (
@@ -104,21 +112,31 @@ export function AccountsList({
                     </div>
                   </td>
                   <td data-label="النوع">
-                    <span className="account-type-badge">{getAccountTypeLabel(account.accountType)}</span>
+                    <span className="account-type-badge">
+                      {getAccountTypeLabel(account.accountType)}
+                    </span>
                   </td>
                   <td data-label="التصنيف">
-                    <span className={`account-kind-badge ${account.isPostable ? 'postable' : 'summary'}`}>
+                    <span
+                      className={`account-kind-badge ${account.isPostable ? 'postable' : 'summary'}`}
+                    >
                       {account.isPostable ? 'حساب ترحيل' : 'حساب تجميعي'}
                     </span>
                   </td>
                   <td data-label="الحالة">
-                    <span className={`account-status-badge ${account.isActive ? 'active' : 'inactive'}`}>
+                    <span
+                      className={`account-status-badge ${account.isActive ? 'active' : 'inactive'}`}
+                    >
                       <span aria-hidden="true" />
                       {account.isActive ? 'نشط' : 'متوقف'}
                     </span>
                   </td>
                   <td data-label="الإجراءات" className="account-row-actions">
-                    <button type="button" className="account-action-primary" onClick={() => onEdit(account)}>
+                    <button
+                      type="button"
+                      className="account-action-primary"
+                      onClick={() => onEdit(account)}
+                    >
                       تعديل
                     </button>
                     <button
