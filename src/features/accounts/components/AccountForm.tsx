@@ -113,7 +113,7 @@ export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }
       </div>
 
       <div className="account-actions">
-        <button disabled={isSaving}>
+        <button type="submit" disabled={isSaving}>
           {isSaving ? 'جارٍ الحفظ...' : editing ? 'حفظ التعديلات' : 'إضافة الحساب'}
         </button>
         {editing && (
