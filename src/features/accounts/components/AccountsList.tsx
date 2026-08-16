@@ -52,7 +52,8 @@ function buildTypeTree(accounts: Account[], expandedIds: Set<string>, expandAll:
     accountChildren.forEach((child) => visit(child, depth + 1))
   }
 
-  ;(children.get(null) ?? []).forEach((root) => visit(root, 0))
+  const roots = children.get(null) ?? []
+  roots.forEach((root) => visit(root, 0))
   return rows
 }
 
