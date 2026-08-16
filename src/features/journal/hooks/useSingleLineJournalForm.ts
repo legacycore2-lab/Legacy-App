@@ -56,6 +56,7 @@ export function useSingleLineJournalForm() {
         queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
         queryClient.invalidateQueries({ queryKey: ['projects'] }),
         queryClient.invalidateQueries({ queryKey: ['contractors'] }),
+        queryClient.invalidateQueries({ queryKey: ['cash-banks'] }),
       ]
       if (input.projectId) {
         invalidations.push(

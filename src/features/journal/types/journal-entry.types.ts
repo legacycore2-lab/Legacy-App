@@ -37,3 +37,20 @@ export type JournalPostingPreview = {
   creditAccount: string
   amount: number
 }
+
+export type JournalCashBankLink = {
+  cashBankAccountId: string
+  journalId: string
+}
+
+export type JournalCashBankMovementPayload = {
+  clientRequestId: string
+  transactionDate: string
+  transactionType: 'deposit' | 'withdrawal'
+  sourceAccountId: string | null
+  destinationAccountId: string | null
+  amount: number
+  description: string
+  referenceNumber: string
+  journalId: string
+}

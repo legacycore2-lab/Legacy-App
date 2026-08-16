@@ -4,13 +4,23 @@ import {
   buildJournalPreview,
   forceDeleteEntry,
   getLocalDateInputValue,
+  submitSingleLineEntry,
 } from './journal-entry.service'
+import {
+  findSingleLineCashBankLink,
+  postSingleLineEntry,
+  upsertSingleLineCashBankMovement,
+} from '../repositories/journal.repository'
 import type { SingleLineJournalInput } from '../types/journal-entry.types'
 
 // Mock the repository so tests don't hit Supabase
 vi.mock('../repositories/journal.repository', () => ({
   forceDeleteJournalEntry: vi.fn().mockResolvedValue(undefined),
   postSingleLineEntry: vi.fn().mockResolvedValue('entry-id-123'),
+  findSingleLineCashBankLink: vi
+    .fn()
+    .mockResolvedValue({ cashBankAccountId: 'cash-1', journalId: 'journal-1' }),
+  upsertSingleLineCashBankMovement: vi.fn().mockResolvedValue(undefined),
   findJournalPostingOptions: vi.fn().mockResolvedValue({ projects: [], accounts: [] }),
   subscribeToJournalPostingOptionChanges: vi.fn().mockReturnValue(() => {}),
 }))
@@ -144,6 +154,52 @@ describe('buildJournalPreview', () => {
     })
     expect(preview?.debitAccount).toBe('خرسانة')
     expect(preview?.creditAccount).toBe('البنك')
+  })
+})
+
+describe('submitSingleLineEntry', () => {
+  it('posts an expense and records one linked withdrawal', async () => {
+    await expect(submitSingleLineEntry(validInput)).resolves.toBe('entry-id-123')
+    expect(postSingleLineEntry).toHaveBeenCalledWith(validInput)
+    expect(upsertSingleLineCashBankMovement).toHaveBeenCalledWith({
+      clientRequestId: 'req-1',
+      transactionDate: '2026-07-25',
+      transactionType: 'withdrawal',
+      sourceAccountId: 'cash-1',
+      destinationAccountId: null,
+      amount: 5000,
+      description: validInput.description,
+      referenceNumber: 'entry-id-123',
+      journalId: 'journal-1',
+    })
+  })
+
+  it('records income as a deposit into the linked account', async () => {
+    await submitSingleLineEntry({ ...validInput, type: 'income' })
+
+    expect(upsertSingleLineCashBankMovement).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        transactionType: 'deposit',
+        sourceAccountId: null,
+        destinationAccountId: 'cash-1',
+      }),
+    )
+  })
+
+  it('keeps non-operational asset accounts as journal-only entries', async () => {
+    vi.mocked(upsertSingleLineCashBankMovement).mockClear()
+    vi.mocked(findSingleLineCashBankLink).mockResolvedValueOnce(null)
+
+    await submitSingleLineEntry(validInput)
+
+    expect(upsertSingleLineCashBankMovement).not.toHaveBeenCalled()
+  })
+
+  it('does not post invalid input', async () => {
+    vi.mocked(postSingleLineEntry).mockClear()
+
+    await expect(submitSingleLineEntry({ ...validInput, amount: '0' })).rejects.toThrow()
+    expect(postSingleLineEntry).not.toHaveBeenCalled()
   })
 })
 
