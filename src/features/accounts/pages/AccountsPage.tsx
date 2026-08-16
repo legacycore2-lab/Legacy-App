@@ -9,28 +9,28 @@ export function AccountsPage() {
   return (
     <section className="accounts-page">
       <header className="accounts-header">
-        <div>
+        <div className="accounts-heading">
           <span className="accounts-eyebrow">المحاسبة العامة</span>
           <h1>دليل الحسابات</h1>
-          <p>هيكل موحد للحسابات القابلة للترحيل والحسابات التجميعية.</p>
+          <p>إدارة الهيكل المحاسبي من الحسابات الرئيسية حتى حسابات الترحيل في شاشة واحدة واضحة.</p>
         </div>
-        <div className="accounts-total">
-          {vm.allAccounts.length}
-          <small>حساب</small>
+        <div className="accounts-total" aria-label="إجمالي الحسابات">
+          <span>{vm.allAccounts.length}</span>
+          <small>إجمالي الحسابات</small>
         </div>
       </header>
 
+      <div className="accounts-guide">
+        <div>
+          <strong>هيكل محاسبي واضح</strong>
+          <span>الحسابات التجميعية للفروع، وحسابات الترحيل لتسجيل القيود مباشرة.</span>
+        </div>
+        <span className="accounts-guide-badge">Chart of Accounts</span>
+      </div>
+
       {vm.error && <div className="accounts-error">{vm.error}</div>}
 
-      <div className="accounts-grid">
-        <AccountForm
-          key={vm.editing?.id ?? 'new-account'}
-          allAccounts={vm.allAccounts}
-          editing={vm.editing}
-          isSaving={vm.isSaving}
-          onSave={vm.onSave}
-          onCancel={vm.onCancelEdit}
-        />
+      <div className="accounts-workspace">
         <AccountsList
           accounts={vm.accounts}
           search={vm.search}
@@ -41,6 +41,17 @@ export function AccountsPage() {
           onEdit={vm.onEdit}
           onToggle={vm.onToggle}
         />
+
+        <aside className="accounts-side-panel">
+          <AccountForm
+            key={vm.editing?.id ?? 'new-account'}
+            allAccounts={vm.allAccounts}
+            editing={vm.editing}
+            isSaving={vm.isSaving}
+            onSave={vm.onSave}
+            onCancel={vm.onCancelEdit}
+          />
+        </aside>
       </div>
     </section>
   )
