@@ -42,7 +42,7 @@ export function AccountsList({
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
           />
-          {search && (
+          {search ? (
             <button
               type="button"
               className="accounts-clear-search"
@@ -50,8 +50,9 @@ export function AccountsList({
             >
               مسح
             </button>
-          )}
+          ) : null}
         </div>
+
         <select
           aria-label="تصفية حسب نوع الحساب"
           value={type}
@@ -80,13 +81,13 @@ export function AccountsList({
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={5} className="accounts-empty-state">
+                <td className="accounts-empty-state" colSpan={5}>
                   جارٍ تحميل دليل الحسابات...
                 </td>
               </tr>
             ) : accounts.length === 0 ? (
               <tr>
-                <td colSpan={5} className="accounts-empty-state">
+                <td className="accounts-empty-state" colSpan={5}>
                   لا توجد حسابات مطابقة للبحث أو الفلتر الحالي.
                 </td>
               </tr>
@@ -105,7 +106,7 @@ export function AccountsList({
                           <span className="account-code">{account.code}</span>
                         </div>
                         <div className="account-meta-line">
-                          {account.nameEn && <span>{account.nameEn}</span>}
+                          {account.nameEn ? <span>{account.nameEn}</span> : null}
                           <span>المستوى {account.level}</span>
                         </div>
                       </div>
@@ -131,7 +132,7 @@ export function AccountsList({
                       {account.isActive ? 'نشط' : 'متوقف'}
                     </span>
                   </td>
-                  <td data-label="الإجراءات" className="account-row-actions">
+                  <td className="account-row-actions" data-label="الإجراءات">
                     <button
                       type="button"
                       className="account-action-primary"
