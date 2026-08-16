@@ -25,7 +25,7 @@ export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }
         <p>
           {editing
             ? 'حدّث البيانات وسيظل الحساب داخل نفس منطق الشجرة المحاسبية.'
-            : 'اختر النوع أولًا، وسيعرض النظام الحسابات الرئيسية المناسبة لنفس النوع فقط.'}
+            : 'اختر النوع، وسيضع النظام الحساب الجديد تلقائيًا تحت الحساب الرئيسي المناسب.'}
         </p>
       </div>
 
@@ -80,7 +80,7 @@ export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }
             value={form.value.parentId ?? ''}
             onChange={(event) => form.update('parentId', event.target.value || null)}
           >
-            <option value="">حساب رئيسي بدون أب</option>
+            {editing?.parentId === null && <option value="">حساب رئيسي بدون أب</option>}
             {form.parentAccountOptions.map((account) => (
               <option key={account.id} value={account.id}>
                 {account.code} — {account.nameAr}
@@ -88,7 +88,7 @@ export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }
             ))}
           </select>
           <small className="account-field-hint">
-            تظهر هنا الحسابات التجميعية النشطة من نفس النوع فقط، والمستوى يُحسب تلقائيًا.
+            الحساب الرئيسي يتحدد تلقائيًا حسب النوع، ويمكن اختيار فرع تجميعي أدق من نفس النوع.
           </small>
         </label>
       </div>

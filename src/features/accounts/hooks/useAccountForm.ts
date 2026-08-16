@@ -1,22 +1,36 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import type { Account, AccountInput, AccountType } from '../types/accounts.types'
 
-const emptyForm: AccountInput = {
-  code: '',
-  nameAr: '',
-  nameEn: '',
-  accountType: 'asset',
-  normalBalance: 'debit',
-  parentId: null,
-  isPostable: true,
-  isActive: true,
-}
-
 type Options = {
   allAccounts: Account[]
   editing: Account | null
   onSave: (input: AccountInput) => Promise<void>
   onCancel: () => void
+}
+
+function defaultParentId(accounts: Account[], accountType: AccountType): string | null {
+  return (
+    accounts.find(
+      (account) =>
+        account.accountType === accountType &&
+        account.parentId === null &&
+        account.isActive &&
+        !account.isPostable,
+    )?.id ?? null
+  )
+}
+
+function emptyForm(accounts: Account[], accountType: AccountType = 'asset'): AccountInput {
+  return {
+    code: '',
+    nameAr: '',
+    nameEn: '',
+    accountType,
+    normalBalance: accountType === 'asset' || accountType === 'expense' ? 'debit' : 'credit',
+    parentId: defaultParentId(accounts, accountType),
+    isPostable: true,
+    isActive: true,
+  }
 }
 
 function toAccountInput(account: Account): AccountInput {
@@ -34,7 +48,9 @@ function toAccountInput(account: Account): AccountInput {
 }
 
 export function useAccountForm({ allAccounts, editing, onSave, onCancel }: Options) {
-  const [value, setValue] = useState<AccountInput>(() => (editing ? toAccountInput(editing) : emptyForm))
+  const [value, setValue] = useState<AccountInput>(() =>
+    editing ? toAccountInput(editing) : emptyForm(allAccounts),
+  )
 
   const parentAccountOptions = useMemo(
     () =>
@@ -57,7 +73,7 @@ export function useAccountForm({ allAccounts, editing, onSave, onCancel }: Optio
       ...current,
       accountType,
       normalBalance: accountType === 'asset' || accountType === 'expense' ? 'debit' : 'credit',
-      parentId: null,
+      parentId: defaultParentId(allAccounts, accountType),
     }))
   }
 
@@ -66,14 +82,14 @@ export function useAccountForm({ allAccounts, editing, onSave, onCancel }: Optio
 
     try {
       await onSave(value)
-      setValue(emptyForm)
+      setValue(emptyForm(allAccounts))
     } catch {
       // The mutation error is exposed by useAccounts and rendered by the page.
     }
   }
 
   const cancel = () => {
-    setValue(emptyForm)
+    setValue(emptyForm(allAccounts))
     onCancel()
   }
 
