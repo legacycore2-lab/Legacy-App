@@ -10,7 +10,7 @@ export function useAccounts() {
   const [type, setType] = useState<AccountType | 'all'>('all')
   const [editing, setEditing] = useState<Account | null>(null)
   const [isEditorOpen, setIsEditorOpen] = useState(false)
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set())
+  const [expandedState, setExpandedState] = useState<Set<string> | null>(null)
   const query = useQuery({ queryKey: ['accounts'], queryFn: getAccounts, staleTime: 30_000 })
   const accounts = useMemo(() => query.data ?? [], [query.data])
 
@@ -19,14 +19,11 @@ export function useAccounts() {
     [queryClient],
   )
 
-  useEffect(() => {
-    if (accounts.length === 0) return
-
-    setExpandedIds((current) => {
-      if (current.size > 0) return current
-      return new Set(accounts.filter((account) => !account.parentId).map((account) => account.id))
-    })
-  }, [accounts])
+  const defaultExpandedIds = useMemo(
+    () => new Set(accounts.filter((account) => !account.parentId).map((account) => account.id)),
+    [accounts],
+  )
+  const expandedIds = expandedState ?? defaultExpandedIds
 
   const filteredAccounts = useMemo(() => {
     const term = search.trim().toLowerCase()
@@ -83,8 +80,8 @@ export function useAccounts() {
   }
 
   const toggleExpanded = (id: string) => {
-    setExpandedIds((current) => {
-      const next = new Set(current)
+    setExpandedState((current) => {
+      const next = new Set(current ?? defaultExpandedIds)
       if (next.has(id)) next.delete(id)
       else next.add(id)
       return next
