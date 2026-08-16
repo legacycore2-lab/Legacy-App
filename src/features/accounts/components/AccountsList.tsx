@@ -34,7 +34,9 @@ function buildTypeTree(accounts: Account[], expandedIds: Set<string>, expandAll:
     children.set(parentKey, siblings)
   })
 
-  children.forEach((siblings) => siblings.sort((a, b) => a.code.localeCompare(b.code, 'en', { numeric: true })))
+  children.forEach((siblings) =>
+    siblings.sort((a, b) => a.code.localeCompare(b.code, 'en', { numeric: true })),
+  )
 
   const rows: TreeRow[] = []
   const visit = (account: Account, depth: number) => {
@@ -153,11 +155,20 @@ export function AccountsList({
                 <div className="account-type-tree">
                   {rows.map(({ account, depth, hasChildren, isOrphan }) => {
                     const isExpanded = expandAll || expandedIds.has(account.id)
-                    const kindClassName = ['account-kind-badge', account.isPostable ? 'postable' : 'summary'].join(' ')
+                    const kindClassName = [
+                      'account-kind-badge',
+                      account.isPostable ? 'postable' : 'summary',
+                    ].join(' ')
 
                     return (
-                      <article key={account.id} className={`account-tree-row${account.isActive ? '' : ' inactive'}`}>
-                        <div className="account-tree-main" style={{ paddingInlineStart: `${depth * 26 + 12}px` }}>
+                      <article
+                        key={account.id}
+                        className={`account-tree-row${account.isActive ? '' : ' inactive'}`}
+                      >
+                        <div
+                          className="account-tree-main"
+                          style={{ paddingInlineStart: `${depth * 26 + 12}px` }}
+                        >
                           {hasChildren ? (
                             <button
                               type="button"
@@ -202,7 +213,11 @@ export function AccountsList({
                         </div>
 
                         <div className="account-row-actions">
-                          <button type="button" className="account-action-primary" onClick={() => onEdit(account)}>
+                          <button
+                            type="button"
+                            className="account-action-primary"
+                            onClick={() => onEdit(account)}
+                          >
                             تعديل
                           </button>
                           <button
