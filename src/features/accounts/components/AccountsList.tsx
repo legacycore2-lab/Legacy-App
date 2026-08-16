@@ -44,32 +44,17 @@ export function AccountsList({
     }
 
     return accounts.map((account) => {
-      const treeClassName = [
-        'account-tree-cell',
-        account.level === 1 ? 'account-tree-root' : '',
-      ]
+      const treeClassName = ['account-tree-cell', account.level === 1 ? 'account-tree-root' : '']
         .filter(Boolean)
         .join(' ')
       const treeIndent = Math.max(0, account.level - 1) * 20
-      const kindClassName = [
-        'account-kind-badge',
-        account.isPostable ? 'postable' : 'summary',
-      ].join(' ')
-      const statusClassName = [
-        'account-status-badge',
-        account.isActive ? 'active' : 'inactive',
-      ].join(' ')
+      const kindClassName = ['account-kind-badge', account.isPostable ? 'postable' : 'summary'].join(' ')
+      const statusClassName = ['account-status-badge', account.isActive ? 'active' : 'inactive'].join(' ')
 
       return (
-        <tr
-          key={account.id}
-          className={!account.isActive ? 'inactive' : ''}
-        >
+        <tr key={account.id} className={!account.isActive ? 'inactive' : ''}>
           <td data-label="الحساب">
-            <div
-              className={treeClassName}
-              style={{ paddingInlineStart: `${treeIndent}px` }}
-            >
+            <div className={treeClassName} style={{ paddingInlineStart: `${treeIndent}px` }}>
               <span className="account-tree-node" aria-hidden="true" />
               <div className="account-name-stack">
                 <div className="account-name-line">
@@ -84,14 +69,10 @@ export function AccountsList({
             </div>
           </td>
           <td data-label="النوع">
-            <span className="account-type-badge">
-              {getAccountTypeLabel(account.accountType)}
-            </span>
+            <span className="account-type-badge">{getAccountTypeLabel(account.accountType)}</span>
           </td>
           <td data-label="التصنيف">
-            <span className={kindClassName}>
-              {account.isPostable ? 'حساب ترحيل' : 'حساب تجميعي'}
-            </span>
+            <span className={kindClassName}>{account.isPostable ? 'حساب ترحيل' : 'حساب تجميعي'}</span>
           </td>
           <td data-label="الحالة">
             <span className={statusClassName}>
@@ -100,11 +81,7 @@ export function AccountsList({
             </span>
           </td>
           <td data-label="الإجراءات" className="account-row-actions">
-            <button
-              type="button"
-              className="account-action-primary"
-              onClick={() => onEdit(account)}
-            >
+            <button type="button" className="account-action-primary" onClick={() => onEdit(account)}>
               تعديل
             </button>
             <button
@@ -128,9 +105,7 @@ export function AccountsList({
           <h2>الحسابات</h2>
           <p>استعرض الحسابات الرئيسية والفرعية وحالة كل حساب.</p>
         </div>
-        <span className="accounts-results-count">
-          {accounts.length} ظاهر
-        </span>
+        <span className="accounts-results-count">{accounts.length} ظاهر</span>
       </div>
 
       <div className="accounts-toolbar">
@@ -143,11 +118,7 @@ export function AccountsList({
             onChange={(event) => onSearchChange(event.target.value)}
           />
           {search && (
-            <button
-              type="button"
-              className="accounts-clear-search"
-              onClick={() => onSearchChange('')}
-            >
+            <button type="button" className="accounts-clear-search" onClick={() => onSearchChange('')}>
               مسح
             </button>
           )}
@@ -155,9 +126,7 @@ export function AccountsList({
         <select
           aria-label="تصفية حسب نوع الحساب"
           value={type}
-          onChange={(event) =>
-            onTypeChange(event.target.value as AccountType | 'all')
-          }
+          onChange={(event) => onTypeChange(event.target.value as AccountType | 'all')}
         >
           <option value="all">كل أنواع الحسابات</option>
           {accountTypes.map((item) => (
