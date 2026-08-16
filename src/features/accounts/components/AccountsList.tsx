@@ -111,7 +111,9 @@ export function AccountsList({
 
       <div className="accounts-toolbar">
         <div className="accounts-search-field">
-          <Search size={17} strokeWidth={2} aria-hidden="true" focusable="false" />
+          <span aria-hidden="true">
+            <Search size={17} strokeWidth={2} focusable="false" />
+          </span>
           <input
             aria-label="البحث في دليل الحسابات"
             placeholder="ابحث بالكود أو اسم الحساب"
