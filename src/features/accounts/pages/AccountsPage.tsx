@@ -8,7 +8,7 @@ export function AccountsPage() {
   const vm = useAccounts()
   const postingCount = vm.allAccounts.filter((account) => account.isPostable).length
   const summaryCount = vm.allAccounts.length - postingCount
-  const maxLevel = vm.allAccounts.reduce((max, account) => Math.max(max, account.level), 0)
+  const typeCount = new Set(vm.allAccounts.map((account) => account.accountType)).size
 
   return (
     <section className="accounts-page">
@@ -53,8 +53,8 @@ export function AccountsPage() {
             <ListTree size={19} aria-hidden="true" />
           </span>
           <div>
-            <small>مستويات الشجرة</small>
-            <strong>{maxLevel}</strong>
+            <small>أنواع الحسابات</small>
+            <strong>{typeCount}</strong>
           </div>
         </article>
       </div>
