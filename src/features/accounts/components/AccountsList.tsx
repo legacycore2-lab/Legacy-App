@@ -22,6 +22,104 @@ export function AccountsList({
   onEdit,
   onToggle,
 }: Props) {
+  const renderRows = () => {
+    if (isLoading) {
+      return (
+        <tr>
+          <td colSpan={5} className="accounts-empty-state">
+            جارٍ تحميل دليل الحسابات...
+          </td>
+        </tr>
+      )
+    }
+
+    if (accounts.length === 0) {
+      return (
+        <tr>
+          <td colSpan={5} className="accounts-empty-state">
+            لا توجد حسابات مطابقة للبحث أو الفلتر الحالي.
+          </td>
+        </tr>
+      )
+    }
+
+    return accounts.map((account) => {
+      const treeClassName = [
+        'account-tree-cell',
+        account.level === 1 ? 'account-tree-root' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')
+      const treeIndent = Math.max(0, account.level - 1) * 20
+      const kindClassName = [
+        'account-kind-badge',
+        account.isPostable ? 'postable' : 'summary',
+      ].join(' ')
+      const statusClassName = [
+        'account-status-badge',
+        account.isActive ? 'active' : 'inactive',
+      ].join(' ')
+
+      return (
+        <tr
+          key={account.id}
+          className={!account.isActive ? 'inactive' : ''}
+        >
+          <td data-label="الحساب">
+            <div
+              className={treeClassName}
+              style={{ paddingInlineStart: `${treeIndent}px` }}
+            >
+              <span className="account-tree-node" aria-hidden="true" />
+              <div className="account-name-stack">
+                <div className="account-name-line">
+                  <strong>{account.nameAr}</strong>
+                  <span className="account-code">{account.code}</span>
+                </div>
+                <div className="account-meta-line">
+                  {account.nameEn && <span>{account.nameEn}</span>}
+                  <span>المستوى {account.level}</span>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td data-label="النوع">
+            <span className="account-type-badge">
+              {getAccountTypeLabel(account.accountType)}
+            </span>
+          </td>
+          <td data-label="التصنيف">
+            <span className={kindClassName}>
+              {account.isPostable ? 'حساب ترحيل' : 'حساب تجميعي'}
+            </span>
+          </td>
+          <td data-label="الحالة">
+            <span className={statusClassName}>
+              <span aria-hidden="true" />
+              {account.isActive ? 'نشط' : 'متوقف'}
+            </span>
+          </td>
+          <td data-label="الإجراءات" className="account-row-actions">
+            <button
+              type="button"
+              className="account-action-primary"
+              onClick={() => onEdit(account)}
+            >
+              تعديل
+            </button>
+            <button
+              type="button"
+              className="account-action-secondary"
+              onClick={() => onToggle(account.id, !account.isActive)}
+            >
+              {account.isActive ? 'إيقاف' : 'تفعيل'}
+            </button>
+          </td>
+        </tr>
+      )
+    })
+  }
+
   return (
     <section className="accounts-list-card">
       <div className="accounts-list-head">
@@ -30,7 +128,9 @@ export function AccountsList({
           <h2>الحسابات</h2>
           <p>استعرض الحسابات الرئيسية والفرعية وحالة كل حساب.</p>
         </div>
-        <span className="accounts-results-count">{accounts.length} ظاهر</span>
+        <span className="accounts-results-count">
+          {accounts.length} ظاهر
+        </span>
       </div>
 
       <div className="accounts-toolbar">
@@ -42,7 +142,7 @@ export function AccountsList({
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
           />
-          {search ? (
+          {search && (
             <button
               type="button"
               className="accounts-clear-search"
@@ -50,13 +150,14 @@ export function AccountsList({
             >
               مسح
             </button>
-          ) : null}
+          )}
         </div>
-
         <select
           aria-label="تصفية حسب نوع الحساب"
           value={type}
-          onChange={(event) => onTypeChange(event.target.value as AccountType | 'all')}
+          onChange={(event) =>
+            onTypeChange(event.target.value as AccountType | 'all')
+          }
         >
           <option value="all">كل أنواع الحسابات</option>
           {accountTypes.map((item) => (
@@ -78,80 +179,7 @@ export function AccountsList({
               <th aria-label="الإجراءات" />
             </tr>
           </thead>
-          <tbody>
-            {isLoading ? (
-              <tr>
-                <td className="accounts-empty-state" colSpan={5}>
-                  جارٍ تحميل دليل الحسابات...
-                </td>
-              </tr>
-            ) : accounts.length === 0 ? (
-              <tr>
-                <td className="accounts-empty-state" colSpan={5}>
-                  لا توجد حسابات مطابقة للبحث أو الفلتر الحالي.
-                </td>
-              </tr>
-            ) : (
-              accounts.map((account) => (
-                <tr key={account.id} className={!account.isActive ? 'inactive' : ''}>
-                  <td data-label="الحساب">
-                    <div
-                      className={`account-tree-cell ${account.level === 1 ? 'account-tree-root' : ''}`}
-                      style={{ paddingInlineStart: `${Math.max(0, account.level - 1) * 20}px` }}
-                    >
-                      <span className="account-tree-node" aria-hidden="true" />
-                      <div className="account-name-stack">
-                        <div className="account-name-line">
-                          <strong>{account.nameAr}</strong>
-                          <span className="account-code">{account.code}</span>
-                        </div>
-                        <div className="account-meta-line">
-                          {account.nameEn ? <span>{account.nameEn}</span> : null}
-                          <span>المستوى {account.level}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td data-label="النوع">
-                    <span className="account-type-badge">
-                      {getAccountTypeLabel(account.accountType)}
-                    </span>
-                  </td>
-                  <td data-label="التصنيف">
-                    <span
-                      className={`account-kind-badge ${account.isPostable ? 'postable' : 'summary'}`}
-                    >
-                      {account.isPostable ? 'حساب ترحيل' : 'حساب تجميعي'}
-                    </span>
-                  </td>
-                  <td data-label="الحالة">
-                    <span
-                      className={`account-status-badge ${account.isActive ? 'active' : 'inactive'}`}
-                    >
-                      <span aria-hidden="true" />
-                      {account.isActive ? 'نشط' : 'متوقف'}
-                    </span>
-                  </td>
-                  <td className="account-row-actions" data-label="الإجراءات">
-                    <button
-                      type="button"
-                      className="account-action-primary"
-                      onClick={() => onEdit(account)}
-                    >
-                      تعديل
-                    </button>
-                    <button
-                      type="button"
-                      className="account-action-secondary"
-                      onClick={() => onToggle(account.id, !account.isActive)}
-                    >
-                      {account.isActive ? 'إيقاف' : 'تفعيل'}
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
+          <tbody>{renderRows()}</tbody>
         </table>
       </div>
     </section>
