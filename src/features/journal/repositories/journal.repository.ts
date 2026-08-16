@@ -203,28 +203,43 @@ export async function findSingleLineCashBankLink(
   return { cashBankAccountId: cashAccount.id, journalId: journal.id }
 }
 
-export async function upsertSingleLineCashBankMovement(
+export async function ensureSingleLineCashBankMovement(
   payload: JournalCashBankMovementPayload,
 ): Promise<void> {
   const client = getSupabaseClient()
-  const { error } = await client.from('cash_bank_transactions').upsert(
-    {
-      client_request_id: payload.clientRequestId,
-      transaction_date: payload.transactionDate,
-      transaction_type: payload.transactionType,
-      source_account_id: payload.sourceAccountId,
-      destination_account_id: payload.destinationAccountId,
-      amount: payload.amount,
-      description: payload.description,
-      reference_number: payload.referenceNumber,
-      status: 'posted',
-      journal_id: payload.journalId,
-      posted_at: new Date().toISOString(),
-    },
-    { onConflict: 'client_request_id', ignoreDuplicates: true },
-  )
+  const findExistingMovement = () =>
+    client
+      .from('cash_bank_transactions')
+      .select('id')
+      .eq('client_request_id', payload.clientRequestId)
+      .maybeSingle()
 
-  if (error) throw error
+  const existingResult = await findExistingMovement()
+  if (existingResult.error) throw existingResult.error
+  if (existingResult.data) return
+
+  const { error } = await client.from('cash_bank_transactions').insert({
+    client_request_id: payload.clientRequestId,
+    transaction_date: payload.transactionDate,
+    transaction_type: payload.transactionType,
+    source_account_id: payload.sourceAccountId,
+    destination_account_id: payload.destinationAccountId,
+    amount: payload.amount,
+    description: payload.description,
+    reference_number: payload.referenceNumber,
+    status: 'posted',
+    journal_id: payload.journalId,
+    posted_at: new Date().toISOString(),
+  })
+
+  if (!error) return
+  if (error.code !== '23505') throw error
+
+  // A concurrent retry can win the insert after the initial lookup. Treat the
+  // unique violation as success only when that request now has a movement.
+  const retryResult = await findExistingMovement()
+  if (retryResult.error) throw retryResult.error
+  if (!retryResult.data) throw error
 }
 
 export async function findJournalPostingOptions(): Promise<JournalPostingOptions> {

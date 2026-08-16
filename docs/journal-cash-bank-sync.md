@@ -11,7 +11,8 @@ exists:
 - income creates a deposit into the linked operational account;
 - the movement reuses the journal instead of invoking a Cash & Banks posting RPC, so no second
   journal or duplicate ledger impact is created;
-- `client_request_id` makes a retry safe and prevents the balance from changing twice.
+- `client_request_id` is checked before insertion and protected by the database's partial unique
+  index, making retries safe without relying on an incompatible PostgREST upsert conflict target.
 
 Asset accounts that are not configured in Cash & Banks remain valid journal payment accounts and do
 not produce an operational movement.
