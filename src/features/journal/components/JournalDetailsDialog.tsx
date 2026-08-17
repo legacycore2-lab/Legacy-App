@@ -8,7 +8,7 @@ import { JournalAttachmentsPanel } from './JournalAttachmentsPanel'
 type Props = {
   entryId: string | null
   onClose: () => void
-  canForceDelete?: boolean
+  canAccountingDelete?: boolean
   canReverse?: boolean
   canManageAttachments?: boolean
 }
@@ -19,19 +19,25 @@ const statusLabel = { draft: 'مسودة', posted: 'مرحّل', reversed: 'مع
 export function JournalDetailsDialog({
   entryId,
   onClose,
-  canForceDelete = false,
+  canAccountingDelete = false,
   canReverse = false,
   canManageAttachments = false,
 }: Props) {
   const { details, isLoading, error } = useJournalDetails(entryId)
-  const { reverseEntry, isReversing, reverseError, forceDeleteEntry, isForceDeleting, forceDeleteError } =
-    useJournalActions()
+  const {
+    reverseEntry,
+    isReversing,
+    reverseError,
+    accountingDeleteEntry,
+    isAccountingDeleting,
+    accountingDeleteError,
+  } = useJournalActions()
 
   const [confirmMode, setConfirmMode] = useState<'reverse' | 'delete' | null>(null)
   const [reason, setReason] = useState('')
   const [confirmText, setConfirmText] = useState('')
 
-  const actionInProgress = isReversing || isForceDeleting
+  const actionInProgress = isReversing || isAccountingDeleting
   const canDelete = confirmText === 'DELETE' && reason.trim().length >= 5 && !actionInProgress
   const canConfirmReverse = confirmText === 'REVERSE' && !actionInProgress
   const dialogRef = useDialogAccessibility<HTMLElement>(entryId !== null, onClose, !actionInProgress)
@@ -46,10 +52,10 @@ export function JournalDetailsDialog({
     }
   }
 
-  const handleForceDelete = async () => {
+  const handleAccountingDelete = async () => {
     if (!entryId || !canDelete) return
     try {
-      await forceDeleteEntry(entryId, reason)
+      await accountingDeleteEntry(entryId, reason)
       onClose()
     } catch {
       // error shown in UI
@@ -143,7 +149,7 @@ export function JournalDetailsDialog({
 
             <JournalAttachmentsPanel entryId={entryId} canManage={canManageAttachments} />
 
-            {(canReverse || canForceDelete) && (
+            {(canReverse || canAccountingDelete) && (
               <div className="journal-details-admin-actions">
                 {canReverse && details.status === 'posted' && (
                   <button
@@ -155,14 +161,14 @@ export function JournalDetailsDialog({
                     عكس القيد
                   </button>
                 )}
-                {canForceDelete && details.status === 'draft' && (
+                {canAccountingDelete && details.status !== 'reversed' && (
                   <button
                     type="button"
                     className="journal-force-delete-btn"
                     onClick={() => setConfirmMode('delete')}
                   >
                     <Trash2 size={15} />
-                    حذف نهائي
+                    حذف محاسبي
                   </button>
                 )}
               </div>
@@ -219,8 +225,9 @@ export function JournalDetailsDialog({
             <div className="journal-force-delete-warning">
               <AlertTriangle size={22} />
               <p>
-                هذا الإجراء <strong>لا يمكن التراجع عنه</strong>. سيُحذف القيد وقيده اليومي نهائيًا ويُسجَّل
-                في سجل المراجعة.
+                استخدم هذا الخيار فقط لتصحيح <strong>خطأ إدخال لم تحدث حركته فعليًا</strong>. سيختفي القيد من
+                اليومية والمشروع والتقارير، وتُلغى حركة الخزنة أو البنك المرتبطة ويعود الرصيد، مع الاحتفاظ
+                بنسخة كاملة في سجل المراجعة.
               </p>
             </div>
 
@@ -231,7 +238,7 @@ export function JournalDetailsDialog({
                 onChange={(event) => setReason(event.target.value)}
                 placeholder="اكتب سبب الحذف..."
                 rows={3}
-                disabled={isForceDeleting}
+                disabled={isAccountingDeleting}
               />
             </label>
 
@@ -241,30 +248,32 @@ export function JournalDetailsDialog({
                 value={confirmText}
                 onChange={(event) => setConfirmText(event.target.value)}
                 placeholder="DELETE"
-                disabled={isForceDeleting}
+                disabled={isAccountingDeleting}
                 dir="ltr"
               />
             </label>
 
-            {forceDeleteError && <div className="journal-force-delete-error">{forceDeleteError}</div>}
+            {accountingDeleteError && (
+              <div className="journal-force-delete-error">{accountingDeleteError}</div>
+            )}
 
             <div className="journal-force-delete-footer">
               <button
                 type="button"
                 className="journal-force-delete-cancel"
                 onClick={resetConfirm}
-                disabled={isForceDeleting}
+                disabled={isAccountingDeleting}
               >
                 إلغاء
               </button>
               <button
                 type="button"
                 className="journal-force-delete-confirm"
-                onClick={handleForceDelete}
+                onClick={handleAccountingDelete}
                 disabled={!canDelete}
               >
                 <Trash2 size={15} />
-                {isForceDeleting ? 'جارٍ الحذف...' : 'تأكيد الحذف النهائي'}
+                {isAccountingDeleting ? 'جارٍ الحذف المحاسبي...' : 'تأكيد الحذف المحاسبي'}
               </button>
             </div>
           </div>

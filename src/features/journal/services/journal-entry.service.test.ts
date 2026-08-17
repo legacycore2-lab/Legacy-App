@@ -2,13 +2,13 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   validateSingleLineEntry,
   buildJournalPreview,
-  forceDeleteEntry,
+  accountingDeleteEntry,
   getLocalDateInputValue,
   submitSingleLineEntry,
 } from './journal-entry.service'
 import {
   findSingleLineCashBankLink,
-  findJournalStatus,
+  accountingDeleteJournalEntry,
   ensureSingleLineCashBankMovement,
   postSingleLineEntry,
 } from '../repositories/journal.repository'
@@ -16,7 +16,7 @@ import type { SingleLineJournalInput } from '../types/journal-entry.types'
 
 // Mock the repository so tests don't hit Supabase
 vi.mock('../repositories/journal.repository', () => ({
-  forceDeleteJournalEntry: vi.fn().mockResolvedValue(undefined),
+  accountingDeleteJournalEntry: vi.fn().mockResolvedValue(undefined),
   postSingleLineEntry: vi.fn().mockResolvedValue('entry-id-123'),
   findSingleLineCashBankLink: vi
     .fn()
@@ -25,7 +25,6 @@ vi.mock('../repositories/journal.repository', () => ({
   findJournalPostingOptions: vi.fn().mockResolvedValue({ projects: [], accounts: [] }),
   subscribeToJournalPostingOptionChanges: vi.fn().mockReturnValue(() => {}),
   findJournalReversalContext: vi.fn(),
-  findJournalStatus: vi.fn().mockResolvedValue('draft'),
   findReversalJournalId: vi.fn(),
   ensureJournalCashBankReversal: vi.fn(),
 }))
@@ -209,33 +208,27 @@ describe('submitSingleLineEntry', () => {
 })
 
 // ---------------------------------------------------------------------------
-// forceDeleteEntry
+// accountingDeleteEntry
 // ---------------------------------------------------------------------------
-describe('forceDeleteEntry', () => {
+describe('accountingDeleteEntry', () => {
   it('throws when entryId is empty', async () => {
-    await expect(forceDeleteEntry('', 'سبب الحذف')).rejects.toThrow('معرّف القيد مطلوب.')
+    await expect(accountingDeleteEntry('', 'سبب الحذف')).rejects.toThrow('معرّف القيد مطلوب.')
   })
 
   it('throws when reason is less than 5 characters', async () => {
-    await expect(forceDeleteEntry('entry-1', 'قصر')).rejects.toThrow(
+    await expect(accountingDeleteEntry('entry-1', 'قصر')).rejects.toThrow(
       'سبب الحذف يجب أن يكون 5 أحرف على الأقل.',
     )
   })
 
   it('throws when reason is only whitespace', async () => {
-    await expect(forceDeleteEntry('entry-1', '     ')).rejects.toThrow(
+    await expect(accountingDeleteEntry('entry-1', '     ')).rejects.toThrow(
       'سبب الحذف يجب أن يكون 5 أحرف على الأقل.',
     )
   })
 
-  it('resolves when entryId and reason are valid', async () => {
-    await expect(forceDeleteEntry('entry-1', 'خطأ في البيانات')).resolves.toBeUndefined()
-  })
-
-  it('refuses to permanently delete a posted entry', async () => {
-    vi.mocked(findJournalStatus).mockResolvedValueOnce('posted')
-    await expect(forceDeleteEntry('entry-1', 'خطأ في البيانات')).rejects.toThrow(
-      'Posted or reversed entries must be reversed, not deleted.',
-    )
+  it('delegates a valid accounting deletion to the atomic repository RPC', async () => {
+    await expect(accountingDeleteEntry('entry-1', 'خطأ في البيانات')).resolves.toBeUndefined()
+    expect(accountingDeleteJournalEntry).toHaveBeenCalledWith('entry-1', 'خطأ في البيانات')
   })
 })

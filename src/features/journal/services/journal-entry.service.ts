@@ -2,9 +2,8 @@ import {
   findSingleLineCashBankLink,
   findJournalReversalContext,
   findJournalPostingOptions,
-  findJournalStatus,
   findReversalJournalId,
-  forceDeleteJournalEntry,
+  accountingDeleteJournalEntry,
   postSingleLineEntry,
   reverseJournalEntry,
   subscribeToJournalPostingOptionChanges,
@@ -124,10 +123,8 @@ export async function reverseEntry(entryId: string): Promise<string> {
   return reversalEntryId
 }
 
-export async function forceDeleteEntry(entryId: string, reason: string): Promise<void> {
+export async function accountingDeleteEntry(entryId: string, reason: string): Promise<void> {
   if (!entryId) throw new Error('معرّف القيد مطلوب.')
   if (reason.trim().length < 5) throw new Error('سبب الحذف يجب أن يكون 5 أحرف على الأقل.')
-  const status = await findJournalStatus(entryId)
-  if (status !== 'draft') throw new Error('Posted or reversed entries must be reversed, not deleted.')
-  return forceDeleteJournalEntry(entryId, reason)
+  return accountingDeleteJournalEntry(entryId, reason)
 }

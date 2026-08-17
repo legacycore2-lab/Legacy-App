@@ -295,25 +295,12 @@ export async function reverseJournalEntry(entryId: string): Promise<string> {
   return data
 }
 
-export async function forceDeleteJournalEntry(entryId: string, reason: string): Promise<void> {
-  const { error } = await getSupabaseClient().rpc('force_delete_single_line_entry', {
+export async function accountingDeleteJournalEntry(entryId: string, reason: string): Promise<void> {
+  const { error } = await getSupabaseClient().rpc('accounting_delete_single_line_entry', {
     p_entry_id: entryId,
     p_reason: reason.trim(),
   })
   if (error) throw error
-}
-
-export async function findJournalStatus(
-  entryId: string,
-): Promise<JournalReversalContext['originalJournalStatus']> {
-  const { data, error } = await getSupabaseClient()
-    .from('journals')
-    .select('status')
-    .eq('source_type', 'single_line_entry')
-    .eq('source_id', entryId)
-    .single()
-  if (error) throw error
-  return (data as { status: JournalReversalContext['originalJournalStatus'] }).status
 }
 
 export async function findJournalReversalContext(entryId: string): Promise<JournalReversalContext> {
