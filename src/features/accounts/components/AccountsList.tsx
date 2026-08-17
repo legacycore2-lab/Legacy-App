@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronLeft, Plus, Search } from 'lucide-react'
+import { ChevronDown, ChevronLeft, Plus, Search, Trash2 } from 'lucide-react'
 import { accountTypes, getAccountTypeLabel } from '../data/account-options'
 import type { Account, AccountType } from '../types/accounts.types'
 
@@ -7,6 +7,7 @@ type Props = {
   search: string
   type: AccountType | 'all'
   isLoading: boolean
+  isDeleting: boolean
   expandedIds: Set<string>
   onSearchChange: (value: string) => void
   onTypeChange: (value: AccountType | 'all') => void
@@ -14,6 +15,7 @@ type Props = {
   onCreate: () => void
   onEdit: (account: Account) => void
   onToggle: (id: string, active: boolean) => void
+  onDelete: (id: string) => Promise<unknown>
 }
 
 type TreeRow = {
@@ -62,6 +64,7 @@ export function AccountsList({
   search,
   type,
   isLoading,
+  isDeleting,
   expandedIds,
   onSearchChange,
   onTypeChange,
@@ -69,6 +72,7 @@ export function AccountsList({
   onCreate,
   onEdit,
   onToggle,
+  onDelete,
 }: Props) {
   const expandAll = search.trim().length > 0
 
@@ -226,6 +230,25 @@ export function AccountsList({
                             onClick={() => onToggle(account.id, !account.isActive)}
                           >
                             {account.isActive ? 'إيقاف' : 'تفعيل'}
+                          </button>
+                          <button
+                            type="button"
+                            className="account-action-secondary"
+                            disabled={isDeleting}
+                            style={{ borderColor: '#b42318', color: '#b42318' }}
+                            onClick={() => {
+                              if (
+                                window.confirm(
+                                  `حذف الحساب «${account.nameAr}»؟ لن يتم الحذف إذا كان الحساب مستخدمًا في قيود أو حركات مالية أو يحتوي على حسابات فرعية.`,
+                                )
+                              ) {
+                                void onDelete(account.id)
+                              }
+                            }}
+                            aria-label={`حذف حساب ${account.nameAr}`}
+                          >
+                            <Trash2 size={14} aria-hidden="true" />
+                            حذف
                           </button>
                         </div>
                       </article>
