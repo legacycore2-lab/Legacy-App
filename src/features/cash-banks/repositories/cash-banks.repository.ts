@@ -195,6 +195,14 @@ export async function deactivateCashBankAccount(id: string): Promise<void> {
   if (error) throw new AppError(error.message, 'CASH_BANK_ACCOUNT_DEACTIVATE_FAILED')
 }
 
+export async function deleteUnusedCashBankAccount(id: string): Promise<void> {
+  const { error } = await getSupabaseClient().rpc('delete_unused_cash_bank_account', {
+    p_cash_bank_account_id: id,
+  })
+
+  if (error) throw new AppError(error.message, 'CASH_BANK_ACCOUNT_DELETE_FAILED')
+}
+
 export async function findDepositDestinationAccounts(): Promise<CashBankDepositAccountOption[]> {
   const { data, error } = await getSupabaseClient()
     .from('cash_bank_accounts')

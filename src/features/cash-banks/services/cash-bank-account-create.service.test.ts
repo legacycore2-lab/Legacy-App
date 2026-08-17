@@ -3,16 +3,18 @@ import {
   checkDuplicateAccountName,
   createCashBankAccount,
   createCashBankAccountWithLedger,
+  deleteUnusedCashBankAccount,
   updateCashBankAccount,
 } from '../repositories/cash-banks.repository'
 import type { CashBankAccountInput } from '../types/cash-banks.types'
-import { saveCashBankAccount } from './cash-banks.service'
+import { removeUnusedCashBankAccount, saveCashBankAccount } from './cash-banks.service'
 
 vi.mock('../repositories/cash-banks.repository', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../repositories/cash-banks.repository')>()),
   checkDuplicateAccountName: vi.fn(),
   createCashBankAccount: vi.fn(),
   createCashBankAccountWithLedger: vi.fn(),
+  deleteUnusedCashBankAccount: vi.fn(),
   updateCashBankAccount: vi.fn(),
 }))
 
@@ -65,5 +67,19 @@ describe('saveCashBankAccount creation mode', () => {
       expect.not.objectContaining({ ledger_account_id: expect.anything() }),
     )
     expect(createCashBankAccountWithLedger).not.toHaveBeenCalled()
+  })
+})
+
+describe('removeUnusedCashBankAccount', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('requires an account identifier', async () => {
+    await expect(removeUnusedCashBankAccount('')).rejects.toThrow('معرّف الحساب مطلوب.')
+    expect(deleteUnusedCashBankAccount).not.toHaveBeenCalled()
+  })
+
+  it('uses the atomic delete RPC path', async () => {
+    await removeUnusedCashBankAccount('cash-bank-1')
+    expect(deleteUnusedCashBankAccount).toHaveBeenCalledWith('cash-bank-1')
   })
 })
