@@ -135,7 +135,7 @@ export function CashBankAccountDialog({ form }: { form: CashBankAccountFormState
           )}
 
           <footer>
-            {form.isEditing && (
+            {form.isEditing && form.value.isActive && (
               <button type="button" className="cash-bank-danger" onClick={() => void form.deactivate()}>
                 <Trash2 size={17} />
                 إلغاء تفعيل الحساب
