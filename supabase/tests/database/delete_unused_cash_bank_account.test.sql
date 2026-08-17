@@ -36,8 +36,6 @@ declare
 begin
   insert into auth.users (id, email, raw_app_meta_data)
   values (v_user_id, 'delete-account-test@example.com', '{"role":"admin"}'::jsonb);
-  insert into public.users (id, email, full_name, role, status)
-  values (v_user_id, 'delete-account-test@example.com', 'Delete Account Test', 'admin', 'active');
   execute 'set local role authenticated';
   perform set_config(
     'request.jwt.claims',
