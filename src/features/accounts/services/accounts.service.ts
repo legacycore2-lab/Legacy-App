@@ -122,10 +122,7 @@ export async function removeAccount(id: string, accounts: Account[]): Promise<vo
     await deleteAccount(id)
   } catch (error) {
     const message = error instanceof Error ? error.message.toLowerCase() : ''
-    if (
-      message.includes('foreign key') ||
-      message.includes('violates foreign key constraint')
-    ) {
+    if (message.includes('foreign key') || message.includes('violates foreign key constraint')) {
       throw new DataValidationError(
         'لا يمكن حذف الحساب لأنه مستخدم في قيود أو حركات مالية. يمكنك إيقافه بدلًا من الحذف.',
       )
