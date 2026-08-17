@@ -113,19 +113,18 @@ export async function removeAccount(id: string, accounts: Account[]): Promise<vo
   const account = accounts.find((candidate) => candidate.id === id)
   if (!account) throw new DataValidationError('الحساب غير موجود.')
   if (accounts.some((candidate) => candidate.parentId === id)) {
-    throw new DataValidationError(
-      'لا يمكن حذف حساب يحتوي على حسابات فرعية. احذف أو انقل الفروع أولًا.',
-    )
+    throw new DataValidationError('لا يمكن حذف حساب يحتوي على حسابات فرعية. احذف أو انقل الفروع أولًا.')
   }
 
   try {
     await deleteAccount(id)
   } catch (error) {
     const message = error instanceof Error ? error.message.toLowerCase() : ''
-    if (message.includes('foreign key') || message.includes('violates foreign key constraint')) {
-      throw new DataValidationError(
-        'لا يمكن حذف الحساب لأنه مستخدم في قيود أو حركات مالية. يمكنك إيقافه بدلًا من الحذف.',
-      )
+    if (
+      message.includes('foreign key') ||
+      message.includes('violates foreign key constraint')
+    ) {
+      throw new DataValidationError('لا يمكن حذف الحساب لأنه مستخدم في قيود أو حركات مالية. يمكنك إيقافه بدلًا من الحذف.')
     }
     throw error
   }
