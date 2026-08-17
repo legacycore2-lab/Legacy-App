@@ -8,6 +8,7 @@ import {
 } from './journal-entry.service'
 import {
   findSingleLineCashBankLink,
+  findJournalStatus,
   ensureSingleLineCashBankMovement,
   postSingleLineEntry,
 } from '../repositories/journal.repository'
@@ -23,6 +24,10 @@ vi.mock('../repositories/journal.repository', () => ({
   ensureSingleLineCashBankMovement: vi.fn().mockResolvedValue(undefined),
   findJournalPostingOptions: vi.fn().mockResolvedValue({ projects: [], accounts: [] }),
   subscribeToJournalPostingOptionChanges: vi.fn().mockReturnValue(() => {}),
+  findJournalReversalContext: vi.fn(),
+  findJournalStatus: vi.fn().mockResolvedValue('draft'),
+  findReversalJournalId: vi.fn(),
+  ensureJournalCashBankReversal: vi.fn(),
 }))
 
 const validInput: SingleLineJournalInput = {
@@ -225,5 +230,12 @@ describe('forceDeleteEntry', () => {
 
   it('resolves when entryId and reason are valid', async () => {
     await expect(forceDeleteEntry('entry-1', 'خطأ في البيانات')).resolves.toBeUndefined()
+  })
+
+  it('refuses to permanently delete a posted entry', async () => {
+    vi.mocked(findJournalStatus).mockResolvedValueOnce('posted')
+    await expect(forceDeleteEntry('entry-1', 'خطأ في البيانات')).rejects.toThrow(
+      'Posted or reversed entries must be reversed, not deleted.',
+    )
   })
 })

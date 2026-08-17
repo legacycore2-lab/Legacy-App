@@ -29,3 +29,19 @@ change.
 Advance issuance is intentionally unchanged. `post_advance` already calls
 `post_cash_bank_withdrawal` inside its database transaction, so adding application-side propagation
 would duplicate both the movement and its balance impact.
+
+## Reversal and deletion
+
+Posted single-line entries follow the accounting golden rule: they are immutable and can only be
+reversed. When the entry has a linked operational Cash & Banks movement, the application creates
+one inverse movement and links it to the journal already produced by `reverse_journal_entry`. It
+does not call the standalone Cash & Banks reversal RPC, because that RPC would create another
+journal and double the ledger reversal. Retries first discover the existing journal and movement
+reversal links, so they complete missing work without duplicating either record.
+
+Permanent deletion is exposed only for draft journals. Posted and reversed journals retain their
+original record, actor and timestamps as the audit trail.
+
+Because schema and RPC changes are out of scope, journal reversal and operational movement reversal
+remain two Supabase requests. A failure between them is recoverable by retrying the same action, but
+the operation is not fully atomic. A future database RPC is required for all-or-nothing execution.

@@ -54,3 +54,29 @@ export type JournalCashBankMovementPayload = {
   referenceNumber: string
   journalId: string
 }
+
+export type JournalReversalContext = {
+  originalJournalId: string
+  originalJournalStatus: 'draft' | 'posted' | 'reversed'
+  reversalEntryId: string | null
+  originalMovement: {
+    id: string
+    transactionType: 'deposit' | 'withdrawal'
+    sourceAccountId: string | null
+    destinationAccountId: string | null
+    amount: number
+    referenceNumber: string | null
+  } | null
+  movementAlreadyReversed: boolean
+}
+
+export type JournalCashBankReversalPayload = {
+  originalMovementId: string
+  reversalJournalId: string
+  transactionDate: string
+  transactionType: 'deposit' | 'withdrawal'
+  sourceAccountId: string | null
+  destinationAccountId: string | null
+  amount: number
+  referenceNumber: string | null
+}

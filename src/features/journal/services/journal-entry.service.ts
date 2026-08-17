@@ -1,11 +1,15 @@
 import {
   findSingleLineCashBankLink,
+  findJournalReversalContext,
   findJournalPostingOptions,
+  findJournalStatus,
+  findReversalJournalId,
   forceDeleteJournalEntry,
   postSingleLineEntry,
   reverseJournalEntry,
   subscribeToJournalPostingOptionChanges,
   ensureSingleLineCashBankMovement,
+  ensureJournalCashBankReversal,
 } from '../repositories/journal.repository'
 import type {
   JournalPostingOptions,
@@ -93,11 +97,37 @@ export function watchJournalPostingOptions(onChange: () => void): () => void {
 
 export async function reverseEntry(entryId: string): Promise<string> {
   if (!entryId) throw new Error('معرّف القيد مطلوب.')
-  return reverseJournalEntry(entryId)
+  const context = await findJournalReversalContext(entryId)
+  let reversalEntryId = context.reversalEntryId
+
+  if (context.originalJournalStatus === 'posted') {
+    reversalEntryId = await reverseJournalEntry(entryId)
+  } else if (context.originalJournalStatus !== 'reversed' || !reversalEntryId) {
+    throw new Error('Only posted entries can be reversed.')
+  }
+
+  if (context.originalMovement && !context.movementAlreadyReversed) {
+    const reversalJournalId = await findReversalJournalId(reversalEntryId)
+    const isDeposit = context.originalMovement.transactionType === 'deposit'
+    await ensureJournalCashBankReversal({
+      originalMovementId: context.originalMovement.id,
+      reversalJournalId,
+      transactionDate: getLocalDateInputValue(),
+      transactionType: isDeposit ? 'withdrawal' : 'deposit',
+      sourceAccountId: isDeposit ? context.originalMovement.destinationAccountId : null,
+      destinationAccountId: isDeposit ? null : context.originalMovement.sourceAccountId,
+      amount: context.originalMovement.amount,
+      referenceNumber: context.originalMovement.referenceNumber,
+    })
+  }
+
+  return reversalEntryId
 }
 
 export async function forceDeleteEntry(entryId: string, reason: string): Promise<void> {
   if (!entryId) throw new Error('معرّف القيد مطلوب.')
   if (reason.trim().length < 5) throw new Error('سبب الحذف يجب أن يكون 5 أحرف على الأقل.')
+  const status = await findJournalStatus(entryId)
+  if (status !== 'draft') throw new Error('Posted or reversed entries must be reversed, not deleted.')
   return forceDeleteJournalEntry(entryId, reason)
 }

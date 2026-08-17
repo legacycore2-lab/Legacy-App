@@ -3,6 +3,8 @@ import { subscribeToTableChanges } from '../../../lib/supabase/realtime'
 import type {
   JournalCashBankLink,
   JournalCashBankMovementPayload,
+  JournalCashBankReversalPayload,
+  JournalReversalContext,
   JournalPostingAccountOption,
   JournalPostingOptions,
   JournalPostingProjectOption,
@@ -299,4 +301,125 @@ export async function forceDeleteJournalEntry(entryId: string, reason: string): 
     p_reason: reason.trim(),
   })
   if (error) throw error
+}
+
+export async function findJournalStatus(
+  entryId: string,
+): Promise<JournalReversalContext['originalJournalStatus']> {
+  const { data, error } = await getSupabaseClient()
+    .from('journals')
+    .select('status')
+    .eq('source_type', 'single_line_entry')
+    .eq('source_id', entryId)
+    .single()
+  if (error) throw error
+  return (data as { status: JournalReversalContext['originalJournalStatus'] }).status
+}
+
+export async function findJournalReversalContext(entryId: string): Promise<JournalReversalContext> {
+  const client = getSupabaseClient()
+  const journalResult = await client
+    .from('journals')
+    .select('id,status')
+    .eq('source_type', 'single_line_entry')
+    .eq('source_id', entryId)
+    .single()
+
+  if (journalResult.error) throw journalResult.error
+  const journal = journalResult.data as {
+    id: string
+    status: JournalReversalContext['originalJournalStatus']
+  }
+  const [reversalResult, movementResult] = await Promise.all([
+    client.from('journals').select('source_id').eq('reversal_of', journal.id).maybeSingle(),
+    client
+      .from('cash_bank_transactions')
+      .select('id,transaction_type,source_account_id,destination_account_id,amount,reference_number')
+      .eq('journal_id', journal.id)
+      .maybeSingle(),
+  ])
+  if (reversalResult.error) throw reversalResult.error
+  if (movementResult.error) throw movementResult.error
+
+  const reversal = reversalResult.data as { source_id: string } | null
+  const movement = movementResult.data as {
+    id: string
+    transaction_type: 'deposit' | 'withdrawal'
+    source_account_id: string | null
+    destination_account_id: string | null
+    amount: number | string
+    reference_number: string | null
+  } | null
+  let movementAlreadyReversed = false
+
+  if (movement) {
+    const existingResult = await client
+      .from('cash_bank_transactions')
+      .select('id')
+      .eq('reversal_of_transaction_id', movement.id)
+      .maybeSingle()
+    if (existingResult.error) throw existingResult.error
+    movementAlreadyReversed = Boolean(existingResult.data)
+  }
+
+  return {
+    originalJournalId: journal.id,
+    originalJournalStatus: journal.status,
+    reversalEntryId: reversal?.source_id ?? null,
+    originalMovement: movement
+      ? {
+          id: movement.id,
+          transactionType: movement.transaction_type,
+          sourceAccountId: movement.source_account_id,
+          destinationAccountId: movement.destination_account_id,
+          amount: Number(movement.amount),
+          referenceNumber: movement.reference_number,
+        }
+      : null,
+    movementAlreadyReversed,
+  }
+}
+
+export async function findReversalJournalId(reversalEntryId: string): Promise<string> {
+  const { data, error } = await getSupabaseClient()
+    .from('journals')
+    .select('id')
+    .eq('source_type', 'single_line_entry')
+    .eq('source_id', reversalEntryId)
+    .single()
+  if (error) throw error
+  return (data as { id: string }).id
+}
+
+export async function ensureJournalCashBankReversal(payload: JournalCashBankReversalPayload): Promise<void> {
+  const client = getSupabaseClient()
+  const findExisting = () =>
+    client
+      .from('cash_bank_transactions')
+      .select('id')
+      .eq('reversal_of_transaction_id', payload.originalMovementId)
+      .maybeSingle()
+  const existing = await findExisting()
+  if (existing.error) throw existing.error
+  if (existing.data) return
+
+  const { error } = await client.from('cash_bank_transactions').insert({
+    client_request_id: crypto.randomUUID(),
+    transaction_date: payload.transactionDate,
+    transaction_type: payload.transactionType,
+    source_account_id: payload.sourceAccountId,
+    destination_account_id: payload.destinationAccountId,
+    amount: payload.amount,
+    description: 'Journal entry reversal',
+    reference_number: payload.referenceNumber,
+    status: 'posted',
+    journal_id: payload.reversalJournalId,
+    posted_at: new Date().toISOString(),
+    reversal_of_transaction_id: payload.originalMovementId,
+  })
+  if (!error) return
+  if (error.code !== '23505') throw error
+  const retry = await findExisting()
+  if (retry.error) throw retry.error
+  if (!retry.data) throw error
 }
