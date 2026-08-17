@@ -163,6 +163,25 @@ export function CashBankAccountDialog({ form }: { form: CashBankAccountFormState
           )}
 
           <footer>
+            {form.isEditing && (
+              <button
+                type="button"
+                className="cash-bank-danger"
+                disabled={form.isSaving}
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      'سيُحذف الحساب نهائيًا، وسيُحذف حساب الأستاذ إذا كان النظام قد أنشأه تلقائيًا. لن يتم الحذف عند وجود حركة أو رصيد افتتاحي. هل تريد المتابعة؟',
+                    )
+                  ) {
+                    void form.deleteUnused()
+                  }
+                }}
+              >
+                <Trash2 size={17} />
+                حذف الحساب
+              </button>
+            )}
             {form.isEditing && form.value.isActive && (
               <button type="button" className="cash-bank-danger" onClick={() => void form.deactivate()}>
                 <Trash2 size={17} />

@@ -5,6 +5,7 @@ import {
   disableCashBankAccount,
   getCashBankAccount,
   getCashBankLedgerAccounts,
+  removeUnusedCashBankAccount,
   saveCashBankAccount,
   validateCashBankAccountInput,
 } from '../services/cash-banks.service'
@@ -52,6 +53,10 @@ export function useCashBankAccountForm(): CashBankAccountFormState {
     mutationFn: (id: string) => disableCashBankAccount(id),
     onSuccess: finish,
   })
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => removeUnusedCashBankAccount(id),
+    onSuccess: finish,
+  })
   const loadMutation = useMutation({
     mutationFn: getCashBankAccount,
     onSuccess: (account) => {
@@ -73,6 +78,7 @@ export function useCashBankAccountForm(): CashBankAccountFormState {
   const reset = () => {
     saveMutation.reset()
     deactivateMutation.reset()
+    deleteMutation.reset()
     loadMutation.reset()
   }
 
@@ -84,11 +90,23 @@ export function useCashBankAccountForm(): CashBankAccountFormState {
     errors,
     submitted,
     isLoading: loadMutation.isPending,
-    isSaving: saveMutation.isPending || deactivateMutation.isPending || loadMutation.isPending,
+    isSaving:
+      saveMutation.isPending ||
+      deactivateMutation.isPending ||
+      deleteMutation.isPending ||
+      loadMutation.isPending,
     saveError:
-      saveMutation.error || deactivateMutation.error || loadMutation.error || ledgerQuery.error
+      saveMutation.error ||
+      deactivateMutation.error ||
+      deleteMutation.error ||
+      loadMutation.error ||
+      ledgerQuery.error
         ? toErrorMessage(
-            saveMutation.error || deactivateMutation.error || loadMutation.error || ledgerQuery.error,
+            saveMutation.error ||
+              deactivateMutation.error ||
+              deleteMutation.error ||
+              loadMutation.error ||
+              ledgerQuery.error,
             'تعذر حفظ حساب الخزنة أو البنك.',
           )
         : '',
@@ -112,7 +130,7 @@ export function useCashBankAccountForm(): CashBankAccountFormState {
       await loadMutation.mutateAsync(id).catch(() => undefined)
     },
     close: () => {
-      if (saveMutation.isPending || deactivateMutation.isPending) return
+      if (saveMutation.isPending || deactivateMutation.isPending || deleteMutation.isPending) return
       setIsOpen(false)
       reset()
     },
@@ -124,6 +142,10 @@ export function useCashBankAccountForm(): CashBankAccountFormState {
     deactivate: async () => {
       if (!editingId || deactivateMutation.isPending) return
       await deactivateMutation.mutateAsync(editingId).catch(() => undefined)
+    },
+    deleteUnused: async () => {
+      if (!editingId || deleteMutation.isPending) return
+      await deleteMutation.mutateAsync(editingId).catch(() => undefined)
     },
   }
 }

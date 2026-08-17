@@ -247,6 +247,7 @@ export interface CashBankAccountFormState {
   close: () => void
   submit: () => Promise<void>
   deactivate: () => Promise<void>
+  deleteUnused: () => Promise<void>
   errors: string[]
   submitted: boolean
   isLoading: boolean

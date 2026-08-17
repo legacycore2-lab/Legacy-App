@@ -4,6 +4,7 @@ import {
   createCashBankAccount,
   createCashBankAccountWithLedger,
   deactivateCashBankAccount,
+  deleteUnusedCashBankAccount,
   findAvailableLedgerAccounts,
   findDepositDestinationAccounts,
   findDepositOffsetAccounts,
@@ -158,6 +159,11 @@ export async function saveCashBankAccount(input: CashBankAccountInput, id?: stri
 export async function disableCashBankAccount(id: string): Promise<void> {
   if (!id) throw new DataValidationError('معرّف الحساب مطلوب.')
   await deactivateCashBankAccount(id)
+}
+
+export async function removeUnusedCashBankAccount(id: string): Promise<void> {
+  if (!id) throw new DataValidationError('معرّف الحساب مطلوب.')
+  await deleteUnusedCashBankAccount(id)
 }
 
 export function validateCashBankDepositInput(
