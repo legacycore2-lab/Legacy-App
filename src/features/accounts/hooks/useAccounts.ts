@@ -1,7 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
-import { getAccounts, toggleAccount, upsertAccount, watchAccounts } from '../services/accounts.service'
+import {
+  getAccounts,
+  removeAccount,
+  toggleAccount,
+  upsertAccount,
+  watchAccounts,
+} from '../services/accounts.service'
 import type { Account, AccountInput, AccountType } from '../types/accounts.types'
 
 export function useAccounts() {
@@ -64,6 +70,11 @@ export function useAccounts() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['accounts'] }),
   })
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => removeAccount(id, accounts),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['accounts'] }),
+  })
+
   const openCreate = () => {
     setEditing(null)
     setIsEditorOpen(true)
@@ -104,14 +115,18 @@ export function useAccounts() {
     onToggleExpanded: toggleExpanded,
     onSave: (input: AccountInput) => saveMutation.mutateAsync(input),
     onToggle: (id: string, active: boolean) => toggleMutation.mutate({ id, active }),
+    onDelete: (id: string) => deleteMutation.mutateAsync(id),
     isLoading: query.isLoading,
     isSaving: saveMutation.isPending,
+    isDeleting: deleteMutation.isPending,
     error: query.error
       ? toErrorMessage(query.error, 'تعذر تحميل دليل الحسابات.')
       : saveMutation.error
         ? toErrorMessage(saveMutation.error, 'تعذر حفظ الحساب.')
         : toggleMutation.error
           ? toErrorMessage(toggleMutation.error, 'تعذر تغيير حالة الحساب.')
-          : '',
+          : deleteMutation.error
+            ? toErrorMessage(deleteMutation.error, 'تعذر حذف الحساب.')
+            : '',
   }
 }
