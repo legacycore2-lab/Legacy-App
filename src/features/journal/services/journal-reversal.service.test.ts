@@ -8,7 +8,7 @@ import {
 
 vi.mock('../repositories/journal.repository', () => ({
   findJournalPostingOptions: vi.fn().mockResolvedValue({ projects: [], accounts: [] }),
-  forceDeleteJournalEntry: vi.fn().mockResolvedValue(undefined),
+  accountingDeleteJournalEntry: vi.fn().mockResolvedValue(undefined),
   postSingleLineEntry: vi.fn().mockResolvedValue('entry-id'),
   reverseJournalEntry: vi.fn().mockResolvedValue('reversal-entry-id'),
   findJournalReversalContext: vi.fn().mockResolvedValue({
@@ -18,7 +18,6 @@ vi.mock('../repositories/journal.repository', () => ({
     originalMovement: null,
     movementAlreadyReversed: false,
   }),
-  findJournalStatus: vi.fn().mockResolvedValue('draft'),
   findReversalJournalId: vi.fn().mockResolvedValue('reversal-journal-id'),
   ensureJournalCashBankReversal: vi.fn().mockResolvedValue(undefined),
   subscribeToJournalPostingOptionChanges: vi.fn().mockReturnValue(() => {}),

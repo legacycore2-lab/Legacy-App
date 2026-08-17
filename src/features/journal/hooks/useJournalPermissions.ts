@@ -8,6 +8,6 @@ export function useJournalPermissions() {
   return {
     canReverse: isFinance,
     canManageAttachments: isFinance,
-    canForceDelete: role === 'admin' || role === 'super_admin',
+    canAccountingDelete: role === 'admin' || role === 'super_admin',
   }
 }

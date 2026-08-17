@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toErrorMessage } from '../../../shared/errors/app-error'
-import { forceDeleteEntry, reverseEntry } from '../services/journal-entry.service'
+import { accountingDeleteEntry, reverseEntry } from '../services/journal-entry.service'
 
 export function useJournalActions() {
   const queryClient = useQueryClient()
@@ -22,9 +22,9 @@ export function useJournalActions() {
     onSuccess: invalidate,
   })
 
-  const forceDeleteMutation = useMutation({
+  const accountingDeleteMutation = useMutation({
     mutationFn: ({ entryId, reason }: { entryId: string; reason: string }) =>
-      forceDeleteEntry(entryId, reason),
+      accountingDeleteEntry(entryId, reason),
     onSuccess: invalidate,
   })
 
@@ -32,11 +32,11 @@ export function useJournalActions() {
     reverseEntry: (entryId: string) => reverseMutation.mutateAsync(entryId),
     isReversing: reverseMutation.isPending,
     reverseError: reverseMutation.error ? toErrorMessage(reverseMutation.error, 'تعذر عكس القيد.') : '',
-    forceDeleteEntry: (entryId: string, reason: string) =>
-      forceDeleteMutation.mutateAsync({ entryId, reason }),
-    isForceDeleting: forceDeleteMutation.isPending,
-    forceDeleteError: forceDeleteMutation.error
-      ? toErrorMessage(forceDeleteMutation.error, 'تعذر حذف القيد نهائيًا.')
+    accountingDeleteEntry: (entryId: string, reason: string) =>
+      accountingDeleteMutation.mutateAsync({ entryId, reason }),
+    isAccountingDeleting: accountingDeleteMutation.isPending,
+    accountingDeleteError: accountingDeleteMutation.error
+      ? toErrorMessage(accountingDeleteMutation.error, 'تعذر حذف القيد محاسبيًا.')
       : '',
   }
 }

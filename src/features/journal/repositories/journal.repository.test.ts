@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getSupabaseClient } from '../../../lib/supabase/client'
-import { ensureSingleLineCashBankMovement } from './journal.repository'
+import { accountingDeleteJournalEntry, ensureSingleLineCashBankMovement } from './journal.repository'
 import type { JournalCashBankMovementPayload } from '../types/journal-entry.types'
 
 vi.mock('../../../lib/supabase/client', () => ({
@@ -87,5 +87,30 @@ describe('ensureSingleLineCashBankMovement', () => {
     } as never)
 
     await expect(ensureSingleLineCashBankMovement(payload)).rejects.toBe(failure)
+  })
+})
+
+describe('accountingDeleteJournalEntry', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('calls the atomic accounting-delete RPC with a trimmed reason', async () => {
+    const rpc = vi.fn().mockResolvedValue({ error: null })
+    vi.mocked(getSupabaseClient).mockReturnValue({ rpc } as never)
+
+    await accountingDeleteJournalEntry('entry-1', '  duplicate entry  ')
+
+    expect(rpc).toHaveBeenCalledWith('accounting_delete_single_line_entry', {
+      p_entry_id: 'entry-1',
+      p_reason: 'duplicate entry',
+    })
+  })
+
+  it('propagates accounting-delete RPC failures', async () => {
+    const failure = { code: '42501', message: 'permission denied' }
+    vi.mocked(getSupabaseClient).mockReturnValue({
+      rpc: vi.fn().mockResolvedValue({ error: failure }),
+    } as never)
+
+    await expect(accountingDeleteJournalEntry('entry-1', 'duplicate entry')).rejects.toBe(failure)
   })
 })

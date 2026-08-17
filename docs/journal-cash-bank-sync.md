@@ -39,9 +39,11 @@ does not call the standalone Cash & Banks reversal RPC, because that RPC would c
 journal and double the ledger reversal. Retries first discover the existing journal and movement
 reversal links, so they complete missing work without duplicating either record.
 
-Permanent deletion is exposed only for draft journals. Posted and reversed journals retain their
-original record, actor and timestamps as the audit trail.
+Administrators also have a separate accounting-delete action for exceptional data-entry mistakes
+that did not happen in reality. `accounting_delete_single_line_entry` removes the entry, journal,
+lines and linked operational movement in one database transaction, so project totals and Cash &
+Banks balances return to the state before the mistake. Complete entry, journal, line and movement
+snapshots remain in `journal_force_delete_audit` with the actor, timestamp and required reason.
 
-Because schema and RPC changes are out of scope, journal reversal and operational movement reversal
-remain two Supabase requests. A failure between them is recoverable by retrying the same action, but
-the operation is not fully atomic. A future database RPC is required for all-or-nothing execution.
+Accounting delete is rejected after an entry or its Cash & Banks movement has been reversed. Real
+transactions that later get cancelled must use reversal so the operational history remains visible.
