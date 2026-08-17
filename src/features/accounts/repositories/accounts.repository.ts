@@ -52,6 +52,12 @@ export async function setAccountActive(id: string, isActive: boolean): Promise<v
   if (error) throw error
 }
 
+export async function deleteAccount(id: string): Promise<void> {
+  const { error } = await getSupabaseClient().from('accounts').delete().eq('id', id)
+
+  if (error) throw error
+}
+
 export function subscribeToAccountChanges(onChange: () => void): () => void {
   return subscribeToTableChanges('accounts', ['accounts'], onChange)
 }
