@@ -2,6 +2,7 @@ import { DataValidationError } from '../../../shared/errors/app-error'
 import {
   checkDuplicateAccountName,
   createCashBankAccount,
+  createCashBankAccountWithLedger,
   deactivateCashBankAccount,
   findAvailableLedgerAccounts,
   findDepositDestinationAccounts,
@@ -53,7 +54,9 @@ export function validateCashBankAccountInput(input: CashBankAccountInput): strin
   const openingBalance = Number(input.openingBalance)
 
   if (!clean(input.name)) errors.push('اسم الحساب مطلوب.')
-  if (!input.ledgerAccountId) errors.push('حساب الأستاذ مطلوب.')
+  if (input.ledgerMode !== 'auto' && input.ledgerMode !== 'existing')
+    errors.push('طريقة إنشاء حساب الأستاذ غير صالحة.')
+  if (input.ledgerMode === 'existing' && !input.ledgerAccountId) errors.push('حساب الأستاذ مطلوب.')
   if (input.kind !== 'cash' && input.kind !== 'bank') errors.push('نوع الحساب غير صالح.')
   if (!Number.isFinite(openingBalance) || openingBalance < 0)
     errors.push('الرصيد الافتتاحي يجب ألا يقل عن صفر.')
@@ -132,8 +135,24 @@ export async function saveCashBankAccount(input: CashBankAccountInput, id?: stri
     throw new DataValidationError('يوجد حساب خزنة أو بنك بنفس الاسم.')
   }
 
-  if (id) await updateCashBankAccount(id, buildAccountUpdatePayload(payload))
-  else await createCashBankAccount(payload)
+  if (id) {
+    await updateCashBankAccount(id, buildAccountUpdatePayload(payload))
+  } else if (input.ledgerMode === 'auto') {
+    const atomicPayload: Omit<CashBankAccountPayload, 'ledger_account_id'> = {
+      name: payload.name,
+      account_kind: payload.account_kind,
+      bank_name: payload.bank_name,
+      account_number: payload.account_number,
+      iban: payload.iban,
+      branch_name: payload.branch_name,
+      opening_balance: payload.opening_balance,
+      currency_code: payload.currency_code,
+      is_active: payload.is_active,
+    }
+    await createCashBankAccountWithLedger(atomicPayload)
+  } else {
+    await createCashBankAccount(payload)
+  }
 }
 
 export async function disableCashBankAccount(id: string): Promise<void> {

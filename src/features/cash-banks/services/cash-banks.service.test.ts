@@ -4,6 +4,7 @@ import { buildAccountSummaries, buildMetrics, validateCashBankAccountInput } fro
 
 function validInput(overrides: Partial<CashBankAccountInput> = {}): CashBankAccountInput {
   return {
+    ledgerMode: 'existing',
     ledgerAccountId: 'ledger-1',
     name: 'الخزنة الرئيسية',
     kind: 'cash',

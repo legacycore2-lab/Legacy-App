@@ -1,6 +1,7 @@
 // ─── Domain enums ─────────────────────────────────────────────────────────────
 export type CashBankMetricTone = 'green' | 'blue' | 'gold' | 'purple'
 export type CashBankAccountKind = 'cash' | 'bank'
+export type CashBankLedgerMode = 'auto' | 'existing'
 export type CashBankTransactionType = 'deposit' | 'withdrawal' | 'transfer'
 export type CashBankTransactionStatus = 'draft' | 'posted' | 'void'
 
@@ -204,6 +205,7 @@ export interface CashBankTransferFormState {
 }
 
 export interface CashBankAccountInput {
+  ledgerMode: CashBankLedgerMode
   ledgerAccountId: string
   name: string
   kind: CashBankAccountKind

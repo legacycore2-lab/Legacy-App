@@ -48,21 +48,49 @@ export function CashBankAccountDialog({ form }: { form: CashBankAccountFormState
                 <option value="bank">بنك</option>
               </select>
             </label>
-            <label className="cash-bank-dialog-wide">
-              حساب الأستاذ
-              <select
-                value={form.value.ledgerAccountId}
-                onChange={(e) => form.update('ledgerAccountId', e.target.value)}
-                disabled={form.isEditing || form.isLoading}
-              >
-                <option value="">اختر حسابًا</option>
-                {form.ledgerAccounts.map((account) => (
-                  <option value={account.id} key={account.id}>
-                    {account.code} — {account.name}
-                  </option>
-                ))}
-              </select>
-            </label>
+            {!form.isEditing && (
+              <fieldset className="cash-bank-dialog-wide cash-bank-ledger-mode">
+                <legend>حساب الأستاذ</legend>
+                <label>
+                  <input
+                    type="radio"
+                    name="ledger-mode"
+                    checked={form.value.ledgerMode === 'auto'}
+                    onChange={() => form.update('ledgerMode', 'auto')}
+                  />
+                  إنشاء حساب أستاذ تلقائيًا
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="ledger-mode"
+                    checked={form.value.ledgerMode === 'existing'}
+                    onChange={() => form.update('ledgerMode', 'existing')}
+                  />
+                  ربط حساب موجود
+                </label>
+                {form.value.ledgerMode === 'auto' && (
+                  <small>سيُنشأ حساب ترحيل تلقائيًا تحت 1100 — النقدية والبنوك.</small>
+                )}
+              </fieldset>
+            )}
+            {(form.isEditing || form.value.ledgerMode === 'existing') && (
+              <label className="cash-bank-dialog-wide">
+                حساب الأستاذ
+                <select
+                  value={form.value.ledgerAccountId}
+                  onChange={(e) => form.update('ledgerAccountId', e.target.value)}
+                  disabled={form.isEditing || form.isLoading}
+                >
+                  <option value="">اختر حسابًا</option>
+                  {form.ledgerAccounts.map((account) => (
+                    <option value={account.id} key={account.id}>
+                      {account.code} — {account.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
             {form.value.kind === 'bank' && (
               <>
                 <label>

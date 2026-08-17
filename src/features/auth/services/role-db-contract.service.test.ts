@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 const migrationPath = resolve(process.cwd(), 'supabase/migrations/20260810200000_unify_finance_roles.sql')
-const migration = readFileSync(migrationPath, 'utf8')
+const migration = readFileSync(migrationPath, 'utf8').replace(/\r\n/g, '\n')
 
 describe('finance role database contract', () => {
   it('covers all 27 RLS policies from the approved remediation plan', () => {
