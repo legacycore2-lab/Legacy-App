@@ -343,12 +343,13 @@ function toneForAccount(kind: string, index: number): CashBankMetricTone {
   return index % 2 === 0 ? 'blue' : 'purple'
 }
 
-function buildMetrics(balances: CashBankBalanceRow[]): CashBankMetric[] {
-  const totalLiquidity = balances.reduce((sum, b) => sum + b.current_balance, 0)
-  const totalBank = balances
+export function buildMetrics(balances: CashBankBalanceRow[]): CashBankMetric[] {
+  const activeBalances = balances.filter((balance) => balance.is_active)
+  const totalLiquidity = activeBalances.reduce((sum, b) => sum + b.current_balance, 0)
+  const totalBank = activeBalances
     .filter((b) => b.account_kind === 'bank')
     .reduce((sum, b) => sum + b.current_balance, 0)
-  const totalCash = balances
+  const totalCash = activeBalances
     .filter((b) => b.account_kind === 'cash')
     .reduce((sum, b) => sum + b.current_balance, 0)
 
@@ -377,19 +378,20 @@ function buildMetrics(balances: CashBankBalanceRow[]): CashBankMetric[] {
     {
       id: 'accounts',
       label: 'عدد الحسابات',
-      value: String(balances.length),
+      value: String(activeBalances.length),
       change: '',
       tone: 'purple',
     },
   ]
 }
 
-function buildAccountSummaries(balances: CashBankBalanceRow[]): CashBankAccountSummary[] {
+export function buildAccountSummaries(balances: CashBankBalanceRow[]): CashBankAccountSummary[] {
   const maxBalance = Math.max(...balances.map((b) => b.current_balance), 1)
   return balances.map((b, index) => ({
     id: b.id,
     name: b.name,
     kind: b.account_kind,
+    isActive: b.is_active,
     balance: formatMoney(b.current_balance),
     progress: Math.round((b.current_balance / maxBalance) * 100),
     tone: toneForAccount(b.account_kind, index),

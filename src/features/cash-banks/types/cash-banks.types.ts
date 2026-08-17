@@ -265,6 +265,7 @@ export interface CashBankAccountSummary {
   id: string
   name: string
   kind: CashBankAccountKind
+  isActive: boolean
   balance: string
   progress: number
   tone: CashBankMetricTone

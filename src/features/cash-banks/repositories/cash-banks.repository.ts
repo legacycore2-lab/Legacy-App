@@ -56,7 +56,9 @@ export async function findCashBankBalances(): Promise<CashBankBalanceRow[]> {
   const { data, error } = await supabase
     .from('cash_bank_account_balances')
     .select('*')
-    .eq('is_active', true)
+    // The management cards must include inactive accounts so an administrator
+    // can open and reactivate them. Transaction forms apply their own active
+    // filters and therefore remain protected from using inactive accounts.
     .order('account_kind')
     .order('name')
 
