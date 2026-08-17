@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { saveAccount, setAccountActive } from '../repositories/accounts.repository'
+import { deleteAccount, saveAccount, setAccountActive } from '../repositories/accounts.repository'
 import type { Account, AccountInput } from '../types/accounts.types'
-import { toggleAccount, upsertAccount } from './accounts.service'
+import { removeAccount, toggleAccount, upsertAccount } from './accounts.service'
 
 vi.mock('../repositories/accounts.repository', () => ({
+  deleteAccount: vi.fn(),
   findAccounts: vi.fn(),
   saveAccount: vi.fn(),
   setAccountActive: vi.fn(),
@@ -97,5 +98,28 @@ describe('accounts service', () => {
     await toggleAccount(child.id, false, [parent, child])
 
     expect(setAccountActive).toHaveBeenCalledWith(child.id, false)
+  })
+
+  it('prevents deleting an account that still has children', async () => {
+    await expect(removeAccount(parent.id, [parent, child])).rejects.toThrow(
+      'لا يمكن حذف حساب يحتوي على حسابات فرعية. احذف أو انقل الفروع أولًا.',
+    )
+    expect(deleteAccount).not.toHaveBeenCalled()
+  })
+
+  it('deletes a leaf account through the repository', async () => {
+    await removeAccount(child.id, [parent, child])
+
+    expect(deleteAccount).toHaveBeenCalledWith(child.id)
+  })
+
+  it('turns foreign-key delete failures into a safe user message', async () => {
+    vi.mocked(deleteAccount).mockRejectedValueOnce(
+      new Error('update or delete violates foreign key constraint'),
+    )
+
+    await expect(removeAccount(child.id, [parent, child])).rejects.toThrow(
+      'لا يمكن حذف الحساب لأنه مستخدم في قيود أو حركات مالية. يمكنك إيقافه بدلًا من الحذف.',
+    )
   })
 })
