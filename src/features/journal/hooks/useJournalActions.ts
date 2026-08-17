@@ -14,6 +14,7 @@ export function useJournalActions() {
       queryClient.invalidateQueries({ queryKey: ['project-details'] }),
       queryClient.invalidateQueries({ queryKey: ['project-activity'] }),
       queryClient.invalidateQueries({ queryKey: ['project-contractors'] }),
+      queryClient.invalidateQueries({ queryKey: ['cash-banks'] }),
     ])
 
   const reverseMutation = useMutation({

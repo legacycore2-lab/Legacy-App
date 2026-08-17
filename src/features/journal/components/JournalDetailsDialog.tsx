@@ -155,7 +155,7 @@ export function JournalDetailsDialog({
                     عكس القيد
                   </button>
                 )}
-                {canForceDelete && (
+                {canForceDelete && details.status === 'draft' && (
                   <button
                     type="button"
                     className="journal-force-delete-btn"
