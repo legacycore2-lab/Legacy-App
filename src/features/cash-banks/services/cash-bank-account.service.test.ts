@@ -4,6 +4,7 @@ import { validateCashBankAccountInput } from './cash-banks.service'
 
 function validInput(overrides: Partial<CashBankAccountInput> = {}): CashBankAccountInput {
   return {
+    ledgerMode: 'existing',
     ledgerAccountId: 'ledger-1',
     name: 'الخزنة الرئيسية',
     kind: 'cash',
@@ -30,6 +31,18 @@ describe('validateCashBankAccountInput — name validation', () => {
 
   it('accepts name with leading/trailing whitespace (trimmed internally)', () => {
     expect(validateCashBankAccountInput(validInput({ name: '  خزنة  ' }))).toEqual([])
+  })
+})
+
+describe('validateCashBankAccountInput — ledger creation mode', () => {
+  it('allows automatic ledger creation without a ledger id', () => {
+    expect(validateCashBankAccountInput(validInput({ ledgerMode: 'auto', ledgerAccountId: '' }))).toEqual([])
+  })
+
+  it('requires a ledger id when linking an existing account', () => {
+    expect(
+      validateCashBankAccountInput(validInput({ ledgerMode: 'existing', ledgerAccountId: '' })),
+    ).toContain('حساب الأستاذ مطلوب.')
   })
 })
 

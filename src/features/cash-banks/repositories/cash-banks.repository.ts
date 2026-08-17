@@ -160,6 +160,24 @@ export async function createCashBankAccount(payload: CashBankAccountPayload): Pr
   if (error) throw new AppError(error.message, 'CASH_BANK_ACCOUNT_CREATE_FAILED')
 }
 
+export async function createCashBankAccountWithLedger(
+  payload: Omit<CashBankAccountPayload, 'ledger_account_id'>,
+): Promise<void> {
+  const { error } = await getSupabaseClient().rpc('create_cash_bank_account_with_ledger', {
+    p_name: payload.name,
+    p_account_kind: payload.account_kind,
+    p_bank_name: payload.bank_name,
+    p_account_number: payload.account_number,
+    p_iban: payload.iban,
+    p_branch_name: payload.branch_name,
+    p_opening_balance: payload.opening_balance,
+    p_currency_code: payload.currency_code,
+    p_is_active: payload.is_active,
+  })
+
+  if (error) throw new AppError(error.message, 'CASH_BANK_ACCOUNT_ATOMIC_CREATE_FAILED')
+}
+
 export async function updateCashBankAccount(
   id: string,
   payload: CashBankAccountUpdatePayload,

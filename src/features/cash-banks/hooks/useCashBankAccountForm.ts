@@ -11,6 +11,7 @@ import {
 import type { CashBankAccountFormState, CashBankAccountInput } from '../types/cash-banks.types'
 
 const initialValue = (): CashBankAccountInput => ({
+  ledgerMode: 'auto',
   ledgerAccountId: '',
   name: '',
   kind: 'cash',
@@ -55,6 +56,7 @@ export function useCashBankAccountForm(): CashBankAccountFormState {
     mutationFn: getCashBankAccount,
     onSuccess: (account) => {
       setValue({
+        ledgerMode: 'existing',
         ledgerAccountId: account.ledgerAccountId,
         name: account.name,
         kind: account.kind,

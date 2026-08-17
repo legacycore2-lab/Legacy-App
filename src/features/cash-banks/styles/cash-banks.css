@@ -327,6 +327,38 @@
   font-size: 18px;
 }
 
+.cash-bank-ledger-mode {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.cash-bank-ledger-mode legend {
+  padding: 0 6px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.cash-bank-ledger-mode label {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 7px;
+}
+
+.cash-bank-ledger-mode input {
+  width: auto;
+}
+
+.cash-bank-ledger-mode small {
+  flex-basis: 100%;
+  color: var(--text-muted);
+}
+
 .cash-banks-account--inactive {
   opacity: 0.72;
   border-style: dashed;
