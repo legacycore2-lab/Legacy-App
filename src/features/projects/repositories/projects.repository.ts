@@ -141,7 +141,7 @@ export type ProjectDeleteDependencies = {
 async function countRowsByProject(table: string, projectId: string): Promise<number> {
   const { count, error } = await getSupabaseClient()
     .from(table)
-    .select('id', { count: 'exact', head: true })
+    .select('*', { count: 'exact', head: true })
     .eq('project_id', projectId)
   if (error) throw error
   return count ?? 0
