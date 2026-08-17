@@ -67,6 +67,7 @@ export function AccountsPage() {
           search={vm.search}
           type={vm.type}
           isLoading={vm.isLoading}
+          isDeleting={vm.isDeleting}
           expandedIds={vm.expandedIds}
           onSearchChange={vm.onSearchChange}
           onTypeChange={vm.onTypeChange}
@@ -74,6 +75,7 @@ export function AccountsPage() {
           onCreate={vm.onCreate}
           onEdit={vm.onEdit}
           onToggle={vm.onToggle}
+          onDelete={vm.onDelete}
         />
       </div>
 
