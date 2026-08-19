@@ -79,9 +79,7 @@ export async function upsertAccount(input: AccountInput, accounts: Account[]): P
   const duplicate = accounts.some((account) => account.code === code && account.id !== input.id)
   if (duplicate) throw new DataValidationError('كود الحساب مستخدم بالفعل.')
 
-  const parent = input.parentId
-    ? accounts.find((account) => account.id === input.parentId)
-    : undefined
+  const parent = input.parentId ? accounts.find((account) => account.id === input.parentId) : undefined
 
   if (input.parentId && !parent) throw new DataValidationError('الحساب الرئيسي غير موجود.')
   if (parent?.deletedAt) throw new DataValidationError('لا يمكن الإضافة تحت حساب رئيسي محذوف.')
