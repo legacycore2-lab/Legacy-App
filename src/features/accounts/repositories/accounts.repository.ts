@@ -1,6 +1,6 @@
 import { getSupabaseClient } from '../../../lib/supabase/client'
 import { subscribeToTableChanges } from '../../../lib/supabase/realtime'
-import type { AccountInput, AccountType, NormalBalance } from '../types/accounts.types'
+import type { AccountCashBankKind, AccountInput, AccountType, NormalBalance } from '../types/accounts.types'
 
 export type AccountRecord = {
   id: string
@@ -14,13 +14,14 @@ export type AccountRecord = {
   is_postable: boolean
   is_active: boolean
   deleted_at: string | null
+  cash_bank_kind: 'cash' | 'bank' | null
 }
 
 export async function findAccounts(): Promise<AccountRecord[]> {
   const { data, error } = await getSupabaseClient()
     .from('accounts')
     .select(
-      'id,code,name_ar,name_en,account_type,normal_balance,parent_id,level,is_postable,is_active,deleted_at',
+      'id,code,name_ar,name_en,account_type,normal_balance,parent_id,level,is_postable,is_active,deleted_at,cash_bank_kind',
     )
     .order('code')
 
@@ -73,6 +74,15 @@ export async function setAccountDeleted(id: string, deleted: boolean): Promise<v
     .from('accounts')
     .update({ deleted_at: deleted ? new Date().toISOString() : null, is_active: deleted ? false : true })
     .eq('id', id)
+
+  if (error) throw error
+}
+
+export async function restoreDeletedAccount(id: string, cashBankKind?: AccountCashBankKind): Promise<void> {
+  const { error } = await getSupabaseClient().rpc('restore_account_with_cash_bank', {
+    p_account_id: id,
+    p_account_kind: cashBankKind === 'cash' || cashBankKind === 'bank' ? cashBankKind : null,
+  })
 
   if (error) throw error
 }
