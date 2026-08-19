@@ -91,9 +91,7 @@ export async function upsertAccount(input: AccountInput, accounts: Account[]): P
   const duplicate = accounts.some((account) => account.code === code && account.id !== input.id)
   if (duplicate) throw new DataValidationError('كود الحساب مستخدم بالفعل.')
 
-  const parent = input.parentId
-    ? accounts.find((account) => account.id === input.parentId)
-    : undefined
+  const parent = input.parentId ? accounts.find((account) => account.id === input.parentId) : undefined
 
   if (input.parentId && !parent) throw new DataValidationError('الحساب الرئيسي غير موجود.')
   if (parent?.deletedAt) throw new DataValidationError('لا يمكن الإضافة تحت حساب رئيسي محذوف.')
@@ -139,11 +137,7 @@ export async function upsertAccount(input: AccountInput, accounts: Account[]): P
   await saveAccount({ ...input, code, nameAr, nameEn }, level)
 }
 
-export async function toggleAccount(
-  id: string,
-  isActive: boolean,
-  accounts: Account[],
-): Promise<void> {
+export async function toggleAccount(id: string, isActive: boolean, accounts: Account[]): Promise<void> {
   const account = accounts.find((candidate) => candidate.id === id)
   if (!account) throw new DataValidationError('الحساب غير موجود.')
   if (account.deletedAt) throw new DataValidationError('لا يمكن تغيير حالة حساب محذوف.')
@@ -194,8 +188,7 @@ export async function restoreAccount(
     throw new DataValidationError('استعد الحساب الرئيسي أولًا قبل استعادة هذا الحساب.')
   }
 
-  const isCashBankCandidate =
-    parent?.code === '1100' && account.accountType === 'asset' && account.isPostable
+  const isCashBankCandidate = parent?.code === '1100' && account.accountType === 'asset' && account.isPostable
   const storedKind = account.cashBankKind
   const resolvedKind = storedKind !== 'none' ? storedKind : cashBankKind
 

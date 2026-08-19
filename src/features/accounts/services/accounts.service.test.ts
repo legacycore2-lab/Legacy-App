@@ -3,6 +3,7 @@ import {
   accountHasFinancialReferences,
   deleteLinkedCashBankAccountByLedger,
   findLinkedCashBankAccountId,
+  restoreDeletedAccount,
   saveAccount,
   saveAccountWithCashBank,
   setAccountActive,
@@ -16,6 +17,7 @@ vi.mock('../repositories/accounts.repository', () => ({
   deleteLinkedCashBankAccountByLedger: vi.fn(),
   findAccounts: vi.fn(),
   findLinkedCashBankAccountId: vi.fn(),
+  restoreDeletedAccount: vi.fn(),
   saveAccount: vi.fn(),
   saveAccountWithCashBank: vi.fn(),
   setAccountActive: vi.fn(),
@@ -203,7 +205,8 @@ describe('accounts service', () => {
 
     await restoreAccount(deletedChild.id, [parent, deletedChild])
 
-    expect(setAccountDeleted).toHaveBeenCalledWith(deletedChild.id, false)
+    expect(restoreDeletedAccount).toHaveBeenCalledWith(deletedChild.id, undefined)
+    expect(setAccountDeleted).not.toHaveBeenCalled()
   })
 
   it('requires restoring a deleted parent before its child', async () => {
@@ -213,5 +216,63 @@ describe('accounts service', () => {
     await expect(restoreAccount(deletedChild.id, [deletedParent, deletedChild])).rejects.toThrow(
       'استعد الحساب الرئيسي أولًا قبل استعادة هذا الحساب.',
     )
+  })
+
+  it('restores a cash/bank account using the stored kind', async () => {
+    const deletedCashAccount: Account = {
+      ...child,
+      id: 'cash-1',
+      code: '1100-001',
+      parentId: cashBankParent.id,
+      accountType: 'asset',
+      normalBalance: 'debit',
+      isPostable: true,
+      isActive: false,
+      deletedAt: '2026-08-19T00:00:00.000Z',
+      cashBankKind: 'cash',
+    }
+
+    await restoreAccount(deletedCashAccount.id, [parent, cashBankParent, deletedCashAccount])
+
+    expect(restoreDeletedAccount).toHaveBeenCalledWith(deletedCashAccount.id, 'cash')
+    expect(setAccountDeleted).not.toHaveBeenCalled()
+  })
+
+  it('uses the caller-supplied kind when stored kind is none', async () => {
+    const deletedBankAccount: Account = {
+      ...child,
+      id: 'bank-1',
+      code: '1100-002',
+      parentId: cashBankParent.id,
+      accountType: 'asset',
+      normalBalance: 'debit',
+      isPostable: true,
+      isActive: false,
+      deletedAt: '2026-08-19T00:00:00.000Z',
+      cashBankKind: 'none',
+    }
+
+    await restoreAccount(deletedBankAccount.id, [parent, cashBankParent, deletedBankAccount], 'bank')
+
+    expect(restoreDeletedAccount).toHaveBeenCalledWith(deletedBankAccount.id, 'bank')
+  })
+
+  it('blocks cash/bank restore when no kind can be resolved', async () => {
+    const deletedBankAccount: Account = {
+      ...child,
+      id: 'bank-2',
+      code: '1100-003',
+      parentId: cashBankParent.id,
+      accountType: 'asset',
+      normalBalance: 'debit',
+      isPostable: true,
+      isActive: false,
+      deletedAt: '2026-08-19T00:00:00.000Z',
+      cashBankKind: 'none',
+    }
+
+    await expect(
+      restoreAccount(deletedBankAccount.id, [parent, cashBankParent, deletedBankAccount]),
+    ).rejects.toThrow('حدد هل الحساب بنك أم خزنة قبل الاستعادة.')
   })
 })
