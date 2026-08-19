@@ -98,14 +98,21 @@ export async function upsertAccount(input: AccountInput, accounts: Account[]): P
   if (input.id && input.parentId && createsCycle(input.id, input.parentId, accounts)) {
     throw new DataValidationError('لا يمكن إنشاء دورة داخل شجرة الحسابات.')
   }
-  if (parent && !parent.isActive) throw new DataValidationError('لا يمكن الإضافة تحت حساب رئيسي متوقف.')
-  if (parent?.isPostable) throw new DataValidationError('الحساب الرئيسي يجب أن يكون حسابًا تجميعيًا.')
+  if (parent && !parent.isActive) {
+    throw new DataValidationError('لا يمكن الإضافة تحت حساب رئيسي متوقف.')
+  }
+  if (parent?.isPostable) {
+    throw new DataValidationError('الحساب الرئيسي يجب أن يكون حسابًا تجميعيًا.')
+  }
   if (parent && parent.accountType !== input.accountType) {
     throw new DataValidationError('نوع الحساب الفرعي يجب أن يطابق الحساب الرئيسي.')
   }
 
   const level = parent ? parent.level + 1 : 1
-  if (level > MAX_ACCOUNT_LEVEL) throw new DataValidationError('تجاوز الحساب الحد الأقصى لمستويات الدليل.')
+  if (level > MAX_ACCOUNT_LEVEL) {
+    throw new DataValidationError('تجاوز الحساب الحد الأقصى لمستويات الدليل.')
+  }
+
   if (input.id && input.isPostable && existingChildren(input.id, accounts).length > 0) {
     throw new DataValidationError('لا يمكن تحويل حساب رئيسي يحتوي على فروع إلى حساب قابل للترحيل.')
   }
@@ -114,7 +121,9 @@ export async function upsertAccount(input: AccountInput, accounts: Account[]): P
   }
 
   if (!input.id && cashBankKind !== 'none') {
-    if (cashBankKind !== 'cash' && cashBankKind !== 'bank') throw new DataValidationError('نوع حساب الخزنة أو البنك غير صالح.')
+    if (cashBankKind !== 'cash' && cashBankKind !== 'bank') {
+      throw new DataValidationError('نوع حساب الخزنة أو البنك غير صالح.')
+    }
     if (input.accountType !== 'asset' || input.normalBalance !== 'debit' || !input.isPostable) {
       throw new DataValidationError('حسابات الخزنة والبنوك يجب أن تكون أصولًا قابلة للترحيل بطبيعة مدينة.')
     }
@@ -132,7 +141,11 @@ export async function toggleAccount(id: string, isActive: boolean, accounts: Acc
   const account = accounts.find((candidate) => candidate.id === id)
   if (!account) throw new DataValidationError('الحساب غير موجود.')
   if (account.deletedAt) throw new DataValidationError('لا يمكن تغيير حالة حساب محذوف.')
-  if (!isActive && activeChildren(id, accounts).length > 0) throw new DataValidationError('أوقف الحسابات الفرعية النشطة أولًا.')
+
+  if (!isActive && activeChildren(id, accounts).length > 0) {
+    throw new DataValidationError('أوقف الحسابات الفرعية النشطة أولًا.')
+  }
+
   await setAccountActive(id, isActive)
 }
 
@@ -151,7 +164,9 @@ export async function removeAccount(id: string, accounts: Account[]): Promise<vo
   }
 
   if (await accountHasFinancialReferences(id)) {
-    throw new DataValidationError('لا يمكن حذف الحساب لأنه مستخدم في قيود أو مرتبط بالخزنة والبنوك. يمكنك إيقافه بدلًا من الحذف.')
+    throw new DataValidationError(
+      'لا يمكن حذف الحساب لأنه مستخدم في قيود أو مرتبط بالخزنة والبنوك. يمكنك إيقافه بدلًا من الحذف.',
+    )
   }
 
   await setAccountDeleted(id, true)
@@ -166,7 +181,9 @@ export async function restoreAccount(
   if (!account) throw new DataValidationError('الحساب غير موجود.')
   if (!account.deletedAt) throw new DataValidationError('الحساب غير محذوف.')
 
-  const parent = account.parentId ? accounts.find((candidate) => candidate.id === account.parentId) : undefined
+  const parent = account.parentId
+    ? accounts.find((candidate) => candidate.id === account.parentId)
+    : undefined
   if (account.parentId && (!parent || parent.deletedAt)) {
     throw new DataValidationError('استعد الحساب الرئيسي أولًا قبل استعادة هذا الحساب.')
   }
