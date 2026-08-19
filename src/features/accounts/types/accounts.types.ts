@@ -12,6 +12,7 @@ export type Account = {
   level: number
   isPostable: boolean
   isActive: boolean
+  deletedAt: string | null
 }
 
-export type AccountInput = Omit<Account, 'id' | 'level'> & { id?: string }
+export type AccountInput = Omit<Account, 'id' | 'level' | 'deletedAt'> & { id?: string }
