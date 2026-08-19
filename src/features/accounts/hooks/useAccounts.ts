@@ -11,6 +11,9 @@ import {
 } from '../services/accounts.service'
 import type { Account, AccountInput, AccountType } from '../types/accounts.types'
 
+const accountsQueryKey = ['accounts'] as const
+const cashBanksQueryKey = ['cash-banks'] as const
+
 export function useAccounts() {
   const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
@@ -19,12 +22,19 @@ export function useAccounts() {
   const [editing, setEditing] = useState<Account | null>(null)
   const [isEditorOpen, setIsEditorOpen] = useState(false)
   const [expandedState, setExpandedState] = useState<Set<string> | null>(null)
-  const query = useQuery({ queryKey: ['accounts'], queryFn: getAccounts, staleTime: 30_000 })
+  const query = useQuery({ queryKey: accountsQueryKey, queryFn: getAccounts, staleTime: 30_000 })
   const allRecords = useMemo(() => query.data ?? [], [query.data])
   const liveAccounts = useMemo(() => allRecords.filter((account) => !account.deletedAt), [allRecords])
 
+  const refreshLinkedAccountViews = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: accountsQueryKey }),
+      queryClient.invalidateQueries({ queryKey: cashBanksQueryKey }),
+    ])
+  }
+
   useEffect(
-    () => watchAccounts(() => void queryClient.invalidateQueries({ queryKey: ['accounts'] })),
+    () => watchAccounts(() => void queryClient.invalidateQueries({ queryKey: accountsQueryKey })),
     [queryClient],
   )
 
@@ -65,23 +75,23 @@ export function useAccounts() {
     onSuccess: async () => {
       setEditing(null)
       setIsEditorOpen(false)
-      await queryClient.invalidateQueries({ queryKey: ['accounts'] })
+      await refreshLinkedAccountViews()
     },
   })
 
   const toggleMutation = useMutation({
     mutationFn: ({ id, active }: { id: string; active: boolean }) => toggleAccount(id, active, allRecords),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['accounts'] }),
+    onSuccess: refreshLinkedAccountViews,
   })
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => removeAccount(id, allRecords),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['accounts'] }),
+    onSuccess: refreshLinkedAccountViews,
   })
 
   const restoreMutation = useMutation({
     mutationFn: (id: string) => restoreAccount(id, allRecords),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['accounts'] }),
+    onSuccess: refreshLinkedAccountViews,
   })
 
   const openCreate = () => {
