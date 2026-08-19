@@ -128,9 +128,7 @@ export async function removeAccount(id: string, accounts: Account[]): Promise<vo
   if (!account) throw new DataValidationError('الحساب غير موجود.')
   if (account.deletedAt) throw new DataValidationError('الحساب محذوف بالفعل.')
   if (existingChildren(id, accounts).length > 0) {
-    throw new DataValidationError(
-      'لا يمكن حذف حساب يحتوي على حسابات فرعية. احذف أو انقل الفروع أولًا.',
-    )
+    throw new DataValidationError('لا يمكن حذف حساب يحتوي على حسابات فرعية. احذف أو انقل الفروع أولًا.')
   }
   if (await accountHasFinancialReferences(id)) {
     throw new DataValidationError(
