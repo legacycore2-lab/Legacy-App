@@ -1,0 +1,30 @@
+name: Format Debug Accounts
+
+on:
+  push:
+    branches:
+      - feature/unified-cash-bank-accounts
+
+permissions:
+  contents: read
+
+jobs:
+  format-debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Format targets
+        run: npx prettier --write src/features/accounts/components/AccountForm.tsx src/features/accounts/hooks/useAccountForm.ts src/features/accounts/services/accounts.service.test.ts
+      - name: Print formatted targets
+        run: |
+          echo '---AccountForm.tsx---'
+          cat src/features/accounts/components/AccountForm.tsx
+          echo '---useAccountForm.ts---'
+          cat src/features/accounts/hooks/useAccountForm.ts
+          echo '---accounts.service.test.ts---'
+          cat src/features/accounts/services/accounts.service.test.ts
