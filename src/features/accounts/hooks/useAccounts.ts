@@ -1,18 +1,27 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
 import { toErrorMessage } from '../../../shared/errors/app-error'
-import { getAccounts, toggleAccount, upsertAccount, watchAccounts } from '../services/accounts.service'
+import {
+  getAccounts,
+  removeAccount,
+  restoreAccount,
+  toggleAccount,
+  upsertAccount,
+  watchAccounts,
+} from '../services/accounts.service'
 import type { Account, AccountInput, AccountType } from '../types/accounts.types'
 
 export function useAccounts() {
   const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
   const [type, setType] = useState<AccountType | 'all'>('all')
+  const [showDeleted, setShowDeleted] = useState(false)
   const [editing, setEditing] = useState<Account | null>(null)
   const [isEditorOpen, setIsEditorOpen] = useState(false)
   const [expandedState, setExpandedState] = useState<Set<string> | null>(null)
   const query = useQuery({ queryKey: ['accounts'], queryFn: getAccounts, staleTime: 30_000 })
-  const accounts = useMemo(() => query.data ?? [], [query.data])
+  const allRecords = useMemo(() => query.data ?? [], [query.data])
+  const liveAccounts = useMemo(() => allRecords.filter((account) => !account.deletedAt), [allRecords])
 
   useEffect(
     () => watchAccounts(() => void queryClient.invalidateQueries({ queryKey: ['accounts'] })),
@@ -20,15 +29,16 @@ export function useAccounts() {
   )
 
   const defaultExpandedIds = useMemo(
-    () => new Set(accounts.filter((account) => !account.parentId).map((account) => account.id)),
-    [accounts],
+    () => new Set(liveAccounts.filter((account) => !account.parentId).map((account) => account.id)),
+    [liveAccounts],
   )
   const expandedIds = expandedState ?? defaultExpandedIds
 
   const filteredAccounts = useMemo(() => {
     const term = search.trim().toLowerCase()
-    const byId = new Map(accounts.map((account) => [account.id, account]))
-    const matches = accounts.filter(
+    const source = showDeleted ? allRecords : liveAccounts
+    const byId = new Map(source.map((account) => [account.id, account]))
+    const matches = source.filter(
       (account) =>
         (type === 'all' || account.accountType === type) &&
         (!term || `${account.code} ${account.nameAr} ${account.nameEn}`.toLowerCase().includes(term)),
@@ -47,11 +57,11 @@ export function useAccounts() {
       }
     })
 
-    return accounts.filter((account) => visible.has(account.id))
-  }, [accounts, search, type])
+    return source.filter((account) => visible.has(account.id))
+  }, [allRecords, liveAccounts, search, showDeleted, type])
 
   const saveMutation = useMutation({
-    mutationFn: (input: AccountInput) => upsertAccount(input, accounts),
+    mutationFn: (input: AccountInput) => upsertAccount(input, allRecords),
     onSuccess: async () => {
       setEditing(null)
       setIsEditorOpen(false)
@@ -60,7 +70,17 @@ export function useAccounts() {
   })
 
   const toggleMutation = useMutation({
-    mutationFn: ({ id, active }: { id: string; active: boolean }) => toggleAccount(id, active, accounts),
+    mutationFn: ({ id, active }: { id: string; active: boolean }) => toggleAccount(id, active, allRecords),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['accounts'] }),
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => removeAccount(id, allRecords),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['accounts'] }),
+  })
+
+  const restoreMutation = useMutation({
+    mutationFn: (id: string) => restoreAccount(id, allRecords),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['accounts'] }),
   })
 
@@ -70,6 +90,7 @@ export function useAccounts() {
   }
 
   const openEdit = (account: Account) => {
+    if (account.deletedAt) return
     setEditing(account)
     setIsEditorOpen(true)
   }
@@ -90,11 +111,14 @@ export function useAccounts() {
 
   return {
     accounts: filteredAccounts,
-    allAccounts: accounts,
+    allAccounts: liveAccounts,
+    deletedCount: allRecords.length - liveAccounts.length,
     search,
     onSearchChange: setSearch,
     type,
     onTypeChange: setType,
+    showDeleted,
+    onShowDeletedChange: setShowDeleted,
     editing,
     isEditorOpen,
     onCreate: openCreate,
@@ -104,14 +128,21 @@ export function useAccounts() {
     onToggleExpanded: toggleExpanded,
     onSave: (input: AccountInput) => saveMutation.mutateAsync(input),
     onToggle: (id: string, active: boolean) => toggleMutation.mutate({ id, active }),
+    onDelete: (id: string) => deleteMutation.mutateAsync(id),
+    onRestore: (id: string) => restoreMutation.mutateAsync(id),
     isLoading: query.isLoading,
     isSaving: saveMutation.isPending,
+    isDeleting: deleteMutation.isPending || restoreMutation.isPending,
     error: query.error
       ? toErrorMessage(query.error, 'تعذر تحميل دليل الحسابات.')
       : saveMutation.error
         ? toErrorMessage(saveMutation.error, 'تعذر حفظ الحساب.')
         : toggleMutation.error
           ? toErrorMessage(toggleMutation.error, 'تعذر تغيير حالة الحساب.')
-          : '',
+          : deleteMutation.error
+            ? toErrorMessage(deleteMutation.error, 'تعذر حذف الحساب.')
+            : restoreMutation.error
+              ? toErrorMessage(restoreMutation.error, 'تعذر استعادة الحساب.')
+              : '',
   }
 }
