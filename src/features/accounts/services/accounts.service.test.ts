@@ -126,13 +126,33 @@ describe('accounts service', () => {
 
   it('rejects cycles when moving an existing account', async () => {
     await expect(
-      upsertAccount({ ...validInput, id: parent.id, parentId: child.id }, [parent, child]),
+      upsertAccount(
+        {
+          ...validInput,
+          id: parent.id,
+          code: parent.code,
+          nameAr: parent.nameAr,
+          nameEn: parent.nameEn,
+          parentId: child.id,
+        },
+        [parent, child],
+      ),
     ).rejects.toThrow('لا يمكن إنشاء دورة داخل شجرة الحسابات.')
   })
 
   it('does not allow an account with children to become postable', async () => {
     await expect(
-      upsertAccount({ ...validInput, id: parent.id, parentId: null }, [parent, child]),
+      upsertAccount(
+        {
+          ...validInput,
+          id: parent.id,
+          code: parent.code,
+          nameAr: parent.nameAr,
+          nameEn: parent.nameEn,
+          parentId: null,
+        },
+        [parent, child],
+      ),
     ).rejects.toThrow('لا يمكن تحويل حساب رئيسي يحتوي على فروع إلى حساب قابل للترحيل.')
   })
 
