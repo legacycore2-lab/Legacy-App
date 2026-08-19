@@ -1,7 +1,9 @@
 import {
+  accountHasFinancialReferences,
   findAccounts,
   saveAccount,
   setAccountActive,
+  setAccountDeleted,
   subscribeToAccountChanges,
   type AccountRecord,
 } from '../repositories/accounts.repository'
@@ -22,6 +24,7 @@ function mapAccount(record: AccountRecord): Account {
     level: record.level,
     isPostable: record.is_postable,
     isActive: record.is_active,
+    deletedAt: record.deleted_at,
   }
 }
 
@@ -46,7 +49,13 @@ function createsCycle(accountId: string, parentId: string, accounts: Account[]):
 }
 
 function activeChildren(accountId: string, accounts: Account[]): Account[] {
-  return accounts.filter((account) => account.parentId === accountId && account.isActive)
+  return accounts.filter(
+    (account) => account.parentId === accountId && account.isActive && !account.deletedAt,
+  )
+}
+
+function existingChildren(accountId: string, accounts: Account[]): Account[] {
+  return accounts.filter((account) => account.parentId === accountId && !account.deletedAt)
 }
 
 export async function getAccounts(): Promise<Account[]> {
@@ -63,12 +72,17 @@ export async function upsertAccount(input: AccountInput, accounts: Account[]): P
     throw new DataValidationError('طبيعة الرصيد لا تتوافق مع نوع الحساب.')
   }
 
+  if (input.id && accounts.find((account) => account.id === input.id)?.deletedAt) {
+    throw new DataValidationError('لا يمكن تعديل حساب محذوف. استعد الحساب أولًا.')
+  }
+
   const duplicate = accounts.some((account) => account.code === code && account.id !== input.id)
   if (duplicate) throw new DataValidationError('كود الحساب مستخدم بالفعل.')
 
   const parent = input.parentId ? accounts.find((account) => account.id === input.parentId) : undefined
 
   if (input.parentId && !parent) throw new DataValidationError('الحساب الرئيسي غير موجود.')
+  if (parent?.deletedAt) throw new DataValidationError('لا يمكن الإضافة تحت حساب رئيسي محذوف.')
   if (input.id && input.parentId && createsCycle(input.id, input.parentId, accounts)) {
     throw new DataValidationError('لا يمكن إنشاء دورة داخل شجرة الحسابات.')
   }
@@ -87,7 +101,7 @@ export async function upsertAccount(input: AccountInput, accounts: Account[]): P
     throw new DataValidationError('تجاوز الحساب الحد الأقصى لمستويات الدليل.')
   }
 
-  if (input.id && input.isPostable && accounts.some((account) => account.parentId === input.id)) {
+  if (input.id && input.isPostable && existingChildren(input.id, accounts).length > 0) {
     throw new DataValidationError('لا يمكن تحويل حساب رئيسي يحتوي على فروع إلى حساب قابل للترحيل.')
   }
   if (input.id && !input.isActive && activeChildren(input.id, accounts).length > 0) {
@@ -100,12 +114,44 @@ export async function upsertAccount(input: AccountInput, accounts: Account[]): P
 export async function toggleAccount(id: string, isActive: boolean, accounts: Account[]): Promise<void> {
   const account = accounts.find((candidate) => candidate.id === id)
   if (!account) throw new DataValidationError('الحساب غير موجود.')
+  if (account.deletedAt) throw new DataValidationError('لا يمكن تغيير حالة حساب محذوف.')
 
   if (!isActive && activeChildren(id, accounts).length > 0) {
     throw new DataValidationError('أوقف الحسابات الفرعية النشطة أولًا.')
   }
 
   await setAccountActive(id, isActive)
+}
+
+export async function removeAccount(id: string, accounts: Account[]): Promise<void> {
+  const account = accounts.find((candidate) => candidate.id === id)
+  if (!account) throw new DataValidationError('الحساب غير موجود.')
+  if (account.deletedAt) throw new DataValidationError('الحساب محذوف بالفعل.')
+  if (existingChildren(id, accounts).length > 0) {
+    throw new DataValidationError('لا يمكن حذف حساب يحتوي على حسابات فرعية. احذف أو انقل الفروع أولًا.')
+  }
+  if (await accountHasFinancialReferences(id)) {
+    throw new DataValidationError(
+      'لا يمكن حذف الحساب لأنه مستخدم في قيود أو مرتبط بالخزنة والبنوك. يمكنك إيقافه بدلًا من الحذف.',
+    )
+  }
+
+  await setAccountDeleted(id, true)
+}
+
+export async function restoreAccount(id: string, accounts: Account[]): Promise<void> {
+  const account = accounts.find((candidate) => candidate.id === id)
+  if (!account) throw new DataValidationError('الحساب غير موجود.')
+  if (!account.deletedAt) throw new DataValidationError('الحساب غير محذوف.')
+
+  const parent = account.parentId
+    ? accounts.find((candidate) => candidate.id === account.parentId)
+    : undefined
+  if (account.parentId && (!parent || parent.deletedAt)) {
+    throw new DataValidationError('استعد الحساب الرئيسي أولًا قبل استعادة هذا الحساب.')
+  }
+
+  await setAccountDeleted(id, false)
 }
 
 export function watchAccounts(onChange: () => void): () => void {

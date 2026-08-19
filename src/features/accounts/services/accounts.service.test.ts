@@ -1,12 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { saveAccount, setAccountActive } from '../repositories/accounts.repository'
+import {
+  accountHasFinancialReferences,
+  saveAccount,
+  setAccountActive,
+  setAccountDeleted,
+} from '../repositories/accounts.repository'
 import type { Account, AccountInput } from '../types/accounts.types'
-import { toggleAccount, upsertAccount } from './accounts.service'
+import { removeAccount, restoreAccount, toggleAccount, upsertAccount } from './accounts.service'
 
 vi.mock('../repositories/accounts.repository', () => ({
+  accountHasFinancialReferences: vi.fn(),
   findAccounts: vi.fn(),
   saveAccount: vi.fn(),
   setAccountActive: vi.fn(),
+  setAccountDeleted: vi.fn(),
 }))
 
 const parent: Account = {
@@ -20,6 +27,7 @@ const parent: Account = {
   level: 1,
   isPostable: false,
   isActive: true,
+  deletedAt: null,
 }
 
 const child: Account = {
@@ -46,6 +54,7 @@ const validInput: AccountInput = {
 describe('accounts service', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(accountHasFinancialReferences).mockResolvedValue(false)
   })
 
   it('normalizes input and derives the hierarchy level', async () => {
@@ -97,5 +106,43 @@ describe('accounts service', () => {
     await toggleAccount(child.id, false, [parent, child])
 
     expect(setAccountActive).toHaveBeenCalledWith(child.id, false)
+  })
+
+  it('prevents deleting an account that still has children', async () => {
+    await expect(removeAccount(parent.id, [parent, child])).rejects.toThrow(
+      'لا يمكن حذف حساب يحتوي على حسابات فرعية. احذف أو انقل الفروع أولًا.',
+    )
+    expect(setAccountDeleted).not.toHaveBeenCalled()
+  })
+
+  it('prevents deleting an account referenced by financial data', async () => {
+    vi.mocked(accountHasFinancialReferences).mockResolvedValueOnce(true)
+
+    await expect(removeAccount(child.id, [parent, child])).rejects.toThrow(
+      'لا يمكن حذف الحساب لأنه مستخدم في قيود أو مرتبط بالخزنة والبنوك. يمكنك إيقافه بدلًا من الحذف.',
+    )
+  })
+
+  it('soft deletes an unused leaf account', async () => {
+    await removeAccount(child.id, [parent, child])
+
+    expect(setAccountDeleted).toHaveBeenCalledWith(child.id, true)
+  })
+
+  it('restores a deleted account when its parent is available', async () => {
+    const deletedChild = { ...child, isActive: false, deletedAt: '2026-08-19T00:00:00.000Z' }
+
+    await restoreAccount(deletedChild.id, [parent, deletedChild])
+
+    expect(setAccountDeleted).toHaveBeenCalledWith(deletedChild.id, false)
+  })
+
+  it('requires restoring a deleted parent before its child', async () => {
+    const deletedParent = { ...parent, isActive: false, deletedAt: '2026-08-19T00:00:00.000Z' }
+    const deletedChild = { ...child, isActive: false, deletedAt: '2026-08-19T00:00:00.000Z' }
+
+    await expect(restoreAccount(deletedChild.id, [deletedParent, deletedChild])).rejects.toThrow(
+      'استعد الحساب الرئيسي أولًا قبل استعادة هذا الحساب.',
+    )
   })
 })

@@ -66,14 +66,20 @@ export function AccountsPage() {
           accounts={vm.accounts}
           search={vm.search}
           type={vm.type}
+          showDeleted={vm.showDeleted}
+          deletedCount={vm.deletedCount}
           isLoading={vm.isLoading}
+          isDeleting={vm.isDeleting}
           expandedIds={vm.expandedIds}
           onSearchChange={vm.onSearchChange}
           onTypeChange={vm.onTypeChange}
+          onShowDeletedChange={vm.onShowDeletedChange}
           onToggleExpanded={vm.onToggleExpanded}
           onCreate={vm.onCreate}
           onEdit={vm.onEdit}
           onToggle={vm.onToggle}
+          onDelete={vm.onDelete}
+          onRestore={vm.onRestore}
         />
       </div>
 
