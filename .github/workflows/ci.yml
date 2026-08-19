@@ -16,7 +16,7 @@ jobs:
   build:
     name: TypeScript and Vite build
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout repository
@@ -48,7 +48,18 @@ jobs:
         run: npm test
 
       - name: Install E2E browser
-        run: npx playwright install --with-deps chromium
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in 1 2; do
+            if timeout 6m npx playwright install --with-deps chromium; then
+              exit 0
+            fi
+            echo "Playwright install attempt ${attempt} failed or timed out. Retrying..."
+            sleep 10
+          done
+          echo "Playwright browser installation failed after 2 attempts."
+          exit 1
 
       - name: Run E2E smoke tests
         run: npm run test:e2e

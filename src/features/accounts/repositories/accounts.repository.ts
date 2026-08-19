@@ -49,6 +49,19 @@ export async function saveAccount(input: AccountInput, level: number): Promise<v
   if (error) throw error
 }
 
+export async function saveAccountWithCashBank(input: AccountInput): Promise<void> {
+  const { error } = await getSupabaseClient().rpc('create_ledger_with_cash_bank_account', {
+    p_code: input.code,
+    p_name_ar: input.nameAr,
+    p_name_en: input.nameEn || null,
+    p_parent_id: input.parentId,
+    p_account_kind: input.cashBankKind,
+    p_is_active: input.isActive,
+  })
+
+  if (error) throw error
+}
+
 export async function setAccountActive(id: string, isActive: boolean): Promise<void> {
   const { error } = await getSupabaseClient().from('accounts').update({ is_active: isActive }).eq('id', id)
 
@@ -60,6 +73,25 @@ export async function setAccountDeleted(id: string, deleted: boolean): Promise<v
     .from('accounts')
     .update({ deleted_at: deleted ? new Date().toISOString() : null, is_active: deleted ? false : true })
     .eq('id', id)
+
+  if (error) throw error
+}
+
+export async function findLinkedCashBankAccountId(id: string): Promise<string | null> {
+  const { data, error } = await getSupabaseClient()
+    .from('cash_bank_accounts')
+    .select('id')
+    .eq('ledger_account_id', id)
+    .maybeSingle()
+
+  if (error) throw error
+  return data?.id ?? null
+}
+
+export async function deleteLinkedCashBankAccountByLedger(id: string): Promise<void> {
+  const { error } = await getSupabaseClient().rpc('delete_unused_cash_bank_account_by_ledger', {
+    p_ledger_account_id: id,
+  })
 
   if (error) throw error
 }

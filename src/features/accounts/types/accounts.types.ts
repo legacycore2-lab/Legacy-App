@@ -1,5 +1,6 @@
 export type AccountType = 'asset' | 'liability' | 'equity' | 'revenue' | 'expense'
 export type NormalBalance = 'debit' | 'credit'
+export type AccountCashBankKind = 'none' | 'cash' | 'bank'
 
 export type Account = {
   id: string
@@ -15,4 +16,7 @@ export type Account = {
   deletedAt: string | null
 }
 
-export type AccountInput = Omit<Account, 'id' | 'level' | 'deletedAt'> & { id?: string }
+export type AccountInput = Omit<Account, 'id' | 'level' | 'deletedAt'> & {
+  id?: string
+  cashBankKind?: AccountCashBankKind
+}

@@ -1,7 +1,10 @@
 import {
   accountHasFinancialReferences,
+  deleteLinkedCashBankAccountByLedger,
   findAccounts,
+  findLinkedCashBankAccountId,
   saveAccount,
+  saveAccountWithCashBank,
   setAccountActive,
   setAccountDeleted,
   subscribeToAccountChanges,
@@ -66,6 +69,7 @@ export async function upsertAccount(input: AccountInput, accounts: Account[]): P
   const code = input.code.trim()
   const nameAr = input.nameAr.trim()
   const nameEn = input.nameEn.trim()
+  const cashBankKind = input.cashBankKind ?? 'none'
 
   if (!code || !nameAr) throw new DataValidationError('كود الحساب والاسم العربي مطلوبان.')
   if (input.normalBalance !== expectedNormalBalance(input.accountType)) {
@@ -108,6 +112,20 @@ export async function upsertAccount(input: AccountInput, accounts: Account[]): P
     throw new DataValidationError('أوقف الحسابات الفرعية النشطة أولًا.')
   }
 
+  if (!input.id && cashBankKind !== 'none') {
+    if (cashBankKind !== 'cash' && cashBankKind !== 'bank') {
+      throw new DataValidationError('نوع حساب الخزنة أو البنك غير صالح.')
+    }
+    if (input.accountType !== 'asset' || input.normalBalance !== 'debit' || !input.isPostable) {
+      throw new DataValidationError('حسابات الخزنة والبنوك يجب أن تكون أصولًا قابلة للترحيل بطبيعة مدينة.')
+    }
+    if (!parent || parent.code !== '1100') {
+      throw new DataValidationError('حسابات الخزنة والبنوك يجب إنشاؤها مباشرة تحت 1100 — النقدية والبنوك.')
+    }
+    await saveAccountWithCashBank({ ...input, code, nameAr, nameEn, cashBankKind })
+    return
+  }
+
   await saveAccount({ ...input, code, nameAr, nameEn }, level)
 }
 
@@ -130,6 +148,13 @@ export async function removeAccount(id: string, accounts: Account[]): Promise<vo
   if (existingChildren(id, accounts).length > 0) {
     throw new DataValidationError('لا يمكن حذف حساب يحتوي على حسابات فرعية. احذف أو انقل الفروع أولًا.')
   }
+
+  const linkedCashBankAccountId = await findLinkedCashBankAccountId(id)
+  if (linkedCashBankAccountId) {
+    await deleteLinkedCashBankAccountByLedger(id)
+    return
+  }
+
   if (await accountHasFinancialReferences(id)) {
     throw new DataValidationError(
       'لا يمكن حذف الحساب لأنه مستخدم في قيود أو مرتبط بالخزنة والبنوك. يمكنك إيقافه بدلًا من الحذف.',

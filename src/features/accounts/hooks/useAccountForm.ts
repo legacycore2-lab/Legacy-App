@@ -1,5 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react'
-import type { Account, AccountInput, AccountType } from '../types/accounts.types'
+import type { Account, AccountCashBankKind, AccountInput, AccountType } from '../types/accounts.types'
 
 type Options = {
   allAccounts: Account[]
@@ -20,6 +20,10 @@ function defaultParentId(accounts: Account[], accountType: AccountType): string 
   )
 }
 
+function cashBankParentId(accounts: Account[]): string | null {
+  return accounts.find((account) => account.code === '1100' && !account.deletedAt)?.id ?? null
+}
+
 function emptyForm(accounts: Account[], accountType: AccountType = 'asset'): AccountInput {
   return {
     code: '',
@@ -30,6 +34,7 @@ function emptyForm(accounts: Account[], accountType: AccountType = 'asset'): Acc
     parentId: defaultParentId(accounts, accountType),
     isPostable: true,
     isActive: true,
+    cashBankKind: 'none',
   }
 }
 
@@ -44,6 +49,7 @@ function toAccountInput(account: Account): AccountInput {
     parentId: account.parentId,
     isPostable: account.isPostable,
     isActive: account.isActive,
+    cashBankKind: 'none',
   }
 }
 
@@ -74,6 +80,18 @@ export function useAccountForm({ allAccounts, editing, onSave, onCancel }: Optio
       accountType,
       normalBalance: accountType === 'asset' || accountType === 'expense' ? 'debit' : 'credit',
       parentId: defaultParentId(allAccounts, accountType),
+      cashBankKind: accountType === 'asset' ? current.cashBankKind : 'none',
+    }))
+  }
+
+  const updateCashBankKind = (cashBankKind: AccountCashBankKind) => {
+    setValue((current) => ({
+      ...current,
+      cashBankKind,
+      accountType: cashBankKind === 'none' ? current.accountType : 'asset',
+      normalBalance: cashBankKind === 'none' ? current.normalBalance : 'debit',
+      parentId: cashBankKind === 'none' ? current.parentId : cashBankParentId(allAccounts),
+      isPostable: cashBankKind === 'none' ? current.isPostable : true,
     }))
   }
 
@@ -93,5 +111,13 @@ export function useAccountForm({ allAccounts, editing, onSave, onCancel }: Optio
     onCancel()
   }
 
-  return { value, update, updateType, submit, cancel, parentAccountOptions }
+  return {
+    value,
+    update,
+    updateType,
+    updateCashBankKind,
+    submit,
+    cancel,
+    parentAccountOptions,
+  }
 }
