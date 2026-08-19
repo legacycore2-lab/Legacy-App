@@ -3,6 +3,7 @@ import {
   deleteLinkedCashBankAccountByLedger,
   findAccounts,
   findLinkedCashBankAccountId,
+  restoreDeletedAccount,
   saveAccount,
   saveAccountWithCashBank,
   setAccountActive,
@@ -11,7 +12,13 @@ import {
   type AccountRecord,
 } from '../repositories/accounts.repository'
 import { DataValidationError } from '../../../shared/errors/app-error'
-import type { Account, AccountInput, AccountType, NormalBalance } from '../types/accounts.types'
+import type {
+  Account,
+  AccountCashBankKind,
+  AccountInput,
+  AccountType,
+  NormalBalance,
+} from '../types/accounts.types'
 
 const MAX_ACCOUNT_LEVEL = 10
 
@@ -28,6 +35,7 @@ function mapAccount(record: AccountRecord): Account {
     isPostable: record.is_postable,
     isActive: record.is_active,
     deletedAt: record.deleted_at,
+    cashBankKind: record.cash_bank_kind ?? 'none',
   }
 }
 
@@ -164,7 +172,11 @@ export async function removeAccount(id: string, accounts: Account[]): Promise<vo
   await setAccountDeleted(id, true)
 }
 
-export async function restoreAccount(id: string, accounts: Account[]): Promise<void> {
+export async function restoreAccount(
+  id: string,
+  accounts: Account[],
+  cashBankKind?: AccountCashBankKind,
+): Promise<void> {
   const account = accounts.find((candidate) => candidate.id === id)
   if (!account) throw new DataValidationError('الحساب غير موجود.')
   if (!account.deletedAt) throw new DataValidationError('الحساب غير محذوف.')
@@ -176,7 +188,15 @@ export async function restoreAccount(id: string, accounts: Account[]): Promise<v
     throw new DataValidationError('استعد الحساب الرئيسي أولًا قبل استعادة هذا الحساب.')
   }
 
-  await setAccountDeleted(id, false)
+  const isCashBankCandidate = parent?.code === '1100' && account.accountType === 'asset' && account.isPostable
+  const storedKind = account.cashBankKind
+  const resolvedKind = storedKind !== 'none' ? storedKind : cashBankKind
+
+  if (isCashBankCandidate && resolvedKind !== 'cash' && resolvedKind !== 'bank') {
+    throw new DataValidationError('حدد هل الحساب بنك أم خزنة قبل الاستعادة.')
+  }
+
+  await restoreDeletedAccount(id, isCashBankCandidate ? resolvedKind : undefined)
 }
 
 export function watchAccounts(onChange: () => void): () => void {

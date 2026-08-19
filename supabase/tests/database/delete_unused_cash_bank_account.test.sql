@@ -68,9 +68,15 @@ select is(
 );
 
 select is(
-  (select count(*) from public.accounts where id = current_setting('test.deleted_ledger_id')::uuid),
-  0::bigint,
-  'automatically generated ledger account is deleted'
+  (
+    select count(*)
+    from public.accounts
+    where id = current_setting('test.deleted_ledger_id')::uuid
+      and deleted_at is not null
+      and is_active = false
+  ),
+  1::bigint,
+  'automatically generated ledger account is soft deleted for restoration'
 );
 
 select * from finish();

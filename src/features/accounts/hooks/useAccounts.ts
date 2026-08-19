@@ -9,7 +9,7 @@ import {
   upsertAccount,
   watchAccounts,
 } from '../services/accounts.service'
-import type { Account, AccountInput, AccountType } from '../types/accounts.types'
+import type { Account, AccountCashBankKind, AccountInput, AccountType } from '../types/accounts.types'
 
 const accountsQueryKey = ['accounts'] as const
 const cashBanksQueryKey = ['cash-banks'] as const
@@ -90,7 +90,8 @@ export function useAccounts() {
   })
 
   const restoreMutation = useMutation({
-    mutationFn: (id: string) => restoreAccount(id, allRecords),
+    mutationFn: ({ id, cashBankKind }: { id: string; cashBankKind?: AccountCashBankKind }) =>
+      restoreAccount(id, allRecords, cashBankKind),
     onSuccess: refreshLinkedAccountViews,
   })
 
@@ -139,7 +140,8 @@ export function useAccounts() {
     onSave: (input: AccountInput) => saveMutation.mutateAsync(input),
     onToggle: (id: string, active: boolean) => toggleMutation.mutate({ id, active }),
     onDelete: (id: string) => deleteMutation.mutateAsync(id),
-    onRestore: (id: string) => restoreMutation.mutateAsync(id),
+    onRestore: (id: string, cashBankKind?: AccountCashBankKind) =>
+      restoreMutation.mutateAsync({ id, cashBankKind }),
     isLoading: query.isLoading,
     isSaving: saveMutation.isPending,
     isDeleting: deleteMutation.isPending || restoreMutation.isPending,

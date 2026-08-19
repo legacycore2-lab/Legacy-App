@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronLeft, Plus, RotateCcw, Search, Trash2 } from 'lucide-react'
 import { accountTypes, getAccountTypeLabel } from '../data/account-options'
-import type { Account, AccountType } from '../types/accounts.types'
+import type { Account, AccountCashBankKind, AccountType } from '../types/accounts.types'
 
 type Props = {
   accounts: Account[]
@@ -19,7 +19,7 @@ type Props = {
   onEdit: (account: Account) => void
   onToggle: (id: string, active: boolean) => void
   onDelete: (id: string) => Promise<unknown>
-  onRestore: (id: string) => Promise<unknown>
+  onRestore: (id: string, cashBankKind?: AccountCashBankKind) => Promise<unknown>
 }
 
 type TreeRow = {
@@ -83,6 +83,7 @@ export function AccountsList({
   onRestore,
 }: Props) {
   const expandAll = search.trim().length > 0
+  const accountById = new Map(accounts.map((account) => [account.id, account]))
 
   return (
     <section className="accounts-list-card">
@@ -177,6 +178,13 @@ export function AccountsList({
                   {rows.map(({ account, depth, hasChildren, isOrphan }) => {
                     const isExpanded = expandAll || expandedIds.has(account.id)
                     const isDeleted = Boolean(account.deletedAt)
+                    const parent = account.parentId ? accountById.get(account.parentId) : undefined
+                    const legacyCashBankNeedsKind =
+                      isDeleted &&
+                      account.cashBankKind === 'none' &&
+                      parent?.code === '1100' &&
+                      account.accountType === 'asset' &&
+                      account.isPostable
                     const kindClassName = [
                       'account-kind-badge',
                       account.isPostable ? 'postable' : 'summary',
@@ -241,15 +249,38 @@ export function AccountsList({
 
                         <div className="account-row-actions">
                           {isDeleted ? (
-                            <button
-                              type="button"
-                              className="account-action-secondary"
-                              disabled={isDeleting}
-                              onClick={() => void onRestore(account.id)}
-                            >
-                              <RotateCcw size={14} aria-hidden="true" />
-                              استعادة
-                            </button>
+                            legacyCashBankNeedsKind ? (
+                              <>
+                                <button
+                                  type="button"
+                                  className="account-action-secondary"
+                                  disabled={isDeleting}
+                                  onClick={() => void onRestore(account.id, 'bank')}
+                                >
+                                  <RotateCcw size={14} aria-hidden="true" />
+                                  استعادة كبنك
+                                </button>
+                                <button
+                                  type="button"
+                                  className="account-action-secondary"
+                                  disabled={isDeleting}
+                                  onClick={() => void onRestore(account.id, 'cash')}
+                                >
+                                  <RotateCcw size={14} aria-hidden="true" />
+                                  استعادة كخزنة
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                type="button"
+                                className="account-action-secondary"
+                                disabled={isDeleting}
+                                onClick={() => void onRestore(account.id)}
+                              >
+                                <RotateCcw size={14} aria-hidden="true" />
+                                استعادة
+                              </button>
+                            )
                           ) : (
                             <>
                               <button
