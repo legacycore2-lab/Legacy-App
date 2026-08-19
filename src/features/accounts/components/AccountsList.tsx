@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronLeft, Plus, Search } from 'lucide-react'
+import { ChevronDown, ChevronLeft, Plus, RotateCcw, Search, Trash2 } from 'lucide-react'
 import { accountTypes, getAccountTypeLabel } from '../data/account-options'
 import type { Account, AccountType } from '../types/accounts.types'
 
@@ -6,14 +6,20 @@ type Props = {
   accounts: Account[]
   search: string
   type: AccountType | 'all'
+  showDeleted: boolean
+  deletedCount: number
   isLoading: boolean
+  isDeleting: boolean
   expandedIds: Set<string>
   onSearchChange: (value: string) => void
   onTypeChange: (value: AccountType | 'all') => void
+  onShowDeletedChange: (value: boolean) => void
   onToggleExpanded: (id: string) => void
   onCreate: () => void
   onEdit: (account: Account) => void
   onToggle: (id: string, active: boolean) => void
+  onDelete: (id: string) => Promise<unknown>
+  onRestore: (id: string) => Promise<unknown>
 }
 
 type TreeRow = {
@@ -61,14 +67,20 @@ export function AccountsList({
   accounts,
   search,
   type,
+  showDeleted,
+  deletedCount,
   isLoading,
+  isDeleting,
   expandedIds,
   onSearchChange,
   onTypeChange,
+  onShowDeletedChange,
   onToggleExpanded,
   onCreate,
   onEdit,
   onToggle,
+  onDelete,
+  onRestore,
 }: Props) {
   const expandAll = search.trim().length > 0
 
@@ -115,6 +127,13 @@ export function AccountsList({
             </option>
           ))}
         </select>
+        <button
+          type="button"
+          className="account-action-secondary"
+          onClick={() => onShowDeletedChange(!showDeleted)}
+        >
+          {showDeleted ? 'إخفاء المحذوفة' : `المحذوفة (${deletedCount})`}
+        </button>
         <span className="accounts-results-count">{accounts.length} حساب</span>
       </div>
 
@@ -139,7 +158,9 @@ export function AccountsList({
             if (groupAccounts.length === 0) return null
 
             const rows = buildTypeTree(groupAccounts, expandedIds, expandAll)
-            const postingCount = groupAccounts.filter((account) => account.isPostable).length
+            const postingCount = groupAccounts.filter(
+              (account) => account.isPostable && !account.deletedAt,
+            ).length
 
             return (
               <section key={group.value} className={`account-type-section type-${group.value}`}>
@@ -155,6 +176,7 @@ export function AccountsList({
                 <div className="account-type-tree">
                   {rows.map(({ account, depth, hasChildren, isOrphan }) => {
                     const isExpanded = expandAll || expandedIds.has(account.id)
+                    const isDeleted = Boolean(account.deletedAt)
                     const kindClassName = [
                       'account-kind-badge',
                       account.isPostable ? 'postable' : 'summary',
@@ -164,6 +186,7 @@ export function AccountsList({
                       <article
                         key={account.id}
                         className={`account-tree-row${account.isActive ? '' : ' inactive'}`}
+                        style={isDeleted ? { opacity: 0.58 } : undefined}
                       >
                         <div
                           className="account-tree-main"
@@ -207,26 +230,62 @@ export function AccountsList({
                           <span className={kindClassName}>{account.isPostable ? 'ترحيل' : 'تجميعي'}</span>
                         </div>
 
-                        <div className={`account-status-badge ${account.isActive ? 'active' : 'inactive'}`}>
+                        <div
+                          className={`account-status-badge ${
+                            isDeleted ? 'inactive' : account.isActive ? 'active' : 'inactive'
+                          }`}
+                        >
                           <span aria-hidden="true" />
-                          {account.isActive ? 'نشط' : 'متوقف'}
+                          {isDeleted ? 'محذوف' : account.isActive ? 'نشط' : 'متوقف'}
                         </div>
 
                         <div className="account-row-actions">
-                          <button
-                            type="button"
-                            className="account-action-primary"
-                            onClick={() => onEdit(account)}
-                          >
-                            تعديل
-                          </button>
-                          <button
-                            type="button"
-                            className="account-action-secondary"
-                            onClick={() => onToggle(account.id, !account.isActive)}
-                          >
-                            {account.isActive ? 'إيقاف' : 'تفعيل'}
-                          </button>
+                          {isDeleted ? (
+                            <button
+                              type="button"
+                              className="account-action-secondary"
+                              disabled={isDeleting}
+                              onClick={() => void onRestore(account.id)}
+                            >
+                              <RotateCcw size={14} aria-hidden="true" />
+                              استعادة
+                            </button>
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                className="account-action-primary"
+                                onClick={() => onEdit(account)}
+                              >
+                                تعديل
+                              </button>
+                              <button
+                                type="button"
+                                className="account-action-secondary"
+                                onClick={() => onToggle(account.id, !account.isActive)}
+                              >
+                                {account.isActive ? 'إيقاف' : 'تفعيل'}
+                              </button>
+                              <button
+                                type="button"
+                                className="account-action-secondary"
+                                disabled={isDeleting}
+                                style={{ borderColor: '#b42318', color: '#b42318' }}
+                                onClick={() => {
+                                  if (
+                                    window.confirm(
+                                      `حذف الحساب «${account.nameAr}»؟ سيختفي من الاستخدام مع الاحتفاظ بسجل الحذف، ولن يُحذف إذا كان عليه قيود أو مرتبطًا بالخزنة والبنوك أو يحتوي على فروع.`,
+                                    )
+                                  ) {
+                                    void onDelete(account.id)
+                                  }
+                                }}
+                              >
+                                <Trash2 size={14} aria-hidden="true" />
+                                حذف
+                              </button>
+                            </>
+                          )}
                         </div>
                       </article>
                     )
