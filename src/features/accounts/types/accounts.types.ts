@@ -14,9 +14,10 @@ export type Account = {
   isPostable: boolean
   isActive: boolean
   deletedAt: string | null
+  cashBankKind: AccountCashBankKind
 }
 
-export type AccountInput = Omit<Account, 'id' | 'level' | 'deletedAt'> & {
+export type AccountInput = Omit<Account, 'id' | 'level' | 'deletedAt' | 'cashBankKind'> & {
   id?: string
   cashBankKind?: AccountCashBankKind
 }
