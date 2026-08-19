@@ -79,7 +79,9 @@ export async function upsertAccount(input: AccountInput, accounts: Account[]): P
   const duplicate = accounts.some((account) => account.code === code && account.id !== input.id)
   if (duplicate) throw new DataValidationError('كود الحساب مستخدم بالفعل.')
 
-  const parent = input.parentId ? accounts.find((account) => account.id === input.parentId) : undefined
+  const parent = input.parentId
+    ? accounts.find((account) => account.id === input.parentId)
+    : undefined
 
   if (input.parentId && !parent) throw new DataValidationError('الحساب الرئيسي غير موجود.')
   if (parent?.deletedAt) throw new DataValidationError('لا يمكن الإضافة تحت حساب رئيسي محذوف.')
@@ -128,7 +130,9 @@ export async function removeAccount(id: string, accounts: Account[]): Promise<vo
   if (!account) throw new DataValidationError('الحساب غير موجود.')
   if (account.deletedAt) throw new DataValidationError('الحساب محذوف بالفعل.')
   if (existingChildren(id, accounts).length > 0) {
-    throw new DataValidationError('لا يمكن حذف حساب يحتوي على حسابات فرعية. احذف أو انقل الفروع أولًا.')
+    throw new DataValidationError(
+      'لا يمكن حذف حساب يحتوي على حسابات فرعية. احذف أو انقل الفروع أولًا.',
+    )
   }
   if (await accountHasFinancialReferences(id)) {
     throw new DataValidationError(
@@ -144,7 +148,9 @@ export async function restoreAccount(id: string, accounts: Account[]): Promise<v
   if (!account) throw new DataValidationError('الحساب غير موجود.')
   if (!account.deletedAt) throw new DataValidationError('الحساب غير محذوف.')
 
-  const parent = account.parentId ? accounts.find((candidate) => candidate.id === account.parentId) : undefined
+  const parent = account.parentId
+    ? accounts.find((candidate) => candidate.id === account.parentId)
+    : undefined
   if (account.parentId && (!parent || parent.deletedAt)) {
     throw new DataValidationError('استعد الحساب الرئيسي أولًا قبل استعادة هذا الحساب.')
   }
