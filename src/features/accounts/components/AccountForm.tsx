@@ -13,6 +13,7 @@ type Props = {
 
 export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }: Props) {
   const form = useAccountForm({ allAccounts, editing, onSave, onCancel })
+  const isCashBankCreation = !editing && form.value.cashBankKind && form.value.cashBankKind !== 'none'
 
   return (
     <form className="account-form" onSubmit={form.submit}>
@@ -25,9 +26,33 @@ export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }
         <p>
           {editing
             ? 'حدّث البيانات وسيظل الحساب داخل نفس منطق الشجرة المحاسبية.'
-            : 'اختر النوع، وسيضع النظام الحساب الجديد تلقائيًا تحت الحساب الرئيسي المناسب.'}
+            : 'يمكن إنشاء حساب عادي أو بنك/خزنة؛ البنك والخزنة سيظهران تلقائيًا في شاشة الخزنة والبنوك.'}
         </p>
       </div>
+
+      {!editing && (
+        <div className="account-form-section account-form-options">
+          <span className="account-form-section-title">استخدام الحساب</span>
+          <label>
+            نوع الاستخدام
+            <select
+              value={form.value.cashBankKind ?? 'none'}
+              onChange={(event) =>
+                form.updateCashBankKind(event.target.value as 'none' | 'cash' | 'bank')
+              }
+            >
+              <option value="none">حساب أستاذ عادي</option>
+              <option value="cash">خزنة</option>
+              <option value="bank">بنك</option>
+            </select>
+            {isCashBankCreation && (
+              <small className="account-field-hint">
+                سيُربط الحساب تلقائيًا بالخزنة والبنوك برصيد افتتاحي صفر وتحت 1100 — النقدية والبنوك.
+              </small>
+            )}
+          </label>
+        </div>
+      )}
 
       <div className="account-form-section">
         <span className="account-form-section-title">البيانات الأساسية</span>
@@ -36,7 +61,7 @@ export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }
           <input
             value={form.value.code}
             onChange={(event) => form.update('code', event.target.value)}
-            placeholder="مثال: 5101"
+            placeholder="مثال: 1101"
             required
           />
         </label>
@@ -45,7 +70,7 @@ export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }
           <input
             value={form.value.nameAr}
             onChange={(event) => form.update('nameAr', event.target.value)}
-            placeholder="مثال: أسمنت"
+            placeholder={isCashBankCreation ? 'مثال: CIB أو الخزنة الرئيسية' : 'مثال: أسمنت'}
             required
           />
         </label>
@@ -66,6 +91,7 @@ export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }
           <select
             value={form.value.accountType}
             onChange={(event) => form.updateType(event.target.value as AccountInput['accountType'])}
+            disabled={Boolean(isCashBankCreation)}
           >
             {accountTypes.map((item) => (
               <option key={item.value} value={item.value}>
@@ -79,6 +105,7 @@ export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }
           <select
             value={form.value.parentId ?? ''}
             onChange={(event) => form.update('parentId', event.target.value || null)}
+            disabled={Boolean(isCashBankCreation)}
           >
             {editing?.parentId === null && <option value="">حساب رئيسي بدون أب</option>}
             {form.parentAccountOptions.map((account) => (
@@ -88,7 +115,9 @@ export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }
             ))}
           </select>
           <small className="account-field-hint">
-            الحساب الرئيسي يتحدد تلقائيًا حسب النوع، ويمكن اختيار فرع تجميعي أدق من نفس النوع.
+            {isCashBankCreation
+              ? 'البنوك والخزن تُنشأ مباشرة تحت حساب 1100 لضمان الربط الموحد.'
+              : 'الحساب الرئيسي يتحدد تلقائيًا حسب النوع، ويمكن اختيار فرع تجميعي أدق من نفس النوع.'}
           </small>
         </label>
       </div>
@@ -100,6 +129,7 @@ export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }
             type="checkbox"
             checked={form.value.isPostable}
             onChange={(event) => form.update('isPostable', event.target.checked)}
+            disabled={Boolean(isCashBankCreation)}
           />
           <span>
             <strong>حساب ترحيل</strong>
