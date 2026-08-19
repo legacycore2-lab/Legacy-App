@@ -36,6 +36,7 @@ const parent: Account = {
   isPostable: false,
   isActive: true,
   deletedAt: null,
+  cashBankKind: 'none',
 }
 
 const child: Account = {
