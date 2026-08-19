@@ -107,7 +107,7 @@ begin
   if exists (select 1 from public.journal_lines where account_id = p_ledger_account_id) then
     raise exception 'لا يمكن حذف حساب مستخدم في قيود يومية. يمكنك إيقافه بدلًا من ذلك.' using errcode = '23503';
   end if;
-  if exists (select 1 from public.advances where ledger_account_id = p_ledger_account_id) then
+  if exists (select 1 from public.advances where advance_ledger_account_id = p_ledger_account_id) then
     raise exception 'لا يمكن حذف حساب مرتبط بالعوهد. يمكنك إيقافه بدلًا من ذلك.' using errcode = '23503';
   end if;
   if exists (select 1 from public.accounts where parent_id = p_ledger_account_id and deleted_at is null) then
