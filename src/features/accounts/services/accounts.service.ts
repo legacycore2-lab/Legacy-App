@@ -196,7 +196,8 @@ export async function restoreAccount(
 
   const isCashBankCandidate =
     parent?.code === '1100' && account.accountType === 'asset' && account.isPostable
-  const resolvedKind = account.cashBankKind !== 'none' ? account.cashBankKind : cashBankKind
+  const resolvedKind =
+    account.cashBankKind !== 'none' ? account.cashBankKind : cashBankKind
 
   if (isCashBankCandidate && resolvedKind !== 'cash' && resolvedKind !== 'bank') {
     throw new DataValidationError('حدد هل الحساب بنك أم خزنة قبل الاستعادة.')
