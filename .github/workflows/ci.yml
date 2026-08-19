@@ -52,13 +52,13 @@ jobs:
         run: |
           set -euo pipefail
           for attempt in 1 2; do
-            if timeout 6m npx playwright install --with-deps chromium; then
+            if timeout 5m npx playwright install chromium; then
               exit 0
             fi
-            echo "Playwright install attempt ${attempt} failed or timed out. Retrying..."
+            echo "Playwright Chromium download attempt ${attempt} failed or timed out. Retrying..."
             sleep 10
           done
-          echo "Playwright browser installation failed after 2 attempts."
+          echo "Playwright Chromium installation failed after 2 attempts."
           exit 1
 
       - name: Run E2E smoke tests
