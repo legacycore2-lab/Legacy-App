@@ -137,7 +137,11 @@ export async function upsertAccount(input: AccountInput, accounts: Account[]): P
   await saveAccount({ ...input, code, nameAr, nameEn }, level)
 }
 
-export async function toggleAccount(id: string, isActive: boolean, accounts: Account[]): Promise<void> {
+export async function toggleAccount(
+  id: string,
+  isActive: boolean,
+  accounts: Account[],
+): Promise<void> {
   const account = accounts.find((candidate) => candidate.id === id)
   if (!account) throw new DataValidationError('الحساب غير موجود.')
   if (account.deletedAt) throw new DataValidationError('لا يمكن تغيير حالة حساب محذوف.')
