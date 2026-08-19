@@ -101,9 +101,9 @@ describe('accounts service', () => {
   })
 
   it('rejects bank or cash creation outside the 1100 parent', async () => {
-    await expect(
-      upsertAccount({ ...validInput, cashBankKind: 'cash' }, [parent]),
-    ).rejects.toThrow('حسابات الخزنة والبنوك يجب إنشاؤها مباشرة تحت 1100 — النقدية والبنوك.')
+    await expect(upsertAccount({ ...validInput, cashBankKind: 'cash' }, [parent])).rejects.toThrow(
+      'حسابات الخزنة والبنوك يجب إنشاؤها مباشرة تحت 1100 — النقدية والبنوك.',
+    )
   })
 
   it('rejects duplicate account codes', async () => {

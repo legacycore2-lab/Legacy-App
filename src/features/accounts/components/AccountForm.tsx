@@ -37,9 +37,7 @@ export function AccountForm({ allAccounts, editing, isSaving, onSave, onCancel }
             نوع الاستخدام
             <select
               value={form.value.cashBankKind ?? 'none'}
-              onChange={(event) =>
-                form.updateCashBankKind(event.target.value as 'none' | 'cash' | 'bank')
-              }
+              onChange={(event) => form.updateCashBankKind(event.target.value as 'none' | 'cash' | 'bank')}
             >
               <option value="none">حساب أستاذ عادي</option>
               <option value="cash">خزنة</option>

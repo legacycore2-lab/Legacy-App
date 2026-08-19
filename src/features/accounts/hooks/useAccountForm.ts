@@ -1,10 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react'
-import type {
-  Account,
-  AccountCashBankKind,
-  AccountInput,
-  AccountType,
-} from '../types/accounts.types'
+import type { Account, AccountCashBankKind, AccountInput, AccountType } from '../types/accounts.types'
 
 type Options = {
   allAccounts: Account[]
