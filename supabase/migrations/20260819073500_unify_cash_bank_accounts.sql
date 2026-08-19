@@ -115,6 +115,31 @@ revoke all on function public.delete_unused_cash_bank_account_by_ledger(uuid) fr
 revoke all on function public.delete_unused_cash_bank_account_by_ledger(uuid) from anon;
 grant execute on function public.delete_unused_cash_bank_account_by_ledger(uuid) to authenticated;
 
+create or replace function public.delete_unused_cash_bank_account(p_cash_bank_account_id uuid)
+returns void
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+declare
+  v_ledger_account_id uuid;
+begin
+  select ledger_account_id into v_ledger_account_id
+  from public.cash_bank_accounts
+  where id = p_cash_bank_account_id;
+
+  if not found then
+    raise exception 'الحساب المطلوب غير موجود.' using errcode = 'P0002';
+  end if;
+
+  perform public.delete_unused_cash_bank_account_by_ledger(v_ledger_account_id);
+end;
+$$;
+
+revoke all on function public.delete_unused_cash_bank_account(uuid) from public;
+revoke all on function public.delete_unused_cash_bank_account(uuid) from anon;
+grant execute on function public.delete_unused_cash_bank_account(uuid) to authenticated;
+
 create or replace function public.sync_account_to_cash_bank()
 returns trigger
 language plpgsql
