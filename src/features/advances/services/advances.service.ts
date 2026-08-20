@@ -182,8 +182,7 @@ const positiveAmount = (value: string) => Number.isFinite(Number(value)) && Numb
 export async function createAdvance(input: CreateAdvanceInput, clientRequestId: string): Promise<string> {
   if (!input.holderName.trim()) throw new Error('اسم حامل العهدة مطلوب.')
   if (input.projectIds.length === 0) throw new Error('اختر مشروعًا واحدًا على الأقل.')
-  if (!input.sourceAccountId || !input.advanceLedgerAccountId)
-    throw new Error('حساب الصرف وحساب العهدة مطلوبان.')
+  if (!input.sourceAccountId) throw new Error('مصدر الصرف مطلوب.')
   if (!input.issueDate || !input.purpose.trim()) throw new Error('تاريخ الصرف والغرض مطلوبان.')
   if (!positiveAmount(input.amount)) throw new Error('المبلغ يجب أن يكون أكبر من صفر.')
   if (!clientRequestId) throw new Error('معرّف الطلب مطلوب.')
