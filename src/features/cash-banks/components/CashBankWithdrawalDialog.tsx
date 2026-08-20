@@ -31,7 +31,9 @@ export function CashBankWithdrawalDialog({ form }: { form: CashBankWithdrawalFor
         <form
           onSubmit={(event) => {
             event.preventDefault()
-            const sourceAccount = form.sourceAccounts.find((account) => account.id === form.value.sourceAccountId)
+            const sourceAccount = form.sourceAccounts.find(
+              (account) => account.id === form.value.sourceAccountId,
+            )
             const amount = Number(form.value.amount)
             if (
               sourceAccount &&
