@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { buildExecutiveViewModel } from './reports.service'
-import { buildProfitLossViewModel } from './profit-loss.service'
-import { mapContractorReportEntry, buildContractorSummaryRows } from './contractor-reports.service'
-import type { ReportProjectRecord } from '../types/report.types'
 import type { ContractorReportEntryRecord } from '../types/contractor-reports.types'
+import type { ReportProjectRecord } from '../types/report.types'
+import { buildContractorSummaryRows, mapContractorReportEntry } from './contractor-reports.service'
+import { buildProfitLossViewModel } from './profit-loss.service'
+import { buildExecutiveViewModel } from './reports.service'
 
 const project: ReportProjectRecord = {
   id: 'p1',
@@ -75,7 +75,13 @@ describe('reversal-aware report aggregation', () => {
 
     const entries = [
       mapContractorReportEntry(base),
-      mapContractorReportEntry({ ...base, id: 'e60', entry_number: 60, amount: -1500, description: 'عكس: شراء' }),
+      mapContractorReportEntry({
+        ...base,
+        id: 'e60',
+        entry_number: 60,
+        amount: -1500,
+        description: 'عكس: شراء',
+      }),
     ]
     const rows = buildContractorSummaryRows(entries)
 
