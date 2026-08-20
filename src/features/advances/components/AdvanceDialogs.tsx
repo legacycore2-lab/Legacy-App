@@ -45,7 +45,7 @@ export function CreateAdvanceDialog({
       sourceAccount &&
       !confirmNegativeBalance({
         accountName: sourceAccount.name,
-        currentBalance: sourceAccount.balance,
+        currentBalance: sourceAccount.balance ?? 0,
         amount,
       })
     ) {
@@ -108,7 +108,7 @@ export function CreateAdvanceDialog({
               <option value="">اختر الخزينة أو البنك</option>
               {options?.cashAccounts.map((item) => (
                 <option key={item.id} value={item.id}>
-                  {item.name} — {item.balance.toLocaleString('ar-EG')} ج.م
+                  {item.name} — {(item.balance ?? 0).toLocaleString('ar-EG')} ج.م
                 </option>
               ))}
             </select>
