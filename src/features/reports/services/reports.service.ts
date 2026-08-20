@@ -167,7 +167,10 @@ export function buildExecutiveViewModel(
   return { summary, topProjects, rows }
 }
 
-export function buildReportsViewModel(projects: ReportProjectRecord[], entries: ReportEntryRecord[]) {
+export function buildReportsViewModel(
+  projects: ReportProjectRecord[],
+  entries: ReportEntryRecord[],
+) {
   const rows = buildProjectReportRows(projects, entries)
   return { rows, summary: buildExecutiveSummary(rows) }
 }
