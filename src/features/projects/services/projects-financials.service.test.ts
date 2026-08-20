@@ -7,10 +7,12 @@ import type { Project } from '../types/project.types'
 
 function row(overrides: Partial<FinancialEntryRow>): FinancialEntryRow {
   return {
+    id: 'entry-1',
     project_id: 'proj-1',
     entry_type: 'expense',
     amount: 1000,
     entry_number: 1,
+    is_reversal: false,
     ...overrides,
   }
 }
@@ -43,8 +45,7 @@ function project(id: string, overrides: Partial<Project> = {}): Project {
 //
 // entry_number is a sequential surrogate key (bigint sequence) on the entries
 // table and is the correct stable key for pagination. It is fetched in
-// FinancialEntryRow but is intentionally excluded from all financial calculations
-// (buildProjectFinancialTotals does not read it).
+// FinancialEntryRow but is intentionally excluded from all financial calculations.
 //
 // Integration test of the pagination loop itself requires a live Supabase
 // connection and is out of scope for unit tests. The pure aggregation logic
@@ -61,8 +62,8 @@ describe('buildProjectFinancialTotals', () => {
 
   it('تاج سلطان: expense 15,000 + 1,000 = 16,000', () => {
     const rows = [
-      row({ project_id: 'taj', entry_type: 'expense', amount: 15000 }),
-      row({ project_id: 'taj', entry_type: 'expense', amount: 1000 }),
+      row({ id: 'e1', project_id: 'taj', entry_type: 'expense', amount: 15000 }),
+      row({ id: 'e2', project_id: 'taj', entry_type: 'expense', amount: 1000 }),
     ]
     const totals = buildProjectFinancialTotals(rows)
     expect(totals.get('taj')?.spent).toBe(16000)
@@ -70,16 +71,39 @@ describe('buildProjectFinancialTotals', () => {
   })
 
   it('income and expense in the same project', () => {
-    const rows = [row({ entry_type: 'income', amount: 20000 }), row({ entry_type: 'expense', amount: 8000 })]
+    const rows = [
+      row({ id: 'income', entry_type: 'income', amount: 20000 }),
+      row({ id: 'expense', entry_type: 'expense', amount: 8000 }),
+    ]
     const totals = buildProjectFinancialTotals(rows)
     expect(totals.get('proj-1')?.received).toBe(20000)
     expect(totals.get('proj-1')?.spent).toBe(8000)
   })
 
+  it('reversal expense cancels the original project expense', () => {
+    const rows = [
+      row({ id: 'original', entry_type: 'expense', amount: 1500 }),
+      row({ id: 'reversal', entry_type: 'expense', amount: 1500, is_reversal: true }),
+    ]
+    const totals = buildProjectFinancialTotals(rows)
+    expect(totals.get('proj-1')?.spent).toBe(0)
+    expect(totals.get('proj-1')?.received).toBe(0)
+  })
+
+  it('reversal income cancels the original project income', () => {
+    const rows = [
+      row({ id: 'original', entry_type: 'income', amount: 2500 }),
+      row({ id: 'reversal', entry_type: 'income', amount: 2500, is_reversal: true }),
+    ]
+    const totals = buildProjectFinancialTotals(rows)
+    expect(totals.get('proj-1')?.received).toBe(0)
+    expect(totals.get('proj-1')?.spent).toBe(0)
+  })
+
   it('multiple projects are aggregated independently', () => {
     const rows = [
-      row({ project_id: 'p1', entry_type: 'expense', amount: 5000 }),
-      row({ project_id: 'p2', entry_type: 'income', amount: 3000 }),
+      row({ id: 'p1-e', project_id: 'p1', entry_type: 'expense', amount: 5000 }),
+      row({ id: 'p2-i', project_id: 'p2', entry_type: 'income', amount: 3000 }),
     ]
     const totals = buildProjectFinancialTotals(rows)
     expect(totals.get('p1')?.spent).toBe(5000)
