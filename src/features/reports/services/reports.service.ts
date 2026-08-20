@@ -1,5 +1,6 @@
 import { normalizeEntryType, parseAmount } from '../../../shared/contractors-helpers'
 import { formatAccountingDate } from '../../../shared/date-utils'
+import { aggregateFinancialTotals } from '../../../shared/finance/amount'
 import { formatMoneyInteger } from '../../../shared/formatters'
 import {
   findReportEntries,
@@ -23,8 +24,6 @@ import type {
 } from '../types/report.types'
 import { parseSignedReportAmount } from './report-amount'
 
-// ─── Internal helpers ─────────────────────────────────────────────────────────
-
 function parseProgress(value: number | string | null): number {
   const n = parseAmount(value)
   return Math.min(100, Math.max(0, Math.round(n)))
@@ -35,8 +34,6 @@ function resolveProjectName(project: ReportJournalEntryRecord['project']): strin
   if (Array.isArray(project)) return project[0]?.name ?? '—'
   return (project as { name: string }).name
 }
-
-// ─── Mappers ──────────────────────────────────────────────────────────────────
 
 export function mapReportProject(
   project: ReportProjectRecord,
@@ -78,8 +75,6 @@ export function mapJournalEntry(record: ReportJournalEntryRecord): ReportJournal
   }
 }
 
-// ─── Project aggregation ──────────────────────────────────────────────────────
-
 function buildFinancialsMap(
   entries: ReportEntryRecord[],
 ): Map<string, { income: number; expense: number; entryCount: number }> {
@@ -111,8 +106,6 @@ export function buildProjectReportRows(
   })
 }
 
-// ─── Summary ──────────────────────────────────────────────────────────────────
-
 export function buildExecutiveSummary(rows: ReportProjectRow[]): ReportsSummary {
   return rows.reduce<ReportsSummary>(
     (acc, row) => ({
@@ -127,12 +120,9 @@ export function buildExecutiveSummary(rows: ReportProjectRow[]): ReportsSummary 
   )
 }
 
-// Kept for backward-compat with existing tests
 export function summarizeReportRows(rows: ReportProjectRow[]): ReportsSummary {
   return buildExecutiveSummary(rows)
 }
-
-// ─── Filter ───────────────────────────────────────────────────────────────────
 
 export function filterReportRows(
   rows: ReportProjectRow[],
@@ -145,11 +135,11 @@ export function filterReportRows(
     if (!includeArchived && row.isArchived) return false
     if (statusFilter && row.status !== statusFilter) return false
     if (!normalized) return true
-    return [row.name, row.code, row.client].some((v) => v.toLocaleLowerCase('ar-EG').includes(normalized))
+    return [row.name, row.code, row.client].some((v) =>
+      v.toLocaleLowerCase('ar-EG').includes(normalized),
+    )
   })
 }
-
-// ─── Top Projects ─────────────────────────────────────────────────────────────
 
 export function buildTopProjects(rows: ReportProjectRow[]): TopProjectsResult {
   const active = rows.filter((r) => !r.isArchived && r.entryCount > 0)
@@ -167,8 +157,6 @@ export function buildTopProjects(rows: ReportProjectRow[]): TopProjectsResult {
   return { profitable, lossMaking }
 }
 
-// ─── Executive ────────────────────────────────────────────────────────────────
-
 export function buildExecutiveViewModel(
   projects: ReportProjectRecord[],
   entries: ReportEntryRecord[],
@@ -179,13 +167,10 @@ export function buildExecutiveViewModel(
   return { summary, topProjects, rows }
 }
 
-// Also kept for backward-compat
 export function buildReportsViewModel(projects: ReportProjectRecord[], entries: ReportEntryRecord[]) {
   const rows = buildProjectReportRows(projects, entries)
   return { rows, summary: buildExecutiveSummary(rows) }
 }
-
-// ─── Projects report ──────────────────────────────────────────────────────────
 
 export function buildProjectsReportViewModel(
   projects: ReportProjectRecord[],
@@ -194,9 +179,9 @@ export function buildProjectsReportViewModel(
   return { allRows: buildProjectReportRows(projects, entries) }
 }
 
-// ─── Journal ──────────────────────────────────────────────────────────────────
-
-export function buildJournalReportViewModel(records: ReportJournalEntryRecord[]): JournalReportViewModel {
+export function buildJournalReportViewModel(
+  records: ReportJournalEntryRecord[],
+): JournalReportViewModel {
   const contractorSet = new Set<string>()
   const paymentSet = new Set<string>()
   const projectMap = new Map<string, string>()
@@ -248,19 +233,19 @@ export function filterJournalRows(
 }
 
 export function summarizeJournalRows(rows: ReportJournalRow[]): JournalSummary {
-  return rows.reduce<JournalSummary>(
-    (acc, row) => {
-      if (row.entryType === 'income') acc.totalIncome += row.amount
-      if (row.entryType === 'expense') acc.totalExpense += row.amount
-      acc.netProfit = acc.totalIncome - acc.totalExpense
-      acc.entryCount += 1
-      return acc
-    },
-    { totalIncome: 0, totalExpense: 0, netProfit: 0, entryCount: 0 },
-  )
-}
+  const financialEntries = rows.flatMap((row) => {
+    if (row.entryType !== 'income' && row.entryType !== 'expense') return []
+    return [{ type: row.entryType, amount: row.amount }]
+  })
+  const totals = aggregateFinancialTotals(financialEntries)
 
-// ─── Smart Insights ───────────────────────────────────────────────────────────
+  return {
+    totalIncome: totals.income,
+    totalExpense: totals.expense,
+    netProfit: totals.net,
+    entryCount: rows.length,
+  }
+}
 
 export function buildSmartInsights(rows: ReportProjectRow[]): SmartInsight[] {
   const insights: SmartInsight[] = []
@@ -286,7 +271,6 @@ export function buildSmartInsights(rows: ReportProjectRow[]): SmartInsight[] {
     return insights
   }
 
-  // Highest profit
   const topProfit = active.reduce((a, b) => (a.net > b.net ? a : b))
   if (topProfit.net > 0) {
     insights.push({
@@ -297,7 +281,6 @@ export function buildSmartInsights(rows: ReportProjectRow[]): SmartInsight[] {
     })
   }
 
-  // Highest expense
   const topExpense = active.reduce((a, b) => (a.expense > b.expense ? a : b))
   if (topExpense.expense > 0) {
     insights.push({
@@ -308,7 +291,6 @@ export function buildSmartInsights(rows: ReportProjectRow[]): SmartInsight[] {
     })
   }
 
-  // Budget risk — expense > 80% of contract value
   for (const r of active) {
     if (r.contractValue > 0 && r.expense / r.contractValue > 0.8) {
       const pct = Math.round((r.expense / r.contractValue) * 100)
@@ -321,7 +303,6 @@ export function buildSmartInsights(rows: ReportProjectRow[]): SmartInsight[] {
     }
   }
 
-  // Loss projects
   for (const r of active) {
     if (r.net < 0) {
       insights.push({
@@ -333,7 +314,6 @@ export function buildSmartInsights(rows: ReportProjectRow[]): SmartInsight[] {
     }
   }
 
-  // Projects without entries (active projects only, archived excluded)
   if (noActivity.length > 0) {
     insights.push({
       id: 'no-activity',
@@ -345,8 +325,6 @@ export function buildSmartInsights(rows: ReportProjectRow[]): SmartInsight[] {
 
   return insights
 }
-
-// ─── Async loaders (used by hooks only) ──────────────────────────────────────
 
 export async function loadExecutiveData(): Promise<ExecutiveViewModel> {
   const [projects, entries] = await Promise.all([findReportProjects(), findReportEntries()])
@@ -362,8 +340,6 @@ export async function loadJournalReportData(): Promise<JournalReportViewModel> {
   const records = await findReportJournalEntries()
   return buildJournalReportViewModel(records)
 }
-
-// ─── Pagination ───────────────────────────────────────────────────────────────
 
 export function paginateRows<T>(rows: T[], page: number, pageSize: number): T[] {
   const clampedPage = Math.max(1, page)
