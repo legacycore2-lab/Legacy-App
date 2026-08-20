@@ -78,9 +78,7 @@ describe('summarizeEntries', () => {
   it('original expense plus reversal returns project impact to zero', () => {
     const entries = [
       mapProjectEntry(makeRecord({ entry_type: 'expense', amount: 1500, id: 'original' })),
-      mapProjectEntry(
-        makeRecord({ entry_type: 'expense', amount: 1500, id: 'reversal', is_reversal: true }),
-      ),
+      mapProjectEntry(makeRecord({ entry_type: 'expense', amount: 1500, id: 'reversal', is_reversal: true })),
     ]
     const s = summarizeEntries(entries)
     expect(s.totalExpense).toBe(0)
