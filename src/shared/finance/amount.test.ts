@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  aggregateFinancialTotals,
-  financialAmount,
-  reverseFinancialAmount,
-} from './amount'
+import { aggregateFinancialTotals, financialAmount, reverseFinancialAmount } from './amount'
 
 describe('shared finance amount helpers', () => {
   it('keeps signed amounts unchanged', () => {
