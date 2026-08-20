@@ -1,4 +1,5 @@
 import { ArrowUpFromLine, LoaderCircle, X } from 'lucide-react'
+import { confirmNegativeBalance } from '../../../shared/finance/negative-balance-warning'
 import { useDialogAccessibility } from '../../../shared/hooks/useDialogAccessibility'
 import type { CashBankWithdrawalFormState } from '../types/cash-banks.types'
 
@@ -30,6 +31,18 @@ export function CashBankWithdrawalDialog({ form }: { form: CashBankWithdrawalFor
         <form
           onSubmit={(event) => {
             event.preventDefault()
+            const sourceAccount = form.sourceAccounts.find((account) => account.id === form.value.sourceAccountId)
+            const amount = Number(form.value.amount)
+            if (
+              sourceAccount &&
+              !confirmNegativeBalance({
+                accountName: sourceAccount.name,
+                currentBalance: sourceAccount.currentBalance,
+                amount,
+              })
+            ) {
+              return
+            }
             void form.submit()
           }}
         >
