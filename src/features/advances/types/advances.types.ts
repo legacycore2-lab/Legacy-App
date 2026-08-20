@@ -126,7 +126,6 @@ export interface AdvanceLedgerOption {
 export interface AdvanceOptions {
   projects: AdvanceProjectOption[]
   cashAccounts: AdvanceAccountOption[]
-  ledgerAccounts: AdvanceLedgerOption[]
   expenseAccounts: AdvanceLedgerOption[]
 }
 
@@ -135,7 +134,6 @@ export interface CreateAdvanceInput {
   holderTitle: string
   projectIds: string[]
   sourceAccountId: string
-  advanceLedgerAccountId: string
   issueDate: string
   dueDate: string
   purpose: string

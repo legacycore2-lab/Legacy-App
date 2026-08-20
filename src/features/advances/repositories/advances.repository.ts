@@ -17,6 +17,9 @@ const ADVANCE_FIELDS =
 const TRANSACTION_FIELDS =
   'id,advance_id,transaction_type,project_id,transaction_date,amount,description,source_record_id,created_at'
 
+const ADVANCE_LEDGER_ACCOUNT_CODE = '1200'
+const ADVANCE_LEDGER_ACCOUNT_NAME_AR = 'عوهد الموظفين'
+
 type AdvancesQuery = {
   offset: number
   limit: number
@@ -51,6 +54,70 @@ function applyAdvanceFilters<T>(request: T, q: Omit<AdvancesQuery, 'offset' | 'l
   if (q.dateFrom) filtered = filtered.gte('issue_date', q.dateFrom) as typeof filtered
   if (q.dateTo) filtered = filtered.lte('issue_date', q.dateTo) as typeof filtered
   return filtered
+}
+
+async function ensureAdvanceLedgerAccountId(): Promise<string> {
+  const client = getSupabaseClient()
+  const { data: existing, error: existingError } = await client
+    .from('accounts')
+    .select('id,name_ar,account_type,is_postable,is_active,deleted_at')
+    .eq('code', ADVANCE_LEDGER_ACCOUNT_CODE)
+    .maybeSingle()
+
+  if (existingError) throw new AppError(existingError.message, 'ADVANCE_LEDGER_LOOKUP_FAILED')
+
+  if (existing) {
+    if (
+      existing.name_ar !== ADVANCE_LEDGER_ACCOUNT_NAME_AR ||
+      existing.account_type !== 'asset' ||
+      !existing.is_postable ||
+      !existing.is_active ||
+      existing.deleted_at
+    ) {
+      throw new AppError(
+        `الحساب ${ADVANCE_LEDGER_ACCOUNT_CODE} مستخدم بالفعل ولا يصلح كحساب ${ADVANCE_LEDGER_ACCOUNT_NAME_AR}.`,
+        'ADVANCE_LEDGER_ACCOUNT_CONFLICT',
+      )
+    }
+    return existing.id
+  }
+
+  const { data: assetRoot, error: assetRootError } = await client
+    .from('accounts')
+    .select('id')
+    .eq('code', '1000')
+    .eq('account_type', 'asset')
+    .eq('is_active', true)
+    .maybeSingle()
+
+  if (assetRootError) {
+    throw new AppError(assetRootError.message, 'ADVANCE_LEDGER_PARENT_LOOKUP_FAILED')
+  }
+  if (!assetRoot) {
+    throw new AppError(
+      'حساب الأصول الرئيسي غير موجود. لا يمكن تجهيز حساب العوهد تلقائيًا.',
+      'ADVANCE_LEDGER_PARENT_MISSING',
+    )
+  }
+
+  const { data: created, error: createError } = await client
+    .from('accounts')
+    .insert({
+      code: ADVANCE_LEDGER_ACCOUNT_CODE,
+      name_ar: ADVANCE_LEDGER_ACCOUNT_NAME_AR,
+      name_en: 'Employee Advances',
+      account_type: 'asset',
+      normal_balance: 'debit',
+      parent_id: assetRoot.id,
+      level: 2,
+      is_postable: true,
+      is_active: true,
+    })
+    .select('id')
+    .single()
+
+  if (createError) throw new AppError(createError.message, 'ADVANCE_LEDGER_CREATE_FAILED')
+  return created.id
 }
 
 export async function findAdvances(): Promise<AdvanceRow[]> {
@@ -134,7 +201,7 @@ export async function findAdvanceTransactions(
 
 export async function findAdvanceOptions(): Promise<AdvanceOptions> {
   const client = getSupabaseClient()
-  const [projects, cashAccounts, ledgerAccounts, expenseAccounts] = await Promise.all([
+  const [projects, cashAccounts, expenseAccounts] = await Promise.all([
     client.from('projects').select('id,name').eq('is_archived', false).order('name'),
     client
       .from('cash_bank_account_balances')
@@ -144,21 +211,12 @@ export async function findAdvanceOptions(): Promise<AdvanceOptions> {
     client
       .from('accounts')
       .select('id,code,name_ar')
-      .eq('account_type', 'asset')
-      .eq('is_postable', true)
-      .eq('is_active', true)
-      .order('code'),
-    client
-      .from('accounts')
-      .select('id,code,name_ar')
       .eq('account_type', 'expense')
       .eq('is_postable', true)
       .eq('is_active', true)
       .order('code'),
   ])
-  const failure = [projects.error, cashAccounts.error, ledgerAccounts.error, expenseAccounts.error].find(
-    Boolean,
-  )
+  const failure = [projects.error, cashAccounts.error, expenseAccounts.error].find(Boolean)
   if (failure) throw new AppError(failure.message, 'ADVANCE_OPTIONS_FETCH_FAILED')
   return {
     projects: (projects.data ?? []).map((item) => ({ id: item.id, name: item.name })),
@@ -167,11 +225,6 @@ export async function findAdvanceOptions(): Promise<AdvanceOptions> {
       name: item.name,
       ledgerAccountId: item.ledger_account_id,
       balance: Number(item.current_balance),
-    })),
-    ledgerAccounts: (ledgerAccounts.data ?? []).map((item) => ({
-      id: item.id,
-      code: item.code,
-      name: item.name_ar,
     })),
     expenseAccounts: (expenseAccounts.data ?? []).map((item) => ({
       id: item.id,
@@ -182,13 +235,14 @@ export async function findAdvanceOptions(): Promise<AdvanceOptions> {
 }
 
 export async function postAdvance(input: CreateAdvanceInput, clientRequestId: string): Promise<string> {
+  const advanceLedgerAccountId = await ensureAdvanceLedgerAccountId()
   const { data, error } = await getSupabaseClient().rpc('post_advance', {
     p_client_request_id: clientRequestId,
     p_holder_name: input.holderName,
     p_holder_title: input.holderTitle || null,
     p_project_ids: input.projectIds,
     p_source_account_id: input.sourceAccountId,
-    p_advance_ledger_account_id: input.advanceLedgerAccountId,
+    p_advance_ledger_account_id: advanceLedgerAccountId,
     p_issue_date: input.issueDate,
     p_due_date: input.dueDate || null,
     p_purpose: input.purpose,

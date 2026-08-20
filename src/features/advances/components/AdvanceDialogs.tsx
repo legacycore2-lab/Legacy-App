@@ -31,7 +31,6 @@ export function CreateAdvanceDialog({
     holderTitle: '',
     projectIds: [],
     sourceAccountId: '',
-    advanceLedgerAccountId: '',
     issueDate: today(),
     dueDate: '',
     purpose: '',
@@ -97,21 +96,6 @@ export function CreateAdvanceDialog({
               {options?.cashAccounts.map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            حساب العهدة
-            <select
-              required
-              value={input.advanceLedgerAccountId}
-              onChange={(e) => setInput({ ...input, advanceLedgerAccountId: e.target.value })}
-            >
-              <option value="">اختر حساب الأستاذ</option>
-              {options?.ledgerAccounts.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.code} - {item.name}
                 </option>
               ))}
             </select>
