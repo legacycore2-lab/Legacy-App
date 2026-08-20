@@ -1,6 +1,7 @@
 import { ArrowDownCircle, ArrowUpCircle, Eye, FileSpreadsheet, FileText, Plus, Search } from 'lucide-react'
 import { useState } from 'react'
 import { useJournalPermissions } from '../hooks/useJournalPermissions'
+import '../styles/journal-reversal.css'
 import type { JournalEntry, JournalFilters, JournalSummary } from '../types/journal.types'
 import { JournalDetailsDialog } from './JournalDetailsDialog'
 import { JournalImportDialog } from './JournalImportDialog'
@@ -170,8 +171,11 @@ export function JournalView({
             </thead>
             <tbody>
               {entries.map((entry) => (
-                <tr key={entry.id}>
-                  <td>#{entry.sequence}</td>
+                <tr key={entry.id} className={entry.isReversal ? 'journal-row--reversal' : undefined}>
+                  <td>
+                    #{entry.sequence}
+                    {entry.isReversal && <span className="journal-reversal-badge">قيد عكسي</span>}
+                  </td>
                   <td>{entry.entryDate}</td>
                   <td>{entry.projectName}</td>
                   <td>
