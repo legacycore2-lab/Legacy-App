@@ -104,7 +104,10 @@ export type FinancialEntryRow = {
   is_reversal?: boolean
 }
 
-function markFinancialReversals(rows: FinancialEntryRow[], reversalEntryIds: Set<string>): FinancialEntryRow[] {
+function markFinancialReversals(
+  rows: FinancialEntryRow[],
+  reversalEntryIds: Set<string>,
+): FinancialEntryRow[] {
   return rows.map((row) => ({ ...row, is_reversal: reversalEntryIds.has(row.id) }))
 }
 
