@@ -179,10 +179,15 @@ export function JournalView({
             </thead>
             <tbody>
               {entries.map((entry) => (
-                <tr key={entry.id} className={entry.isReversal ? 'journal-row--reversal' : undefined}>
+                <tr
+                  key={entry.id}
+                  className={entry.isReversal ? 'journal-row--reversal' : undefined}
+                >
                   <td>
                     #{entry.sequence}
-                    {entry.isReversal && <span className="journal-reversal-badge">قيد عكسي</span>}
+                    {entry.isReversal && (
+                      <span className="journal-reversal-badge">قيد عكسي</span>
+                    )}
                   </td>
                   <td>{entry.entryDate}</td>
                   <td>{entry.projectName}</td>
