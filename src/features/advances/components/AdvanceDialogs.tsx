@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { confirmNegativeBalance } from '../../../shared/finance/negative-balance-warning'
 import type {
   Advance,
   AdvanceOptions,
@@ -38,6 +39,18 @@ export function CreateAdvanceDialog({
   })
   const submit = async (event: React.FormEvent) => {
     event.preventDefault()
+    const sourceAccount = options?.cashAccounts.find((account) => account.id === input.sourceAccountId)
+    const amount = Number(input.amount)
+    if (
+      sourceAccount &&
+      !confirmNegativeBalance({
+        accountName: sourceAccount.name,
+        currentBalance: sourceAccount.balance,
+        amount,
+      })
+    ) {
+      return
+    }
     await onSave(input)
     onClose()
   }
@@ -95,7 +108,7 @@ export function CreateAdvanceDialog({
               <option value="">اختر الخزينة أو البنك</option>
               {options?.cashAccounts.map((item) => (
                 <option key={item.id} value={item.id}>
-                  {item.name}
+                  {item.name} — {item.balance.toLocaleString('ar-EG')} ج.م
                 </option>
               ))}
             </select>
