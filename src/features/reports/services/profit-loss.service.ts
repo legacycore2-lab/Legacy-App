@@ -9,6 +9,7 @@ import type {
   ProfitLossSummary,
   ProfitLossViewModel,
 } from '../types/profit-loss.types'
+import { parseSignedReportAmount } from './report-amount'
 
 function calculateMargin(income: number, net: number): number | null {
   if (income <= 0) return null
@@ -40,7 +41,7 @@ export function buildProfitLossProjectRows(
       entryCount: 0,
     }
     const type = normalizeEntryType(entry.entry_type)
-    const amount = parseAmount(entry.amount)
+    const amount = parseSignedReportAmount(entry.amount)
 
     if (type === 'income') current.income += amount
     if (type === 'expense') current.expense += amount
@@ -80,7 +81,7 @@ export function buildProfitLossMonthlyRows(entries: ProfitLossEntryRecord[]): Pr
 
     const current = months.get(monthKey) ?? { income: 0, expense: 0 }
     const type = normalizeEntryType(entry.entry_type)
-    const amount = parseAmount(entry.amount)
+    const amount = parseSignedReportAmount(entry.amount)
 
     if (type === 'income') current.income += amount
     if (type === 'expense') current.expense += amount

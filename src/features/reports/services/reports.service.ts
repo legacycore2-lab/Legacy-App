@@ -21,6 +21,7 @@ import type {
   SmartInsight,
   TopProjectsResult,
 } from '../types/report.types'
+import { parseSignedReportAmount } from './report-amount'
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
 
@@ -68,7 +69,7 @@ export function mapJournalEntry(record: ReportJournalEntryRecord): ReportJournal
     date: record.entry_date,
     dateFormatted: formatAccountingDate(record.entry_date),
     entryType: normalized ?? 'unknown',
-    amount: parseAmount(record.amount),
+    amount: parseSignedReportAmount(record.amount),
     contractorName: record.contractor_name ?? '—',
     paymentMethod: record.payment_method ?? '—',
     projectId: record.project_id ?? '',
@@ -87,7 +88,7 @@ function buildFinancialsMap(
   for (const entry of entries) {
     const current = map.get(entry.project_id) ?? { income: 0, expense: 0, entryCount: 0 }
     const type = normalizeEntryType(entry.entry_type)
-    const amount = parseAmount(entry.amount)
+    const amount = parseSignedReportAmount(entry.amount)
 
     if (type === 'income') current.income += amount
     if (type === 'expense') current.expense += amount
