@@ -40,6 +40,54 @@ describe('summarizeJournalPage', () => {
       pageNet: 1100,
     })
   })
+
+  it('nets an expense reversal against the original expense', () => {
+    const reversalEntries: JournalEntry[] = [
+      {
+        ...entries[1],
+        id: 'expense-original',
+        amount: 1500,
+      },
+      {
+        ...entries[1],
+        id: 'expense-reversal',
+        amount: 1500,
+        description: 'عكس: شراء خامات',
+        isReversal: true,
+      },
+    ]
+
+    expect(summarizeJournalPage(reversalEntries, 2)).toEqual({
+      totalCount: 2,
+      pageIncome: 0,
+      pageExpense: 0,
+      pageNet: 0,
+    })
+  })
+
+  it('nets an income reversal against the original income', () => {
+    const reversalEntries: JournalEntry[] = [
+      {
+        ...entries[0],
+        id: 'income-original',
+        amount: 2000,
+      },
+      {
+        ...entries[0],
+        id: 'income-reversal',
+        amount: 2000,
+        description: 'عكس: دفعة عميل',
+        isReversal: true,
+      },
+    ]
+
+    expect(summarizeJournalPage(reversalEntries, 2)).toEqual({
+      totalCount: 2,
+      pageIncome: 0,
+      pageExpense: 0,
+      pageNet: 0,
+    })
+  })
 })
 
 describe('normalizeJournalDateRange', () => {
