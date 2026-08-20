@@ -135,9 +135,7 @@ export function filterReportRows(
     if (!includeArchived && row.isArchived) return false
     if (statusFilter && row.status !== statusFilter) return false
     if (!normalized) return true
-    return [row.name, row.code, row.client].some((v) =>
-      v.toLocaleLowerCase('ar-EG').includes(normalized),
-    )
+    return [row.name, row.code, row.client].some((v) => v.toLocaleLowerCase('ar-EG').includes(normalized))
   })
 }
 
@@ -167,10 +165,7 @@ export function buildExecutiveViewModel(
   return { summary, topProjects, rows }
 }
 
-export function buildReportsViewModel(
-  projects: ReportProjectRecord[],
-  entries: ReportEntryRecord[],
-) {
+export function buildReportsViewModel(projects: ReportProjectRecord[], entries: ReportEntryRecord[]) {
   const rows = buildProjectReportRows(projects, entries)
   return { rows, summary: buildExecutiveSummary(rows) }
 }
@@ -182,9 +177,7 @@ export function buildProjectsReportViewModel(
   return { allRows: buildProjectReportRows(projects, entries) }
 }
 
-export function buildJournalReportViewModel(
-  records: ReportJournalEntryRecord[],
-): JournalReportViewModel {
+export function buildJournalReportViewModel(records: ReportJournalEntryRecord[]): JournalReportViewModel {
   const contractorSet = new Set<string>()
   const paymentSet = new Set<string>()
   const projectMap = new Map<string, string>()
