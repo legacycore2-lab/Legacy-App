@@ -1,5 +1,6 @@
 import { ArrowDownLeft, ArrowUpRight, BriefcaseBusiness, WalletCards } from 'lucide-react'
 import { normalizeEntryType } from '../../../shared/contractors-helpers'
+import { aggregateFinancialTotals, financialAmount } from '../../../shared/finance/amount'
 import { dashboardActions } from '../data/dashboard.data'
 import { findDashboardData, subscribeToDashboardChanges } from '../repositories/dashboard.repository'
 import type {
@@ -13,7 +14,7 @@ const numberFormatter = new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 
 
 function toAmount(value: number | string | null): number {
   const amount = Number(value ?? 0)
-  return Number.isFinite(amount) && amount >= 0 ? amount : 0
+  return Number.isFinite(amount) ? financialAmount(amount) : 0
 }
 
 function toProgress(value: number | string | null): number {
@@ -48,16 +49,13 @@ export function buildDashboardTotals(entries: DashboardFinancialEntryRecord[]): 
   totalIncome: number
   totalExpense: number
 } {
-  let totalIncome = 0
-  let totalExpense = 0
-  for (const entry of entries) {
+  const financialEntries = entries.flatMap((entry) => {
     const type = normalizeEntryType(entry.type)
-    if (!type) continue
-    const amount = toAmount(entry.amount)
-    if (type === 'income') totalIncome += amount
-    else totalExpense += amount
-  }
-  return { totalIncome, totalExpense }
+    if (type !== 'income' && type !== 'expense') return []
+    return [{ type, amount: toAmount(entry.amount) }]
+  })
+  const totals = aggregateFinancialTotals(financialEntries)
+  return { totalIncome: totals.income, totalExpense: totals.expense }
 }
 
 function buildProjectNameMap(projects: DashboardProjectRecord[]): Map<string, string> {

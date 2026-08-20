@@ -52,8 +52,16 @@ describe('buildDashboardTotals', () => {
     expect(totalExpense).toBe(0)
   })
 
-  it('negative amount contributes 0', () => {
-    expect(buildDashboardTotals([makeEntry({ type: 'expense', amount: -500 })]).totalExpense).toBe(0)
+  it('preserves negative reversal amounts', () => {
+    expect(buildDashboardTotals([makeEntry({ type: 'expense', amount: -500 })]).totalExpense).toBe(-500)
+  })
+
+  it('original expense and reversal net to zero', () => {
+    const { totalExpense } = buildDashboardTotals([
+      makeEntry({ type: 'expense', amount: 1500 }),
+      makeEntry({ type: 'expense', amount: -1500 }),
+    ])
+    expect(totalExpense).toBe(0)
   })
 
   it('balance = income - expense', () => {
@@ -95,6 +103,14 @@ describe('buildProjectBalances', () => {
       makeEntry({ project_id: 'p1', type: 'expense', amount: 2000 }),
     ]
     expect(buildProjectBalances(entries).get('p1')).toBe(3000)
+  })
+
+  it('expense reversal restores the project balance', () => {
+    const entries = [
+      makeEntry({ project_id: 'p1', type: 'expense', amount: 1500 }),
+      makeEntry({ project_id: 'p1', type: 'expense', amount: -1500 }),
+    ]
+    expect(buildProjectBalances(entries).get('p1')).toBe(0)
   })
 
   it('entries without project_id are ignored', () => {
