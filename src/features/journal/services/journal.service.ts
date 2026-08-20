@@ -13,11 +13,14 @@ import type {
 import { mapJournalDetails, mapJournalEntry } from './journal.mapper'
 
 export function summarizeJournalPage(entries: JournalEntry[], totalCount: number): JournalSummary {
-  const pageIncome = entries.reduce((total, entry) => total + (entry.type === 'income' ? entry.amount : 0), 0)
-  const pageExpense = entries.reduce(
-    (total, entry) => total + (entry.type === 'expense' ? entry.amount : 0),
-    0,
-  )
+  const pageIncome = entries.reduce((total, entry) => {
+    if (entry.type !== 'income') return total
+    return total + (entry.isReversal ? -entry.amount : entry.amount)
+  }, 0)
+  const pageExpense = entries.reduce((total, entry) => {
+    if (entry.type !== 'expense') return total
+    return total + (entry.isReversal ? -entry.amount : entry.amount)
+  }, 0)
 
   return {
     totalCount,
