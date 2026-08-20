@@ -32,6 +32,7 @@ function toAmount(value: number | string): number {
 export function mapJournalEntry(record: JournalEntryRecord): JournalEntry {
   const amount = Number(record.amount)
   if (!Number.isFinite(amount)) throw new DataValidationError('مبلغ القيد غير صالح.')
+  const description = record.description ?? ''
 
   return {
     id: record.id,
@@ -40,10 +41,11 @@ export function mapJournalEntry(record: JournalEntryRecord): JournalEntry {
     projectName: getProjectName(record.project),
     type: normalizeType(record.type),
     category: record.category ?? '',
-    description: record.description ?? '',
+    description,
     contractor: record.contractor ?? '',
     paymentMethod: record.payment_method ?? '',
     amount,
+    isReversal: description.trimStart().startsWith('عكس:'),
   }
 }
 
