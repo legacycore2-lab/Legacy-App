@@ -90,9 +90,15 @@ async function ensureAdvanceLedgerAccountId(): Promise<string> {
     .eq('is_active', true)
     .maybeSingle()
 
-  if (assetRootError) throw new AppError(assetRootError.message, 'ADVANCE_LEDGER_PARENT_LOOKUP_FAILED')
-  if (!assetRoot)
-    throw new AppError('حساب الأصول الرئيسي غير موجود. لا يمكن تجهيز حساب العوهد تلقائيًا.', 'ADVANCE_LEDGER_PARENT_MISSING')
+  if (assetRootError) {
+    throw new AppError(assetRootError.message, 'ADVANCE_LEDGER_PARENT_LOOKUP_FAILED')
+  }
+  if (!assetRoot) {
+    throw new AppError(
+      'حساب الأصول الرئيسي غير موجود. لا يمكن تجهيز حساب العوهد تلقائيًا.',
+      'ADVANCE_LEDGER_PARENT_MISSING',
+    )
+  }
 
   const { data: created, error: createError } = await client
     .from('accounts')
