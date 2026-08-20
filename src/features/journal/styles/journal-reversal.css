@@ -1,0 +1,22 @@
+.journal-table-wrap tr.journal-row--reversal > td {
+  background: color-mix(in srgb, #b42318 7%, var(--surface));
+  border-bottom-color: color-mix(in srgb, #b42318 20%, var(--border));
+}
+
+.journal-table-wrap tr.journal-row--reversal > td:first-child {
+  box-shadow: inset -3px 0 0 #b42318;
+  font-weight: 800;
+}
+
+.journal-reversal-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-inline-start: 8px;
+  padding: 3px 7px;
+  border: 1px solid color-mix(in srgb, #b42318 28%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, #b42318 12%, var(--surface));
+  color: #b42318;
+  font-size: 11px;
+  font-weight: 800;
+}
