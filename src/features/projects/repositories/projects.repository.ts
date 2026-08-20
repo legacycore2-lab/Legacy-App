@@ -76,35 +76,73 @@ export async function findProjectsPage(input: {
   }
 }
 
+type ReversalJournalRow = {
+  source_id: string | null
+}
+
+async function findReversalEntryIds(): Promise<Set<string>> {
+  const rows = await fetchAllWithPagination<ReversalJournalRow>((from, to) =>
+    getSupabaseClient()
+      .from('journals')
+      .select('source_id')
+      .eq('source_type', 'single_line_entry')
+      .not('reversal_of', 'is', null)
+      .not('source_id', 'is', null)
+      .order('id', { ascending: true })
+      .range(from, to),
+  )
+
+  return new Set(rows.flatMap((row) => (row.source_id ? [row.source_id] : [])))
+}
+
 export type FinancialEntryRow = {
+  id: string
   project_id: string
   entry_type: string | null
   amount: number | string | null
   entry_number: number | null
+  is_reversal?: boolean
+}
+
+function markFinancialReversals(
+  rows: FinancialEntryRow[],
+  reversalEntryIds: Set<string>,
+): FinancialEntryRow[] {
+  return rows.map((row) => ({ ...row, is_reversal: reversalEntryIds.has(row.id) }))
 }
 
 export async function findAllProjectFinancialEntries(): Promise<FinancialEntryRow[]> {
-  return fetchAllWithPagination<FinancialEntryRow>((from, to) =>
-    getSupabaseClient()
-      .from('entries')
-      .select('project_id, entry_type, amount, entry_number')
-      .not('project_id', 'is', null)
-      .order('entry_number', { ascending: true })
-      .range(from, to),
-  )
+  const [rows, reversalEntryIds] = await Promise.all([
+    fetchAllWithPagination<FinancialEntryRow>((from, to) =>
+      getSupabaseClient()
+        .from('entries')
+        .select('id, project_id, entry_type, amount, entry_number')
+        .not('project_id', 'is', null)
+        .order('entry_number', { ascending: true })
+        .range(from, to),
+    ),
+    findReversalEntryIds(),
+  ])
+
+  return markFinancialReversals(rows, reversalEntryIds)
 }
 
 export async function findProjectFinancialEntries(projectIds: string[]): Promise<FinancialEntryRow[]> {
   if (projectIds.length === 0) return []
 
-  return fetchAllWithPagination<FinancialEntryRow>((from, to) =>
-    getSupabaseClient()
-      .from('entries')
-      .select('project_id, entry_type, amount, entry_number')
-      .in('project_id', projectIds)
-      .order('entry_number', { ascending: true })
-      .range(from, to),
-  )
+  const [rows, reversalEntryIds] = await Promise.all([
+    fetchAllWithPagination<FinancialEntryRow>((from, to) =>
+      getSupabaseClient()
+        .from('entries')
+        .select('id, project_id, entry_type, amount, entry_number')
+        .in('project_id', projectIds)
+        .order('entry_number', { ascending: true })
+        .range(from, to),
+    ),
+    findReversalEntryIds(),
+  ])
+
+  return markFinancialReversals(rows, reversalEntryIds)
 }
 
 export async function insertProject(record: ProjectInsertRecord): Promise<ProjectRecord> {
@@ -180,7 +218,7 @@ export function subscribeToProjectChanges(onChange: () => void): () => void {
 }
 
 export function subscribeToProjectDetailChanges(onChange: () => void): () => void {
-  return subscribeToTableChanges('project-details', ['projects', 'entries'], onChange)
+  return subscribeToTableChanges('project-details', ['projects', 'entries', 'journals'], onChange)
 }
 
 export type ProjectEntryRecord = {
@@ -193,6 +231,7 @@ export type ProjectEntryRecord = {
   contractor_name: string | null
   payment_method: string | null
   amount: number | string
+  is_reversal?: boolean
 }
 
 export async function findProjectById(id: string): Promise<ProjectRecord | null> {
@@ -206,14 +245,19 @@ export async function findProjectById(id: string): Promise<ProjectRecord | null>
 }
 
 export async function findProjectEntries(projectId: string): Promise<ProjectEntryRecord[]> {
-  return fetchAllWithPagination<ProjectEntryRecord>((from, to) =>
-    getSupabaseClient()
-      .from('entries')
-      .select(
-        'id, seq:entry_number, entry_date, entry_type, category, description, contractor_name, payment_method, amount',
-      )
-      .eq('project_id', projectId)
-      .order('entry_number', { ascending: true })
-      .range(from, to),
-  )
+  const [rows, reversalEntryIds] = await Promise.all([
+    fetchAllWithPagination<ProjectEntryRecord>((from, to) =>
+      getSupabaseClient()
+        .from('entries')
+        .select(
+          'id, seq:entry_number, entry_date, entry_type, category, description, contractor_name, payment_method, amount',
+        )
+        .eq('project_id', projectId)
+        .order('entry_number', { ascending: true })
+        .range(from, to),
+    ),
+    findReversalEntryIds(),
+  ])
+
+  return rows.map((row) => ({ ...row, is_reversal: reversalEntryIds.has(row.id) }))
 }

@@ -13,6 +13,7 @@ function makeRecord(overrides: Partial<ProjectEntryRecord>): ProjectEntryRecord 
     contractor_name: null,
     payment_method: 'cash',
     amount: 1000,
+    is_reversal: false,
     ...overrides,
   }
 }
@@ -45,6 +46,10 @@ describe('mapProjectEntry', () => {
   it('unknown entry preserves real amount', () => {
     expect(mapProjectEntry(makeRecord({ entry_type: 'debit', amount: 4567 })).amount).toBe(4567)
   })
+
+  it('reversal entry maps to the opposite signed financial amount', () => {
+    expect(mapProjectEntry(makeRecord({ amount: 1500, is_reversal: true })).amount).toBe(-1500)
+  })
 })
 
 describe('summarizeEntries', () => {
@@ -68,6 +73,17 @@ describe('summarizeEntries', () => {
     expect(s.balance).toBe(12000)
     expect(s.totalIncome).toBe(20000)
     expect(s.totalExpense).toBe(8000)
+  })
+
+  it('original expense plus reversal returns project impact to zero', () => {
+    const entries = [
+      mapProjectEntry(makeRecord({ entry_type: 'expense', amount: 1500, id: 'original' })),
+      mapProjectEntry(makeRecord({ entry_type: 'expense', amount: 1500, id: 'reversal', is_reversal: true })),
+    ]
+    const s = summarizeEntries(entries)
+    expect(s.totalExpense).toBe(0)
+    expect(s.totalIncome).toBe(0)
+    expect(s.balance).toBe(0)
   })
 
   it('unknown entry does NOT enter income, expense, or balance', () => {
