@@ -1,4 +1,4 @@
-import { normalizeEntryType, parseAmount } from '../../../shared/contractors-helpers'
+import { normalizeEntryType } from '../../../shared/contractors-helpers'
 import { findContractorReportEntries } from '../repositories/reports.repository'
 import type {
   ContractorCategoryRow,
@@ -14,6 +14,7 @@ import type {
   ContractorReportsViewModel,
   ContractorSummaryRow,
 } from '../types/contractor-reports.types'
+import { parseSignedReportAmount } from './report-amount'
 
 const MISSING_CONTRACTOR = 'بدون اسم مقاول'
 const MISSING_PROJECT = 'بدون مشروع'
@@ -36,7 +37,7 @@ export function mapContractorReportEntry(record: ContractorReportEntryRecord): C
     entryNumber: record.entry_number,
     entryDate: record.entry_date,
     entryType: normalizeEntryType(record.entry_type) ?? 'unknown',
-    amount: parseAmount(record.amount),
+    amount: parseSignedReportAmount(record.amount),
     contractorName: record.contractor_name?.trim() || MISSING_CONTRACTOR,
     category: record.category?.trim() || MISSING_CATEGORY,
     description: record.description?.trim() || '—',
