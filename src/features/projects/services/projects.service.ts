@@ -31,6 +31,7 @@ export type ProjectFinancialTotals = {
 
 /**
  * Aggregates income and expense totals per project_id from raw entry rows.
+ * Reversal entries subtract the same financial effect they originally posted.
  * Unknown entry types and invalid amounts are silently ignored.
  * Does not mutate input.
  */
@@ -44,11 +45,12 @@ export function buildProjectFinancialTotals(rows: FinancialEntryRow[]): Map<stri
     const amount = parseAmount(row.amount)
     if (amount === 0) continue // invalid / negative → ignored
 
+    const signedAmount = row.is_reversal ? -amount : amount
     const existing = totals.get(row.project_id) ?? { received: 0, spent: 0 }
     if (type === 'income') {
-      totals.set(row.project_id, { ...existing, received: existing.received + amount })
+      totals.set(row.project_id, { ...existing, received: existing.received + signedAmount })
     } else {
-      totals.set(row.project_id, { ...existing, spent: existing.spent + amount })
+      totals.set(row.project_id, { ...existing, spent: existing.spent + signedAmount })
     }
   }
 
@@ -123,6 +125,7 @@ export function watchProjects(onChange: () => void): () => void {
 export function mapProjectEntry(record: ProjectEntryRecord): ProjectEntry {
   const amount = Number(record.amount)
   const normalised = normalizeEntryType(record.entry_type)
+  const safeAmount = Number.isFinite(amount) ? amount : 0
 
   return {
     id: record.id,
@@ -134,7 +137,7 @@ export function mapProjectEntry(record: ProjectEntryRecord): ProjectEntry {
     description: record.description?.trim() ?? '',
     contractor: record.contractor_name?.trim() ?? '',
     paymentMethod: record.payment_method?.trim() ?? '',
-    amount: Number.isFinite(amount) ? amount : 0,
+    amount: record.is_reversal ? -safeAmount : safeAmount,
   }
 }
 
@@ -163,7 +166,10 @@ function buildProjectAnalytics(entries: ProjectEntry[]): ProjectAnalytics {
     categoryTotals.set(category, (categoryTotals.get(category) ?? 0) + entry.amount)
   })
 
-  const topCategories = [...categoryTotals.entries()].sort((left, right) => right[1] - left[1]).slice(0, 4)
+  const topCategories = [...categoryTotals.entries()]
+    .filter(([, value]) => value > 0)
+    .sort((left, right) => right[1] - left[1])
+    .slice(0, 4)
   const maxCategoryValue = Math.max(1, ...topCategories.map(([, value]) => value))
 
   return {
@@ -287,7 +293,7 @@ export function buildMonthlyCashflow(
     const key = `${year}-${month}`
     if (entry.type === 'income') {
       incomeByMonth.set(key, (incomeByMonth.get(key) ?? 0) + entry.amount)
-    } else {
+    } else if (entry.type === 'expense') {
       expenseByMonth.set(key, (expenseByMonth.get(key) ?? 0) + entry.amount)
     }
   }
@@ -296,8 +302,8 @@ export function buildMonthlyCashflow(
     const key = `${year}-${month}`
     return {
       label: ARABIC_MONTHS[month] ?? '',
-      incomeAmount: incomeByMonth.get(key) ?? 0,
-      expenseAmount: expenseByMonth.get(key) ?? 0,
+      incomeAmount: Math.max(0, incomeByMonth.get(key) ?? 0),
+      expenseAmount: Math.max(0, expenseByMonth.get(key) ?? 0),
     }
   })
 
