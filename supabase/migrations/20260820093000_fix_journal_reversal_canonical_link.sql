@@ -2,11 +2,14 @@
 -- Fix single-line journal reversal to use the canonical reversal_of_id column.
 --
 -- Root cause:
--- reverse_journal_entry wrote the reversal link into the legacy reversal_of
+-- reverse_journal_entry wrote the reversal link only into the legacy reversal_of
 -- column, while validate_journal_status_transition checks reversal_of_id before
 -- allowing the original posted journal to become reversed. The reversal journal
 -- was therefore posted successfully but the final status transition failed and
 -- the transaction rolled back.
+--
+-- The legacy reversal_of column is written as well for application retry
+-- compatibility until all readers are migrated to reversal_of_id.
 
 begin;
 
@@ -101,7 +104,8 @@ begin
     source_type,
     source_id,
     created_by,
-    reversal_of_id
+    reversal_of_id,
+    reversal_of
   )
   values (
     current_date,
@@ -111,6 +115,7 @@ begin
     'single_line_entry',
     v_new_entry_id,
     auth.uid(),
+    v_journal.journal_id,
     v_journal.journal_id
   )
   returning id into v_reversal_id;
