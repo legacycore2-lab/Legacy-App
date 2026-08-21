@@ -17,6 +17,11 @@ function toAmount(value: number | string | null): number {
   return Number.isFinite(amount) ? financialAmount(amount) : 0
 }
 
+function toEffectiveAmount(entry: DashboardFinancialEntryRecord): number {
+  const amount = toAmount(entry.amount)
+  return entry.is_reversal ? -amount : amount
+}
+
 function toProgress(value: number | string | null): number {
   const progress = Number(value ?? 0)
   if (!Number.isFinite(progress)) return 0
@@ -38,7 +43,7 @@ export function buildProjectBalances(entries: DashboardFinancialEntryRecord[]): 
     if (!entry.project_id) continue
     const type = normalizeEntryType(entry.type)
     if (!type) continue
-    const amount = toAmount(entry.amount)
+    const amount = toEffectiveAmount(entry)
     const signedAmount = type === 'income' ? amount : -amount
     balances.set(entry.project_id, (balances.get(entry.project_id) ?? 0) + signedAmount)
   }
@@ -52,7 +57,7 @@ export function buildDashboardTotals(entries: DashboardFinancialEntryRecord[]): 
   const financialEntries = entries.flatMap((entry) => {
     const type = normalizeEntryType(entry.type)
     if (type !== 'income' && type !== 'expense') return []
-    return [{ type, amount: toAmount(entry.amount) }]
+    return [{ type, amount: toEffectiveAmount(entry) }]
   })
   const totals = aggregateFinancialTotals(financialEntries)
   return { totalIncome: totals.income, totalExpense: totals.expense }
