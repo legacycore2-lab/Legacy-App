@@ -3,6 +3,7 @@ export type FinancialEntryType = 'income' | 'expense'
 export interface FinancialAmountEntry {
   type: FinancialEntryType
   amount: number
+  isReversal?: boolean
 }
 
 export interface FinancialTotals {
@@ -11,10 +12,6 @@ export interface FinancialTotals {
   net: number
 }
 
-/**
- * Amounts are intentionally signed.
- * Reversal rows must keep their negative sign so an original/reversal pair nets to zero.
- */
 export function financialAmount(amount: number): number {
   if (!Number.isFinite(amount)) {
     throw new TypeError('Financial amount must be a finite number')
@@ -27,12 +24,17 @@ export function reverseFinancialAmount(amount: number): number {
   return -financialAmount(amount)
 }
 
+export function effectiveFinancialAmount(amount: number, isReversal = false): number {
+  const value = financialAmount(amount)
+  return isReversal ? -value : value
+}
+
 export function aggregateFinancialTotals(entries: readonly FinancialAmountEntry[]): FinancialTotals {
   let income = 0
   let expense = 0
 
   for (const entry of entries) {
-    const amount = financialAmount(entry.amount)
+    const amount = effectiveFinancialAmount(entry.amount, entry.isReversal)
 
     if (entry.type === 'income') {
       income += amount

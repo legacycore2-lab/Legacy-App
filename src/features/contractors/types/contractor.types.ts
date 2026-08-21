@@ -9,6 +9,7 @@ export type ContractorEntryRecord = {
    *  Normalised to 'income'|'expense'|null in the service layer. */
   entry_type: string | null
   amount: number | string
+  is_reversal?: boolean | null
   description: string | null
   entry_number: number | null
   projects: { id: string; name: string } | null
@@ -27,6 +28,7 @@ export type ContractorEntry = {
   /** 'unknown' when the raw DB entry_type could not be normalised */
   entryType: 'income' | 'expense' | 'unknown'
   amount: number
+  isReversal: boolean
   description: string
   seq: number | null
   projectId: string | null
