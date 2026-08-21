@@ -10,6 +10,7 @@ const FIELDS = [
   'entry_date',
   'entry_type',
   'amount',
+  'is_reversal',
   'description',
   'entry_number',
   'projects(id, name)',
