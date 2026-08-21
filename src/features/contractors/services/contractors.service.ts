@@ -16,6 +16,7 @@ import {
   normalizeEntryType,
   parseAmount,
 } from '../../../shared/contractors-helpers'
+import { effectiveFinancialAmount } from '../../../shared/finance/amount'
 
 export const CONTRACTOR_ENTRIES_PAGE_SIZE = 20
 
@@ -39,6 +40,7 @@ export function buildContractors(records: ContractorEntryRecord[]): Contractor[]
     const name = normaliseName(record.contractor_name)
     const key = buildContractorKey(name)
     const amount = parseAmount(record.amount)
+    const effectiveAmount = effectiveFinancialAmount(amount, record.is_reversal === true)
     const entryType = normalizeEntryType(record.entry_type)
 
     const entry: ContractorEntry = {
@@ -46,6 +48,7 @@ export function buildContractors(records: ContractorEntryRecord[]): Contractor[]
       entryDate: record.entry_date,
       entryType: entryType ?? 'unknown',
       amount,
+      isReversal: record.is_reversal === true,
       description: record.description?.trim() ?? '',
       seq: record.entry_number,
       projectId: record.project_id,
@@ -54,8 +57,8 @@ export function buildContractors(records: ContractorEntryRecord[]): Contractor[]
 
     const existing = map.get(key)
     if (existing) {
-      if (entryType === 'income') existing.totalIncome += amount
-      else if (entryType === 'expense') existing.totalExpense += amount
+      if (entryType === 'income') existing.totalIncome += effectiveAmount
+      else if (entryType === 'expense') existing.totalExpense += effectiveAmount
 
       if (entry.entryDate > existing.latestActivityDate) existing.latestActivityDate = entry.entryDate
 
@@ -73,8 +76,8 @@ export function buildContractors(records: ContractorEntryRecord[]): Contractor[]
       map.set(key, {
         name,
         key,
-        totalIncome: entryType === 'income' ? amount : 0,
-        totalExpense: entryType === 'expense' ? amount : 0,
+        totalIncome: entryType === 'income' ? effectiveAmount : 0,
+        totalExpense: entryType === 'expense' ? effectiveAmount : 0,
         latestActivityDate: entry.entryDate,
         projectMap,
         entries: [entry],
