@@ -18,15 +18,20 @@ const DASHBOARD_PROJECT_FIELDS = [
   'created_at',
 ].join(', ')
 
-const DASHBOARD_FINANCIAL_ENTRY_FIELDS = ['project_id', 'type:entry_type', 'amount', 'seq:entry_number'].join(
-  ', ',
-)
+const DASHBOARD_FINANCIAL_ENTRY_FIELDS = [
+  'project_id',
+  'type:entry_type',
+  'amount',
+  'is_reversal',
+  'seq:entry_number',
+].join(', ')
 
 const DASHBOARD_RECENT_ENTRY_FIELDS = [
   'id',
   'project_id',
   'type:entry_type',
   'amount',
+  'is_reversal',
   'description',
   'entry_date',
   'seq:entry_number',

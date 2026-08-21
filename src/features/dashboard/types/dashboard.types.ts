@@ -59,6 +59,7 @@ export type DashboardFinancialEntryRecord = {
   project_id: string | null
   type: string | null
   amount: number | string | null
+  is_reversal: boolean | null
   seq: number | null
 }
 

@@ -7,6 +7,7 @@ function makeEntry(overrides: Partial<DashboardFinancialEntryRecord>): Dashboard
     project_id: 'p1',
     type: 'expense',
     amount: 1000,
+    is_reversal: false,
     seq: 1,
     ...overrides,
   }
@@ -52,14 +53,16 @@ describe('buildDashboardTotals', () => {
     expect(totalExpense).toBe(0)
   })
 
-  it('preserves negative reversal amounts', () => {
-    expect(buildDashboardTotals([makeEntry({ type: 'expense', amount: -500 })]).totalExpense).toBe(-500)
+  it('reversal applies the inverse effect while stored amount stays positive', () => {
+    expect(
+      buildDashboardTotals([makeEntry({ type: 'expense', amount: 500, is_reversal: true })]).totalExpense,
+    ).toBe(-500)
   })
 
-  it('original expense and reversal net to zero', () => {
+  it('original expense and positive stored reversal net to zero', () => {
     const { totalExpense } = buildDashboardTotals([
-      makeEntry({ type: 'expense', amount: 1500 }),
-      makeEntry({ type: 'expense', amount: -1500 }),
+      makeEntry({ type: 'expense', amount: 1500, is_reversal: false }),
+      makeEntry({ type: 'expense', amount: 1500, is_reversal: true }),
     ])
     expect(totalExpense).toBe(0)
   })
@@ -105,10 +108,10 @@ describe('buildProjectBalances', () => {
     expect(buildProjectBalances(entries).get('p1')).toBe(3000)
   })
 
-  it('expense reversal restores the project balance', () => {
+  it('positive stored expense reversal restores the project balance', () => {
     const entries = [
-      makeEntry({ project_id: 'p1', type: 'expense', amount: 1500 }),
-      makeEntry({ project_id: 'p1', type: 'expense', amount: -1500 }),
+      makeEntry({ project_id: 'p1', type: 'expense', amount: 1500, is_reversal: false }),
+      makeEntry({ project_id: 'p1', type: 'expense', amount: 1500, is_reversal: true }),
     ]
     expect(buildProjectBalances(entries).get('p1')).toBe(0)
   })
