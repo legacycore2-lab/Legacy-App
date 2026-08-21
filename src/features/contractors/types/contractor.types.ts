@@ -9,7 +9,7 @@ export type ContractorEntryRecord = {
    *  Normalised to 'income'|'expense'|null in the service layer. */
   entry_type: string | null
   amount: number | string
-  is_reversal: boolean | null
+  is_reversal?: boolean | null
   description: string | null
   entry_number: number | null
   projects: { id: string; name: string } | null
